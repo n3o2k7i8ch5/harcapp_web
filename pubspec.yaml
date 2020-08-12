@@ -24,12 +24,14 @@ dependencies:
 
   implicitly_animated_reorderable_list: 0.2.2
   image_picker_web: 1.0.9
-  palette_generator: 0.2.3
   fluttertoast: 4.0.1
   image_picker: 0.6.7+1
   file_picker_cross: 2.0.0
   #zefyr: 0.11.0
   #quill_delta: 1.0.2
+  image: 2.1.13
+  worker_manager: 2.8.3
+
 
   flutter:
     sdk: flutter

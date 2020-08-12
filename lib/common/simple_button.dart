@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 class SimpleButton extends StatelessWidget{
 
+  static const EdgeInsets MARGIN_DEF = const EdgeInsets.all(10);
+
   final Widget child;
   final Function onTap;
   final Function onLongPress;
@@ -14,7 +16,7 @@ class SimpleButton extends StatelessWidget{
     @required this.child,
     @required this.onTap,
     this.onLongPress,
-    this.padding: const EdgeInsets.all(10),
+    this.padding: MARGIN_DEF,
     this.margin: EdgeInsets.zero,
     this.radius: 10,
     this.enabled: true
