@@ -8,8 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:harcapp_web/article_editor/article_editor.dart';
-import 'package:harcapp_web/article_editor/common.dart';
+
 import 'package:harcapp_web/common/app_text_style.dart';
 import 'package:harcapp_web/common/colors.dart';
 import 'package:harcapp_web/common/dimen.dart';
@@ -17,10 +16,11 @@ import 'package:harcapp_web/common/simple_button.dart';
 import 'package:image/image.dart' as im;
 import 'package:image_picker_web/image_picker_web.dart';
 
-import 'common/author.dart';
-import 'common/float_act_butt.dart';
-import 'common/show_toast.dart';
-
+import '../common/author.dart';
+import '../common/float_act_butt.dart';
+import '../common/show_toast.dart';
+import 'article_editor/article_editor.dart';
+import 'article_editor/common.dart';
 
 class AuthorEditorPage extends StatefulWidget{
 
@@ -94,7 +94,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                               children: [
 
                                 Icon(Icons.account_box, size: 64, color: AppColors.text_hint_enab,),
-                                SizedBox(height: Dimen.icon_margin),
+                                SizedBox(height: Dimen.MARG_ICON),
 
                                 Padding(
                                   padding: EdgeInsets.all(10.0),
@@ -143,7 +143,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                                       children: [
 
                                         Icon(Icons.account_box, color: Colors.white,),
-                                        SizedBox(width: Dimen.icon_margin),
+                                        SizedBox(width: Dimen.MARG_ICON),
                                         Text(
                                           'ZMIEŃ OBRAZ',
                                           style: AppTextStyle(
@@ -170,7 +170,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                       child: Column(
                         children: [
 
-                          SizedBox(height: Dimen.icon_margin),
+                          SizedBox(height: Dimen.MARG_ICON),
 
                           Row(
                             children: [
@@ -235,7 +235,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                             ),
                           ),
 
-                          SizedBox(height: Dimen.icon_margin),
+                          SizedBox(height: Dimen.MARG_ICON),
 
                         ],
                       ),

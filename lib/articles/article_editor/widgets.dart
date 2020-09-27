@@ -1,13 +1,13 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:harcapp_web/article_editor/common.dart';
 import 'package:harcapp_web/common/app_text_style.dart';
 import 'package:harcapp_web/common/colors.dart';
 import 'package:harcapp_web/common/dimen.dart';
 import 'package:implicitly_animated_reorderable_list/implicitly_animated_reorderable_list.dart';
 
 import 'article_editor.dart';
+import 'common.dart';
 
 abstract class ArticleElementWidget<T extends ArticleElement> extends StatelessWidget{
 
@@ -48,7 +48,7 @@ abstract class ArticleElementWidget<T extends ArticleElement> extends StatelessW
 
           Handle(
             child: Padding(
-              padding: EdgeInsets.all(Dimen.icon_margin),
+              padding: EdgeInsets.all(Dimen.MARG_ICON),
               child: Icon(
                 Icons.list,
                 color: Colors.grey,

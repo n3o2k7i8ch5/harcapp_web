@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
-import 'package:harcapp_web/article_editor/common.dart';
+import 'package:harcapp_web/common/app_text_style.dart';
 import 'package:harcapp_web/common/colors.dart';
 import 'package:harcapp_web/common/dimen.dart';
 import 'package:harcapp_web/common/float_act_butt.dart';
@@ -16,10 +16,10 @@ import 'package:harcapp_web/common/show_toast.dart';
 import 'package:harcapp_web/common/simple_button.dart';
 import 'package:image/image.dart' as im;
 
-import '../common/app_text_style.dart';
 import 'article_elements.dart';
 import 'article_top.dart';
 import 'articles_other.dart';
+import 'common.dart';
 
 const double MARGIN = 20.0;
 const double FONT_SIZE_NORM = 16.0;
@@ -153,7 +153,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Padding(
-                                padding: EdgeInsets.all(Dimen.icon_margin),
+                                padding: EdgeInsets.all(Dimen.MARG_ICON),
                                 child: Icon(Icons.add),
                               ),
 
@@ -185,7 +185,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Padding(
-                                padding: EdgeInsets.all(Dimen.icon_margin),
+                                padding: EdgeInsets.all(Dimen.MARG_ICON),
                                 child: Icon(Icons.playlist_add),
                               ),
 

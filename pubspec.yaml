@@ -22,6 +22,9 @@ environment:
 
 dependencies:
 
+  path_provider: 1.6.16
+  provider: ^4.3.2+2
+
   implicitly_animated_reorderable_list: 0.2.2
   image_picker_web: 1.0.9
   fluttertoast: 4.0.1
@@ -31,7 +34,11 @@ dependencies:
   #quill_delta: 1.0.2
   image: 2.1.13
   worker_manager: 2.8.3
-
+  material_design_icons_flutter: 4.0.5555
+  linked_scroll_controller: 0.1.2
+  auto_size_text: 2.1.0
+  avatar_glow: 1.2.0
+  icon_shadow: 1.0.1
 
   flutter:
     sdk: flutter

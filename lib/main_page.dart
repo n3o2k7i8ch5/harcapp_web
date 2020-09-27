@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:harcapp_web/songs/_main.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import 'article_editor/article_editor.dart';
-import 'author_editor.dart';
+import 'articles/_main.dart';
 import 'common/app_text_style.dart';
-import 'common/dimen.dart';
 import 'common/harc_app.dart';
-import 'common/simple_button.dart';
 
 
 class MainPage extends StatefulWidget{
@@ -18,132 +17,74 @@ class MainPage extends StatefulWidget{
 
 class MainPageState extends State<MainPage>{
 
-  PageController controller;
-  int lastSetPage;
+  Widget body;
 
   @override
   void initState() {
-    controller = PageController();
-    lastSetPage = 0;
-
-    controller.addListener(() {
-
-      if(controller.page != lastSetPage &&
-          controller.page==0 || controller.page==1
-      ) {
-        lastSetPage = controller.page.toInt();
-        setState(() {});
-      }
-
-    });
-
+    body = SongsPage();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-
-    return Center(
-      child: Container(
-        constraints: BoxConstraints(maxWidth: 1000),
-        child: Card(
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size(double.infinity, 72),
+        child: Material(
+          color: Colors.white,
           elevation: 6.0,
-          child: Scaffold(
-              appBar: AppBar(
-                backgroundColor: Colors.black,
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    HarcApp(size: 18, color: Colors.white54,),
-                    Text(
-                      'Edytor ${lastSetPage==0?'artykułu':'autora'}',
-                      style: AppTextStyle(fontSize: 14, color: Colors.white54),
-                    )
-                  ],
-                ),
-                actions: [
+          child: Row(
+            children: [
 
-                  TopButton(
-                    title: 'Stwórz artykuł',
-                    icon: Icons.view_headline,
-                    onTap: () => controller.animateToPage(
-                        0,
-                        duration: Duration(milliseconds: 300),
-                        curve: Curves.easeOutQuad
-                    ),
-                    isSelected: lastSetPage == 0,
-                  ),
-
-                  SizedBox(width: Dimen.icon_margin),
-
-                  TopButton(
-                      title: 'Stwórz autora',
-                      icon: Icons.account_circle,
-                      onTap: () => controller.animateToPage(
-                          1,
-                          duration: Duration(milliseconds: 300),
-                          curve: Curves.easeOutQuad
-                      ),
-                      isSelected: lastSetPage == 1
-                  ),
-                  SizedBox(width: Dimen.icon_margin),
-
-
-                ],
+              Padding(
+                padding: EdgeInsets.only(left: 64.0, right: 64.0),
+                child: HarcApp(size: 32.0),
               ),
-              body: PageView(
-                controller: controller,
-                physics: NeverScrollableScrollPhysics(),
-                children: [
-                  ArticleEditorPage(),
-                  AuthorEditorPage()
-                ],
+              PageNavItem(
+                icon: MdiIcons.bookmarkMusicOutline,
+                title: 'Warsztat piosenki',
+                onTap: () => setState(() => body = SongsPage()),
               ),
-              //floatingActionButton:
+              PageNavItem(
+                icon: MdiIcons.feather,
+                title: 'Warsztat artykułów',
+                onTap: () => setState(() => body = ArticlePage()),
+              )
+            ],
           ),
         ),
       ),
+      body: body,
     );
   }
 
 
 }
 
-class TopButton extends StatelessWidget{
+class PageNavItem extends StatelessWidget{
 
-  final String title;
   final IconData icon;
+  final String title;
   final Function onTap;
-  final bool isSelected;
-
-  const TopButton({
-    @required this.title,
+  const PageNavItem({
     @required this.icon,
-    @required this.onTap,
-    this.isSelected: false});
+    @required this.title,
+    @required this.onTap
+  });
 
   @override
   Widget build(BuildContext context) {
-    return SimpleButton(
-      child: Row(
-        children: [
-
-          Padding(
-            padding: EdgeInsets.only(left: Dimen.icon_margin, right: Dimen.icon_margin),
-            child: Icon(icon, color: Colors.white,),
-          ),
-
-          Text(
-            title,
-            style: AppTextStyle(
-              fontSize: FONT_SIZE_NORM,
-              color: Colors.white,
-              fontWeight: isSelected?weight.bold:weight.halfBold,
-            ),
-          ),
-        ],
+    return Container(
+      width: 200,
+      child: ListTile(
+        onTap: onTap,
+        leading: Icon(icon),
+        title: Text(
+          title,
+          style: AppTextStyle(),
+        ),
       ),
-      onTap: isSelected?null:onTap,
     );
   }
+
 }

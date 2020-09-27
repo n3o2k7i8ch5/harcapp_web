@@ -1,12 +1,12 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:harcapp_web/article_editor/widgets.dart';
 import 'package:implicitly_animated_reorderable_list/implicitly_animated_reorderable_list.dart';
 import 'package:implicitly_animated_reorderable_list/transitions.dart';
 
 import 'article_editor.dart';
 import 'common.dart';
+import 'widgets.dart';
 
 class ArticleElementListWidget extends StatefulWidget{
 

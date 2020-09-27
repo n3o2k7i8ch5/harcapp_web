@@ -2,13 +2,14 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:harcapp_web/article_editor/article_editor.dart';
 import 'package:harcapp_web/common/app_text_style.dart';
 import 'package:harcapp_web/common/colors.dart';
 import 'package:harcapp_web/common/dimen.dart';
 import 'package:harcapp_web/common/simple_button.dart';
 import 'package:implicitly_animated_reorderable_list/implicitly_animated_reorderable_list.dart';
 import 'package:implicitly_animated_reorderable_list/transitions.dart';
+
+import 'article_editor.dart';
 
 class ArticlesOther extends StatefulWidget{
 
@@ -35,7 +36,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
             children: [
 
               Padding(
-                padding: EdgeInsets.only(top: Dimen.icon_margin, right: Dimen.icon_margin, left: Dimen.icon_margin),
+                padding: EdgeInsets.only(top: Dimen.MARG_ICON, right: Dimen.MARG_ICON, left: Dimen.MARG_ICON),
                 child: Text(
                   'Odnośniki do innych artykułów:',
                   style: AppTextStyle(
@@ -86,7 +87,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
 
                                   Handle(
                                     child: Padding(
-                                      padding: EdgeInsets.all(Dimen.icon_margin),
+                                      padding: EdgeInsets.all(Dimen.MARG_ICON),
                                       child: Icon(
                                         Icons.list,
                                         color: Colors.grey,
@@ -139,7 +140,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
                         child: Row(
                           children: [
                             Padding(
-                              padding: EdgeInsets.all(Dimen.icon_margin),
+                              padding: EdgeInsets.all(Dimen.MARG_ICON),
                               child: Icon(Icons.add),
                             ),
 
@@ -152,7 +153,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
                               ),
                             ),
 
-                            SizedBox(width: 2*Dimen.icon_margin,)
+                            SizedBox(width: 2*Dimen.MARG_ICON,)
 
                           ],
                         ),
