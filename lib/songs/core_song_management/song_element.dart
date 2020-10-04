@@ -8,8 +8,8 @@ class SongElement{
 
   const SongElement(this._text, this._chords, this._shift);
 
-  static SongElement empty(){
-    return SongElement(PrimitiveWrapper(''), PrimitiveWrapper(''), PrimitiveWrapper(false));
+  static SongElement empty({isRefren: false}){
+    return SongElement(PrimitiveWrapper(''), PrimitiveWrapper(''), PrimitiveWrapper(isRefren));
   }
 
   static SongElement from(String text, String chords, bool shift){
@@ -23,6 +23,14 @@ class SongElement{
       return "\t" + _text.get().replaceAll('\n', '\n\t');
     else
       return _text.get();
+  }
+
+  bool isEmpty(){
+    return _text.get().replaceAll('\n', '').replaceAll(' ', '').length == 0;
+  }
+
+  SongElement copy(){
+    return SongElement.from(_text.get(), _chords.get(), _shift.get());
   }
 
   set chords(String value) => this._chords.set(value);

@@ -4,6 +4,7 @@ import 'package:harcapp_web/common/app_text_style.dart';
 import 'package:harcapp_web/common/color_pack.dart';
 import 'package:harcapp_web/common/dimen.dart';
 import 'package:harcapp_web/songs/core_own_song/providers.dart';
+import 'package:harcapp_web/songs/providers.dart';
 import 'package:implicitly_animated_reorderable_list/implicitly_animated_reorderable_list.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
@@ -256,7 +257,7 @@ class TopZwrotkaButtons extends StatelessWidget{
           icon: Icon(MdiIcons.contentDuplicate, color: iconEnabledColor(context)),
           onPressed: (){
             if(onDuplicate!=null) onDuplicate(songPart);
-            Provider.of<SongPartsProvider>(context, listen: false).add(songPart.copy());
+            Provider.of<CurrentItemProvider>(context, listen: false).addPart(songPart.copy());
           },
         ),
 
@@ -264,7 +265,7 @@ class TopZwrotkaButtons extends StatelessWidget{
           icon: Icon(MdiIcons.trashCanOutline, color: iconEnabledColor(context)),
           onPressed: (){
             if(onDelete!=null) onDelete(songPart);
-            Provider.of<SongPartsProvider>(context, listen: false).remove(songPart);
+            Provider.of<CurrentItemProvider>(context, listen: false).removePart(songPart);
           },
         ),
 
@@ -300,7 +301,7 @@ class TopRefrenButtons extends StatelessWidget{
           icon: Icon(MdiIcons.trashCanOutline, color: iconEnabledColor(context)),
           onPressed: (){
             if(onDelete!=null) onDelete(songPart);
-            Provider.of<SongPartsProvider>(context, listen: false).remove(songPart);
+            Provider.of<CurrentItemProvider>(context, listen: false).removePart(songPart);
           },
         ),
 

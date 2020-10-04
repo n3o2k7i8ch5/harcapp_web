@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 class TagsWidget extends StatelessWidget{
 
   final bool linear;
-  final void Function() onChanged;
+  final void Function(List<String> tags) onChanged;
 
   const TagsWidget({this.linear: true, this.onChanged});
 
@@ -22,7 +22,7 @@ class TagsWidget extends StatelessWidget{
 
         Function onTagClick = (String tag, int i, bool checked){
           prov.neg(i);
-          if(onChanged!=null) onChanged();
+          if(onChanged!=null) onChanged(prov.toList());
         };
 
         return Column(

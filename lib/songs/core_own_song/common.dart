@@ -81,11 +81,7 @@ class SongPart{
   bool get isEmpty => chords.length==0 && getText().length==0;
 
   SongPart copy() => SongPart.from(
-    SongElement(
-      PrimitiveWrapper(_songElement.getText()),
-      PrimitiveWrapper(_songElement.chords),
-      PrimitiveWrapper(_songElement.shift),
-    ),
+    element.copy(),
   );
 
   static SongPart from(SongElement songElement){
@@ -95,7 +91,11 @@ class SongPart{
     );
   }
 
-  const SongPart(this._songElement, this._isError);
+  static empty({isRefren: false}){
+    return SongPart.from(SongElement.empty(isRefren: isRefren));
+  }
+
+  SongPart(this._songElement, this._isError);
 
   bool get isError => _isError.get();
   set isError(bool value) => _isError.set(value);
@@ -104,8 +104,6 @@ class SongPart{
     RefrenPartProvider prov = Provider.of<RefrenPartProvider>(context, listen: false);
     return prov.isRefren(element);
   }
-
-
 
 }
 
@@ -135,6 +133,8 @@ String encodeChords(String chords){
   return output;
 }
 */
+
+/*
 String convertToCode(BuildContext context, String fileName) {
 
   RefrenPartProvider refPartProv = Provider.of<RefrenPartProvider>(context, listen: false);
@@ -144,7 +144,6 @@ String convertToCode(BuildContext context, String fileName) {
   HidTitlesProvider hidTitleProv = Provider.of<HidTitlesProvider>(context, listen: false);
 
   TagsProvider tagsProv = Provider.of<TagsProvider>(context, listen: false);
-  TextCtrlsProvider textCtrlsProv = Provider.of<TextCtrlsProvider>(context, listen: false);
 
   Map map = {};
   map['title'] = textCtrlsProv.controllerTitle.text;
@@ -244,3 +243,4 @@ String convertToCode(BuildContext context, String fileName) {
   }
    */
 }
+*/

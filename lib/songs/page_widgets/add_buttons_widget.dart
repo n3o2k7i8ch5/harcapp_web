@@ -7,6 +7,7 @@ import 'package:harcapp_web/common/dimen.dart';
 import 'package:harcapp_web/songs/core_own_song/common.dart';
 import 'package:harcapp_web/songs/core_own_song/providers.dart';
 import 'package:harcapp_web/songs/core_song_management/song_element.dart';
+import 'package:harcapp_web/songs/providers.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -24,8 +25,8 @@ class AddButtonsWidget extends StatelessWidget{
           child: SimpleButton(
             padding: EdgeInsets.all(Dimen.MARG_ICON),
             onTap: (){
-              SongPartsProvider prov = Provider.of<SongPartsProvider>(context, listen: false);
-              prov.add(SongPart.from(SongElement.empty()));
+              CurrentItemProvider prov = Provider.of<CurrentItemProvider>(context, listen: false);
+              prov.addPart(SongPart.from(SongElement.empty()));
               if(onPressed!=null) onPressed();
             },
             child: Row(
@@ -43,9 +44,9 @@ class AddButtonsWidget extends StatelessWidget{
           child: SimpleButton(
             padding: EdgeInsets.all(Dimen.MARG_ICON),
             onTap: (){
-              SongPartsProvider prov = Provider.of<SongPartsProvider>(context, listen: false);
+              CurrentItemProvider prov = Provider.of<CurrentItemProvider>(context, listen: false);
               RefrenPartProvider refPart = Provider.of<RefrenPartProvider>(context, listen: false);
-              prov.add(SongPart.from(refPart.element));
+              prov.addPart(refPart.part);
               if(onPressed!=null) onPressed();
             },
             child: Row(

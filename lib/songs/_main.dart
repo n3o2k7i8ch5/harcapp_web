@@ -1,26 +1,22 @@
 
-import 'dart:convert';
-import 'dart:typed_data';
 
-import 'package:file_picker_cross/file_picker_cross.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_web/common/app_card.dart';
 import 'package:harcapp_web/common/app_text_style.dart';
-import 'package:harcapp_web/common/color_pack.dart';
 import 'package:harcapp_web/common/dimen.dart';
-import 'package:harcapp_web/common/simple_button.dart';
 import 'package:harcapp_web/songs/core_song_management/song_element.dart';
 import 'package:harcapp_web/songs/page_widgets/add_buttons_widget.dart';
-import 'package:harcapp_web/songs/page_widgets/error_widget.dart';
 import 'package:harcapp_web/songs/page_widgets/refren_template.dart';
 import 'package:harcapp_web/songs/page_widgets/scroll_to_bottom.dart';
 import 'package:harcapp_web/songs/page_widgets/song_parts_list_widget.dart';
 import 'package:harcapp_web/songs/page_widgets/tags_widget.dart';
 import 'package:harcapp_web/songs/page_widgets/top_cards.dart';
+import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/song_part_editor.dart';
 import 'package:harcapp_web/songs/song_widget/providers.dart';
 import 'package:harcapp_web/songs/song_widget/song_widget_template.dart';
+import 'package:harcapp_web/songs/workspace.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -44,13 +40,12 @@ class SongsPageState extends State<SongsPage>{
 
   SongRaw get song => widget.song;
 
-  TextCtrlsProvider textCtrlsProv;
   HidTitlesProvider hidTitleProv;
   ScrollController scrollController;
 
   bool showEditor;
   SongPart part;
-  Function onSongPartChanged;
+  Function() onSongPartChanged;
 
   @override
   void initState(){
@@ -63,56 +58,26 @@ class SongsPageState extends State<SongsPage>{
   Widget build(BuildContext context) {
 
     return MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (context) {
-            hidTitleProv = HidTitlesProvider(hidTitles: song==null?[]:song.hidTitles);
-            return hidTitleProv;
-          }),
-          ChangeNotifierProvider(create: (context) => SongPreviewProvider()),
-          ChangeNotifierProvider(create: (context) => RefrenEnabProvider(song==null?true:song.hasRefren)),
-          ChangeNotifierProvider(create: (context) => RefrenPartProvider(SongPart.from(song==null?SongElement.empty():song.refrenElement))),
-          ChangeNotifierProvider(create: (context) => SongPartsProvider(song==null?[]:song.songElements.map((el) => SongPart.from(el)).toList())),
-          ChangeNotifierProvider(create: (context) => TagsProvider(Tag.ALL_TAG_NAMES, song==null?[]:song.tags)),
-          ChangeNotifierProvider(create: (context){
+      providers: [
+        ChangeNotifierProvider(create: (context) => LoadingProvider()),
+        ChangeNotifierProvider(create: (context) => CurrentItemProvider()),
 
-            TextEditingController controllerTitle = TextEditingController(text: song==null?'':song.title);
-            TextEditingController controllerAuthor = TextEditingController(text: song==null?'':song.author);
-            TextEditingController controllerPerformer = TextEditingController(text: song==null?'':song.performer);
-            TextEditingController controllerYT = TextEditingController(text: song==null?'':song.youtubeLink);
-            TextEditingController controllerAddPers = TextEditingController(text: song==null?'':song.addPers);
+        ChangeNotifierProvider(create: (context) => TitleCtrlProvider()),
+        ChangeNotifierProvider(create: (context) => AuthorCtrlProvider()),
+        ChangeNotifierProvider(create: (context) => PerformerCtrlProvider()),
+        ChangeNotifierProvider(create: (context) => YTCtrlProvider()),
+        ChangeNotifierProvider(create: (context) => AddPersCtrlProvider()),
 
-            controllerTitle.addListener(() {
-              SongPreviewProvider prov = Provider.of<SongPreviewProvider>(context, listen: false);
-              prov.notify();
-            });
-            controllerAuthor.addListener(() {
-              SongPreviewProvider prov = Provider.of<SongPreviewProvider>(context, listen: false);
-              prov.notify();
-            });
-            controllerPerformer.addListener(() {
-              SongPreviewProvider prov = Provider.of<SongPreviewProvider>(context, listen: false);
-              prov.notify();
-            });
-            controllerYT.addListener(() {
-              SongPreviewProvider prov = Provider.of<SongPreviewProvider>(context, listen: false);
-              prov.notify();
-            });
-            controllerAddPers.addListener(() {
-              SongPreviewProvider prov = Provider.of<SongPreviewProvider>(context, listen: false);
-              prov.notify();
-            });
+        ChangeNotifierProvider(create: (context) {
+          hidTitleProv = HidTitlesProvider(hidTitles: song==null?[]:song.hidTitles);
+          return hidTitleProv;
+        }),
+        ChangeNotifierProvider(create: (context) => RefrenEnabProvider(song==null?true:song.hasRefren)),
+        ChangeNotifierProvider(create: (context) => RefrenPartProvider(SongPart.from(song==null?SongElement.empty():song.refrenPart))),
+        //ChangeNotifierProvider(create: (context) => SongPartsProvider(song==null?[]:song.songElements.map((el) => SongPart.from(el)).toList())),
+        ChangeNotifierProvider(create: (context) => TagsProvider(Tag.ALL_TAG_NAMES, song==null?[]:song.tags)),
 
-            textCtrlsProv = TextCtrlsProvider(
-              controllerTitle: controllerTitle,
-              controllerAuthor: controllerAuthor,
-              controllerPerformer: controllerPerformer,
-              controllerYT: controllerYT,
-              controllerAddPers: controllerAddPers,
-            );
-            return textCtrlsProv;
-          }),
-
-        ],
+      ],
       builder: (context, child) => Scaffold(
         body: Stack(
           children: [
@@ -121,11 +86,14 @@ class SongsPageState extends State<SongsPage>{
               children: [
                 Padding(
                   padding: EdgeInsets.all(32),
-                  child: AppCard(
-                    elevation: AppCard.bigElevation,
-                    padding: EdgeInsets.zero,
-                    child: WorkspacePart(),
-                  ),
+                  child: Container(
+                    width: 400,
+                    child: AppCard(
+                      elevation: AppCard.bigElevation,
+                      padding: EdgeInsets.zero,
+                      child: WorkspacePart(),
+                    ),
+                  )
                 ),
 
                 Expanded(
@@ -143,12 +111,33 @@ class SongsPageState extends State<SongsPage>{
                                     children: [
 
                                       HeaderWidget('Informacje ogólne', MdiIcons.textBoxOutline),
-                                      TopCards(),
+                                      TopCards(
+                                        onChangedTitle: (String text){
+                                          CurrentItemProvider currItemProv = Provider.of<CurrentItemProvider>(context, listen: false);
+                                          currItemProv.copyWidth(title: text);
+                                        },
+                                        onChangedAuthor: (String text){
+                                          CurrentItemProvider currItemProv = Provider.of<CurrentItemProvider>(context, listen: false);
+                                          currItemProv.copyWidth(author: text);
+                                        },
+                                        onChangedPerformer: (String text){
+                                          CurrentItemProvider currItemProv = Provider.of<CurrentItemProvider>(context, listen: false);
+                                          currItemProv.copyWidth(performer: text);
+                                        },
+                                        onChangedYT: (String text){
+                                          CurrentItemProvider currItemProv = Provider.of<CurrentItemProvider>(context, listen: false);
+                                          currItemProv.copyWidth(youtubeLink: text);
+                                        },
+                                        onChangedAddPers:  (String text){
+                                          CurrentItemProvider currItemProv = Provider.of<CurrentItemProvider>(context, listen: false);
+                                          currItemProv.copyWidth(addPers: text);
+                                        },
+                                      ),
                                       TagsWidget(
                                         linear: false,
-                                        onChanged: (){
-                                          SongPreviewProvider prov = Provider.of<SongPreviewProvider>(context, listen: false);
-                                          prov.notify();
+                                        onChanged: (List<String> tags){
+                                          CurrentItemProvider prov = Provider.of<CurrentItemProvider>(context, listen: false);
+                                          prov.copyWidth(tags: tags);
                                         },
                                       ),
 
@@ -158,25 +147,29 @@ class SongsPageState extends State<SongsPage>{
                                               this.part = part;
                                               this.showEditor = true;
                                             });
-                                            onSongPartChanged = () => prov.notify();
+                                            onSongPartChanged = getSongPartChangedFunction(prov);
+                                          },
+                                          onRefrenEnabledChaned: (bool value){
+                                            CurrentItemProvider prov = Provider.of<CurrentItemProvider>(context, listen: false);
+                                            prov.copyWidth(hasRefren: value);
                                           }
                                       ),
                                       HeaderWidget('Struktura piosenki', MdiIcons.playlistMusic),
                                       SongPartsListWidget(
-                                        shrinkWrap: true,
-                                        onPartTap: (part, prov) async {
-                                          if(part.isRefren(context)) return;
-                                          setState((){
-                                            this.part = part;
-                                            this.showEditor = true;
-                                          });
+                                          shrinkWrap: true,
+                                          onPartTap: (part, prov) async {
+                                            if(part.isRefren(context)) return;
+                                            setState((){
+                                              this.part = part;
+                                              this.showEditor = true;
+                                            });
 
-                                          onSongPartChanged = () => prov.notify();
-                                        },
-                                        onChanged: (){
-                                          SongPreviewProvider prov = Provider.of<SongPreviewProvider>(context, listen: false);
-                                          prov.notify();
-                                        }
+                                            onSongPartChanged = getSongPartChangedFunction(prov);
+                                          },
+                                          onChanged: (){
+                                            CurrentItemProvider currItemProv = Provider.of<CurrentItemProvider>(context, listen: false);
+                                            currItemProv.notifyListeners();
+                                          },
                                       ),
 
                                     ],
@@ -191,7 +184,9 @@ class SongsPageState extends State<SongsPage>{
                     )
                 ),
 
-                SongPreview(),
+                Consumer<CurrentItemProvider>(
+                  builder: (context, prov, child) => SongPreview(),
+                )
 
               ],
             ),
@@ -203,7 +198,23 @@ class SongsPageState extends State<SongsPage>{
                   ignoring: !showEditor,
                   child: SongEditorDialog(this),
                 )
-            )
+            ),
+
+            Consumer<LoadingProvider>(
+              child: AppCard(
+                elevation: AppCard.bigElevation,
+                padding: EdgeInsets.all(Dimen.MARG_ICON),
+                child: Text('Ładowanie...', style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_APPBAR)),
+              ),
+              builder: (context, prov, child) => AnimatedOpacity(
+                opacity: prov.loading?1:0,
+                duration: Duration(milliseconds: 0),
+                child: AbsorbPointer(
+                  absorbing: prov.loading,
+                  child: Center(child: child),
+                ),
+              ),
+            ),
 
           ],
         ),
@@ -211,56 +222,18 @@ class SongsPageState extends State<SongsPage>{
     );
   }
 
-}
+  Function getSongPartChangedFunction(SongPartProvider prov){
 
-class WorkspacePart extends StatefulWidget{
+    return (){
+      CurrentItemProvider currSongProv = Provider.of<CurrentItemProvider>(context, listen: false);
+      currSongProv.notifyListeners();
+      prov.notify();
+    };
 
-  @override
-  State<StatefulWidget> createState() => WorkspacePartState();
-
-}
-
-class WorkspacePartState extends State<WorkspacePart>{
-
-  @override
-  Widget build(BuildContext context) {
-
-    return Container(
-      width: 400,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          HeaderWidget(
-            'Przestrzeń robocza',
-            MdiIcons.toolboxOutline,
-            enabled: false,
-          ),
-          Expanded(child: Center(
-            child: SimpleButton(
-                radius: 100,
-                margin: EdgeInsets.all(Dimen.MARG_ICON),
-                padding: EdgeInsets.all(Dimen.MARG_ICON),
-                child: Text('Importuj piosenki', style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_BIG), textAlign: TextAlign.center),
-                onTap: ()async{
-
-                  FilePickerCross filePikcer = FilePickerCross();
-                  bool picked = await filePikcer.pick();
-                  if(picked){
-                    Uint8List uint8List = filePikcer.toUint8List();
-                    String code = utf8.decode(uint8List);
-                    print(code);
-                  }
-
-                }
-            ),
-          ))
-        ],
-      ),
-    );
   }
 
 }
+
 
 class SongEditorDialog extends StatelessWidget{
 
@@ -284,27 +257,7 @@ class SongEditorDialog extends StatelessWidget{
                 padding: EdgeInsets.all(32),
                 child: Container(
                     width: 500,
-                    child: SongPartEditor(
-                      parent.part,
-                      isRefren: parent.part.isRefren(context),
-                      onTextChanged: (){
-                        parent.onSongPartChanged();
-                        SongPreviewProvider prov = Provider.of<SongPreviewProvider>(context, listen: false);
-                        prov.notify();
-                      },
-                      onChordsChanged: (){
-                        parent.onSongPartChanged();
-                        SongPreviewProvider prov = Provider.of<SongPreviewProvider>(context, listen: false);
-                        prov.notify();
-                      },
-                      onShiftChanged: (){
-                        parent.onSongPartChanged();
-                        SongPreviewProvider prov = Provider.of<SongPreviewProvider>(context, listen: false);
-                        prov.notify();
-                      },
-                      topBuilder: (context, state) => ButtonsWidget(state),
-                      bottomBuilder: (context, state) => ErrorListWidget(state, true),
-                    )
+                    child: SongPartEditor(parent.part, onSongPartChanged: parent.onSongPartChanged)
                 ),
               )
             ),
@@ -340,18 +293,14 @@ class SongPreview extends StatelessWidget{
                         ],
                         builder: (context, child) => Container(
                           width: 400,
-                          child: Consumer<SongPreviewProvider>(
-                            builder: (context, prov, child){
-                              print('new new new');
-                              return SongWidgetTemplate(
-                                  SongRaw.parse('o!_fileName', convertToCode(context, 'o!_fileName'))
-                              );
+                          child: Consumer<CurrentItemProvider>(
+                            builder: (context, currItemProv, child){
+                              return SongWidgetTemplate<SongRaw>(currItemProv.song);
                             }
                           )
                         ),
                       ),
                     )
-
                   ],
                 )
             ),
@@ -359,10 +308,4 @@ class SongPreview extends StatelessWidget{
         }
     );
   }
-}
-
-class SongPreviewProvider extends ChangeNotifier{
-
-  void notify() => notifyListeners();
-
 }

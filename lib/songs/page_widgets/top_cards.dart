@@ -5,18 +5,31 @@ import 'package:harcapp_web/common/core_comm_widgets/animated_child_slider.dart'
 import 'package:harcapp_web/common/core_comm_widgets/app_text_field_hint.dart';
 import 'package:harcapp_web/common/core_comm_widgets/simple_button.dart';
 import 'package:harcapp_web/common/dimen.dart';
-import 'package:harcapp_web/songs/core_own_song/providers.dart';
+import 'package:harcapp_web/songs/providers.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../core_own_song/providers.dart';
+
+
 class TopCards extends StatelessWidget{
 
-  const TopCards();
+  final Function(String) onChangedTitle;
+  final Function(String) onChangedAuthor;
+  final Function(String) onChangedPerformer;
+  final Function(String) onChangedYT;
+  final Function(String) onChangedAddPers;
+
+  const TopCards({
+    this.onChangedTitle,
+    this.onChangedAuthor,
+    this.onChangedPerformer,
+    this.onChangedYT,
+    this.onChangedAddPers,
+  });
 
   @override
   Widget build(BuildContext context) {
-
-    TextCtrlsProvider prov = Provider.of<TextCtrlsProvider>(context);
 
     return Padding(
       padding: EdgeInsets.all(Dimen.DEF_MARG),
@@ -26,41 +39,44 @@ class TopCards extends StatelessWidget{
           Row(
             children: [
               Expanded(
-                child: AppTextFieldHint(
-                  hint: 'Tytuł:',
-                  controller: prov.controllerTitle,
-                  style: AppTextStyle(
-                    fontSize: Dimen.TEXT_SIZE_BIG,
-                    fontWeight: weight.halfBold,
-                    color: textEnabled(context),
-                  ),
-                  hintStyle: AppTextStyle(
-                    fontSize: Dimen.TEXT_SIZE_NORMAL,
-                    color: hintEnabled(context),
-                  ),
+                child: Consumer<TitleCtrlProvider>(
+                  builder: (context, prov, child) => AppTextFieldHint(
+                    controller: prov.controller,
+                    hint: 'Tytuł:',
+                    style: AppTextStyle(
+                      fontSize: Dimen.TEXT_SIZE_BIG,
+                      fontWeight: weight.halfBold,
+                      color: textEnabled(context),
+                    ),
+                    hintStyle: AppTextStyle(
+                      fontSize: Dimen.TEXT_SIZE_NORMAL,
+                      color: hintEnabled(context),
+                    ),
+                    onChanged: onChangedTitle,
+                  )
                 ),
               ),
               Consumer<HidTitlesProvider>(
-                builder: (context, provider, child) =>
-                  AnimatedChildSlider(
-                    index: provider.hasAny?1:0,
-                    children: [
-                      IconButton(
-                        icon: Icon(MdiIcons.plus),
-                        onPressed: (){
-                          HidTitlesProvider prov = Provider.of<HidTitlesProvider>(context, listen: false);
-                          prov.add();
-                        },
-                      ),
+                  builder: (context, provider, child) =>
+                      AnimatedChildSlider(
+                        index: provider.hasAny?1:0,
+                        children: [
+                          IconButton(
+                            icon: Icon(MdiIcons.plus),
+                            onPressed: (){
+                              HidTitlesProvider prov = Provider.of<HidTitlesProvider>(context, listen: false);
+                              prov.add();
+                            },
+                          ),
 
-                      IconButton(
-                        icon: Icon(MdiIcons.informationOutline),
-                        onPressed: (){
-                          //AppScaffold.showSnackBar(context, 'Tytuły ukryte są dodatkowymi kluczami wyszukwiania piosneki.');
-                        },
+                          IconButton(
+                            icon: Icon(MdiIcons.informationOutline),
+                            onPressed: (){
+                              //AppScaffold.showSnackBar(context, 'Tytuły ukryte są dodatkowymi kluczami wyszukwiania piosneki.');
+                            },
+                          )
+                        ],
                       )
-                    ],
-                  )
               )
             ],
           ),
@@ -95,59 +111,71 @@ class TopCards extends StatelessWidget{
             ),
           ),
 
-          AppTextFieldHint(
-            hint: 'Autor słów:',
-            controller: prov.controllerAuthor,
-            style: AppTextStyle(
-              fontSize: Dimen.TEXT_SIZE_BIG,
-              fontWeight: weight.halfBold,
-              color: textEnabled(context),
-            ),
-            hintStyle: AppTextStyle(
-              fontSize: Dimen.TEXT_SIZE_NORMAL,
-              color: hintEnabled(context),
-            ),
-          ),
-
-          AppTextFieldHint(
-            hint: 'Wykonawca:',
-            controller: prov.controllerPerformer,
-            style: AppTextStyle(
-              fontSize: Dimen.TEXT_SIZE_BIG,
-              fontWeight: weight.halfBold,
-              color: textEnabled(context),
-            ),
-            hintStyle: AppTextStyle(
-              fontSize: Dimen.TEXT_SIZE_NORMAL,
-              color: hintEnabled(context),
+          Consumer<AuthorCtrlProvider>(
+            builder: (context, prov, child) => AppTextFieldHint(
+              controller: prov.controller,
+              hint: 'Autor słów:',
+              style: AppTextStyle(
+                fontSize: Dimen.TEXT_SIZE_BIG,
+                fontWeight: weight.halfBold,
+                color: textEnabled(context),
+              ),
+              hintStyle: AppTextStyle(
+                fontSize: Dimen.TEXT_SIZE_NORMAL,
+                color: hintEnabled(context),
+              ),
+              onChanged: onChangedAuthor,
             ),
           ),
 
-          AppTextFieldHint(
-            hint: 'Link YouTube:',
-            controller: prov.controllerYT,
-            style: AppTextStyle(
-              fontSize: Dimen.TEXT_SIZE_BIG,
-              fontWeight: weight.halfBold,
-              color: textEnabled(context),
-            ),
-            hintStyle: AppTextStyle(
-              fontSize: Dimen.TEXT_SIZE_NORMAL,
-              color: hintEnabled(context),
+          Consumer<PerformerCtrlProvider>(
+            builder: (context, prov, child) => AppTextFieldHint(
+                controller: prov.controller,
+                hint: 'Wykonawca:',
+                style: AppTextStyle(
+                  fontSize: Dimen.TEXT_SIZE_BIG,
+                  fontWeight: weight.halfBold,
+                  color: textEnabled(context),
+                ),
+                hintStyle: AppTextStyle(
+                  fontSize: Dimen.TEXT_SIZE_NORMAL,
+                  color: hintEnabled(context),
+                ),
+                onChanged: onChangedPerformer
             ),
           ),
 
-          AppTextFieldHint(
-            hint: 'Os. dodająca:',
-            controller: prov.controllerAddPers,
-            style: AppTextStyle(
-              fontSize: Dimen.TEXT_SIZE_BIG,
-              fontWeight: weight.halfBold,
-              color: textEnabled(context),
+          Consumer<YTCtrlProvider>(
+            builder: (context, prov, child) => AppTextFieldHint(
+              controller: prov.controller,
+              hint: 'Link YouTube:',
+              style: AppTextStyle(
+                fontSize: Dimen.TEXT_SIZE_BIG,
+                fontWeight: weight.halfBold,
+                color: textEnabled(context),
+              ),
+              hintStyle: AppTextStyle(
+                fontSize: Dimen.TEXT_SIZE_NORMAL,
+                color: hintEnabled(context),
+              ),
+              onChanged: onChangedYT,
             ),
-            hintStyle: AppTextStyle(
-              fontSize: Dimen.TEXT_SIZE_NORMAL,
-              color: hintEnabled(context),
+          ),
+
+          Consumer<AddPersCtrlProvider>(
+            builder: (context, prov, child) => AppTextFieldHint(
+              controller: prov.controller,
+              hint: 'Os. dodająca:',
+              style: AppTextStyle(
+                fontSize: Dimen.TEXT_SIZE_BIG,
+                fontWeight: weight.halfBold,
+                color: textEnabled(context),
+              ),
+              hintStyle: AppTextStyle(
+                fontSize: Dimen.TEXT_SIZE_NORMAL,
+                color: hintEnabled(context),
+              ),
+              onChanged: onChangedAddPers,
             ),
           ),
 
@@ -169,7 +197,7 @@ class AddTextWidget extends StatelessWidget{
       children: [
 
         IconButton(
-          icon: Icon(MdiIcons.close, size: Dimen.ICON_SIZE/2),
+          icon: Icon(MdiIcons.close),
           onPressed: (){
             HidTitlesProvider prov = Provider.of<HidTitlesProvider>(context, listen: false);
             prov.remove(controller);

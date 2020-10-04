@@ -8,6 +8,7 @@ import 'package:harcapp_web/songs/core_own_song/common.dart';
 import 'package:harcapp_web/songs/core_own_song/providers.dart';
 import 'package:harcapp_web/songs/core_own_song/song_part_card.dart';
 import 'package:harcapp_web/songs/page_widgets/scroll_to_bottom.dart';
+import 'package:harcapp_web/songs/providers.dart';
 import 'package:implicitly_animated_reorderable_list/implicitly_animated_reorderable_list.dart';
 import 'package:implicitly_animated_reorderable_list/transitions.dart';
 import 'package:provider/provider.dart';
@@ -20,7 +21,7 @@ class SongPartsListWidget extends StatelessWidget{
   final bool refrenTapable;
   final Function(SongPart, SongPartProvider) onPartTap;
   final bool shrinkWrap;
-  final Function onChanged;
+  final Function() onChanged;
 
   const SongPartsListWidget({
     this.controller,
@@ -34,14 +35,19 @@ class SongPartsListWidget extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SongPartsProvider>(
+    return Consumer<CurrentItemProvider>(
+    //return Consumer<SongPartsProvider>(
       builder: (context, prov, _) => ImplicitlyAnimatedReorderableList<SongPart>(
         physics: BouncingScrollPhysics(),
         controller: controller,
-        items: prov.all,
+        //items: prov.all,
+        items: prov.song.songParts,
         insertDuration: Duration(milliseconds: 200),
         areItemsTheSame: (oldItem, newItem) => oldItem.hashCode == newItem.hashCode,
-        onReorderFinished: (item, from, to, newItems) => prov.all..clear()..addAll(newItems),
+        //onReorderFinished: (item, from, to, newItems) => prov.all..clear()..addAll(newItems),
+        onReorderFinished: (item, from, to, newItems){
+          prov.copyWidth(songParts: newItems);
+        },
         itemBuilder: (context, itemAnimation, item, index) {
 
           return Reorderable(
@@ -67,7 +73,12 @@ class SongPartsListWidget extends StatelessWidget{
                           songPart: item,
                           topBuilder: (context, part){
                             if(part.isRefren(context))
-                              return TopRefrenButtons(part);
+                              return TopRefrenButtons(
+                                part,
+                                onDelete: (songPart){
+                                  if(onChanged!=null) onChanged();
+                                },
+                              );
                             else
                               return TopZwrotkaButtons(
                                 part,
@@ -80,7 +91,7 @@ class SongPartsListWidget extends StatelessWidget{
                                 },
                               );
                           },
-                          onTap: !refrenTapable && item.isRefren(context)?null:() => onPartTap(item, prov)
+                          onTap: !refrenTapable && item.isRefren(context)?null:() => onPartTap(item, prov),
                       ),
                     ),
                   ),

@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:harcapp_web/songs/core_own_song/common.dart';
 import 'package:harcapp_web/songs/core_song_management/song_core.dart';
 import 'package:harcapp_web/songs/song_widget/song_rate.dart';
 
@@ -21,140 +22,206 @@ class SongRaw implements SongCore{
 
   bool get official =>
       fileName.length > 3 && fileName.substring(0, 3) == 'o!_' ||
-      fileName.length > 4 && fileName.substring(0, 4) == 'oc!_';
+          fileName.length > 4 && fileName.substring(0, 4) == 'oc!_';
 
   final List<String> tags;
 
   final bool hasRefren;
-  final SongElement refrenElement;
+  final SongPart refrenPart;
 
-  final List<SongElement> songElements;
+  final List<SongPart> songParts;
 
   final bool hasChords;
 
-  final String text;
-  final String chords;
+  //final String text;
+  //final String chords;
 
-  SongRaw(
-      this.fileName,
-      this.title,
-      this.hidTitles,
-      this.author,
-      this.performer,
-      this.addPers,
-      this.youtubeLink,
+  SongRaw({
+    this.fileName,
+    this.title,
+    this.hidTitles,
+    this.author,
+    this.performer,
+    this.addPers,
+    this.youtubeLink,
 
-      this.tags,
+    this.tags,
 
-      this.hasRefren,
-      this.refrenElement,
+    this.hasRefren,
+    this.refrenPart,
 
-      this.songElements,
-      this.hasChords,
+    this.songParts,
+    this.hasChords,
 
-      this.text,
-      this.chords,
-    );
+    //this.text,
+    //this.chords,
+  });
 
-  static SongRaw parse(String fileName, String code) {
-    bool hasRefren = false;
-    bool hasChords = false;
-
-    Map<String, dynamic> map = jsonDecode(code)[fileName];
-
-    String title = map['title'];
-    List<String> addTitles = (map['hid_titles'] as List).cast<String>();
-    String author = map['text_author'];
-    String performer = map['performer'];
-    String ytLink = map['yt_link'];
-    String moderator = map['add_pers'];
-    List<String> tags = (map['tags'] as List).cast<String>();
-    SongElement refren;
-    if (map.containsKey('refren')) {
-      hasRefren = true;
-      Map refrenMap = map['refren'];
-      refren = SongElement.from(refrenMap['text'], refrenMap['chords'], true);
-    }
-
-    String songChords = '';
-    String songText = '';
-
-    List<SongElement> songElements = [];
-    List<dynamic> partsList = map['parts'];
-    for (Map partMap in partsList) {
-      if (partMap.containsKey('refren'))
-        for (int i = 0; i < partMap['refren']; i++) {
-          songElements.add(refren);
-          songText += refren.getText(withTabs: true);
-          songChords += refren.chords;
-
-          int textLines =  refren.getText(withTabs: true).split("\n").length;
-          int chodsLines = refren.chords.split("\n").length;
-
-          for(int j=0; j<chodsLines-textLines; j++)
-            songText += '\n';
-          for(int j=0; j<textLines-chodsLines; j++)
-            songChords += '\n';
-
-          if(songChords.replaceAll('\n', '').length != 0)
-            hasChords = true;
-
-        }
-      else {
-        SongElement songElement = SongElement.from(partMap['text'], partMap['chords'], partMap['shift']);
-        songElements.add(songElement);
-        songText += songElement.getText();
-        songChords += songElement.chords;
-
-        int textLines = songText.split('\n').length;
-        int chodsLines = songChords.split('\n').length;
-        for(int j=0; j < chodsLines - textLines; j++)
-          songText += '\n';
-        for(int j=0; j < textLines - chodsLines; j++)
-          songChords += '\n';
-
-        if(songChords.replaceAll('\n', '').length != 0)
-          hasChords = true;
-
-      }
-
-      songText += '\n\n';
-      songChords += '\n\n';
-
-    }
-
-    //remove last '\n'
-    if(songText.length>0)
-      songText = songText.substring(0, songText.length - 2).replaceAll('\t', TAB_CHAR);
-
-    if(songChords.length>0)
-      songChords = songChords.substring(0, songChords.length -2);
+  static SongRaw empty(){
 
     return SongRaw(
-      fileName,
-      title,
-      addTitles,
-      author,
-      performer,
-      moderator,
-      ytLink,
-
-      tags,
-
-      hasRefren,
-      refren,
-
-      songElements,
-      hasChords,
-
-      songText,
-      songChords,
+        fileName: '',
+        title: '',
+        hidTitles: [],
+        author: '',
+        performer: '',
+        addPers: '',
+        youtubeLink: '',
+        tags: [],
+        hasRefren: false,
+        refrenPart: SongPart.empty(),
+        songParts: [],
+        hasChords: false,
+        //text: '',
+        //chords: ''
     );
+  }
+
+  static SongRaw parse(String fileName, String code) {
+    Map<String, dynamic> map = jsonDecode(code)[fileName];
+    return fromMap(fileName, map);
   }
 
   static SongRaw from(String codeBase64){
     String code = Utf8Decoder().convert(Base64Codec().decode(codeBase64).toList());
     return SongRaw.parse('_shared', code);
+  }
+
+  static SongRaw fromMap(String fileName, Map map){
+    bool hasRefren = false;
+    bool hasChords = false;
+
+    String title = map['title'];
+    List<String> hidTitles = (map['hid_titles'] as List).cast<String>();
+    String author = map['text_author'];
+    String performer = map['performer'];
+    String youtubeLink = map['yt_link'];
+    String addPers = map['add_pers'];
+    List<String> tags = (map['tags'] as List).cast<String>();
+    SongPart refrenPart;
+    if (map.containsKey('refren')) {
+      hasRefren = true;
+      Map refrenMap = map['refren'];
+      refrenPart = SongPart.from(SongElement.from(refrenMap['text'], refrenMap['chords'], true));
+    }
+
+    List<SongPart> songParts = [];
+    List<dynamic> partsList = map['parts'];
+    for (Map partMap in partsList) {
+      if (partMap.containsKey('refren'))
+        for (int i = 0; i < partMap['refren']; i++) {
+          songParts.add(refrenPart);
+
+          if(refrenPart.chords.replaceAll('\n', '').length != 0)
+            hasChords = true;
+
+        }
+      else {
+        SongPart songPart = SongPart.from(SongElement.from(partMap['text'], partMap['chords'], partMap['shift']));
+        songParts.add(songPart);
+
+      }
+    }
+
+    return SongRaw(
+      fileName: fileName,
+      title: title,
+      hidTitles: hidTitles,
+      author: author,
+      performer: performer,
+      addPers: addPers,
+      youtubeLink: youtubeLink,
+
+      tags: tags,
+
+      hasRefren: hasRefren,
+      refrenPart: refrenPart,
+
+      songParts: songParts,
+      hasChords: hasChords,
+    );
+  }
+
+  String get text{
+
+    String text = '';
+
+    for (SongPart part in songParts) {
+
+      text += part.getText(withTabs: part.shift);
+
+      int textLines =  part.getText(withTabs: part.shift).split("\n").length;
+      int chodsLines = part.chords.split("\n").length;
+
+      for(int j=0; j<chodsLines-textLines; j++)
+        text += '\n';
+
+      text += '\n\n';
+    }
+
+    if(text.length>0) text = text.substring(0, text.length-2);
+
+    return text;
+  }
+
+  String get chords{
+
+    String chords = '';
+
+    for (SongPart part in songParts) {
+
+      chords += part.chords;
+
+      int textLines =  part.getText(withTabs: part.shift).split("\n").length;
+      int chodsLines = part.chords.split("\n").length;
+
+      for(int j=0; j<textLines-chodsLines; j++)
+        chords += '\n';
+
+      chords += '\n\n';
+    }
+
+    if(chords.length>0) chords = chords.substring(0, chords.length-2);
+
+    return chords;
+  }
+
+  SongRaw copyWith({
+    String fileName,
+    String title,
+    List<String> hidTitles,
+    String author,
+    String performer,
+    String addPers,
+    String youtubeLink,
+
+    List<String> tags,
+
+    bool hasRefren,
+    SongPart refrenPart,
+
+    List<SongPart> songParts,
+    bool hasChords,
+
+    String text,
+    String chords,
+  }){
+    return SongRaw(
+        fileName: fileName??this.fileName,
+        title: title??this.title,
+        hidTitles: hidTitles??this.hidTitles,
+        author: author??this.author,
+        performer: performer??this.performer,
+        addPers: addPers??this.addPers,
+        youtubeLink: youtubeLink??this.youtubeLink,
+        tags: tags??this.tags,
+
+        hasRefren: hasRefren??this.hasRefren,
+        refrenPart: refrenPart??this.refrenPart,
+
+        songParts: songParts??this.songParts,
+        hasChords: hasChords??this.hasChords,
+    );
   }
 
   String convertToCode(){
@@ -169,27 +236,27 @@ class SongRaw implements SongCore{
 
     map['tags'] = tags;
 
-    if(hasRefren)
+    if(hasRefren && !refrenPart.isEmpty)
       map['refren'] = {
-        'text': refrenElement.getText(),
-        'chords': refrenElement.chords,
+        'text': refrenPart.getText(),
+        'chords': refrenPart.chords,
         'shift': true
       };
 
     List<Map> parts = [];
 
     int refCount = 0;
-    for (SongElement element in songElements) {
+    for (SongPart part in songParts) {
 
-      if (element == null) {
+      if (part == null) {
         refCount++;
         continue;
 
       }else {
         parts.add({
-          'text': element.getText(),
-          'chords': element.chords,
-          'shift': element.shift
+          'text': part.getText(),
+          'chords': part.chords,
+          'shift': part.shift
         });
       }
 

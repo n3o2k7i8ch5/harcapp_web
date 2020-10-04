@@ -6,58 +6,56 @@ import 'package:harcapp_web/common/dimen.dart';
 import 'package:harcapp_web/songs/core_own_song/errors.dart';
 import 'package:provider/provider.dart';
 
-import '../song_part_editor.dart';
+import 'common_song_part_editor.dart';
 
 class ErrorListWidget extends StatelessWidget{
 
-  final SongPartEditorState parent;
+  final SongPartEditorTemplateState parent;
   final showErrBar;
   const ErrorListWidget(this.parent, this.showErrBar);
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ErrorProvider<ChordsMissingError>>(builder: (context, chordsMissingErrorProv, child) {
+    return Consumer2<ErrorProvider<ChordsMissingError>, ErrorProvider<TextTooLongError>>(
+        builder: (context, chordsMissingErrorProv, textTooLongErrorProv, child) {
 
-      return Consumer<ErrorProvider<TextTooLongError>>(builder: (context, textTooLongErrorProv, child) {
+          List<ErrorInfoLine> errorLines = [];
 
-        List<ErrorInfoLine> errorLines = [];
+          int chordsMissingErrIdx = 0;
+          int textTooLongErrIdx = 0;
 
-        int chordsMissingErrIdx = 0;
-        int textTooLongErrIdx = 0;
+          int idx = 0;
+          while(!(
+              chordsMissingErrIdx >= chordsMissingErrorProv.length &&
+                  textTooLongErrIdx >= textTooLongErrorProv.length
+          )){
+            SongEditError err = chordsMissingErrorProv.errorAt(idx);
+            if(err != null){
+              chordsMissingErrIdx++;
+              errorLines.add(ErrorInfoLine(err));
+            }
 
-        int idx = 0;
-        while(!(
-            chordsMissingErrIdx >= chordsMissingErrorProv.length &&
-                textTooLongErrIdx >= textTooLongErrorProv.length
-        )){
-          SongEditError err = chordsMissingErrorProv.errorAt(idx);
-          if(err != null){
-            chordsMissingErrIdx++;
-            errorLines.add(ErrorInfoLine(err));
+            err = textTooLongErrorProv.errorAt(idx);
+            if(err != null){
+              textTooLongErrIdx++;
+              errorLines.add(ErrorInfoLine(err));
+            }
+
+            idx++;
           }
 
-          err = textTooLongErrorProv.errorAt(idx);
-          if(err != null){
-            textTooLongErrIdx++;
-            errorLines.add(ErrorInfoLine(err));
-          }
+          return AnimatedContainer(
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeOutQuad,
+            constraints: BoxConstraints(maxHeight: showErrBar?140:0,),
+            child: ListView(
+                shrinkWrap: true,
+                physics: BouncingScrollPhysics(),
+                children: errorLines
+            ),
+          );
 
-          idx++;
-        }
-
-        return AnimatedContainer(
-          duration: Duration(milliseconds: 300),
-          curve: Curves.easeOutQuad,
-          constraints: BoxConstraints(maxHeight: showErrBar?140:0,),
-          child: ListView(
-              shrinkWrap: true,
-              physics: BouncingScrollPhysics(),
-              children: errorLines
-          ),
-        );
-
-      });
-    });
+        });
   }
 
 }

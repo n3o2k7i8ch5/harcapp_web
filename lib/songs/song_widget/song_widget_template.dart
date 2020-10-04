@@ -127,8 +127,6 @@ class SongWidgetTemplateState<T extends SongCore> extends State<SongWidgetTempla
 
   List<Widget> widgets = [];
 
-  //double wantedFontSize;
-
   Orientation oldOrientation;
 
   GlobalKey contentCardsKey;

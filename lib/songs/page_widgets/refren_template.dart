@@ -14,7 +14,9 @@ import 'package:provider/provider.dart';
 class RefrenTemplate extends StatelessWidget{
 
   final Function(SongPart, RefrenPartProvider) onPartTap;
-  const RefrenTemplate({this.onPartTap});
+  final Function(bool value) onRefrenEnabledChaned;
+
+  const RefrenTemplate({this.onPartTap, this.onRefrenEnabledChaned});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +45,12 @@ class RefrenTemplate extends StatelessWidget{
                             ),
                             Expanded(child:Container()),
                             SizedBox(width: 34),
-                            Switch(onChanged: (bool value) => refEnabProv.refEnab = !refEnabProv.refEnab, value: refEnabProv.refEnab),
+                            Switch(
+                                value: refEnabProv.refEnab,
+                                onChanged: (bool value){
+                                  refEnabProv.refEnab = !refEnabProv.refEnab;
+                                  if(onRefrenEnabledChaned != null) onRefrenEnabledChaned(value);
+                                }),
                           ]
                       ),
                     ),

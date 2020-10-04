@@ -1,8 +1,82 @@
 
 import 'package:flutter/widgets.dart';
+import 'package:harcapp_web/common/core_comm_widgets/tag_layout.dart';
 import 'package:harcapp_web/songs/core_song_management/song_element.dart';
+import 'package:harcapp_web/songs/core_song_management/song_raw.dart';
 
 import 'common.dart';
+
+
+class CurrentItemProvider extends ChangeNotifier{
+
+  SongRaw _song;
+
+  CurrentItemProvider({SongRaw song}){
+    _song = song??SongRaw.empty();
+  }
+
+  SongRaw get song => _song;
+  set song(SongRaw value){
+    _song = value;
+    notifyListeners();
+  }
+
+  copyWidth({
+    String fileName,
+    String title,
+    List<String> hidTitles,
+    String author,
+    String performer,
+    String addPers,
+    String youtubeLink,
+
+    List<String> tags,
+
+    bool hasRefren,
+    SongPart refrenPart,
+
+    List<SongPart> songParts,
+    bool hasChords,
+
+    String text,
+    String chords,
+  }){
+    _song = _song.copyWith(
+        fileName: fileName,
+        title: title,
+        hidTitles: hidTitles,
+        author: author,
+        performer: performer,
+        addPers: addPers,
+        youtubeLink: youtubeLink,
+
+        tags: tags,
+
+        hasRefren: hasRefren,
+
+        refrenPart: refrenPart,
+
+        songParts: songParts,
+
+        hasChords: hasChords,
+
+        text: text,
+        chords: chords
+    );
+
+    notifyListeners();
+  }
+
+  removePart(SongPart part){
+    _song.songParts.remove(part);
+    notifyListeners();
+  }
+  addPart(SongPart part){
+    _song.songParts.add(part);
+    notifyListeners();
+  }
+
+}
 
 class HidTitlesProvider extends ChangeNotifier{
 
@@ -18,7 +92,7 @@ class HidTitlesProvider extends ChangeNotifier{
     _isLastEmpty = hidTitles==null || (hidTitles.length > 0 && hidTitles.last.length==0);
   }
 
-  void add({hidTitle}){
+  void add({String hidTitle, Function() onChanged}){
     TextEditingController controller = TextEditingController(text: hidTitle??'');
     _isLastEmpty = controller.text.length==0;
     controller.addListener(() {
@@ -33,6 +107,9 @@ class HidTitlesProvider extends ChangeNotifier{
       }
     });
 
+    if(onChanged != null)
+      controller.addListener(onChanged);
+
     _controllers.add(controller);
 
     notifyListeners();
@@ -42,6 +119,8 @@ class HidTitlesProvider extends ChangeNotifier{
     _controllers.remove(controller);
     notifyListeners();
   }
+
+  List<String> get() => _controllers.map((ctrl) => ctrl.text).toList();
 
   bool get isLastEmpty => _controllers.last.text.length==0;
 
@@ -129,55 +208,29 @@ class RefrenEnabProvider extends ChangeNotifier{
 
 }
 
-class RefrenPartProvider extends ChangeNotifier{
+class RefrenPartProvider extends SongPartProvider{
 
-  SongPart _part;
+  RefrenPartProvider(SongPart part):super(part);
 
-  RefrenPartProvider(SongPart part){
-    _part = part;
-  }
-
-  String get chords => _part.chords;
+  String get chords => part.chords;
   set chords(String value){
-    _part.chords = value;
+    part.chords = value;
     notifyListeners();
   }
 
-  String getText() => _part.getText();
-  void setText(String text) => _part.setText(text);
+  String getText() => part.getText();
+  void setText(String text) => part.setText(text);
 
 
-  bool isRefren(SongElement element) => element == _part.element;
+  bool isRefren(SongElement element) => element == part.element;
 
-  SongPart get part => _part;
-  SongElement get element => _part.element;
-  bool get isError => _part.isError;
+  SongElement get element => part.element;
+  bool get isError => part.isError;
 
   void notify() => notifyListeners();
 
 }
 
-class SongPartsProvider extends ChangeNotifier{
-
-  List<SongPart> _songParts;
-
-  SongPartsProvider(List<SongPart> songParts){
-    _songParts = songParts;
-  }
-
-  List<SongPart> get all => _songParts;
-
-  void add(SongPart part){
-    _songParts.add(part);
-    notifyListeners();
-  }
-
-  void remove(SongPart part){
-    _songParts.remove(part);
-    notifyListeners();
-  }
-
-}
 
 class TagsProvider extends ChangeNotifier{
   List<bool> tagsChecked;
@@ -186,11 +239,24 @@ class TagsProvider extends ChangeNotifier{
     tagsChecked = allTagNames.map((t) => tags.contains(t)).toList();
   }
 
+  set(List<String> allTagNames, List<String> tags){
+    tagsChecked = allTagNames.map((t) => tags.contains(t)).toList();
+    notifyListeners();
+  }
+
   neg(int idx){
     tagsChecked[idx] = !tagsChecked[idx];
     notifyListeners();
   }
   get(int idx) => tagsChecked[idx];
+
+  toList(){
+
+    List<String> list = [];
+
+    for(int i=0; i<tagsChecked.length; i++)
+      if(tagsChecked[i]) list.add(Tag.ALL_TAG_NAMES[i]);
+  }
 
   int get count{
     int count = 0;
@@ -200,28 +266,68 @@ class TagsProvider extends ChangeNotifier{
   }
 }
 
-class TextCtrlsProvider extends ChangeNotifier{
+class TitleCtrlProvider extends ChangeNotifier{
+  TextEditingController controller;
+  TitleCtrlProvider({String text}){
+    controller = TextEditingController(text: text);
+  }
 
-  TextEditingController controllerTitle;
-  TextEditingController controllerAuthor;
-  TextEditingController controllerPerformer;
-  TextEditingController controllerYT;
-  TextEditingController controllerAddPers;
+  set text(String value){
+    controller.text = value;
+    notifyListeners();
+  }}
 
-  TextCtrlsProvider({
-    this.controllerTitle,
-    this.controllerAuthor,
-    this.controllerPerformer,
-    this.controllerYT,
-    this.controllerAddPers,
-  });
+class AuthorCtrlProvider extends ChangeNotifier{
+  TextEditingController controller;
+  AuthorCtrlProvider({String text}){
+    controller = TextEditingController(text: text);
+  }
 
+  set text(String value){
+    controller.text = value;
+    notifyListeners();
+  }
 }
+
+class PerformerCtrlProvider extends ChangeNotifier{
+  TextEditingController controller;
+  PerformerCtrlProvider({String text}){
+    controller = TextEditingController(text: text);
+  }
+
+  set text(String value){
+    controller.text = value;
+    notifyListeners();
+  }}
+
+class YTCtrlProvider extends ChangeNotifier{
+  TextEditingController controller;
+  YTCtrlProvider({String text}){
+    controller = TextEditingController(text: text);
+  }
+
+  set text(String value){
+    controller.text = value;
+    notifyListeners();
+  }}
+
+class AddPersCtrlProvider extends ChangeNotifier{
+  TextEditingController controller;
+  AddPersCtrlProvider({String text}){
+    controller = TextEditingController(text: text);
+  }
+
+  set text(String value){
+    controller.text = value;
+    notifyListeners();
+  }
+}
+
 
 class SongPartProvider extends ChangeNotifier{
 
-  SongPart songPart;
-  SongPartProvider(this.songPart);
+  SongPart part;
+  SongPartProvider(this.part);
 
   void notify() => notifyListeners();
 
