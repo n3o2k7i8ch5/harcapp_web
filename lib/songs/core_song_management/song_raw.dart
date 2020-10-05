@@ -110,7 +110,7 @@ class SongRaw implements SongCore{
     for (Map partMap in partsList) {
       if (partMap.containsKey('refren'))
         for (int i = 0; i < partMap['refren']; i++) {
-          songParts.add(refrenPart);
+          songParts.add(refrenPart.copy());
 
           if(refrenPart.chords.replaceAll('\n', '').length != 0)
             hasChords = true;

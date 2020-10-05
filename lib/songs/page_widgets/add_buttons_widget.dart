@@ -26,7 +26,7 @@ class AddButtonsWidget extends StatelessWidget{
             padding: EdgeInsets.all(Dimen.MARG_ICON),
             onTap: (){
               CurrentItemProvider prov = Provider.of<CurrentItemProvider>(context, listen: false);
-              prov.addPart(SongPart.from(SongElement.empty()));
+              prov.addPart(SongPart.empty());
               if(onPressed!=null) onPressed();
             },
             child: Row(
@@ -46,7 +46,7 @@ class AddButtonsWidget extends StatelessWidget{
             onTap: (){
               CurrentItemProvider prov = Provider.of<CurrentItemProvider>(context, listen: false);
               RefrenPartProvider refPart = Provider.of<RefrenPartProvider>(context, listen: false);
-              prov.addPart(refPart.part);
+              prov.addPart(refPart.part.copy());
               if(onPressed!=null) onPressed();
             },
             child: Row(

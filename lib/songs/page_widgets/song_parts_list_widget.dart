@@ -8,7 +8,6 @@ import 'package:harcapp_web/songs/core_own_song/common.dart';
 import 'package:harcapp_web/songs/core_own_song/providers.dart';
 import 'package:harcapp_web/songs/core_own_song/song_part_card.dart';
 import 'package:harcapp_web/songs/page_widgets/scroll_to_bottom.dart';
-import 'package:harcapp_web/songs/providers.dart';
 import 'package:implicitly_animated_reorderable_list/implicitly_animated_reorderable_list.dart';
 import 'package:implicitly_animated_reorderable_list/transitions.dart';
 import 'package:provider/provider.dart';
@@ -36,7 +35,7 @@ class SongPartsListWidget extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     return Consumer<CurrentItemProvider>(
-    //return Consumer<SongPartsProvider>(
+      //return Consumer<SongPartsProvider>(
       builder: (context, prov, _) => ImplicitlyAnimatedReorderableList<SongPart>(
         physics: BouncingScrollPhysics(),
         controller: controller,
@@ -57,45 +56,35 @@ class SongPartsListWidget extends StatelessWidget{
               final elevation = ui.lerpDouble(0, AppCard.bigElevation, t);
               final color = Color.lerp(background(context), defCardEnabled(context), t);
 
-              return SizeFadeTransition(
-                sizeFraction: 0.7,
-                curve: Curves.easeInOut,
-                animation: itemAnimation,
-                child: AppCard(
-                  padding: EdgeInsets.only(left: Dimen.DEF_MARG/2, right: Dimen.DEF_MARG/2, bottom: Dimen.DEF_MARG/2),
-                  margin: AppCard.defMargin.copyWith(bottom: 12),//AppCard.defMargin.copyWith(bottom: 2*elevation),
-                  elevation: elevation,
-                  color: color,
-                  child: ChangeNotifierProvider<SongPartProvider>(
-                    create: (context) => SongPartProvider(item),
-                    builder: (context, child) => Consumer<SongPartProvider>(
-                      builder: (context, prov, child) => SongPartCard.from(
-                          songPart: item,
-                          topBuilder: (context, part){
-                            if(part.isRefren(context))
-                              return TopRefrenButtons(
-                                part,
-                                onDelete: (songPart){
-                                  if(onChanged!=null) onChanged();
-                                },
-                              );
-                            else
-                              return TopZwrotkaButtons(
-                                part,
-                                onDuplicate: (SongPart part){
-                                  scrollToBottom(controller);
-                                  if(onChanged!=null) onChanged();
-                                },
-                                onDelete: (SongPart part){
-                                  if(onChanged!=null) onChanged();
-                                },
-                              );
-                          },
-                          onTap: !refrenTapable && item.isRefren(context)?null:() => onPartTap(item, prov),
-                      ),
-                    ),
+              bool isRefren = item.isRefren(context);
+
+              Widget child;
+
+              if(isRefren)
+                child = Consumer<RefrenPartProvider>(
+                    builder: (context, prov, child) => getSongPartCard<RefrenPartProvider>(item, item.isRefren(context), prov)
+                );
+
+              else
+                child = ChangeNotifierProvider<SongPartProvider>(
+                  create: (context) => SongPartProvider(item),
+                  builder: (context, child) => Consumer<SongPartProvider>(
+                      builder: (context, prov, child) => getSongPartCard<SongPartProvider>(item, item.isRefren(context), prov)
                   ),
-                ),
+                );
+
+
+              return SizeFadeTransition(
+                  sizeFraction: 0.7,
+                  curve: Curves.easeInOut,
+                  animation: itemAnimation,
+                  child: AppCard(
+                      padding: EdgeInsets.only(left: Dimen.DEF_MARG/2, right: Dimen.DEF_MARG/2, bottom: Dimen.DEF_MARG/2),
+                      margin: AppCard.defMargin.copyWith(bottom: 12),//AppCard.defMargin.copyWith(bottom: 2*elevation),
+                      elevation: elevation,
+                      color: color,
+                      child: child
+                  )
               );
             },
           );
@@ -108,5 +97,29 @@ class SongPartsListWidget extends StatelessWidget{
     );
   }
 
-}
+  getSongPartCard<T extends SongPartProvider>(SongPart part, bool isRefren, T prov) => SongPartCard.from(
+    songPart: part,
+    topBuilder: (context, part){
+      if(part.isRefren(context))
+        return TopRefrenButtons(
+          part,
+          onDelete: (songPart){
+            if(onChanged!=null) onChanged();
+          },
+        );
+      else
+        return TopZwrotkaButtons(
+          part,
+          onDuplicate: (SongPart part){
+            scrollToBottom(controller);
+            if(onChanged!=null) onChanged();
+          },
+          onDelete: (SongPart part){
+            if(onChanged!=null) onChanged();
+          },
+        );
+    },
+    onTap: !refrenTapable && isRefren?null:() => onPartTap(part, prov),
+  );
 
+}
