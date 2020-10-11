@@ -83,7 +83,7 @@ class HidTitlesProvider extends ChangeNotifier{
 
   List<String> get() => _controllers.map((ctrl) => ctrl.text).toList();
 
-  bool get isLastEmpty => _controllers.last.text.length==0;
+  bool get isLastEmpty => !hasAny?true:_controllers.last.text.length==0;
 
   bool get hasAny => _controllers.length != 0;
 

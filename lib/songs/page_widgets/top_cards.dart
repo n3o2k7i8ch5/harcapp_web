@@ -5,6 +5,8 @@ import 'package:harcapp_web/common/core_comm_widgets/animated_child_slider.dart'
 import 'package:harcapp_web/common/core_comm_widgets/app_text_field_hint.dart';
 import 'package:harcapp_web/common/core_comm_widgets/simple_button.dart';
 import 'package:harcapp_web/common/dimen.dart';
+import 'package:implicitly_animated_reorderable_list/implicitly_animated_reorderable_list.dart';
+import 'package:implicitly_animated_reorderable_list/transitions.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -39,22 +41,23 @@ class TopCards extends StatelessWidget{
             children: [
               Expanded(
                 child: Consumer<TitleCtrlProvider>(
-                  builder: (context, prov, child) => AppTextFieldHint(
-                    controller: prov.controller,
-                    hint: 'Tytuł:',
-                    style: AppTextStyle(
-                      fontSize: Dimen.TEXT_SIZE_BIG,
-                      fontWeight: weight.halfBold,
-                      color: textEnabled(context),
-                    ),
-                    hintStyle: AppTextStyle(
-                      fontSize: Dimen.TEXT_SIZE_NORMAL,
-                      color: hintEnabled(context),
-                    ),
-                    onChanged: onChangedTitle,
-                  )
+                    builder: (context, prov, child) => AppTextFieldHint(
+                      controller: prov.controller,
+                      hint: 'Tytuł:',
+                      style: AppTextStyle(
+                        fontSize: Dimen.TEXT_SIZE_BIG,
+                        fontWeight: weight.halfBold,
+                        color: textEnabled(context),
+                      ),
+                      hintStyle: AppTextStyle(
+                        fontSize: Dimen.TEXT_SIZE_NORMAL,
+                        color: hintEnabled(context),
+                      ),
+                      onChanged: onChangedTitle,
+                    )
                 ),
               ),
+
               Consumer<HidTitlesProvider>(
                   builder: (context, provider, child) =>
                       AnimatedChildSlider(
@@ -81,30 +84,57 @@ class TopCards extends StatelessWidget{
           ),
 
           Consumer<HidTitlesProvider>(
-            builder: (context, provider, child) => !provider.hasAny?Container():Column(
+            builder: (context, provider, child) => Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
 
-                Column(
-                  children: provider.controllers.map((controller) => AddTextWidget(controller)).toList(),
+                ImplicitlyAnimatedList<TextEditingController>(
+                  items: provider.controllers,
+                  areItemsTheSame: (a, b) => a.hashCode == b.hashCode,
+                  itemBuilder: (context, animation, item, index) {
+                    return SizeFadeTransition(
+                      sizeFraction: 0.7,
+                      curve: Curves.easeInOut,
+                      animation: animation,
+                      child: AddTextWidget(item),
+                    );
+                  },
+                  removeItemBuilder: (context, animation, oldItem) {
+                    return SizeFadeTransition(
+                      sizeFraction: 0.7,
+                      curve: Curves.easeInOut,
+                      animation: animation,
+                      child: AddTextWidget(oldItem),
+                    );
+                  },
+                  shrinkWrap: true,
                 ),
 
-                SimpleButton(
-                  margin: EdgeInsets.zero,
-                  padding: EdgeInsets.all(Dimen.MARG_ICON),
-                  onTap: provider.isLastEmpty?null:() => provider.add(),
-                  child: Row(
-                    children: [
-                      Icon(MdiIcons.plus, color: provider.isLastEmpty?iconDisabledColor(context):iconEnabledColor(context)),
-                      SizedBox(width: Dimen.MARG_ICON),
-                      Text(
-                        'Dodaj tytuł ukryty',
-                        style: AppTextStyle(color: provider.isLastEmpty?iconDisabledColor(context):iconEnabledColor(context)),
-                      )
-
-                    ],
-                  ),
-                )
+                AnimatedContainer(
+                    duration: Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
+                    height: provider.hasAny?2*Dimen.MARG_ICON+Dimen.ICON_FOOTPRINT:0,
+                    child: AnimatedOpacity(
+                      opacity: provider.hasAny?1:0,
+                      duration: Duration(milliseconds: 500),
+                      curve: Curves.easeInOut,
+                      child: SimpleButton(
+                        margin: EdgeInsets.zero,
+                        padding: EdgeInsets.all(Dimen.MARG_ICON),
+                        onTap: provider.isLastEmpty?null:() => provider.add(),
+                        child: Row(
+                          children: [
+                            Icon(MdiIcons.plus, color: provider.isLastEmpty?iconDisabledColor(context):iconEnabledColor(context)),
+                            SizedBox(width: Dimen.MARG_ICON),
+                            Text(
+                              'Dodaj tytuł ukryty',
+                              style: AppTextStyle(color: provider.isLastEmpty?iconDisabledColor(context):iconEnabledColor(context)),
+                            )
+                          ],
+                        ),
+                      ),
+                    )
+                ),
 
               ],
             ),
