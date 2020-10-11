@@ -37,6 +37,7 @@ dependencies:
   auto_size_text: 2.1.0
   avatar_glow: 1.2.0
   icon_shadow: 1.0.1
+  draggable_scrollbar: 0.0.4
 
   flutter:
     sdk: flutter

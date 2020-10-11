@@ -12,26 +12,26 @@ class SongRaw implements SongCore{
 
   static const String TAB_CHAR = '   ';
 
-  final String fileName;
-  final String title;
-  final List<String> hidTitles;
-  final String author;
-  final String performer;
-  final String addPers;
-  final String youtubeLink;
+  String fileName;
+  String title;
+  List<String> hidTitles;
+  String author;
+  String performer;
+  String addPers;
+  String youtubeLink;
 
   bool get official =>
       fileName.length > 3 && fileName.substring(0, 3) == 'o!_' ||
           fileName.length > 4 && fileName.substring(0, 4) == 'oc!_';
 
-  final List<String> tags;
+  List<String> tags;
 
-  final bool hasRefren;
-  final SongPart refrenPart;
+  bool hasRefren;
+  SongPart refrenPart;
 
-  final List<SongPart> songParts;
+  List<SongPart> songParts;
 
-  final bool hasChords;
+  bool get hasChords => chords.replaceAll('\n', '').replaceAll(' ', '').length!=0;
 
   //final String text;
   //final String chords;
@@ -51,7 +51,7 @@ class SongRaw implements SongCore{
     this.refrenPart,
 
     this.songParts,
-    this.hasChords,
+    //this.hasChords,
 
     //this.text,
     //this.chords,
@@ -60,20 +60,20 @@ class SongRaw implements SongCore{
   static SongRaw empty(){
 
     return SongRaw(
-        fileName: '',
-        title: '',
-        hidTitles: [],
-        author: '',
-        performer: '',
-        addPers: '',
-        youtubeLink: '',
-        tags: [],
-        hasRefren: false,
-        refrenPart: SongPart.empty(),
-        songParts: [],
-        hasChords: false,
-        //text: '',
-        //chords: ''
+      fileName: '',
+      title: '',
+      hidTitles: [],
+      author: '',
+      performer: '',
+      addPers: '',
+      youtubeLink: '',
+      tags: [],
+      hasRefren: false,
+      refrenPart: SongPart.empty(),
+      songParts: [],
+      //hasChords: false,
+      //text: '',
+      //chords: ''
     );
   }
 
@@ -110,7 +110,7 @@ class SongRaw implements SongCore{
     for (Map partMap in partsList) {
       if (partMap.containsKey('refren'))
         for (int i = 0; i < partMap['refren']; i++) {
-          songParts.add(refrenPart.copy());
+          songParts.add(SongPart.from(refrenPart.element));
 
           if(refrenPart.chords.replaceAll('\n', '').length != 0)
             hasChords = true;
@@ -138,7 +138,7 @@ class SongRaw implements SongCore{
       refrenPart: refrenPart,
 
       songParts: songParts,
-      hasChords: hasChords,
+      //hasChords: hasChords,
     );
   }
 
@@ -184,44 +184,6 @@ class SongRaw implements SongCore{
     if(chords.length>0) chords = chords.substring(0, chords.length-2);
 
     return chords;
-  }
-
-  SongRaw copyWith({
-    String fileName,
-    String title,
-    List<String> hidTitles,
-    String author,
-    String performer,
-    String addPers,
-    String youtubeLink,
-
-    List<String> tags,
-
-    bool hasRefren,
-    SongPart refrenPart,
-
-    List<SongPart> songParts,
-    bool hasChords,
-
-    String text,
-    String chords,
-  }){
-    return SongRaw(
-        fileName: fileName??this.fileName,
-        title: title??this.title,
-        hidTitles: hidTitles??this.hidTitles,
-        author: author??this.author,
-        performer: performer??this.performer,
-        addPers: addPers??this.addPers,
-        youtubeLink: youtubeLink??this.youtubeLink,
-        tags: tags??this.tags,
-
-        hasRefren: hasRefren??this.hasRefren,
-        refrenPart: refrenPart??this.refrenPart,
-
-        songParts: songParts??this.songParts,
-        hasChords: hasChords??this.hasChords,
-    );
   }
 
   String convertToCode(){
@@ -274,8 +236,8 @@ class SongRaw implements SongCore{
     return jsonEncode({fileName : map});
   }
 
-  bool operator == (Object other) => other is SongRaw && fileName == other.fileName;
-  int get hashCode => fileName.hashCode;
+  //bool operator == (Object other) => other is SongRaw && fileName == other.fileName;
+  //int get hashCode => fileName.hashCode;
 
   @override
   String getChords() => chords;
@@ -283,4 +245,10 @@ class SongRaw implements SongCore{
   @override
   int get rate => SongRate.RATE_NULL;
 
+/*
+  static Future<SongRaw> read({@required String fileName}) async {
+    String code = await getSongCode(fileName);
+    return SongRaw.parse(fileName, code);
+  }
+*/
 }

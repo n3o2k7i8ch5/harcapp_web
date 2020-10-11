@@ -5,7 +5,6 @@ import 'package:harcapp_web/common/core_comm_widgets/animated_child_slider.dart'
 import 'package:harcapp_web/common/core_comm_widgets/app_text_field_hint.dart';
 import 'package:harcapp_web/common/core_comm_widgets/simple_button.dart';
 import 'package:harcapp_web/common/dimen.dart';
-import 'package:harcapp_web/songs/providers.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 

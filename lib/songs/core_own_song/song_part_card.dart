@@ -12,10 +12,18 @@ import 'package:provider/provider.dart';
 import 'common.dart';
 
 
+enum SongPartType{
+  ZWROTKA,
+  REFREN,
+  REFREN_TEMPLATE
+}
+
 class SongPartCard extends StatelessWidget{
 
+  static const double EMPTY_HEIGHT = 2*Dimen.TEXT_SIZE_NORMAL+4;
+
   final SongPart songPart;
-  final bool isTemplate;
+  final SongPartType type;
   final Widget Function(BuildContext, SongPart) topBuilder;
   final Function onTap;
 
@@ -23,21 +31,21 @@ class SongPartCard extends StatelessWidget{
 
   SongPartCard(
       this.songPart,
+      this.type,
       {
-        this.isTemplate:false,
         this.topBuilder,
         this.onTap
       });
 
   static SongPartCard from(
       {@required SongPart songPart,
-        bool isTemplate:false,
+        @required SongPartType type,
         Widget Function(BuildContext, SongPart) topBuilder,
         Function onTap
       }) =>
       SongPartCard(
           songPart,
-          isTemplate: isTemplate,
+          type,
           topBuilder: topBuilder,
           onTap: onTap
       );
@@ -66,28 +74,27 @@ class SongPartCard extends StatelessWidget{
         );
 
         String emptText;
-        if(songPart.isRefren(context)){
 
-          if(isTemplate){
+        if(type == SongPartType.ZWROTKA){
+          if(songPart.isEmpty)
+            emptText = 'Dotknij, aby edytować zwrotkę.';
+
+        }else if(type == SongPartType.REFREN){
+          if(prov.refEnab) {
             if(songPart.isEmpty)
-              emptText = 'Dotknij, aby edytować szablon refrenu.';
-          } else {
-            if(prov.refEnab) {
-              if(songPart.isEmpty)
-                emptText = 'Brak refrenu, edytuj szablon refrenu powyżej.';
-            }else
-              emptText = 'Refren ukryty. Nie będzie wyświetlany w piosence.';
-          }
-
-        }else
-        if(songPart.isEmpty)
-          emptText = 'Dotknij, aby edytować zwrotkę.';
+              emptText = 'Brak refrenu, edytuj szablon refrenu powyżej.';
+          }else
+            emptText = 'Refren ukryty. Nie będzie wyświetlany w piosence.';
+        }else if(type == SongPartType.REFREN_TEMPLATE){
+          if(songPart.isEmpty)
+            emptText = 'Dotknij, aby edytować szablon refrenu.';
+        }
 
         Widget main = Padding(
           padding: EdgeInsets.all(Dimen.DEF_MARG/2),
           child:
           emptText!=null?
-          SizedBox(height: 2*Dimen.TEXT_SIZE_NORMAL+4, child: Center(child: Text(
+          SizedBox(height: EMPTY_HEIGHT, child: Center(child: Text(
             emptText,
             style: AppTextStyle(color: hintEnabled(context)),
             textAlign: TextAlign.center,
@@ -137,11 +144,10 @@ class SongTextWidget extends StatelessWidget{
   Widget build(BuildContext context) {
 
     Color textColor;
-    if(isRefren(context)){
-      if(hasRefren && parent.isTemplate) textColor = textEnabled(context);
-      else textColor = textDisabled(context);
-    }else
-      textColor = textEnabled(context);
+
+    if(parent.type == SongPartType.ZWROTKA) textColor = textEnabled(context);
+    else if(parent.type == SongPartType.REFREN) textColor = textDisabled(context);
+    else if(parent.type == SongPartType.REFREN_TEMPLATE) textColor = textEnabled(context);
 
     return Padding(
       padding: EdgeInsets.only(left: parent.songPart.shift?Dimen.ICON_SIZE:0),
@@ -188,11 +194,10 @@ class SongChordsWidget extends StatelessWidget{
   Widget build(BuildContext context) {
 
     Color textColor;
-    if(isRefren(context)){
-      if(hasRefren && parent.isTemplate) textColor = textEnabled(context);
-      else textColor = textDisabled(context);
-    }else
-      textColor = textEnabled(context);
+
+    if(parent.type == SongPartType.ZWROTKA) textColor = textEnabled(context);
+    else if(parent.type == SongPartType.REFREN) textColor = textDisabled(context);
+    else if(parent.type == SongPartType.REFREN_TEMPLATE) textColor = textEnabled(context);
 
     return Text(
       text,

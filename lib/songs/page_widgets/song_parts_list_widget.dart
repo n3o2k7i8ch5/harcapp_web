@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
 import 'package:harcapp_web/common/app_card.dart';
+import 'package:harcapp_web/common/app_text_style.dart';
 import 'package:harcapp_web/common/color_pack.dart';
 import 'package:harcapp_web/common/dimen.dart';
 import 'package:harcapp_web/songs/core_own_song/common.dart';
@@ -35,17 +36,16 @@ class SongPartsListWidget extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     return Consumer<CurrentItemProvider>(
-      //return Consumer<SongPartsProvider>(
       builder: (context, prov, _) => ImplicitlyAnimatedReorderableList<SongPart>(
         physics: BouncingScrollPhysics(),
         controller: controller,
-        //items: prov.all,
         items: prov.song.songParts,
-        insertDuration: Duration(milliseconds: 200),
+        insertDuration: Duration(milliseconds: prov.song.songParts.length<=1?0:200),
+        removeDuration: Duration(milliseconds: prov.song.songParts.length==0?0:500),
         areItemsTheSame: (oldItem, newItem) => oldItem.hashCode == newItem.hashCode,
-        //onReorderFinished: (item, from, to, newItems) => prov.all..clear()..addAll(newItems),
         onReorderFinished: (item, from, to, newItems){
-          prov.copyWidth(songParts: newItems);
+          //prov.copyWidth(songParts: newItems);
+          prov.song.songParts = newItems;
         },
         itemBuilder: (context, itemAnimation, item, index) {
 
@@ -92,12 +92,37 @@ class SongPartsListWidget extends StatelessWidget{
         padding: EdgeInsets.only(bottom: Dimen.DEF_MARG/2),
         shrinkWrap: shrinkWrap,
         header: header,
-        footer: footer,
+        footer: Column(
+          children: [
+
+            AnimatedContainer(
+              duration: Duration(milliseconds: 1),
+              height:
+              prov.song.songParts.length==0?
+              SongPartCard.EMPTY_HEIGHT + Dimen.ICON_FOOTPRINT + 4*Dimen.DEF_MARG
+                  :0,
+              child: AnimatedOpacity(
+                opacity: prov.song.songParts.length==0?1:0,
+                duration: Duration(milliseconds: 300),
+                child: Center(
+                  child: Text(
+                    'Pusto! Dodaj coś.\n',
+                    style: AppTextStyle(color: hintEnabled(context)),
+                  ),
+                ),
+              ),
+            ),
+
+            if(footer!=null) footer,
+
+          ],
+        ),
       ),
     );
   }
 
   getSongPartCard<T extends SongPartProvider>(SongPart part, bool isRefren, T prov) => SongPartCard.from(
+    type: isRefren?SongPartType.REFREN:SongPartType.ZWROTKA,
     songPart: part,
     topBuilder: (context, part){
       if(part.isRefren(context))

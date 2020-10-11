@@ -32,6 +32,7 @@ class AddButtonsWidget extends StatelessWidget{
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Icon(MdiIcons.plus, color: accentColor(context)),
                 Icon(MdiIcons.musicBox, color: accentColor(context)),
                 SizedBox(width: Dimen.MARG_ICON),
                 Text('Zwrotka', style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_BIG))
@@ -46,12 +47,13 @@ class AddButtonsWidget extends StatelessWidget{
             onTap: (){
               CurrentItemProvider prov = Provider.of<CurrentItemProvider>(context, listen: false);
               RefrenPartProvider refPart = Provider.of<RefrenPartProvider>(context, listen: false);
-              prov.addPart(refPart.part.copy());
+              prov.addPart(SongPart.from(refPart.part.element));
               if(onPressed!=null) onPressed();
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Icon(MdiIcons.plus, color: accentColor(context)),
                 Icon(MdiIcons.musicBoxOutline, color: accentColor(context)),
                 SizedBox(width: Dimen.MARG_ICON),
                 Text('Refren', style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_BIG))

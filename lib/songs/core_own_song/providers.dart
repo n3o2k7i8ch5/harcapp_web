@@ -3,7 +3,9 @@ import 'package:flutter/widgets.dart';
 import 'package:harcapp_web/common/core_comm_widgets/tag_layout.dart';
 import 'package:harcapp_web/songs/core_song_management/song_element.dart';
 import 'package:harcapp_web/songs/core_song_management/song_raw.dart';
+import 'package:provider/provider.dart';
 
+import '../providers.dart';
 import 'common.dart';
 
 
@@ -12,7 +14,7 @@ class CurrentItemProvider extends ChangeNotifier{
   SongRaw _song;
 
   CurrentItemProvider({SongRaw song}){
-    _song = song??SongRaw.empty();
+    _song = song;//??SongRaw.empty();
   }
 
   SongRaw get song => _song;
@@ -21,49 +23,8 @@ class CurrentItemProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  copyWidth({
-    String fileName,
-    String title,
-    List<String> hidTitles,
-    String author,
-    String performer,
-    String addPers,
-    String youtubeLink,
-
-    List<String> tags,
-
-    bool hasRefren,
-    SongPart refrenPart,
-
-    List<SongPart> songParts,
-    bool hasChords,
-
-    String text,
-    String chords,
-  }){
-    _song = _song.copyWith(
-        fileName: fileName,
-        title: title,
-        hidTitles: hidTitles,
-        author: author,
-        performer: performer,
-        addPers: addPers,
-        youtubeLink: youtubeLink,
-
-        tags: tags,
-
-        hasRefren: hasRefren,
-
-        refrenPart: refrenPart,
-
-        songParts: songParts,
-
-        hasChords: hasChords,
-
-        text: text,
-        chords: chords
-    );
-
+  set fileName(String value){
+    _song.fileName = value;
     notifyListeners();
   }
 
@@ -268,14 +229,17 @@ class TagsProvider extends ChangeNotifier{
 
 class TitleCtrlProvider extends ChangeNotifier{
   TextEditingController controller;
-  TitleCtrlProvider({String text}){
+  TitleCtrlProvider({String text, Function(String text) onChanged}){
     controller = TextEditingController(text: text);
+    if(onChanged!=null) controller.addListener(() => onChanged(controller.text));
   }
 
   set text(String value){
     controller.text = value;
     notifyListeners();
-  }}
+  }
+
+}
 
 class AuthorCtrlProvider extends ChangeNotifier{
   TextEditingController controller;
@@ -326,8 +290,14 @@ class AddPersCtrlProvider extends ChangeNotifier{
 
 class SongPartProvider extends ChangeNotifier{
 
-  SongPart part;
-  SongPartProvider(this.part);
+  SongPart _part;
+  SongPartProvider(this._part);
+
+  set part(SongPart value){
+    _part = value;
+    notifyListeners();
+  }
+  SongPart get part => _part;
 
   void notify() => notifyListeners();
 

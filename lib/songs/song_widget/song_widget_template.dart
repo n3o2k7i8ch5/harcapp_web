@@ -26,6 +26,8 @@ class SongWidgetTemplate<T extends SongCore> extends StatefulWidget{
 
   final T song;
 
+  final double screenWidth;
+
   final ValueNotifier pageNotifier;
   final int index;
 
@@ -41,8 +43,8 @@ class SongWidgetTemplate<T extends SongCore> extends StatefulWidget{
   final Function(double position) onYTLinkTap;
   final Function onYTLinkLongPress;
 
-  final Function(bool changedSize) onMinusTap;
-  final Function(bool changedSize) onPlusTap;
+  final Function(BuildContext context, bool changedSize) onMinusTap;
+  final Function(BuildContext context, bool changedSize) onPlusTap;
 
   final Function() onAlbumsTap;
 
@@ -72,6 +74,7 @@ class SongWidgetTemplate<T extends SongCore> extends StatefulWidget{
   const SongWidgetTemplate(
       this.song,
       {
+        this.screenWidth,
         this.pageNotifier,
         this.index: -1,
 
@@ -152,7 +155,7 @@ class SongWidgetTemplateState<T extends SongCore> extends State<SongWidgetTempla
     displayChordDraw = widget.song.hasChords && Settings.showChords && Settings.chordsDrawShow;
 
     scrollController = ScrollController();
-    scrollController.addListener(() => widget.onScroll(scrollController));
+    if(widget.onScroll != null) scrollController.addListener(() => widget.onScroll(scrollController));
 
     lineNum = getLineNums(song.text);
 
@@ -170,7 +173,7 @@ class SongWidgetTemplateState<T extends SongCore> extends State<SongWidgetTempla
 
     double screenWidth = MediaQuery.of(context).size.width;
     return ChangeNotifierProvider<TextSizeProvider>(
-      create: (context) => TextSizeProvider(screenWidth, song),
+      create: (context) => TextSizeProvider(widget.screenWidth??screenWidth, song),
       builder: (context, child) => OrientationBuilder(
           builder: (BuildContext context, Orientation orientation) {
             // To po to, żeby tekst został zresetowany po zmianie orientacji.
@@ -552,7 +555,7 @@ class TopWidget<T extends SongCore> extends StatelessWidget{
                 else
                   changedSize = false;
 
-                parent.widget.onMinusTap(changedSize);
+                parent.widget.onMinusTap(context, changedSize);
 
               }),
           IconButton(icon: Icon(MdiIcons.plusCircleOutline, color: iconEnabledColor(context)),
@@ -561,7 +564,7 @@ class TopWidget<T extends SongCore> extends StatelessWidget{
                 TextSizeProvider prov = Provider.of<TextSizeProvider>(context, listen: false);
 
                 double scaleFactor = TextSizeProvider.fits(
-                    MediaQuery.of(context).size.width,
+                    parent.widget.screenWidth??MediaQuery.of(context).size.width,
                     song.text,
                     parent.showChords()?song.getChords():null,
                     parent.lineNum,
@@ -574,7 +577,7 @@ class TopWidget<T extends SongCore> extends StatelessWidget{
                 }else
                   changedSize = false;
 
-                parent.widget.onPlusTap(changedSize);
+                parent.widget.onPlusTap(context, changedSize);
               }
           ),
 
@@ -637,7 +640,7 @@ class BottomWidget<T extends SongCore> extends StatelessWidget{
           if(!song.official)
             IconButton(
                 icon: Icon(
-                    MdiIcons.shareAllOutline,
+                    MdiIcons.sendCircleOutline,
                     color: iconEnabledColor(context)),
                 onPressed: parent.widget.onSendSongTap
             ),
@@ -699,9 +702,13 @@ class ContentWidget<T extends SongCore> extends StatelessWidget{
                           textAlign: TextAlign.end,
                           style: TextStyle(
                               fontFamily: 'Roboto',
-                              fontSize: Dimen.TEXT_SIZE_TINY,//initial font size
+                              fontSize: prov.value<Dimen.TEXT_SIZE_TINY?
+                              prov.value:
+                              Dimen.TEXT_SIZE_TINY,//initial font size
                               color: hintDisabled(context),
-                              height: lineSpacing*prov.value/Dimen.TEXT_SIZE_TINY
+                              height: prov.value<Dimen.TEXT_SIZE_TINY?
+                              lineSpacing:
+                              lineSpacing*(prov.value/ Dimen.TEXT_SIZE_TINY)
                           ),
                         ),
                       ],
@@ -736,24 +743,32 @@ class ContentWidget<T extends SongCore> extends StatelessWidget{
                     }
                 ),
               ),
-              if(parent.showChords())
-                SimpleButton(
-                    child: Text(
-                      chords,
-                      style: TextStyle(
-                        fontFamily: 'Roboto',
-                        fontSize: prov.value, //initial font size
-                        color: textEnabled(context),
-                        height: lineSpacing,
-                      ),
-                    ),
-                    onTap: parent.widget.onChordsTap==null?null:(){
-                      parent.widget.onChordsTap(prov);
-                    },
-                    onLongPress: parent.widget.onChordsLongPress==null?null:(){
-                      parent.widget.onChordsLongPress(prov);
-                    }
-                )
+
+              Consumer<ShowChordsProvider>(
+                  builder: (context, showChordsProv, child){
+
+                    if(!showChordsProv.showChords)
+                      return Container();
+                    return SimpleButton(
+                        child: Text(
+                          chords,
+                          style: TextStyle(
+                            fontFamily: 'Roboto',
+                            fontSize: prov.value, //initial font size
+                            color: textEnabled(context),
+                            height: lineSpacing,
+                          ),
+                        ),
+                        onTap: parent.widget.onChordsTap==null?null:(){
+                          parent.widget.onChordsTap(prov);
+                        },
+                        onLongPress: parent.widget.onChordsLongPress==null?null:(){
+                          parent.widget.onChordsLongPress(prov);
+                        }
+                    );
+
+                  }
+              )
             ],
           ),
         )
@@ -803,4 +818,5 @@ class ChordsBarCard<T extends SongCore> extends StatelessWidget{
   }
 
 }
+
 

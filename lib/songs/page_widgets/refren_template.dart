@@ -32,29 +32,29 @@ class RefrenTemplate extends StatelessWidget{
               Padding(
                 padding: EdgeInsets.only(left: Dimen.DEF_MARG, right: Dimen.DEF_MARG),
                 child: SongPartCard.from(
-                    songPart: prov.part,
-                    isTemplate: true,
-                    topBuilder: (context, part) => Consumer<RefrenEnabProvider>(
-                      builder: (context, refEnabProv, child) => Row(
-                          children: <Widget>[
-                            HeaderWidget(
-                                'Szablon refrenu',
-                                prov.isError?MdiIcons.alertOutline:MdiIcons.musicBoxOutline,
-                                iconColor: prov.isError?Colors.red:null,
-                                enabled: refEnabProv.refEnab
-                            ),
-                            Expanded(child:Container()),
-                            SizedBox(width: 34),
-                            Switch(
-                                value: refEnabProv.refEnab,
-                                onChanged: (bool value){
-                                  refEnabProv.refEnab = !refEnabProv.refEnab;
-                                  if(onRefrenEnabledChaned != null) onRefrenEnabledChaned(value);
-                                }),
-                          ]
-                      ),
+                  songPart: prov.part,
+                  type: SongPartType.REFREN_TEMPLATE,
+                  topBuilder: (context, part) => Consumer<RefrenEnabProvider>(
+                    builder: (context, refEnabProv, child) => Row(
+                        children: <Widget>[
+                          HeaderWidget(
+                              'Szablon refrenu',
+                              prov.isError?MdiIcons.alertOutline:MdiIcons.musicBoxOutline,
+                              iconColor: prov.isError?Colors.red:null,
+                              enabled: refEnabProv.refEnab
+                          ),
+                          Expanded(child:Container()),
+                          SizedBox(width: 34),
+                          Switch(
+                              value: refEnabProv.refEnab,
+                              onChanged: (bool value){
+                                refEnabProv.refEnab = !refEnabProv.refEnab;
+                                if(onRefrenEnabledChaned != null) onRefrenEnabledChaned(value);
+                              }),
+                        ]
                     ),
-                    onTap: () => onPartTap(prov.part, prov)
+                  ),
+                  onTap: () => onPartTap(prov.part, prov),
                 ),
               ),
             ],

@@ -1,5 +1,6 @@
 
 import 'package:harcapp_web/common/core_comm_classes/primitive_wrapper.dart';
+import 'package:harcapp_web/songs/core_song_management/song_raw.dart';
 
 class SongElement{
   final PrimitiveWrapper<String> _text;
@@ -20,7 +21,7 @@ class SongElement{
 
   String getText({bool withTabs: false}){
     if(withTabs)
-      return "\t" + _text.get().replaceAll('\n', '\n\t');
+      return SongRaw.TAB_CHAR + _text.get().replaceAll('\n', '\n${SongRaw.TAB_CHAR}');
     else
       return _text.get();
   }

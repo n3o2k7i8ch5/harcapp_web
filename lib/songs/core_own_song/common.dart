@@ -10,6 +10,7 @@ import 'package:harcapp_web/common/core_comm_classes/primitive_wrapper.dart';
 import 'package:harcapp_web/common/dimen.dart';
 import 'package:harcapp_web/songs/core_own_song/providers.dart';
 import 'package:harcapp_web/songs/core_song_management/song_element.dart';
+import 'package:harcapp_web/songs/core_song_management/song_raw.dart';
 import 'package:harcapp_web/songs/core_tags/tag_layout.dart';
 import 'package:provider/provider.dart';
 
@@ -244,3 +245,55 @@ String convertToCode(BuildContext context, String fileName) {
    */
 }
 */
+
+Map convertToCode(SongRaw song) {
+
+  Map map = {};
+  map['title'] = song.title;
+  map['hid_titles'] = song.hidTitles;
+  map['text_author'] = song.author;
+  map['performer'] = song.performer;
+  map['yt_link'] = song.youtubeLink;
+  map['add_pers'] = song.addPers;
+
+  map['tags'] = song.tags;
+
+  if(song.hasRefren)
+    map['refren'] = {
+      'text': song.refrenPart.getText(),
+      'chords': song.refrenPart.chords,
+      'shift': true
+    };
+
+  List<Map> parts = [];
+
+  int refCount = 0;
+  for (SongPart part in song.songParts) {
+
+    if(refCount>0) {
+      parts.add({'refren': refCount});
+      refCount = 0;
+    }
+
+    if (part.element == song.refrenPart?.element) { //part.isRefren
+      refCount++;
+      continue;
+
+    }else {
+      parts.add({
+        'text': part.getText(),
+        'chords': part.chords,
+        'shift': part.shift
+      });
+    }
+
+  }
+
+  if(refCount>0)
+    parts.add({'refren': refCount});
+
+  map['parts'] = parts;
+
+  return map;
+
+}

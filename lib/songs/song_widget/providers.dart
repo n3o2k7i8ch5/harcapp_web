@@ -46,6 +46,8 @@ class TextSizeProvider extends ChangeNotifier{
 
   static const double defFontSize = 18.0;
 
+  double fixedScreenWidth;
+
   double _value;
 
   double get value => _value;
