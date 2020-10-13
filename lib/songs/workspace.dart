@@ -19,6 +19,7 @@ import 'package:harcapp_web/common/dimen.dart';
 import 'package:harcapp_web/songs/core_own_song/providers.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:pretty_json/pretty_json.dart';
 import 'package:provider/provider.dart';
 
 import 'core_own_song/common.dart';
@@ -85,7 +86,7 @@ class LoadWidget extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    return  Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -147,10 +148,9 @@ class WorkspaceButton extends StatelessWidget{
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Padding(
-                  padding: EdgeInsets.all(Dimen.MARG_ICON),
-                  child: Icon(icon)
-              ),
+              SizedBox(width: Dimen.MARG_ICON),
+              Icon(icon),
+              SizedBox(width: Dimen.MARG_ICON),
               Text(text, style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_BIG, fontWeight: weight.halfBold), textAlign: TextAlign.center),
               SizedBox(width: Dimen.MARG_ICON)
             ],
@@ -183,8 +183,7 @@ class SongListViewState extends State<SongListView>{
 
         Consumer<SongFileNameBlockProvider>(
           builder: (context, songFileNameBlockProv, child) => Material(
-            color: songFileNameBlockProv.blocked?Colors.black.withOpacity(0.05):Colors.transparent,
-            shadowColor: Colors.black26,
+            color: Colors.transparent,
             elevation: 3,
             child: Row(
               children: [
@@ -229,7 +228,7 @@ class SongListViewState extends State<SongListView>{
 
         Consumer<SongFileNameBlockProvider>(
           builder: (context, songFileNameBlockProv, child) => Material(
-            color: songFileNameBlockProv.blocked?Colors.black.withOpacity(0.05):Colors.transparent,
+            color: Colors.transparent,
             elevation: 6,
             child: Row(
               children: [
@@ -381,6 +380,15 @@ class ItemWidgetState extends State<ItemWidget>{
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+
+                    IconButton(
+                        icon: Icon(MdiIcons.codeTags),
+                        onPressed: songFileNameBlockProv.blocked?null:(){
+                          Provider.of<ShowCodeEditorProvider>(context, listen: false).text = prettyJson(jsonDecode(song.toCode()), indent: 4);
+                          Provider.of<ShowCodeEditorProvider>(context, listen: false).song = song;
+                          Provider.of<ShowCodeEditorProvider>(context, listen: false).value = true;
+                        }
+                    ),
 
                     IconButton(
                         icon: Icon(MdiIcons.formTextbox),

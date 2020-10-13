@@ -22,6 +22,8 @@ class SaveSendWidget extends StatelessWidget{
         Expanded(
             child: Consumer<SongFileNameDupErrProvider>(
               builder: (context, prov, child) => SimpleButton(
+                  padding: EdgeInsets.all(Dimen.MARG_ICON),
+                  margin: EdgeInsets.zero,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -47,7 +49,7 @@ class SaveSendWidget extends StatelessWidget{
 
                     for(int i=0; i<allSongs.length; i++){
                       SongRaw song = allSongs[i];
-                      Map map = convertToCode(song);
+                      Map map = song.toMap(withFileName: false);
                       offSongMap[song.fileName] = {
                         'song': map,
                         'index': i
@@ -66,6 +68,8 @@ class SaveSendWidget extends StatelessWidget{
 
         Expanded(
             child: SimpleButton(
+                padding: EdgeInsets.all(Dimen.MARG_ICON),
+                margin: EdgeInsets.zero,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

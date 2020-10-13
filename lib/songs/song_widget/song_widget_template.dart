@@ -307,7 +307,6 @@ class TitleCard<T extends SongCore> extends StatelessWidget{
       onTap: parent.widget.onTitleTap,
     );
 
-
     Widget widgetAuthor = SimpleButton(
       child: Row(
         //crossAxisAlignment: CrossAxisAlignment.start,

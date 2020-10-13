@@ -1,7 +1,6 @@
 
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:harcapp_web/songs/core_own_song/common.dart';
 import 'package:harcapp_web/songs/core_song_management/song_core.dart';
 import 'package:harcapp_web/songs/song_widget/song_rate.dart';
@@ -21,8 +20,8 @@ class SongRaw implements SongCore{
   String youtubeLink;
 
   bool get official =>
-      fileName.length > 3 && fileName.substring(0, 3) == 'o!_' ||
-          fileName.length > 4 && fileName.substring(0, 4) == 'oc!_';
+      fileName.length >= 3 && fileName.substring(0, 3) == 'o!_' ||
+          fileName.length >= 4 && fileName.substring(0, 4) == 'oc!_';
 
   List<String> tags;
 
@@ -33,8 +32,22 @@ class SongRaw implements SongCore{
 
   bool get hasChords => chords.replaceAll('\n', '').replaceAll(' ', '').length!=0;
 
-  //final String text;
-  //final String chords;
+
+  void set(SongRaw song){
+    this.fileName = song.fileName;
+    this.title = song.title;
+    this.hidTitles = song.hidTitles;
+    this.author = song.author;
+    this.performer = song.performer;
+    this.addPers = song.addPers;
+    this.youtubeLink = song.youtubeLink;
+    this.tags = song.tags?.toList();
+
+    this.hasRefren = song.hasRefren;
+    this.refrenPart = song.refrenPart?.copy();
+
+    this.songParts = song.songParts;
+  }
 
   SongRaw({
     this.fileName,
@@ -51,10 +64,6 @@ class SongRaw implements SongCore{
     this.refrenPart,
 
     this.songParts,
-    //this.hasChords,
-
-    //this.text,
-    //this.chords,
   });
 
   static SongRaw empty(){
@@ -71,9 +80,6 @@ class SongRaw implements SongCore{
       hasRefren: false,
       refrenPart: SongPart.empty(),
       songParts: [],
-      //hasChords: false,
-      //text: '',
-      //chords: ''
     );
   }
 
@@ -89,7 +95,6 @@ class SongRaw implements SongCore{
 
   static SongRaw fromMap(String fileName, Map map){
     bool hasRefren = false;
-    bool hasChords = false;
 
     String title = map['title'];
     List<String> hidTitles = (map['hid_titles'] as List).cast<String>();
@@ -111,9 +116,6 @@ class SongRaw implements SongCore{
       if (partMap.containsKey('refren'))
         for (int i = 0; i < partMap['refren']; i++) {
           songParts.add(SongPart.from(refrenPart.element));
-
-          if(refrenPart.chords.replaceAll('\n', '').length != 0)
-            hasChords = true;
 
         }
       else {
@@ -138,7 +140,6 @@ class SongRaw implements SongCore{
       refrenPart: refrenPart,
 
       songParts: songParts,
-      //hasChords: hasChords,
     );
   }
 
@@ -186,11 +187,11 @@ class SongRaw implements SongCore{
     return chords;
   }
 
-  String convertToCode(){
+  Map toMap({bool withFileName: true}){
 
     Map map = {};
     map['title'] = title;
-    map['additional_titles'] = [];
+    map['hid_titles'] = hidTitles;
     map['text_author'] = author;
     map['performer'] = performer;
     map['yt_link'] = youtubeLink;
@@ -198,7 +199,7 @@ class SongRaw implements SongCore{
 
     map['tags'] = tags;
 
-    if(hasRefren && !refrenPart.isEmpty)
+    if(hasRefren)
       map['refren'] = {
         'text': refrenPart.getText(),
         'chords': refrenPart.chords,
@@ -210,7 +211,12 @@ class SongRaw implements SongCore{
     int refCount = 0;
     for (SongPart part in songParts) {
 
-      if (part == null) {
+      if(refCount>0) {
+        parts.add({'refren': refCount});
+        refCount = 0;
+      }
+
+      if (part.element == refrenPart?.element) { //part.isRefren
         refCount++;
         continue;
 
@@ -222,10 +228,6 @@ class SongRaw implements SongCore{
         });
       }
 
-      if(refCount>0) {
-        parts.add({'refren': refCount});
-        refCount = 0;
-      }
     }
 
     if(refCount>0)
@@ -233,11 +235,13 @@ class SongRaw implements SongCore{
 
     map['parts'] = parts;
 
-    return jsonEncode({fileName : map});
+    if(withFileName) return {fileName : map};
+    else return map;
   }
 
-  //bool operator == (Object other) => other is SongRaw && fileName == other.fileName;
-  //int get hashCode => fileName.hashCode;
+  String toCode(){
+    return jsonEncode(toMap());
+  }
 
   @override
   String getChords() => chords;

@@ -28,6 +28,41 @@ class CurrentItemProvider extends ChangeNotifier{
     notifyListeners();
   }
 
+  set title(String value){
+    _song.title = value;
+    notifyListeners();
+  }
+
+  set author(String value){
+    _song.author = value;
+    notifyListeners();
+  }
+
+  set performer(String value){
+    _song.performer = value;
+    notifyListeners();
+  }
+
+  set youtubeLink(String value){
+    _song.youtubeLink = value;
+    notifyListeners();
+  }
+
+  set addPers(String value){
+    _song.addPers = value;
+    notifyListeners();
+  }
+
+  set tags(List<String> value){
+    _song.tags = value;
+    notifyListeners();
+  }
+
+  set hasRefren(bool value){
+    _song.hasRefren = value;
+    notifyListeners();
+  }
+
   removePart(SongPart part){
     _song.songParts.remove(part);
     notifyListeners();
@@ -188,8 +223,6 @@ class RefrenPartProvider extends SongPartProvider{
   SongElement get element => part.element;
   bool get isError => part.isError;
 
-  void notify() => notifyListeners();
-
 }
 
 
@@ -211,12 +244,14 @@ class TagsProvider extends ChangeNotifier{
   }
   get(int idx) => tagsChecked[idx];
 
-  toList(){
+  List<String> toList(){
 
     List<String> list = [];
 
     for(int i=0; i<tagsChecked.length; i++)
       if(tagsChecked[i]) list.add(Tag.ALL_TAG_NAMES[i]);
+
+    return list;
   }
 
   int get count{

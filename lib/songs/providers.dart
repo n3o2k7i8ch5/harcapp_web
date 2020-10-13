@@ -136,3 +136,49 @@ class SongFileNameDupErrProvider extends ChangeNotifier{
   bool hasAny(SongRaw song) => _errMap[song] != null && _errMap[song].length!= 0;
 
 }
+
+class SongPreviewProvider extends ChangeNotifier{
+
+  bool _code;
+
+  SongPreviewProvider(){
+    _code = false;
+  }
+
+  bool get code => _code;
+  set code(bool value){
+    _code = value;
+    notifyListeners();
+  }
+
+}
+
+class ShowCodeEditorProvider extends ChangeNotifier{
+
+  String _text;
+  bool _value;
+  SongRaw _song;
+
+  ShowCodeEditorProvider(){
+    _text = '';
+    _value = false;
+  }
+
+  String get text => _text;
+  set text(String val){
+    _text = val;
+  }
+
+  bool get value => _value;
+  set value(bool val){
+    _value = val;
+    notifyListeners();
+  }
+
+  SongRaw get song => _song;
+  set song(SongRaw value){
+    _song = value;
+    notifyListeners();
+  }
+
+}
