@@ -22,7 +22,7 @@ import 'package:harcapp_web/songs/song_part_editor.dart';
 import 'package:harcapp_web/songs/song_preview.dart';
 import 'package:harcapp_web/songs/song_widget/providers.dart';
 import 'package:harcapp_web/songs/song_widget/song_widget_template.dart';
-import 'package:harcapp_web/songs/workspace.dart';
+import 'package:harcapp_web/songs/workspace/workspace.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -75,13 +75,15 @@ class SongsPageState extends State<SongsPage>{
 
         ChangeNotifierProvider(create: (context) => TitleCtrlProvider(
           onChanged: (text){
+            AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
 
             SongRaw song = currItemProv.song;
 
-            if(bindTitleFileNameProv.bind)
-              song.fileName = 'o!_' + remPolChars(text).replaceAll(' ', '_');
+            bool isConf = allSongsProv.isConf(song);
 
-            AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
+            if(bindTitleFileNameProv.bind)
+              song.fileName = (isConf?'oc!_':'o!_') + remPolChars(text).replaceAll(' ', '_');
+
             allSongsProv.notifyListeners();
 
           }
@@ -104,7 +106,7 @@ class SongsPageState extends State<SongsPage>{
           return bindTitleFileNameProv;
         }),
 
-        ChangeNotifierProvider(create: (context) => SongFileNameBlockProvider()),
+        ChangeNotifierProvider(create: (context) => WorkspaceBlockProvider()),
         ChangeNotifierProvider(create: (context) => SongFileNameDupErrProvider()),
 
         ChangeNotifierProvider(create: (context) => ShowCodeEditorProvider()),
@@ -161,7 +163,7 @@ class SongsPageState extends State<SongsPage>{
                           ],
                         ),
 
-                        Consumer2<AllSongsProvider, SongFileNameBlockProvider>(
+                        Consumer2<AllSongsProvider, WorkspaceBlockProvider>(
                             builder: (context, allSongProv, songFileNameBlockProv, child) =>
                             allSongProv.length==0?Container():AppCard(
                                 color: songFileNameBlockProv.blocked?Colors.black.withOpacity(0.1):null,
@@ -175,7 +177,7 @@ class SongsPageState extends State<SongsPage>{
                         ),
 
                         Expanded(
-                            child: Consumer<SongFileNameBlockProvider>(
+                            child: Consumer<WorkspaceBlockProvider>(
                               builder: (context, prov, child) => AppCard(
                                 color: prov.blocked?Colors.black.withOpacity(0.1):null,
                                 elevation: AppCard.bigElevation,

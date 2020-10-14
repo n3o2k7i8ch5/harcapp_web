@@ -38,7 +38,15 @@ class BindTitleFileNameProvider extends ChangeNotifier{
 
 class AllSongsProvider extends ChangeNotifier{
 
+  //List<SongRaw> _songs;
+
+  void init(List<SongRaw> songs, Map<SongRaw, bool> confMap){
+    _songs = songs;
+    _confMap = confMap;
+  }
+
   List<SongRaw> _songs;
+  Map<SongRaw, bool> _confMap = {};
 
   int get length => _songs.length;
 
@@ -46,40 +54,50 @@ class AllSongsProvider extends ChangeNotifier{
 
   AllSongsProvider(){
     _songs = [];
+    _confMap = {};
   }
 
-  void add(SongRaw song){
+  void addOff(SongRaw song){
     _songs.add(song);
+    _confMap[song] = false;
+    notifyListeners();
+  }
+
+  void addConf(SongRaw song){
+    _songs.add(song);
+    _confMap[song] = true;
     notifyListeners();
   }
 
   void remove(SongRaw song){
     _songs.remove(song);
+    _confMap.remove(song);
     notifyListeners();
   }
 
-  void removeAt(int index){
-    _songs.removeAt(index);
-    notifyListeners();
-  }
-
-  set songs(List<SongRaw> value){
-    _songs = value;
-    notifyListeners();
-  }
-
-  addAll(List<SongRaw> songs){
+  addAll(List<SongRaw> songs, Map<SongRaw, bool> confMap){
     _songs.addAll(songs);
+    _confMap.addAll(confMap);
+
+    notifyListeners();
+  }
+
+  isConf(SongRaw song){
+    return _confMap[song];
+  }
+
+  set(SongRaw song, bool isConf){
+    _confMap[song] = isConf;
     notifyListeners();
   }
 
 }
 
-class SongFileNameBlockProvider extends ChangeNotifier{
+class WorkspaceBlockProvider extends ChangeNotifier{
 
   bool _blocked;
 
-  SongFileNameBlockProvider(){
+  WorkspaceBlockProvider(){
     _blocked = false;
   }
 

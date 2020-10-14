@@ -44,20 +44,34 @@ class SaveSendWidget extends StatelessWidget{
                   onTap: prov.count!=0?null:(){
 
                     Map offSongMap = {};
+                    Map confSongMap = {};
 
-                    List<SongRaw> allSongs = Provider.of<AllSongsProvider>(context, listen: false).songs;
+                    AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
+                    List<SongRaw> allSongs = allSongsProv.songs;
 
-                    for(int i=0; i<allSongs.length; i++){
-                      SongRaw song = allSongs[i];
+                    allSongsProv.songs.sort(
+                        (a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase())
+                    );
+
+                    int iterOff = 0;
+                    int iterConf = 0;
+                    for(SongRaw song in allSongs){
                       Map map = song.toMap(withFileName: false);
-                      offSongMap[song.fileName] = {
-                        'song': map,
-                        'index': i
-                      };
+                      if(allSongsProv.isConf(song))
+                        confSongMap[song.fileName] = {
+                          'song': map,
+                          'index': iterConf++
+                        };
+                      else
+                        offSongMap[song.fileName] = {
+                          'song': map,
+                          'index': iterOff++
+                        };
                     }
 
                     String code = jsonEncode({
-                      'official': offSongMap
+                      'official': offSongMap,
+                      'conf': confSongMap,
                     });
 
                     downloadFile(content: code, fileName: 'songs.hrcpsngs');
