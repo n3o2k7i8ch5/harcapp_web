@@ -95,6 +95,10 @@ class WorkspacePartState extends State<WorkspacePart>{
                     for(SongRaw song in songs) map[song] = confSongs.contains(song);
                     allSongsProv.init(songs, map);
                   });
+
+              SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
+              songFileNameDupErrProv.checkAllDups(context);
+
               setState(() => this.code = code);
             },
           );
@@ -147,6 +151,8 @@ class LoadWidget extends StatelessWidget{
 
               displaySong(context, song);
 
+              SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
+              songFileNameDupErrProv.checkAllDups(context);
             }
 
         )
@@ -322,12 +328,7 @@ class SongListViewState extends State<SongListView>{
                                       });
 
                                   SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
-
-                                  for(SongRaw song1 in allSongsProv.songs)
-                                    for(SongRaw song2 in allSongsProv.songs)
-                                      if(song1 != song2 && song1.fileName == song2.fileName){
-                                        songFileNameDupErrProv.putPair(song1, song2);
-                                      }
+                                  songFileNameDupErrProv.checkAllDups(context);
 
                                 }
                             ),
@@ -344,6 +345,8 @@ class SongListViewState extends State<SongListView>{
 
                                   displaySong(context, song);
 
+                                  SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
+                                  songFileNameDupErrProv.checkAllDups(context);
                                 }
                             ),
                           ),

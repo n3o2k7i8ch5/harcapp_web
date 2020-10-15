@@ -59,6 +59,7 @@ class SongsPageState extends State<SongsPage>{
 
   CurrentItemProvider currItemProv;
   BindTitleFileNameProvider bindTitleFileNameProv;
+  SongFileNameDupErrProvider songFileNameDupErrProv;
 
   @override
   Widget build(BuildContext context) {
@@ -84,6 +85,8 @@ class SongsPageState extends State<SongsPage>{
             if(bindTitleFileNameProv.bind)
               song.fileName = (isConf?'oc!_':'o!_') + remPolChars(text).replaceAll(' ', '_');
 
+             songFileNameDupErrProv.chedkDupsFor(context, song);
+
             allSongsProv.notifyListeners();
 
           }
@@ -107,7 +110,10 @@ class SongsPageState extends State<SongsPage>{
         }),
 
         ChangeNotifierProvider(create: (context) => WorkspaceBlockProvider()),
-        ChangeNotifierProvider(create: (context) => SongFileNameDupErrProvider()),
+        ChangeNotifierProvider(create: (context){
+          songFileNameDupErrProv = SongFileNameDupErrProvider();
+          return songFileNameDupErrProv;
+        }),
 
         ChangeNotifierProvider(create: (context) => ShowCodeEditorProvider()),
 

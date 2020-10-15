@@ -197,14 +197,10 @@ class _FileNameEditorWidget extends StatelessWidget{
                     hintStyle: TextStyle(color: hintEnabled(context)),
                     onChanged: (text){
 
-                      List<SongRaw> allSongs = allSongsProvider.songs;
-                      for(SongRaw song in allSongs)
-                        if(song != this.song && text == song.fileName)
-                          errProv.putPair(song, this.song);
-                        else
-                          errProv.removePair(song, this.song);
-
                       song.fileName = (isConfid?'oc!_':'o!_') + text;
+
+                      SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
+                      songFileNameDupErrProv.chedkDupsFor(context, song);
                     }
                 )
             )
@@ -251,6 +247,9 @@ class _MoreButtonsWidget extends StatelessWidget{
                     else song.fileName = 'oc!_' + song.fileName.substring(3);
 
                     allSongsProv.set(song, !isConf);
+
+                    SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
+                    songFileNameDupErrProv.checkAllDups(context);
                   }
               );
             },

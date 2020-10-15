@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'core_own_song/common.dart';
 import 'core_song_management/song_raw.dart';
@@ -152,6 +153,27 @@ class SongFileNameDupErrProvider extends ChangeNotifier{
   }
 
   bool hasAny(SongRaw song) => _errMap[song] != null && _errMap[song].length!= 0;
+
+  void checkAllDups(BuildContext context){
+    AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
+
+    for(SongRaw song1 in allSongsProv.songs)
+      for(SongRaw song2 in allSongsProv.songs)
+        if(song1 != song2 && song1.fileName == song2.fileName){
+          putPair(song1, song2);
+        }
+  }
+
+  void chedkDupsFor(BuildContext context, SongRaw song){
+    AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
+    List<SongRaw> allSongs = allSongsProv.songs;
+    for(SongRaw _song in allSongs)
+      if(_song != song && song.fileName == _song.fileName)
+        putPair(_song, song);
+      else
+        removePair(_song, song);
+
+  }
 
 }
 
