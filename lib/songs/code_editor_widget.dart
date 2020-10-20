@@ -1,20 +1,29 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:harcapp_web/common/app_card.dart';
-import 'package:harcapp_web/common/app_text_style.dart';
-import 'package:harcapp_web/common/color_pack.dart';
-import 'package:harcapp_web/common/core_comm_widgets/tag_layout.dart';
-import 'package:harcapp_web/common/dimen.dart';
-import 'package:harcapp_web/common/show_toast.dart';
-import 'package:harcapp_web/songs/core_own_song/providers.dart';
+import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_widgets/app_card.dart';
+import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
+import 'package:harcapp_core/comm_widgets/tag_layout.dart';
+import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_core_own_song/providers.dart';
+import 'package:harcapp_core_own_song/song_raw.dart';
+import 'package:harcapp_web/songs/_main.dart';
 import 'package:harcapp_web/songs/providers.dart';
+import 'package:harcapp_web/songs/workspace/workspace.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
-import 'core_song_management/song_raw.dart';
-
 class CodeEditorWidget extends StatelessWidget{
+
+  SongPreviewProvider get songPrevProv => parent.songPrevProv;
+
+  SongsPageState parent;
+
+  CodeEditorWidget(this.parent);
+
+
   @override
   Widget build(BuildContext context) {
 
@@ -59,8 +68,9 @@ class CodeEditorWidget extends StatelessWidget{
                                         onPressed: (){
 
                                           try {
-                                            String fileName = prov.song.fileName;
-                                            SongRaw song = SongRaw.parse(fileName, prov.text);
+                                            Map map = jsonDecode(prov.text);
+                                            String fileName = map.keys.toList()[0];
+                                            SongRaw song = SongRaw.fromMap(fileName, map[fileName]);
 
                                             Provider.of<TitleCtrlProvider>(context, listen: false).text = song.title;
                                             Provider.of<AuthorCtrlProvider>(context, listen: false).text = song.author;
@@ -70,12 +80,18 @@ class CodeEditorWidget extends StatelessWidget{
                                             Provider.of<TagsProvider>(context, listen: false).tagsChecked = Tag.ALL_TAG_NAMES.map((tag) => song.tags.contains(tag)).toList();
 
                                             prov.song.set(song);
-                                            Provider.of<CurrentItemProvider>(context, listen: false).notifyListeners();
+                                            AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
+                                            allSongsProv.set(prov.song, prov.song.isConfid);
+
+                                            //Provider.of<SongPreviewProvider>(context, listen: false).resizeText();
+
+                                            displaySong(context, prov.song);
 
                                             prov.value = false;
                                           } catch(e){
-                                            showToast('Błędny kod piosneki.');
+                                            AppScaffold.showMessage(context, 'Błędny kod piosneki.');
                                           }
+
                                         }
                                     ),
                                   ],

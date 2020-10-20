@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_core/comm_widgets/harc_app.dart';
 import 'package:harcapp_web/songs/_main.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-
-import 'articles/_main.dart';
-import 'common/app_text_style.dart';
-import 'common/harc_app.dart';
 
 
 class MainPage extends StatefulWidget{
@@ -45,11 +43,13 @@ class MainPageState extends State<MainPage>{
                 title: 'Warsztat piosenki',
                 onTap: () => setState(() => body = SongsPage()),
               ),
+              /*
               PageNavItem(
                 icon: MdiIcons.feather,
                 title: 'Warsztat artykułów',
                 onTap: () => setState(() => body = ArticlePage()),
               )
+               */
             ],
           ),
         ),

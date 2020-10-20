@@ -1,16 +1,24 @@
 import 'dart:convert';
 
+import 'package:clipboard/clipboard.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:harcapp_web/common/app_text_style.dart';
-import 'package:harcapp_web/common/color_pack.dart';
-import 'package:harcapp_web/common/core_comm_widgets/simple_button.dart';
-import 'package:harcapp_web/common/dimen.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
+import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_widgets/app_card.dart';
+import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
+import 'package:harcapp_core/comm_widgets/app_text_field_hint.dart';
+import 'package:harcapp_core/comm_widgets/simple_button.dart';
+import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_core_own_song/song_raw.dart';
 import 'package:harcapp_web/common/download_file.dart';
-import 'package:harcapp_web/songs/core_own_song/common.dart';
-import 'package:harcapp_web/songs/core_song_management/song_raw.dart';
+import 'package:harcapp_web/common/google_form_sender.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
+
+const String EMAIL_TO_SEND = 'harcapp@gmail.com';
 
 class SaveSendWidget extends StatelessWidget{
 
@@ -43,36 +51,12 @@ class SaveSendWidget extends StatelessWidget{
                   ),
                   onTap: prov.count!=0?null:(){
 
-                    Map offSongMap = {};
-                    Map confSongMap = {};
+                    SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
+                    songFileNameDupErrProv.checkAllDups(context);
 
-                    AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
-                    List<SongRaw> allSongs = allSongsProv.songs;
+                    if(songFileNameDupErrProv.count != 0) return;
 
-                    allSongsProv.songs.sort(
-                        (a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase())
-                    );
-
-                    int iterOff = 0;
-                    int iterConf = 0;
-                    for(SongRaw song in allSongs){
-                      Map map = song.toMap(withFileName: false);
-                      if(allSongsProv.isConf(song))
-                        confSongMap[song.fileName] = {
-                          'song': map,
-                          'index': iterConf++
-                        };
-                      else
-                        offSongMap[song.fileName] = {
-                          'song': map,
-                          'index': iterOff++
-                        };
-                    }
-
-                    String code = jsonEncode({
-                      'official': offSongMap,
-                      'conf': confSongMap,
-                    });
+                    String code = convertAllToCode(context);
 
                     downloadFile(content: code, fileName: 'songs.hrcpsngs');
                   }
@@ -95,7 +79,19 @@ class SaveSendWidget extends StatelessWidget{
                     )
                   ],
                 ),
-                onTap: null
+                onTap: ()async{
+
+                  showDialog(
+                    context: context,
+                    builder: (context) => Center(
+                      child: SendSongWidget(
+
+                      ),
+                    )
+                  );
+
+
+                }
             )
         ),
         
@@ -103,4 +99,167 @@ class SaveSendWidget extends StatelessWidget{
     );
   }
 
+}
+
+class SendSongWidget extends StatefulWidget{
+
+  @override
+  State<StatefulWidget> createState() => SendSongWidgetState();
+
+}
+
+class SendSongWidgetState extends State<SendSongWidget>{
+
+  static const String FORMS_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSc4JtoEwQey4_MuE85SJ6oISyAfsgMlwTPMxkv84r-H1MFK6g/formResponse';
+
+  static RegExp emailRegExp = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
+
+  TextEditingController controller;
+
+  @override
+  void initState() {
+    controller = TextEditingController(text: '');
+    super.initState();
+  }
+  @override
+  Widget build(BuildContext context) {
+
+    bool sendable = emailRegExp.hasMatch(controller.text);
+    print(controller.text);
+    print(sendable);
+
+    return SizedBox(
+      width: 400,
+      child: AppCard(
+        padding: EdgeInsets.all(2*Dimen.MARG_ICON),
+        color: Colors.white,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+
+            Text(
+              'Prześlij piosenki do weryfikacji',
+              style: AppTextStyle(fontWeight: weight.halfBold, fontSize: Dimen.TEXT_SIZE_APPBAR),
+            ),
+
+            SizedBox(height: 20),
+
+            AppTextFieldHint(
+              hint: 'Podaj swój email:',
+              hintTop: 'Email:',
+              hintStyle: AppTextStyle(color: hintEnabled(context)),
+              style: AppTextStyle(color: textEnabled(context)),
+              controller: controller,
+              onChanged: (text) => setState((){}),
+            ),
+
+            SizedBox(height: 20),
+
+            Text(
+              'Na adres email wysłana zostanie kopia przesyłanych piosenek.'
+                  '\n\n'
+                  'Możesz także pobrać plik z piosenkami i przesłać go na adres:',
+              style: AppTextStyle(color: hintEnabled(context), fontSize: Dimen.TEXT_SIZE_NORMAL),
+            ),
+
+            Row(
+              children: [
+                SelectableText(EMAIL_TO_SEND, style: AppTextStyle(fontWeight: weight.halfBold)),
+                IconButton(icon: Icon(MdiIcons.contentCopy), onPressed: () => FlutterClipboard.copy(EMAIL_TO_SEND))
+              ],
+            ),
+
+            SizedBox(height: 20),
+
+            Row(
+              children: [
+                if(!sendable)
+                  Text('Podaj email.', style: AppTextStyle(color: Colors.red)),
+
+                Expanded(child: Container()),
+                SimpleButton(
+                    padding: EdgeInsets.all(Dimen.MARG_ICON),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Prześlij',
+                          style: AppTextStyle(
+                            fontWeight: weight.halfBold,
+                            color: sendable?iconEnabledColor(context):iconDisabledColor(context)
+                          ),
+                        ),
+                        SizedBox(width: Dimen.MARG_ICON),
+                        Icon(
+                            MdiIcons.send,
+                            color: sendable?iconEnabledColor(context):iconDisabledColor(context)
+                        ),
+                      ],
+                    ),
+                    onTap: sendable? ()async{
+
+                      try {
+                        GoogleFormSender sender = GoogleFormSender(FORMS_URL);
+                        sender.addTextResponse('entry.1848845001', convertAllToCode(context));
+                        sender.addTextResponse('emailAddress', controller.text);
+                        await sender.submit();
+
+                        AppScaffold.showMessage(context, 'Przesłano piosenkę. Dzięki!');
+                        Navigator.pop(context);
+
+                      } catch (e){
+
+                        AppScaffold.showMessage(context,
+                          'Błąd! Niestety funkcja wysyłania wciąż czasami nie działa. Pobierz piosenkę i prześlij plik na <b>$EMAIL_TO_SEND</b>',
+                          duration: Duration(seconds: 10)
+                        );
+
+                      }
+                    }:null
+
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+}
+
+String convertAllToCode(BuildContext context){
+
+  Map offSongMap = {};
+  Map confSongMap = {};
+
+  AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
+  List<SongRaw> allSongs = allSongsProv.songs;
+
+  allSongsProv.songs.sort(
+          (a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase())
+  );
+
+  int iterOff = 0;
+  int iterConf = 0;
+  for(SongRaw song in allSongs){
+    Map map = song.toMap(withFileName: false);
+    if(allSongsProv.isConf(song))
+      confSongMap[song.fileName] = {
+        'song': map,
+        'index': iterConf++
+      };
+    else
+      offSongMap[song.fileName] = {
+        'song': map,
+        'index': iterOff++
+      };
+  }
+
+  String code = jsonEncode({
+    'official': offSongMap,
+    'conf': confSongMap,
+  });
+
+  return code;
 }

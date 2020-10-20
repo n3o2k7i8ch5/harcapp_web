@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:harcapp_web/common/app_text_style.dart';
-import 'package:harcapp_web/common/dimen.dart';
-import 'package:harcapp_web/common/harc_app.dart';
-import 'package:harcapp_web/common/simple_button.dart';
+import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_core/comm_classes/simple_button.dart';
+import 'package:harcapp_core/comm_widgets/harc_app.dart';
+import 'package:harcapp_core/dimen.dart';
 
 import 'article_editor/article_editor.dart';
 import 'author_editor.dart';

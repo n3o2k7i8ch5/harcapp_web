@@ -1,11 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:harcapp_web/common/app_card.dart';
-import 'package:harcapp_web/common/app_text_style.dart';
-import 'package:harcapp_web/common/color_pack.dart';
-import 'package:harcapp_web/common/dimen.dart';
-import 'package:harcapp_web/common/simple_button.dart';
-
+import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_classes/simple_button.dart';
+import 'package:harcapp_core/comm_widgets/app_card.dart';
+import 'package:harcapp_core/dimen.dart';
 
 class Tag extends StatefulWidget{
 

@@ -3,15 +3,15 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:harcapp_web/common/app_card.dart';
-import 'package:harcapp_web/common/app_text_style.dart';
-import 'package:harcapp_web/common/color_pack.dart';
-import 'package:harcapp_web/common/core_comm_widgets/app_button.dart';
-import 'package:harcapp_web/common/core_comm_widgets/app_text_field_hint.dart';
-import 'package:harcapp_web/common/dimen.dart';
-import 'package:harcapp_web/common/show_toast.dart';
-import 'package:harcapp_web/songs/core_own_song/providers.dart';
-import 'package:harcapp_web/songs/core_song_management/song_raw.dart';
+import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_widgets/app_card.dart';
+import 'package:harcapp_core/comm_widgets/app_button.dart';
+import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
+import 'package:harcapp_core/comm_widgets/app_text_field_hint.dart';
+import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_core_own_song/providers.dart';
+import 'package:harcapp_core_own_song/song_raw.dart';
 import 'package:harcapp_web/songs/workspace/workspace.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:pretty_json/pretty_json.dart';
@@ -86,7 +86,7 @@ class ItemWidgetState extends State<ItemWidget>{
                             AppButton(
                                 icon: Icon(MdiIcons.close),
                                 onTap: (){
-                                  showToast('Przytrzymaj przycisk, by usunąć piosenkę.');
+                                  AppScaffold.showMessage(context, 'Przytrzymaj przycisk, by usunąć piosenkę.');
                                 },
                                 onLongPress: workspaceBlockProv.blocked?null:(){
 
@@ -112,6 +112,8 @@ class ItemWidgetState extends State<ItemWidget>{
                                   if(errSongs != null)
                                     for(SongRaw errSongOth in errSongs)
                                       errProv.removePair(song, errSongOth);
+
+                                  Provider.of<SongEditorPanelProvider>(context, listen: false).notify();
 
                                 }
                             ),

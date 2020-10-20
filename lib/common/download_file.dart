@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:html' as html;
+import 'dart:html';
 
 import 'package:flutter/widgets.dart';
 
@@ -8,16 +8,16 @@ void downloadFile({
   @required String content,
 }){
   final bytes = utf8.encode(content);
-  final blob = html.Blob([bytes]);
-  final url = html.Url.createObjectUrlFromBlob(blob);
-  final anchor = html.document.createElement('a') as html.AnchorElement
+  final blob = Blob([bytes]);
+  final url = Url.createObjectUrlFromBlob(blob);
+  final anchor = document.createElement('a') as AnchorElement
     ..href = url
     ..style.display = 'none'
     ..download = fileName;
-  html.document.body.children.add(anchor);
+  document.body.children.add(anchor);
 
   anchor.click();
 
-  html.document.body.children.remove(anchor);
-  html.Url.revokeObjectUrl(url);
+  document.body.children.remove(anchor);
+  Url.revokeObjectUrl(url);
 }

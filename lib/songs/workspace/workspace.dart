@@ -9,23 +9,23 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:harcapp_core/colors.dart';
+import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_core_own_song/common.dart';
+import 'package:harcapp_core_own_song/providers.dart';
+import 'package:harcapp_core_own_song/song_raw.dart';
 import 'package:harcapp_web/articles/article_editor/common.dart';
-import 'package:harcapp_web/common/app_text_style.dart';
-import 'package:harcapp_web/common/color_pack.dart';
-import 'package:harcapp_web/common/colors.dart';
-import 'package:harcapp_web/common/core_comm_widgets/simple_button.dart';
-import 'package:harcapp_web/common/dimen.dart';
-import 'package:harcapp_web/songs/core_own_song/providers.dart';
+import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/workspace/workspace_item.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
-import '../core_own_song/common.dart';
-import '../core_song_management/song_raw.dart';
 import '../core_tags/tag_layout.dart';
 
-void importSongsFromCode(String code, {Function(List<SongRaw> offSongs, List<SongRaw> confSongs) onFinished}){
+void importSongsFromCode(String code, {@required Function(List<SongRaw> offSongs, List<SongRaw> confSongs) onFinished}){
 
   Map<String, dynamic> map = jsonDecode(code);
 
@@ -96,6 +96,8 @@ class WorkspacePartState extends State<WorkspacePart>{
                     allSongsProv.init(songs, map);
                   });
 
+              Provider.of<SongEditorPanelProvider>(context, listen: false).notify();
+
               SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
               songFileNameDupErrProv.checkAllDups(context);
 
@@ -129,9 +131,14 @@ class LoadWidget extends StatelessWidget{
             text: 'Importuj piosenki',
             onTap: ()async{
 
-              FilePickerCross filePicker = FilePickerCross();
-              bool picked = await filePicker.pick();
-              if(picked){
+              FilePickerCross filePicker = await FilePickerCross.importFromStorage(
+                  type: FileTypeCross.any,
+                  fileExtension: '.hrcpsng'
+              );
+
+              //FilePickerCross filePicker = FilePickerCross();
+              //bool picked = await filePicker.pick();
+              if(filePicker.fileName != null){
                 Uint8List uint8List = filePicker.toUint8List();
                 String code = utf8.decode(uint8List);
                 onLoaded(code);
@@ -149,10 +156,11 @@ class LoadWidget extends StatelessWidget{
               song.fileName = 'o!_';
               Provider.of<AllSongsProvider>(context, listen: false).addOff(song);
 
-              displaySong(context, song);
-
               SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
               songFileNameDupErrProv.checkAllDups(context);
+
+              displaySong(context, song);
+
             }
 
         )
@@ -308,9 +316,12 @@ class SongListViewState extends State<SongListView>{
                                 icon: Icon(MdiIcons.fileUploadOutline),
                                 onPressed: workspaceBlockProv.blocked?null:() async {
 
-                                  FilePickerCross filePicker = FilePickerCross();
-                                  bool picked = await filePicker.pick();
-                                  if(!picked)
+                                  FilePickerCross filePicker = await FilePickerCross.importFromStorage(
+                                      type: FileTypeCross.any,
+                                      fileExtension: '.hrcpsng'
+                                  );
+
+                                  if(filePicker.fileName==null)
                                     return;
 
                                   Uint8List uint8List = filePicker.toUint8List();
@@ -322,7 +333,7 @@ class SongListViewState extends State<SongListView>{
                                       code,
                                       onFinished: (List<SongRaw> offSongs, List<SongRaw> confSongs){
                                         List<SongRaw> songs = confSongs + offSongs;
-                                        Map map = {};
+                                        Map<SongRaw, bool> map = {};
                                         for(SongRaw song in songs) map[song] = confSongs.contains(song);
                                         allSongsProv.addAll(songs, map);
                                       });
@@ -343,10 +354,11 @@ class SongListViewState extends State<SongListView>{
                                   song.fileName = 'o!_';
                                   Provider.of<AllSongsProvider>(context, listen: false).addOff(song);
 
-                                  displaySong(context, song);
-
                                   SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
                                   songFileNameDupErrProv.checkAllDups(context);
+
+                                  displaySong(context, song);
+
                                 }
                             ),
                           ),
@@ -384,11 +396,13 @@ void displaySong(BuildContext context, SongRaw song){
 
   SongPart refPart;
   if(song?.refrenPart == null)
-    refPart = SongPart.empty();
+    refPart = SongPart.empty(isRefren: true);
   else
     refPart = song.refrenPart;
 
   Provider.of<RefrenPartProvider>(context, listen: false).part = refPart;
+
+  Provider.of<SongEditorPanelProvider>(context, listen: false).notify();
 
   TagsProvider tagsProv = Provider.of<TagsProvider>(context, listen: false);
   tagsProv.set(Tag.ALL_TAG_NAMES, song?.tags??[]);

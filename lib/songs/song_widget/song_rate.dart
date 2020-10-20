@@ -2,12 +2,12 @@
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:harcapp_web/common/app_card.dart';
-import 'package:harcapp_web/common/app_text_style.dart';
-import 'package:harcapp_web/common/color_pack.dart';
-import 'package:harcapp_web/common/core_comm_widgets/shadow_icon.dart';
-import 'package:harcapp_web/common/dimen.dart';
-import 'package:harcapp_web/songs/core_song_management/song_core.dart';
+import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_widgets/app_card.dart';
+import 'package:harcapp_core/comm_widgets/shadow_icon.dart';
+import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_core_song/song_core.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class RateCard<T extends SongCore> extends StatefulWidget{
@@ -175,9 +175,9 @@ class RateIcon{
   final double size;
   const RateIcon(this.rate, {this.enabled:true, this.size: Dimen.ICON_SIZE});
 
-  static Icon build(BuildContext context, int rate, {bool enabled:true, double size: Dimen.ICON_SIZE}){
+  static Icon build(BuildContext context, int rate, {bool enabled:true, double size: Dimen.ICON_SIZE, Color iconColor}){
     switch(rate){
-      case SongRate.RATE_NULL: return Icon(SongRate.IC_DATA_NULL, color: iconEnabledColor(context));
+      case SongRate.RATE_NULL: return Icon(SongRate.IC_DATA_NULL, color: iconColor??iconEnabledColor(context));
       case SongRate.RATE_DISLIKE: return SongRate.iconDislike(enabled: enabled, size: size);
       case SongRate.RATE_LIKE_1: return SongRate.iconLike1(enabled: enabled, size: size);
       case SongRate.RATE_LIKE_2: return SongRate.iconLike2(enabled: enabled, size: size);

@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:harcapp_web/common/app_card.dart';
-import 'package:harcapp_web/common/app_text_style.dart';
-import 'package:harcapp_web/common/color_pack.dart';
-import 'package:harcapp_web/common/core_comm_widgets/simple_button.dart';
-import 'package:harcapp_web/common/dimen.dart';
+import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_widgets/app_card.dart';
+import 'package:harcapp_core/comm_widgets/simple_button.dart';
+import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_core_own_song/common.dart';
+import 'package:harcapp_core_own_song/providers.dart';
+import 'package:harcapp_core_own_song/song_raw.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/song_widget/providers.dart';
 import 'package:harcapp_web/songs/song_widget/song_widget_template.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:pretty_json/pretty_json.dart';
 import 'package:provider/provider.dart';
-
-import 'core_own_song/common.dart';
-import 'core_own_song/providers.dart';
-import 'core_song_management/song_raw.dart';
 
 class SongPreview extends StatelessWidget{
 
@@ -31,11 +30,11 @@ class SongPreview extends StatelessWidget{
                 return Container(
                   width: MediaQuery.of(context).size.width<1200 + 4*32?0:400,
                   child: Padding(
-                      padding: EdgeInsets.only(top: 32, bottom: 32, right: 32),
+                      padding: EdgeInsets.only(bottom: 32, right: 32),
                       child: Column(
                         children: [
 
-                          HeaderWidget('Podgląd piosenki', MdiIcons.bookmarkMusicOutline, enabled: false),
+                          HeaderWidget('Podgląd piosenki', MdiIcons.bookmarkMusicOutline, enabled: true),
 
                           AppCard(
                             padding: EdgeInsets.zero,
@@ -103,12 +102,13 @@ class SongPreview extends StatelessWidget{
                                   ):
                                   SongWidgetTemplate<SongRaw>(
                                       currItemProv.song,
-                                      screenWidth: 380,
-                                      key: ValueKey(currItemProv.song)
+                                      screenWidth: 372,
+                                      key: UniqueKey()//ValueKey(currItemProv.song)
                                   ),
                                 ),
                               )
                           )
+
                         ],
                       )
                   ),

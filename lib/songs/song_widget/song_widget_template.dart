@@ -4,16 +4,16 @@ import 'dart:ui';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:harcapp_web/common/app_card.dart';
-import 'package:harcapp_web/common/app_text_style.dart';
-import 'package:harcapp_web/common/color_pack.dart';
-import 'package:harcapp_web/common/core_comm_classes/primitive_wrapper.dart';
-import 'package:harcapp_web/common/core_comm_widgets/app_button.dart';
-import 'package:harcapp_web/common/core_comm_widgets/chord_draw_bar.dart';
-import 'package:harcapp_web/common/core_comm_widgets/simple_button.dart';
-import 'package:harcapp_web/common/core_comm_widgets/tag_layout.dart';
-import 'package:harcapp_web/common/dimen.dart';
-import 'package:harcapp_web/songs/core_song_management/song_core.dart';
+import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_classes/primitive_wrapper.dart';
+import 'package:harcapp_core/comm_widgets/app_card.dart';
+import 'package:harcapp_core/comm_widgets/app_button.dart';
+import 'package:harcapp_core/comm_widgets/chord_draw_bar.dart';
+import 'package:harcapp_core/comm_widgets/simple_button.dart';
+import 'package:harcapp_core/comm_widgets/tag_layout.dart';
+import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_core_song/song_core.dart';
 import 'package:harcapp_web/songs/song_widget/providers.dart';
 import 'package:harcapp_web/songs/song_widget/settings.dart';
 import 'package:harcapp_web/songs/song_widget/song_rate.dart';
@@ -33,29 +33,29 @@ class SongWidgetTemplate<T extends SongCore> extends StatefulWidget{
 
   final double topScreenPadding;
 
-  final Function(ScrollController controller) onScroll;
+  final void Function(ScrollController controller) onScroll;
 
-  final Function() onTitleTap;
-  final Function() onAuthorTap;
-  final Function() onPerformerTap;
-  final Function(String tag) onTagTap;
+  final void Function() onTitleTap;
+  final void Function() onAuthorTap;
+  final void Function() onPerformerTap;
+  final void Function(String tag) onTagTap;
 
-  final Function(double position) onYTLinkTap;
-  final Function onYTLinkLongPress;
+  final void Function(double position) onYTLinkTap;
+  final void Function() onYTLinkLongPress;
 
-  final Function(BuildContext context, bool changedSize) onMinusTap;
-  final Function(BuildContext context, bool changedSize) onPlusTap;
+  final void Function(BuildContext context, bool changedSize) onMinusTap;
+  final void Function(BuildContext context, bool changedSize) onPlusTap;
 
-  final Function() onAlbumsTap;
+  final void Function() onAlbumsTap;
 
-  final Function(double position) onRateTap;
+  final void Function(double position) onRateTap;
 
-  final Function() onDeleteTap;
-  final Function() onDeleteLongPress;
+  final void Function() onDeleteTap;
+  final void Function() onDeleteLongPress;
 
-  final Function() onReportTap;
+  final void Function() onReportTap;
 
-  final Function(TextSizeProvider) onEditTap;
+  final void Function(TextSizeProvider) onEditTap;
 
   final void Function() onSendSongTap;
 
@@ -65,11 +65,13 @@ class SongWidgetTemplate<T extends SongCore> extends StatefulWidget{
 
   final void Function(bool isTypeGuitar) onChordsTypeChanged;
 
-  final Function(TextSizeProvider provider) onChordsTap;
-  final Function(TextSizeProvider provider) onChordsLongPress;
+  final void Function(TextSizeProvider provider) onChordsTap;
+  final void Function(TextSizeProvider provider) onChordsLongPress;
 
   final Widget Function(BuildContext, ScrollController) header;
   final Widget Function(BuildContext, ScrollController) footer;
+
+  //final SongWidgetController controller;
 
   const SongWidgetTemplate(
       this.song,
@@ -117,6 +119,7 @@ class SongWidgetTemplate<T extends SongCore> extends StatefulWidget{
 
         this.header,
         this.footer,
+
         Key key
       }):super(key: key);
 
@@ -127,6 +130,34 @@ class SongWidgetTemplate<T extends SongCore> extends StatefulWidget{
 class SongWidgetTemplateState<T extends SongCore> extends State<SongWidgetTemplate> with TickerProviderStateMixin {
 
   T get song => widget.song;
+  ValueNotifier get pageNotifier => widget.pageNotifier;
+  int get index => widget.index;
+  double get topScreenPadding => widget.topScreenPadding;
+  void Function(ScrollController controller) get onScroll => widget.onScroll;
+  void Function() get onTitleTap => widget.onTitleTap;
+  void Function() get onAuthorTap => widget.onAuthorTap;
+  void Function() get onPerformerTap => widget.onPerformerTap;
+  void Function(String tag) get onTagTap => widget.onTagTap;
+  void Function(double position) get onYTLinkTap => widget.onYTLinkTap;
+  void Function() get onYTLinkLongPress => widget.onYTLinkLongPress;
+  void Function(BuildContext context, bool changedSize) get onMinusTap => widget.onMinusTap;
+  void Function(BuildContext context, bool changedSize) get onPlusTap => widget.onPlusTap;
+  void Function() get onAlbumsTap => widget.onAlbumsTap;
+  void Function(double position) get onRateTap => widget.onRateTap;
+  void Function() get onDeleteTap => widget.onDeleteTap;
+  void Function() get onDeleteLongPress => widget.onDeleteLongPress;
+  void Function() get onReportTap => widget.onReportTap;
+  void Function(TextSizeProvider) get onEditTap => widget.onEditTap;
+  void Function() get onSendSongTap => widget.onSendSongTap;
+  void Function() get onShareTap => widget.onShareTap;
+  void Function() get onCopyTap => widget.onCopyTap;
+  void Function(bool isTypeGuitar) get onChordsTypeChanged => widget.onChordsTypeChanged;
+  void Function(TextSizeProvider provider) get onChordsTap => widget.onChordsTap;
+  void Function(TextSizeProvider provider) get onChordsLongPress => widget.onChordsLongPress;
+  Widget Function(BuildContext, ScrollController) get header => widget.header;
+  Widget Function(BuildContext, ScrollController) get footer => widget.footer;
+
+  BuildContext textSizeContext;
 
   List<Widget> widgets = [];
 
@@ -138,24 +169,26 @@ class SongWidgetTemplateState<T extends SongCore> extends State<SongWidgetTempla
 
   bool showChords() =>
       Settings.showChords
-          && widget.song.hasChords;
+          && song.hasChords;
 
   ScrollController scrollController;
 
   void resetDisplayChordDraw() =>
-      setState(() => displayChordDraw = widget.song.hasChords && Settings.showChords && Settings.chordsDrawShow);
+      setState(() => displayChordDraw = song.hasChords && Settings.showChords && Settings.chordsDrawShow);
 
   bool displayChordDraw;
 
   @override
   void initState() {
-    //wantedFontSize = defFontSize;
+
+    //if(widget.controller != null) widget.controller.init(this);
+
     contentCardsKey = GlobalKey();
 
-    displayChordDraw = widget.song.hasChords && Settings.showChords && Settings.chordsDrawShow;
+    displayChordDraw = song.hasChords && Settings.showChords && Settings.chordsDrawShow;
 
     scrollController = ScrollController();
-    if(widget.onScroll != null) scrollController.addListener(() => widget.onScroll(scrollController));
+    if(widget.onScroll != null) scrollController.addListener(() => onScroll(scrollController));
 
     lineNum = getLineNums(song.text);
 
@@ -165,6 +198,7 @@ class SongWidgetTemplateState<T extends SongCore> extends State<SongWidgetTempla
   @override
   void dispose() {
     scrollController.dispose();
+    //widget.controller.dispose();
     super.dispose();
   }
 
@@ -174,107 +208,112 @@ class SongWidgetTemplateState<T extends SongCore> extends State<SongWidgetTempla
     double screenWidth = MediaQuery.of(context).size.width;
     return ChangeNotifierProvider<TextSizeProvider>(
       create: (context) => TextSizeProvider(widget.screenWidth??screenWidth, song),
-      builder: (context, child) => OrientationBuilder(
-          builder: (BuildContext context, Orientation orientation) {
-            // To po to, żeby tekst został zresetowany po zmianie orientacji.
-            if (oldOrientation != MediaQuery.of(context).orientation) {
-              oldOrientation = orientation;
-            }
+      builder: (context, child){
 
-            SingleChildScrollView listView = SingleChildScrollView(
-              physics: BouncingScrollPhysics(),
-              controller: scrollController,
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
+        textSizeContext = context;
 
-                    Consumer3<ChordsDrawPinnedProvider, ChordsDrawShowProvider, ShowChordsProvider>(
-                        builder: (context, chordsDrawPinProv, chordsDrawShowProv, showChordsProv, child) =>
-                            SizedBox(
-                                height: (chordsDrawPinProv.pinChordsDraw && chordsDrawShowProv.chordsDrawShow && showChordsProv.showChords)?
-                                ChordWidget.height(Settings.chordsDrawType?6:4) + Dimen.DEF_MARG.toInt():0
-                            )
-                    ),
+        return OrientationBuilder(
+            builder: (BuildContext context, Orientation orientation) {
+              // To po to, żeby tekst został zresetowany po zmianie orientacji.
+              if (oldOrientation != MediaQuery.of(context).orientation) {
+                oldOrientation = orientation;
+              }
 
-                    if(!widget.song.official)
-                      AppCard(
-                          color: accentColor(context),
-                          child: Text(
-                            'Piosenka nieoficjalna.',
-                            style: AppTextStyle(color: accentIcon(context)),
-                            textAlign: TextAlign.center,
-                          )
+              SingleChildScrollView listView = SingleChildScrollView(
+                physics: BouncingScrollPhysics(),
+                controller: scrollController,
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+
+                      Consumer3<ChordsDrawPinnedProvider, ChordsDrawShowProvider, ShowChordsProvider>(
+                          builder: (context, chordsDrawPinProv, chordsDrawShowProv, showChordsProv, child) =>
+                              SizedBox(
+                                  height: (chordsDrawPinProv.pinChordsDraw && chordsDrawShowProv.chordsDrawShow && showChordsProv.showChords)?
+                                  ChordWidget.height(Settings.chordsDrawType?6:4) + Dimen.DEF_MARG.toInt():0
+                              )
                       ),
 
-                    if(widget.header!=null) widget.header(context, scrollController),
-
-                    TitleCard<T>(this),
-
-                    Column(
-                      children: <Widget>[
-
-                        Consumer3<ChordsDrawPinnedProvider, ChordsDrawShowProvider, ShowChordsProvider>(
-                          child: ChordsBarCard(this),
-                          builder: (context, chordsDrawPinProv, chordsDrawShowProv, showChordsProv, child){
-                            if(!chordsDrawPinProv.pinChordsDraw && chordsDrawShowProv.chordsDrawShow && showChordsProv.showChords)
-                              return child;
-                            else
-                              return Container();
-                          },
-                        ),
-
-                        ButtonWidget<T>(this),
-
-                        ContentWidget<T>(this, scrollController, globalKey: contentCardsKey),
-
-                        //SizedBox(height: 18.0),
-
-                        if(widget.footer!=null) widget.footer(context, scrollController)
-
-                      ],
-                    ),
-
-                    if(widget.song.addPers.length != 0)
-                      Padding(
-                        padding: EdgeInsets.all(Dimen.DEF_MARG),
-                        child: RichText(
-                            textAlign: TextAlign.start,
-                            text: TextSpan(
-                              children: [
-                                TextSpan(text: 'Os. dodająca:\n', style: AppTextStyle(color: hintEnabled(context), fontSize: Dimen.TEXT_SIZE_TINY)),
-                                TextSpan(text: widget.song.addPers, style: AppTextStyle(color: hintEnabled(context), fontSize: Dimen.TEXT_SIZE_TINY, fontWeight: weight.halfBold)),
-                              ],
+                      if(song.isOwn)
+                        AppCard(
+                            color: accentColor(context),
+                            child: Text(
+                              'Piosenka nieoficjalna.',
+                              style: AppTextStyle(color: accentIcon(context)),
+                              textAlign: TextAlign.center,
                             )
                         ),
+
+                      if(header!=null) header(context, scrollController),
+
+                      TitleCard<T>(this),
+
+                      Column(
+                        children: <Widget>[
+
+                          Consumer3<ChordsDrawPinnedProvider, ChordsDrawShowProvider, ShowChordsProvider>(
+                            child: ChordsBarCard(this),
+                            builder: (context, chordsDrawPinProv, chordsDrawShowProv, showChordsProv, child){
+                              if(!chordsDrawPinProv.pinChordsDraw && chordsDrawShowProv.chordsDrawShow && showChordsProv.showChords)
+                                return child;
+                              else
+                                return Container();
+                            },
+                          ),
+
+                          ButtonWidget<T>(this),
+
+                          ContentWidget<T>(this, scrollController, globalKey: contentCardsKey),
+
+                          //SizedBox(height: 18.0),
+
+                          if(footer!=null) footer(context, scrollController)
+
+                        ],
                       ),
 
-                  ]
-              ),
-            );
+                      if(song.addPers.length != 0)
+                        Padding(
+                          padding: EdgeInsets.all(Dimen.DEF_MARG),
+                          child: RichText(
+                              textAlign: TextAlign.start,
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(text: 'Os. dodająca:\n', style: AppTextStyle(color: hintEnabled(context), fontSize: Dimen.TEXT_SIZE_TINY)),
+                                  TextSpan(text: song.addPers, style: AppTextStyle(color: hintEnabled(context), fontSize: Dimen.TEXT_SIZE_TINY, fontWeight: weight.halfBold)),
+                                ],
+                              )
+                          ),
+                        ),
 
-            return Stack(
-              children: <Widget>[
-
-                listView,
-                Consumer3<ChordsDrawPinnedProvider, ChordsDrawShowProvider, ShowChordsProvider>(
-                  child: Material(
-                    color: defCardEnabled(context),
-                    elevation: AppCard.bigElevation,
-                    child: ChordsBarCard<T>(this),
-                  ),
-                  builder: (context, chordsDrawPinProv, chordsDrawShowProv, showChordsProv, child){
-                    if(chordsDrawPinProv.pinChordsDraw && chordsDrawShowProv.chordsDrawShow && showChordsProv.showChords)
-                      return child;
-                    else
-                      return Container();
-                  },
+                    ]
                 ),
+              );
+
+              return Stack(
+                children: <Widget>[
+
+                  listView,
+                  Consumer3<ChordsDrawPinnedProvider, ChordsDrawShowProvider, ShowChordsProvider>(
+                    child: Material(
+                      color: defCardEnabled(context),
+                      elevation: AppCard.bigElevation,
+                      child: ChordsBarCard<T>(this),
+                    ),
+                    builder: (context, chordsDrawPinProv, chordsDrawShowProv, showChordsProv, child){
+                      if(chordsDrawPinProv.pinChordsDraw && chordsDrawShowProv.chordsDrawShow && showChordsProv.showChords)
+                        return child;
+                      else
+                        return Container();
+                    },
+                  ),
 
 
-              ],
-            );
-          }),
+                ],
+              );
+            });
+      },
     );
 
   }
@@ -304,7 +343,7 @@ class TitleCard<T extends SongCore> extends StatelessWidget{
         textAlign: TextAlign.center,
       ),
       padding: EdgeInsets.all(2*Dimen.DEF_MARG),
-      onTap: parent.widget.onTitleTap,
+      onTap: parent.onTitleTap,
     );
 
     Widget widgetAuthor = SimpleButton(
@@ -510,6 +549,13 @@ class ButtonWidget<T extends SongCore> extends StatelessWidget{
 
 class TopWidget<T extends SongCore> extends StatelessWidget{
 
+  void Function(double position) get onYTLinkTap => parent.widget.onYTLinkTap;
+  void Function() get onYTLinkLongPress => parent.widget.onYTLinkLongPress;
+  void Function(BuildContext context, bool changedSize) get onMinusTap => parent.widget.onMinusTap;
+  void Function(BuildContext context, bool changedSize) get onPlusTap => parent.widget.onPlusTap;
+  void Function() get onAlbumsTap => parent.widget.onAlbumsTap;
+  void Function(double position) get onRateTap => parent.widget.onRateTap;
+
   final SongWidgetTemplateState<T> parent;
 
   T get song => parent.widget.song;
@@ -533,18 +579,22 @@ class TopWidget<T extends SongCore> extends StatelessWidget{
             AppButton(
                 icon: Icon(
                     MdiIcons.playOutline,
-                    color: iconEnabledColor(context)
+                    color: onYTLinkTap==null?iconDisabledColor(context):iconEnabledColor(context)
                 ),
-                onLongPress: parent.widget.onYTLinkLongPress,
-                onTap: parent.widget.onYTLinkTap==null?null:(){
+                onLongPress: onYTLinkLongPress,
+                onTap: onYTLinkTap==null?null:(){
                   final RenderBox renderBox = parent.contentCardsKey.currentContext.findRenderObject();
                   final position = renderBox.localToGlobal(Offset.zero).dy - parent.widget.topScreenPadding;
-                  parent.widget.onYTLinkTap(position);
+                  onYTLinkTap(position);
                 }
             ),
 
-          IconButton(icon: Icon(MdiIcons.minusCircleOutline, color: iconEnabledColor(context)),
-              onPressed: parent.widget.onMinusTap==null?null:(){
+          IconButton(
+              icon: Icon(
+                  MdiIcons.minusCircleOutline,
+                  color: onMinusTap==null?iconDisabledColor(context):iconEnabledColor(context)
+              ),
+              onPressed: onMinusTap==null?null:(){
 
                 TextSizeProvider prov = Provider.of<TextSizeProvider>(context, listen: false);
 
@@ -554,18 +604,22 @@ class TopWidget<T extends SongCore> extends StatelessWidget{
                 else
                   changedSize = false;
 
-                parent.widget.onMinusTap(context, changedSize);
+                onMinusTap(context, changedSize);
 
               }),
-          IconButton(icon: Icon(MdiIcons.plusCircleOutline, color: iconEnabledColor(context)),
-              onPressed: parent.widget.onPlusTap==null?null:(){
+          IconButton(
+              icon: Icon(
+                MdiIcons.plusCircleOutline,
+                color: onPlusTap==null?iconDisabledColor(context):iconEnabledColor(context)
+              ),
+              onPressed: onPlusTap==null?null:(){
 
                 TextSizeProvider prov = Provider.of<TextSizeProvider>(context, listen: false);
 
                 double scaleFactor = TextSizeProvider.fits(
                     parent.widget.screenWidth??MediaQuery.of(context).size.width,
                     song.text,
-                    parent.showChords()?song.getChords():null,
+                    parent.showChords()?song.chords:null,
                     parent.lineNum,
                     prov.value + 0.5);
 
@@ -576,22 +630,29 @@ class TopWidget<T extends SongCore> extends StatelessWidget{
                 }else
                   changedSize = false;
 
-                parent.widget.onPlusTap(context, changedSize);
+                onPlusTap(context, changedSize);
               }
           ),
 
           IconButton(
-            icon: Icon(MdiIcons.bookmarkCheckOutline, color: iconEnabledColor(context)),
-            onPressed: parent.widget.onAlbumsTap,
+            icon: Icon(
+                MdiIcons.bookmarkCheckOutline,
+                color: onAlbumsTap==null?iconDisabledColor(context):iconEnabledColor(context)
+            ),
+            onPressed: onAlbumsTap,
           ),
 
           IconButton(
-              icon: RateIcon.build(context, song.rate),
-              onPressed: parent.widget.onRateTap==null?null:
+              icon: RateIcon.build(
+                context,
+                song.rate,
+                iconColor: onRateTap==null?iconDisabledColor(context):iconEnabledColor(context)
+              ),
+              onPressed: onRateTap==null?null:
                   (){
                 final RenderBox renderBox = parent.contentCardsKey.currentContext.findRenderObject();
                 final position = renderBox.localToGlobal(Offset.zero).dy - parent.widget.topScreenPadding;
-                parent.widget.onRateTap(position);
+                onRateTap(position);
               }
           )
         ],
@@ -602,6 +663,14 @@ class TopWidget<T extends SongCore> extends StatelessWidget{
 }
 
 class BottomWidget<T extends SongCore> extends StatelessWidget{
+
+  void Function() get onDeleteTap => parent.widget.onDeleteTap;
+  void Function() get onDeleteLongPress => parent.widget.onDeleteLongPress;
+  void Function() get onReportTap => parent.widget.onReportTap;
+  void Function(TextSizeProvider) get onEditTap => parent.widget.onEditTap;
+  void Function() get onSendSongTap => parent.widget.onSendSongTap;
+  void Function() get onShareTap => parent.widget.onShareTap;
+  void Function() get onCopyTap => parent.widget.onCopyTap;
 
   final SongWidgetTemplateState<T> parent;
   const BottomWidget(this.parent);
@@ -617,37 +686,54 @@ class BottomWidget<T extends SongCore> extends StatelessWidget{
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          if(!song.official)
+          if(song.isOwn)
             AppButton(
-                icon: Icon(MdiIcons.trashCanOutline, color: iconEnabledColor(context)),
-                onTap: parent.widget.onDeleteTap,
-                onLongPress: parent.widget.onDeleteLongPress),
-          if(song.official)
-            IconButton(icon: Icon(MdiIcons.alertOutline, color: iconEnabledColor(context)),
-                onPressed: parent.widget.onReportTap),
+                icon: Icon(
+                    MdiIcons.trashCanOutline,
+                    color: onDeleteTap==null?iconDisabledColor(context):iconEnabledColor(context)
+                ),
+                onTap: onDeleteTap,
+                onLongPress: onDeleteLongPress),
+          if(!song.isOwn)
+            IconButton(
+                icon: Icon(
+                    MdiIcons.alertOutline,
+                    color: onReportTap==null?iconDisabledColor(context):iconEnabledColor(context)
+                ),
+                onPressed: onReportTap),
           IconButton(
-              icon: Icon(MdiIcons.pencilOutline, color: iconEnabledColor(context)),
-              onPressed: parent.widget.onEditTap==null?null:
-                  () => parent.widget.onEditTap(Provider.of<TextSizeProvider>(context, listen: false))
+              icon: Icon(
+                  MdiIcons.pencilOutline,
+                  color: onEditTap==null?iconDisabledColor(context):iconEnabledColor(context)
+              ),
+              onPressed: onEditTap==null?null:
+                  () => onEditTap(Provider.of<TextSizeProvider>(context, listen: false))
           ),
 
           IconButton(
-              icon: Icon(MdiIcons.shareVariant, color: iconEnabledColor(context)),
-              onPressed: parent.widget.onShareTap
+              icon: Icon(
+                  MdiIcons.shareVariant,
+                  color: onShareTap==null?iconDisabledColor(context):iconEnabledColor(context)
+              ),
+              onPressed: onShareTap
           ),
 
-          if(!song.official)
+          if(song.isOwn)
             IconButton(
                 icon: Icon(
                     MdiIcons.sendCircleOutline,
-                    color: iconEnabledColor(context)),
-                onPressed: parent.widget.onSendSongTap
+                    color: onSendSongTap==null?iconDisabledColor(context):iconEnabledColor(context)
+                ),
+                onPressed: onSendSongTap
             ),
 
-          IconButton(icon: Icon(MdiIcons.contentCopy, color: iconEnabledColor(context)),
-              onPressed: parent.widget.onCopyTap
+          IconButton(
+              icon: Icon(
+                  MdiIcons.contentCopy,
+                  color: onCopyTap==null?iconDisabledColor(context):iconEnabledColor(context)
+              ),
+              onPressed: onCopyTap
           ),
-
         ],
       ),
     );
@@ -662,7 +748,7 @@ class ContentWidget<T extends SongCore> extends StatelessWidget{
   T get song => parent.widget.song;
 
   String get text => song.text;
-  String get chords => song.getChords();
+  String get chords => song.chords;
   String get lineNum => parent.lineNum;
 
   static const double lineSpacing = 1.2;
@@ -790,7 +876,7 @@ class ChordsBarCard<T extends SongCore> extends StatelessWidget{
 
     Widget chordsBar = Consumer<ChordsDrawTypeProvider>(
       builder: (context, prov, child) => ChordDrawBar(
-        song.getChords(),
+        song.chords,
         typeGuitar: PrimitiveWrapper(Settings.chordsDrawType),
         onTypeChanged: parent.widget.onChordsTypeChanged,
         elevation: 0,
@@ -817,5 +903,3 @@ class ChordsBarCard<T extends SongCore> extends StatelessWidget{
   }
 
 }
-
-

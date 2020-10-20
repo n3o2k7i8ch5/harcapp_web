@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
-import 'package:harcapp_web/common/dimen.dart';
-import 'package:harcapp_web/songs/core_song_management/song_core.dart';
+import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_core_song/song_core.dart';
 import 'package:harcapp_web/songs/song_widget/settings.dart';
 
 import 'get_line_nums.dart';
@@ -62,7 +62,7 @@ class TextSizeProvider extends ChangeNotifier{
 
   double calculate(double screenWidth, SongCore song){
     double initSize = defFontSize;
-    double scale = fits(screenWidth, song.text, song.getChords(), getLineNums(song.text), initSize);
+    double scale = fits(screenWidth, song.text, song.chords, getLineNums(song.text), initSize);
     return scale*initSize;
   }
 

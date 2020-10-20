@@ -1,10 +1,11 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:harcapp_web/common/app_text_style.dart';
-import 'package:harcapp_web/common/simple_button.dart';
+import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_core/comm_classes/simple_button.dart';
 import 'package:image_picker_web/image_picker_web.dart';
 
+import '../article_text_style.dart';
 import 'article_editor.dart';
 
 class ArticleTop extends StatelessWidget{

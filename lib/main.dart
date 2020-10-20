@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:harcapp_web/common/color_pack.dart';
+import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_widgets/app_card.dart';
+import 'package:harcapp_core/dimen.dart';
 
-import 'common/app_card.dart';
-import 'common/app_text_style.dart';
-import 'common/dimen.dart';
 import 'main_page.dart';
 
 void main() {

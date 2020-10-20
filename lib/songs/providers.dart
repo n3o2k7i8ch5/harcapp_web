@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:harcapp_core_own_song/song_raw.dart';
+import 'package:harcapp_web/songs/song_widget/song_widget_template.dart';
 import 'package:provider/provider.dart';
-
-import 'core_own_song/common.dart';
-import 'core_song_management/song_raw.dart';
 
 
 class LoadingProvider extends ChangeNotifier{
@@ -44,6 +43,7 @@ class AllSongsProvider extends ChangeNotifier{
   void init(List<SongRaw> songs, Map<SongRaw, bool> confMap){
     _songs = songs;
     _confMap = confMap;
+    notifyListeners();
   }
 
   List<SongRaw> _songs;
@@ -220,5 +220,11 @@ class ShowCodeEditorProvider extends ChangeNotifier{
     _song = value;
     notifyListeners();
   }
+
+}
+
+class SongEditorPanelProvider extends ChangeNotifier{
+
+  void notify() => notifyListeners();
 
 }

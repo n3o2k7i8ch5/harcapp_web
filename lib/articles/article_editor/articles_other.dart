@@ -2,10 +2,10 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:harcapp_web/common/app_text_style.dart';
-import 'package:harcapp_web/common/colors.dart';
-import 'package:harcapp_web/common/dimen.dart';
-import 'package:harcapp_web/common/simple_button.dart';
+import 'package:harcapp_core/colors.dart';
+import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_core/comm_classes/simple_button.dart';
+import 'package:harcapp_core/dimen.dart';
 import 'package:implicitly_animated_reorderable_list/implicitly_animated_reorderable_list.dart';
 import 'package:implicitly_animated_reorderable_list/transitions.dart';
 

@@ -8,17 +8,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:harcapp_core/colors.dart';
+import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_core/comm_classes/simple_button.dart';
+import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
+import 'package:harcapp_core/dimen.dart';
 
-import 'package:harcapp_web/common/app_text_style.dart';
-import 'package:harcapp_web/common/colors.dart';
-import 'package:harcapp_web/common/dimen.dart';
-import 'package:harcapp_web/common/simple_button.dart';
 import 'package:image/image.dart' as im;
 import 'package:image_picker_web/image_picker_web.dart';
 
 import '../common/author.dart';
 import '../common/float_act_butt.dart';
-import '../common/show_toast.dart';
 import 'article_editor/article_editor.dart';
 import 'article_editor/common.dart';
 
@@ -86,7 +86,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                       child: imageBytes==null?
                       SimpleButton(
                         onTap: () async {
-                          await loadImage(this);
+                          await loadImage(context, this);
                         },
                         child: Center(
                             child: Column(
@@ -133,7 +133,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                               color: Colors.transparent,
                               child: SimpleButton(
                                 padding: EdgeInsets.zero,
-                                onTap: () async => await loadImage(this),
+                                onTap: () async => await loadImage(context, this),
                                 child: Container(
                                   color: Color.fromARGB(140, 0, 0, 0),
                                   child: Padding(
@@ -304,8 +304,13 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
           children: [
             FloatingButton(Icons.input, Colors.blueGrey, 'Wczytaj autora', saving?null: () async {
 
-              FilePickerCross filePicker = FilePickerCross();
-              await filePicker.pick();
+              FilePickerCross filePicker = await FilePickerCross.importFromStorage(
+                  type: FileTypeCross.custom,
+                  fileExtension: '.hrcpsng'
+              );
+
+              //FilePickerCross filePicker = FilePickerCross();
+              //await filePicker.pick();
 
               Uint8List uint8List = filePicker.toUint8List();
               String code = utf8.decode(uint8List);
@@ -327,17 +332,17 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
 
 
               if(name == null || name.length==0){
-                showToast("Nie podałeś swojego imienia i nazwiska.");
+                AppScaffold.showMessage(context, "Nie podałeś swojego imienia i nazwiska.");
                 return;
               }
 
               if(desc == null || desc.length==0){
-                showToast("Napisz kilka słów o sobie!");
+                AppScaffold.showMessage(context, "Napisz kilka słów o sobie!");
                 return;
               }
 
               if(imageBytes == null){
-                showToast("Dodaj obraz swojej osoby.");
+                AppScaffold.showMessage(context, "Dodaj obraz swojej osoby.");
                 return;
               }
 
@@ -396,13 +401,13 @@ Uint8List resize(Uint8List imageBytes) {
   return imageBytes;
 }
 
-Future<void> loadImage(AuthorEditorPageState state) async {
+Future<void> loadImage(BuildContext context, AuthorEditorPageState state) async {
   Uint8List imageBytes = await ImagePickerWeb.getImage(outputType: ImageType.bytes);
 
   ui.Image image = await decodeImageFromList(imageBytes);
 
   if(image.width != image.height)
-    showToast("Obraz musi być kwadratowy.");
+    AppScaffold.showMessage(context, "Obraz musi być kwadratowy.");
 
   state.setState(() => state.imageBytes = imageBytes);
 }

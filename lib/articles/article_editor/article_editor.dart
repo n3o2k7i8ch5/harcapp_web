@@ -8,12 +8,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
-import 'package:harcapp_web/common/app_text_style.dart';
-import 'package:harcapp_web/common/colors.dart';
-import 'package:harcapp_web/common/dimen.dart';
+import 'package:harcapp_core/colors.dart';
+import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_core/comm_classes/simple_button.dart';
+import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
+import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_web/common/float_act_butt.dart';
-import 'package:harcapp_web/common/show_toast.dart';
-import 'package:harcapp_web/common/simple_button.dart';
 import 'package:image/image.dart' as im;
 
 import 'article_elements.dart';
@@ -242,8 +242,13 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
           children: [
             FloatingButton(Icons.input, Colors.blueGrey, 'Wczytaj artykuł', saving?null: () async {
 
-              FilePickerCross filePicker = FilePickerCross();
-              await filePicker.pick();
+              FilePickerCross filePicker = await FilePickerCross.importFromStorage(
+                  type: FileTypeCross.any,
+                  fileExtension: '.hrcpsng'
+              );
+
+              //FilePickerCross filePicker = FilePickerCross();
+              //await filePicker.pick();
               try {
                 Uint8List uint8List = filePicker.toUint8List();
                 String code = utf8.decode(uint8List);
@@ -264,7 +269,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
 
               } on Exception catch (error){
 
-                showToast('Wystąpił błąd: ${error.toString()}');
+                AppScaffold.showMessage(context, 'Wystąpił błąd: ${error.toString()}');
                 print(error.toString());
 
               }
@@ -278,17 +283,17 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
                 saving?'Zapisywanie...':'Zapisz atrykuł', saving?null:(){
 
               if(title == null || title.length==0){
-                showToast("Podaj tytuł artykułu.");
+                AppScaffold.showMessage(context, "Podaj tytuł artykułu.");
                 return;
               }
 
               if(intro == null || intro.length==0){
-                showToast("Wstęp artykułu nie może być pusty.");
+                AppScaffold.showMessage(context, "Wstęp artykułu nie może być pusty.");
                 return;
               }
 
               if(authCode == null || authCode.length==0){
-                showToast("Nie został podany autor artykułu.");
+                AppScaffold.showMessage(context, "Nie został podany autor artykułu.");
                 return;
               }
 
