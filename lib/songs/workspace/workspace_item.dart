@@ -83,6 +83,17 @@ class ItemWidgetState extends State<ItemWidget>{
                           mainAxisSize: MainAxisSize.min,
                           children: [
 
+                            Consumer<AllSongsProvider>(
+                              builder: (context, prov, child){
+                                if(prov.isConf(song))
+                                  return Padding(
+                                    padding: EdgeInsets.all(Dimen.MARG_ICON),
+                                    child: Icon(MdiIcons.eyeOffOutline, color: iconDisabledColor(context)),
+                                  );
+                                return Container();
+                              }
+                            ),
+
                             AppButton(
                                 icon: Icon(MdiIcons.close),
                                 onTap: (){
