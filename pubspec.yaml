@@ -41,7 +41,7 @@ dependencies:
   pretty_json: 1.1.0
   flutter_mailer: 1.0.0
   dio: ^3.0.10
-  connectivity: 0.4.9+5
+  connectivity: 2.0.0
   clipboard: 0.1.2+8
 
   harcapp_core:

@@ -83,6 +83,7 @@ class ItemWidgetState extends State<ItemWidget>{
                           mainAxisSize: MainAxisSize.min,
                           children: [
 
+                            /*
                             Consumer<AllSongsProvider>(
                               builder: (context, prov, child){
                                 if(prov.isConf(song))
@@ -93,7 +94,7 @@ class ItemWidgetState extends State<ItemWidget>{
                                 return Container();
                               }
                             ),
-
+*/
                             AppButton(
                                 icon: Icon(MdiIcons.close),
                                 onTap: (){

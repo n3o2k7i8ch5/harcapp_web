@@ -84,7 +84,7 @@ packages:
       name: connectivity
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.9+5"
+    version: "2.0.0"
   connectivity_for_web:
     dependency: transitive
     description:
@@ -175,14 +175,14 @@ packages:
       name: file_chooser
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.5"
+    version: "0.1.6"
   file_picker:
     dependency: transitive
     description:
       name: file_picker
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.9+1"
+    version: "2.0.10"
   file_picker_cross:
     dependency: "direct main"
     description:
@@ -236,7 +236,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "33a2ce85cd9684bdcad7b5b350857bfdf9485114"
+      resolved-ref: "6d9e5d5900b29a9447b608c8a7fa41b19cc3c642"
       url: "git://github.com/n3o2k7i8ch5/harcapp_core.git"
     source: git
     version: "0.0.1"
@@ -245,7 +245,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "5c5732e606d876c3c3b6c4005f3fe9c00b4f3278"
+      resolved-ref: "41baaf5bde5a0170bbc5352bd4e21d951130838d"
       url: "git://github.com/n3o2k7i8ch5/harcapp_core_own_song.git"
     source: git
     version: "0.0.1"
@@ -321,13 +321,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.16.1"
-  js:
-    dependency: transitive
-    description:
-      name: js
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.6.3-nullsafety.1"
   linked_scroll_controller:
     dependency: "direct main"
     description:
@@ -355,7 +348,7 @@ packages:
       name: meta
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.3.0-nullsafety.4"
+    version: "1.3.0-nullsafety.3"
   mime:
     dependency: transitive
     description:
@@ -493,7 +486,7 @@ packages:
       name: stack_trace
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.10.0-nullsafety.2"
+    version: "1.10.0-nullsafety.1"
   stream_channel:
     dependency: transitive
     description:
@@ -565,5 +558,5 @@ packages:
     source: hosted
     version: "4.5.1"
 sdks:
-  dart: ">=2.10.0-110 <=2.11.0-213.1.beta"
-  flutter: ">=1.17.0 <2.0.0"
+  dart: ">=2.10.0-110 <2.11.0"
+  flutter: ">=1.20.0 <2.0.0"

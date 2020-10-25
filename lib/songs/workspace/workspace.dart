@@ -41,7 +41,7 @@ void importSongsFromCode(String code, {@required Function(List<SongRaw> offSongs
       int index = songPackMap['index'];
       SongRaw song = SongRaw.fromMap(fileName, songMap);
 
-      if(song.fileName.substring(0, 3) != 'o!_') song.fileName = 'o!_' + song.fileName;
+      if(!song.isOfficial) song.fileName = 'o!_' + song.fileName;
 
       offSongs[index] = song;
 
@@ -60,7 +60,7 @@ void importSongsFromCode(String code, {@required Function(List<SongRaw> offSongs
       int index = songPackMap['index'];
 
       SongRaw song = SongRaw.fromMap(fileName, songMap);
-      if(song.fileName.substring(0, 4) != 'oc!_') song.fileName = 'oc!_' + song.fileName;
+      if(!song.isConfid) song.fileName = 'oc!_' + song.fileName;
 
       confSongs[index] = song;
 
