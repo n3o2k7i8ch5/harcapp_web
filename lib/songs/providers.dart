@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:harcapp_core_own_song/song_raw.dart';
-import 'package:harcapp_web/songs/song_widget/song_widget_template.dart';
 import 'package:provider/provider.dart';
 
 
@@ -22,10 +21,12 @@ class LoadingProvider extends ChangeNotifier{
 
 class BindTitleFileNameProvider extends ChangeNotifier{
 
+  static const bool DEF_VAL = true;
+
   bool _bind;
 
   BindTitleFileNameProvider(){
-    _bind = true;
+    _bind = DEF_VAL;
   }
 
   bool get bind => _bind;

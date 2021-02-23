@@ -4,13 +4,14 @@ import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
+import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/dimen.dart';
-import 'package:harcapp_core_own_song/common.dart';
 import 'package:harcapp_core_own_song/providers.dart';
 import 'package:harcapp_core_own_song/song_raw.dart';
+import 'package:harcapp_core_song_widget/providers.dart';
+import 'package:harcapp_core_song_widget/settings.dart';
+import 'package:harcapp_core_song_widget/song_widget_template.dart';
 import 'package:harcapp_web/songs/providers.dart';
-import 'package:harcapp_web/songs/song_widget/providers.dart';
-import 'package:harcapp_web/songs/song_widget/song_widget_template.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:pretty_json/pretty_json.dart';
 import 'package:provider/provider.dart';
@@ -34,22 +35,29 @@ class SongPreview extends StatelessWidget{
                       child: Column(
                         children: [
 
-                          HeaderWidget('Podgląd piosenki', MdiIcons.bookmarkMusicOutline, enabled: true),
+                          Padding(
+                            padding: EdgeInsets.only(left: Dimen.ICON_MARG, top: Dimen.ICON_MARG),
+                            child: TitleShortcutRowWidget(
+                              title: 'Podgląd piosenki',
+                              textAlign: TextAlign.start,
+                            ),
+                          ),
 
                           AppCard(
+                            radius: AppCard.BIG_RADIUS,
                             padding: EdgeInsets.zero,
                             elevation: AppCard.bigElevation,
                             child: Row(
                               children: [
                                 Expanded(
                                   child: SimpleButton(
-                                    padding: EdgeInsets.all(Dimen.MARG_ICON),
+                                    padding: EdgeInsets.all(Dimen.ICON_MARG),
                                       margin: EdgeInsets.zero,
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           Icon(MdiIcons.eyeOutline, color: songPrevProv.code?iconDisabledColor(context):iconEnabledColor(context)),
-                                          SizedBox(width: Dimen.MARG_ICON),
+                                          SizedBox(width: Dimen.ICON_MARG),
                                           Text('Podgląd', style: AppTextStyle(
                                               fontWeight: weight.halfBold,
                                               color: songPrevProv.code?iconDisabledColor(context):iconEnabledColor(context)
@@ -64,13 +72,13 @@ class SongPreview extends StatelessWidget{
 
                                 Expanded(
                                   child: SimpleButton(
-                                      padding: EdgeInsets.all(Dimen.MARG_ICON),
+                                      padding: EdgeInsets.all(Dimen.ICON_MARG),
                                       margin: EdgeInsets.zero,
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           Icon(MdiIcons.codeTags, color: songPrevProv.code?iconEnabledColor(context):iconDisabledColor(context)),
-                                          SizedBox(width: Dimen.MARG_ICON),
+                                          SizedBox(width: Dimen.ICON_MARG),
                                           Text('Kod', style: AppTextStyle(
                                               fontWeight: weight.halfBold,
                                               color: songPrevProv.code?iconEnabledColor(context):iconDisabledColor(context)
@@ -89,10 +97,9 @@ class SongPreview extends StatelessWidget{
                           Expanded(
                               child: MultiProvider(
                                 providers: [
-                                  ChangeNotifierProvider(create: (context) => ShowChordsProvider()),
-                                  ChangeNotifierProvider(create: (context) => ChordsDrawTypeProvider()),
-                                  ChangeNotifierProvider(create: (context) => ChordsDrawShowProvider()),
-                                  ChangeNotifierProvider(create: (context) => ChordsDrawPinnedProvider()),
+                                  ChangeNotifierProvider(create: (context) => ShowChordsProvider(SongBaseSettings())),
+                                  ChangeNotifierProvider(create: (context) => ChordsDrawTypeProvider(SongBaseSettings())),
+                                  ChangeNotifierProvider(create: (context) => ChordsDrawShowProvider(SongBaseSettings())),
                                 ],
                                 builder: (context, child) => Container(
                                   width: 400,
@@ -102,6 +109,7 @@ class SongPreview extends StatelessWidget{
                                   ):
                                   SongWidgetTemplate<SongRaw>(
                                       currItemProv.song,
+                                      SongBaseSettings(),
                                       screenWidth: 372,
                                       key: UniqueKey()//ValueKey(currItemProv.song)
                                   ),
@@ -119,4 +127,38 @@ class SongPreview extends StatelessWidget{
     );
 
   }
+}
+
+class SongBaseSettings extends SongBookSettTempl{
+
+  @override
+  bool get alwaysOnScreen => false;
+  @override
+  set alwaysOnScreen(bool value) => null;
+
+  @override
+  bool get scrollText => false;
+  @override
+  set scrollText(bool value) => null;
+
+  @override
+  double get autoscrollTextSpeed => 0;
+  @override
+  set autoscrollTextSpeed(double value) => null;
+
+  @override
+  bool get showChords => true;
+  @override
+  set showChords(bool value) => null;
+
+  @override
+  bool get chordsDrawShow => true;
+  @override
+  set chordsDrawShow(bool value) => null;
+
+  @override
+  bool get chordsDrawType => true;
+  @override
+  set chordsDrawType(bool value) => null;
+
 }

@@ -31,7 +31,7 @@ class SaveSendWidget extends StatelessWidget{
         Expanded(
             child: Consumer<SongFileNameDupErrProvider>(
               builder: (context, prov, child) => SimpleButton(
-                  padding: EdgeInsets.all(Dimen.MARG_ICON),
+                  padding: EdgeInsets.all(Dimen.ICON_MARG),
                   margin: EdgeInsets.zero,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -40,7 +40,7 @@ class SaveSendWidget extends StatelessWidget{
                         MdiIcons.folderDownloadOutline,
                         color: prov.count==0?iconEnabledColor(context):iconDisabledColor(context),
                       ),
-                      SizedBox(width: Dimen.MARG_ICON),
+                      SizedBox(width: Dimen.ICON_MARG),
                       Text(
                         'Zapisz',
                         style: AppTextStyle(
@@ -67,13 +67,13 @@ class SaveSendWidget extends StatelessWidget{
 
         Expanded(
             child: SimpleButton(
-                padding: EdgeInsets.all(Dimen.MARG_ICON),
+                padding: EdgeInsets.all(Dimen.ICON_MARG),
                 margin: EdgeInsets.zero,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(MdiIcons.sendCircleOutline),
-                    SizedBox(width: Dimen.MARG_ICON),
+                    SizedBox(width: Dimen.ICON_MARG),
                     Text(
                       'Prześlij',
                       style: AppTextStyle(fontWeight: weight.halfBold, color: iconEnabledColor(context)),
@@ -126,13 +126,12 @@ class SendSongWidgetState extends State<SendSongWidget>{
   Widget build(BuildContext context) {
 
     bool sendable = emailRegExp.hasMatch(controller.text);
-    print(controller.text);
-    print(sendable);
 
     return SizedBox(
       width: 400,
       child: AppCard(
-        padding: EdgeInsets.all(2*Dimen.MARG_ICON),
+        radius: AppCard.BIG_RADIUS,
+        padding: EdgeInsets.all(2*Dimen.ICON_MARG),
         color: Colors.white,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -180,7 +179,7 @@ class SendSongWidgetState extends State<SendSongWidget>{
 
                 Expanded(child: Container()),
                 SimpleButton(
-                    padding: EdgeInsets.all(Dimen.MARG_ICON),
+                    padding: EdgeInsets.all(Dimen.ICON_MARG),
                     child: Row(
                       children: [
                         Text(
@@ -190,7 +189,7 @@ class SendSongWidgetState extends State<SendSongWidget>{
                             color: sendable?iconEnabledColor(context):iconDisabledColor(context)
                           ),
                         ),
-                        SizedBox(width: Dimen.MARG_ICON),
+                        SizedBox(width: Dimen.ICON_MARG),
                         Icon(
                             MdiIcons.send,
                             color: sendable?iconEnabledColor(context):iconDisabledColor(context)
@@ -272,10 +271,6 @@ int compare(String s1, String s2){
 
   s2 = s2.toLowerCase()
       .replaceAll(RegExp(r'[^a-ząćęłńóśźżA-ZĄĆĘŁŃÓŚŹŻ0-9]'), '');
-
-  String a_ja = 'a ja nie chcę czekolady';
-  if(s1 == a_ja || s2 == a_ja)
-    int a = 10;
 
   for(int i=0; i<min(s1.length, s2.length); i++){
 

@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
+import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_core_own_song/common.dart';
 import 'package:harcapp_core_own_song/providers.dart';
 import 'package:harcapp_core_own_song/song_raw.dart';
-import 'package:harcapp_core_song/song_element.dart';
-import 'package:harcapp_web/articles/article_editor/common.dart';
+import 'package:harcapp_core_tags/tag_layout.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/save_send_widget.dart';
 import 'package:harcapp_web/songs/song_editor_panel.dart';
@@ -21,7 +21,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:provider/provider.dart';
 
 import 'code_editor_widget.dart';
-import 'core_tags/tag_layout.dart';
+import 'generate_file_name.dart';
 
 class SongsPage extends StatefulWidget{
 
@@ -68,6 +68,10 @@ class SongsPageState extends State<SongsPage>{
 
         ChangeNotifierProvider(create: (context) => TitleCtrlProvider(
           onChanged: (text){
+            LoadingProvider loadingProv = Provider.of<LoadingProvider>(context, listen: false);
+            if(loadingProv.loading)
+              return;
+
             AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
 
             SongRaw song = currItemProv.song;
@@ -75,7 +79,7 @@ class SongsPageState extends State<SongsPage>{
             bool isConf = allSongsProv.isConf(song);
 
             if(bindTitleFileNameProv.bind)
-              song.fileName = (isConf?'oc!_':'o!_') + remPolChars(text).replaceAll(' ', '_');
+              song.fileName = generateFileName(isConf: isConf, title: text);
 
              songFileNameDupErrProv.chedkDupsFor(context, song);
 
@@ -84,6 +88,7 @@ class SongsPageState extends State<SongsPage>{
           }
         )),
         ChangeNotifierProvider(create: (context) => AuthorCtrlProvider()),
+        ChangeNotifierProvider(create: (context) => ComposerCtrlProvider()),
         ChangeNotifierProvider(create: (context) => PerformerCtrlProvider()),
         ChangeNotifierProvider(create: (context) => YTCtrlProvider()),
         ChangeNotifierProvider(create: (context) => AddPersCtrlProvider()),
@@ -93,7 +98,7 @@ class SongsPageState extends State<SongsPage>{
           return hidTitleProv;
         }),
         ChangeNotifierProvider(create: (context) => RefrenEnabProvider(true)),
-        ChangeNotifierProvider(create: (context) => RefrenPartProvider(SongPart.empty(isRefren: true))),
+        ChangeNotifierProvider(create: (context) => RefrenPartProvider(SongPart.empty(isRefrenTemplate: true))),
         ChangeNotifierProvider(create: (context) => TagsProvider(Tag.ALL_TAG_NAMES, [])),
 
         ChangeNotifierProvider(create: (context){
@@ -129,46 +134,44 @@ class SongsPageState extends State<SongsPage>{
                     child: Column(
                       children: [
 
-                        Row(
-                          children: [
+                        Padding(
+                            padding: EdgeInsets.only(left: Dimen.ICON_MARG, top: Dimen.ICON_MARG),
+                            child: Consumer<AllSongsProvider>(
+                                builder: (context, prov, child) =>
+                                    TitleShortcutRowWidget(
+                                      title: 'Lista piosenek' + (prov.songs!=null?' (${prov.length})':''),
+                                      textAlign: TextAlign.start,
+                                      trailing: Consumer<SongFileNameDupErrProvider>(
+                                          builder: (context, prov, child) => AnimatedOpacity(
+                                            opacity: prov.count==0?0:1,
+                                            duration: Duration(milliseconds: 300),
+                                            child: Row(
+                                              children: [
 
-                            Consumer<AllSongsProvider>(
-                              builder: (context, prov, child) => HeaderWidget(
-                                'Lista piosenek' + (prov.songs!=null?' (${prov.length})':''),
-                                MdiIcons.toolboxOutline,
-                              ),
-                            ),
+                                                Text(
+                                                  '${prov.count} ',
+                                                  style: AppTextStyle(
+                                                      fontWeight: weight.halfBold,
+                                                      fontSize: Dimen.TEXT_SIZE_BIG,
+                                                      shadow: true,
+                                                      color: Colors.red
+                                                  ),
+                                                ),
 
-                            Consumer<SongFileNameDupErrProvider>(
-                              builder: (context, prov, child) => AnimatedOpacity(
-                                opacity: prov.count==0?0:1,
-                                duration: Duration(milliseconds: 300),
-                                child: Row(
-                                  children: [
+                                                Icon(MdiIcons.alertOutline, color: Colors.red, size: Dimen.TEXT_SIZE_BIG),
 
-                                    Text(
-                                      '${prov.count} ',
-                                      style: AppTextStyle(
-                                          fontWeight: weight.halfBold,
-                                          fontSize: Dimen.TEXT_SIZE_BIG,
-                                          shadow: true,
-                                          color: Colors.red
+                                              ],
+                                            ),
+                                          )
                                       ),
-                                    ),
-
-                                    Icon(MdiIcons.alertOutline, color: Colors.red, size: Dimen.TEXT_SIZE_BIG),
-
-                                  ],
-                                ),
-                              )
+                                    )
                             ),
-
-                          ],
                         ),
 
                         Consumer2<AllSongsProvider, WorkspaceBlockProvider>(
                             builder: (context, allSongProv, songFileNameBlockProv, child) =>
                             allSongProv.length==0?Container():AppCard(
+                              radius: AppCard.BIG_RADIUS,
                                 color: songFileNameBlockProv.blocked?Colors.black.withOpacity(0.1):null,
                                 padding: EdgeInsets.zero,
                                 elevation: AppCard.bigElevation,
@@ -182,6 +185,7 @@ class SongsPageState extends State<SongsPage>{
                         Expanded(
                             child: Consumer<WorkspaceBlockProvider>(
                               builder: (context, prov, child) => AppCard(
+                                radius: AppCard.BIG_RADIUS,
                                 color: prov.blocked?Colors.black.withOpacity(0.1):null,
                                 elevation: AppCard.bigElevation,
                                 padding: EdgeInsets.zero,
@@ -222,7 +226,7 @@ class SongsPageState extends State<SongsPage>{
             Consumer<LoadingProvider>(
               child: AppCard(
                 elevation: AppCard.bigElevation,
-                padding: EdgeInsets.all(Dimen.MARG_ICON),
+                padding: EdgeInsets.all(Dimen.ICON_MARG),
                 child: Text('Ładowanie...', style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_APPBAR)),
               ),
               builder: (context, prov, child) => AnimatedOpacity(

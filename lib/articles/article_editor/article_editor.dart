@@ -10,8 +10,8 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:harcapp_core/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
-import 'package:harcapp_core/comm_classes/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
+import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_web/common/float_act_butt.dart';
 import 'package:image/image.dart' as im;
@@ -153,7 +153,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Padding(
-                                padding: EdgeInsets.all(Dimen.MARG_ICON),
+                                padding: EdgeInsets.all(Dimen.ICON_MARG),
                                 child: Icon(Icons.add),
                               ),
 
@@ -185,7 +185,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Padding(
-                                padding: EdgeInsets.all(Dimen.MARG_ICON),
+                                padding: EdgeInsets.all(Dimen.ICON_MARG),
                                 child: Icon(Icons.playlist_add),
                               ),
 

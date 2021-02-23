@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
-import 'package:harcapp_core/comm_classes/simple_button.dart';
+import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:implicitly_animated_reorderable_list/implicitly_animated_reorderable_list.dart';
 import 'package:implicitly_animated_reorderable_list/transitions.dart';
@@ -36,7 +36,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
             children: [
 
               Padding(
-                padding: EdgeInsets.only(top: Dimen.MARG_ICON, right: Dimen.MARG_ICON, left: Dimen.MARG_ICON),
+                padding: EdgeInsets.only(top: Dimen.ICON_MARG, right: Dimen.ICON_MARG, left: Dimen.ICON_MARG),
                 child: Text(
                   'Odnośniki do innych artykułów:',
                   style: AppTextStyle(
@@ -87,7 +87,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
 
                                   Handle(
                                     child: Padding(
-                                      padding: EdgeInsets.all(Dimen.MARG_ICON),
+                                      padding: EdgeInsets.all(Dimen.ICON_MARG),
                                       child: Icon(
                                         Icons.list,
                                         color: Colors.grey,
@@ -140,7 +140,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
                         child: Row(
                           children: [
                             Padding(
-                              padding: EdgeInsets.all(Dimen.MARG_ICON),
+                              padding: EdgeInsets.all(Dimen.ICON_MARG),
                               child: Icon(Icons.add),
                             ),
 
@@ -153,7 +153,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
                               ),
                             ),
 
-                            SizedBox(width: 2*Dimen.MARG_ICON,)
+                            SizedBox(width: 2*Dimen.ICON_MARG,)
 
                           ],
                         ),

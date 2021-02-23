@@ -3,8 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/dimen.dart';
-import 'package:harcapp_core_own_song/common.dart';
 import 'package:harcapp_core_own_song/page_widgets/add_buttons_widget.dart';
 import 'package:harcapp_core_own_song/page_widgets/refren_template.dart';
 import 'package:harcapp_core_own_song/page_widgets/scroll_to_bottom.dart';
@@ -33,37 +33,38 @@ class SongEditorPanel extends StatelessWidget{
       builder: (context, prov, child){
 
         CurrentItemProvider currItemProv = Provider.of<CurrentItemProvider>(context, listen: false);
-        SongPreviewProvider songPrevProv = Provider.of<SongPreviewProvider>(context, listen: false);
         if(currItemProv.song == null)
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              SizedBox(height: 54.0),
+
               Text(
                 'Dodaj lub importuj piosenkę.',
                 style: AppTextStyle(
-                    fontSize: Dimen.TEXT_SIZE_BIG,
+                    fontSize: 32.0,
                     color: textDisabled(context),
                     fontWeight: weight.halfBold
                 ),
               ),
 
-              SizedBox(height: 24),
+              SizedBox(height: 32.0),
 
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(MdiIcons.arrowLeft, color: textDisabled(context)),
-                  SizedBox(width: Dimen.MARG_ICON),
+                  Icon(MdiIcons.arrowLeft, color: textDisabled(context), size: 32.0),
+                  SizedBox(width: Dimen.ICON_MARG),
                   Text(
                     'Zerknij tam!',
                     style: AppTextStyle(
-                        fontSize: Dimen.TEXT_SIZE_BIG,
+                        fontSize: 32.0,
                         color: textDisabled(context),
-                        fontWeight: weight.bold
+                        fontWeight: weight.halfBold
                     ),
                   ),
-                  SizedBox(width: Dimen.MARG_ICON),
-                  Icon(MdiIcons.musicNote, color: textDisabled(context)),
+                  SizedBox(width: Dimen.ICON_MARG),
+                  Icon(MdiIcons.musicNote, color: textDisabled(context), size: 32.0),
                 ],
               )
             ],
@@ -93,11 +94,18 @@ class SongEditorPanel extends StatelessWidget{
                       children: [
 
 
-                        HeaderWidget('Info. ogólne', MdiIcons.textBoxOutline),
+                        Padding(
+                          padding: EdgeInsets.only(left: Dimen.ICON_MARG, top: Dimen.ICON_MARG),
+                          child: TitleShortcutRowWidget(
+                            title: 'Info. ogólne',
+                            textAlign: TextAlign.start,
+                          ),
+                        ),
+
                         Consumer<BindTitleFileNameProvider>(
                           builder: (context, prov, child) =>
                               SwitchListTile(
-                                contentPadding: EdgeInsets.only(left: Dimen.MARG_ICON),
+                                contentPadding: EdgeInsets.only(left: Dimen.ICON_MARG),
                                 value: prov.bind,
                                 onChanged: (value) => prov.bind = value,
                                 secondary: Icon(
@@ -110,12 +118,12 @@ class SongEditorPanel extends StatelessWidget{
                                     Text(
                                       'Powiąż nazwę pliku z tytułem',
                                       style: AppTextStyle(
-                                          fontWeight: weight.halfBold,
+                                          fontWeight: weight.bold,
                                           color: prov.bind?textEnabled(context):textDisabled(context),
-                                          fontSize: Dimen.TEXT_SIZE_BIG
+                                          fontSize: Dimen.TEXT_SIZE_APPBAR
                                       ),
                                     ),
-                                    SizedBox(width: Dimen.MARG_ICON),
+                                    SizedBox(width: Dimen.ICON_MARG),
 
                                   ],
                                 ),
@@ -128,6 +136,9 @@ class SongEditorPanel extends StatelessWidget{
                           },
                           onChangedAuthor: (String text){
                             currItemProv.author = text;
+                          },
+                          onChangedComposer: (String text){
+                            currItemProv.composer = text;
                           },
                           onChangedPerformer: (String text){
                             currItemProv.performer = text;
@@ -167,7 +178,13 @@ class SongEditorPanel extends StatelessWidget{
 
                         SizedBox(height: SEPARATOR_HEIGHT),
 
-                        HeaderWidget('Struktura piosenki', MdiIcons.playlistMusic),
+                        Padding(
+                          padding: EdgeInsets.only(left: Dimen.ICON_MARG),
+                          child: TitleShortcutRowWidget(
+                            title: 'Struktura piosenki',
+                            textAlign: TextAlign.start,
+                          ),
+                        )
 
                       ],
                     ),

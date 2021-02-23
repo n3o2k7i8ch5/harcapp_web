@@ -53,7 +53,7 @@ class MyApp extends StatelessWidget {
               borderRadius: BorderRadius.all(Radius.circular(10.0))
           ),
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(AppCard.defRadius))
+              borderRadius: BorderRadius.all(Radius.circular(AppCard.DEF_RADIUS))
           ),
         ),
         textSelectionHandleColor: _realColorPack.accentColor,

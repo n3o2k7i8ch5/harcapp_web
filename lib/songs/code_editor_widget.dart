@@ -5,11 +5,13 @@ import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
-import 'package:harcapp_core/comm_widgets/tag_layout.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_core_own_song/providers.dart';
 import 'package:harcapp_core_own_song/song_raw.dart';
+import 'package:harcapp_core_tags/tag_layout.dart';
 import 'package:harcapp_web/songs/_main.dart';
+import 'package:harcapp_web/songs/generate_file_name.dart';
+import 'package:harcapp_web/songs/old/parse_old_code.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/workspace/workspace.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -67,31 +69,39 @@ class CodeEditorWidget extends StatelessWidget{
                                         icon: Icon(MdiIcons.check),
                                         onPressed: (){
 
-                                          try {
-                                            Map map = jsonDecode(prov.text);
-                                            String fileName = map.keys.toList()[0];
-                                            SongRaw song = SongRaw.fromMap(fileName, map[fileName]);
+                                          SongRaw song;
 
-                                            Provider.of<TitleCtrlProvider>(context, listen: false).text = song.title;
-                                            Provider.of<AuthorCtrlProvider>(context, listen: false).text = song.author;
-                                            Provider.of<PerformerCtrlProvider>(context, listen: false).text = song.performer;
-                                            Provider.of<YTCtrlProvider>(context, listen: false).text = song.youtubeLink;
-                                            Provider.of<AddPersCtrlProvider>(context, listen: false).text = song.addPers;
-                                            Provider.of<TagsProvider>(context, listen: false).tagsChecked = Tag.ALL_TAG_NAMES.map((tag) => song.tags.contains(tag)).toList();
-
-                                            prov.song.set(song);
-                                            AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
-                                            allSongsProv.set(prov.song, prov.song.isConfid);
-
-                                            //Provider.of<SongPreviewProvider>(context, listen: false).resizeText();
-
-                                            displaySong(context, prov.song);
-
-                                            prov.value = false;
+                                          try{
+                                            song = parseOldCode('_nowa_piosenka', prov.text);
+                                            String fileName = generateFileName(title: song.title);
+                                            song.fileName = fileName;
                                           } catch(e){
-                                            AppScaffold.showMessage(context, 'Błędny kod piosneki.');
+
+                                            try {
+                                              Map map = jsonDecode(prov.text);
+                                              String fileName = map.keys.toList()[0];
+                                              song = SongRaw.fromMap(fileName, map[fileName]);
+
+                                            } catch(e){
+                                              AppScaffold.showMessage(context, 'Błędny kod piosneki.');
+                                              return;
+                                            }
                                           }
 
+                                          Provider.of<TitleCtrlProvider>(context, listen: false).text = song.title;
+                                          Provider.of<AuthorCtrlProvider>(context, listen: false).text = song.author;
+                                          Provider.of<PerformerCtrlProvider>(context, listen: false).text = song.performer;
+                                          Provider.of<YTCtrlProvider>(context, listen: false).text = song.youtubeLink;
+                                          Provider.of<AddPersCtrlProvider>(context, listen: false).text = song.addPers;
+                                          Provider.of<TagsProvider>(context, listen: false).set(Tag.ALL_TAG_NAMES, song.tags);
+
+                                          prov.song.set(song);
+                                          AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
+                                          allSongsProv.set(prov.song, prov.song.isConfid);
+
+                                          displaySong(context, prov.song);
+
+                                          prov.value = false;
                                         }
                                     ),
                                   ],

@@ -76,6 +76,7 @@ class ItemWidgetState extends State<ItemWidget>{
                         onTap: workspaceBlockProv.blocked?null:() {
 
                           LoadingProvider loadingProv = Provider.of<LoadingProvider>(context, listen: false);
+                          loadingProv.loading = true;
                           displaySong(context, song);
                           loadingProv.loading = false;
                         },
@@ -88,7 +89,7 @@ class ItemWidgetState extends State<ItemWidget>{
                               builder: (context, prov, child){
                                 if(prov.isConf(song))
                                   return Padding(
-                                    padding: EdgeInsets.all(Dimen.MARG_ICON),
+                                    padding: EdgeInsets.all(Dimen.ICON_MARG),
                                     child: Icon(MdiIcons.eyeOffOutline, color: iconDisabledColor(context)),
                                   );
                                 return Container();

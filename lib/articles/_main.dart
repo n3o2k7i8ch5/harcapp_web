@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
-import 'package:harcapp_core/comm_classes/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/harc_app.dart';
+import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
 
 import 'article_editor/article_editor.dart';
@@ -74,7 +74,7 @@ class ArticlePageState extends State<ArticlePage>{
                     isSelected: lastSetPage == 0,
                   ),
 
-                  SizedBox(width: Dimen.MARG_ICON),
+                  SizedBox(width: Dimen.ICON_MARG),
 
                   TopButton(
                       title: 'Stwórz autora',
@@ -86,7 +86,7 @@ class ArticlePageState extends State<ArticlePage>{
                       ),
                       isSelected: lastSetPage == 1
                   ),
-                  SizedBox(width: Dimen.MARG_ICON),
+                  SizedBox(width: Dimen.ICON_MARG),
 
 
                 ],
@@ -129,7 +129,7 @@ class TopButton extends StatelessWidget{
         children: [
 
           Padding(
-            padding: EdgeInsets.only(left: Dimen.MARG_ICON, right: Dimen.MARG_ICON),
+            padding: EdgeInsets.only(left: Dimen.ICON_MARG, right: Dimen.ICON_MARG),
             child: Icon(icon, color: Colors.white,),
           ),
 

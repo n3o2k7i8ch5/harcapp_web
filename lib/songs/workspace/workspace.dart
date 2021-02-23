@@ -16,14 +16,13 @@ import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_core_own_song/common.dart';
 import 'package:harcapp_core_own_song/providers.dart';
 import 'package:harcapp_core_own_song/song_raw.dart';
+import 'package:harcapp_core_tags/tag_layout.dart';
 import 'package:harcapp_web/articles/article_editor/common.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/workspace/workspace_item.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
-
-import '../core_tags/tag_layout.dart';
 
 void importSongsFromCode(String code, {@required Function(List<SongRaw> offSongs, List<SongRaw> confSongs) onFinished}){
 
@@ -124,11 +123,12 @@ class LoadWidget extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        WorkspaceButton(
+        SimpleButton.from(
+            context: context,
             icon: MdiIcons.fileUploadOutline,
             text: 'Importuj piosenki',
             onTap: ()async{
@@ -149,7 +149,8 @@ class LoadWidget extends StatelessWidget{
 
         ),
 
-        WorkspaceButton(
+        SimpleButton.from(
+            context: context,
             icon: MdiIcons.musicNotePlus,
             text: 'Nowa piosenka',
             onTap: ()async{
@@ -167,42 +168,6 @@ class LoadWidget extends StatelessWidget{
 
         )
       ],
-    );
-  }
-
-}
-
-class WorkspaceButton extends StatelessWidget{
-
-  final IconData icon;
-  final String text;
-  final void Function() onTap;
-
-  const WorkspaceButton({
-    @required this.icon,
-    @required this.text,
-    @required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SimpleButton(
-          radius: 100,
-          margin: EdgeInsets.all(Dimen.MARG_ICON),
-          padding: EdgeInsets.all(Dimen.MARG_ICON),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(width: Dimen.MARG_ICON),
-              Icon(icon),
-              SizedBox(width: Dimen.MARG_ICON),
-              Text(text, style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_BIG, fontWeight: weight.halfBold), textAlign: TextAlign.center),
-              SizedBox(width: Dimen.MARG_ICON)
-            ],
-          ),
-          onTap: onTap
-      ),
     );
   }
 
@@ -248,12 +213,12 @@ class SongListViewState extends State<SongListView>{
 
                 Consumer<WorkspaceBlockProvider>(
                   builder: (context, workspaceBlockProv, child) => Material(
-                    color: Colors.transparent,
+                    color: defCardEnabled(context),
                     elevation: 3,
                     child: Row(
                       children: [
                         Padding(
-                          padding: EdgeInsets.all(Dimen.MARG_ICON),
+                          padding: EdgeInsets.all(Dimen.ICON_MARG),
                           child: Icon(MdiIcons.magnify, color: hintEnabled(context)),
                         ),
                         Expanded(
@@ -309,7 +274,7 @@ class SongListViewState extends State<SongListView>{
 
                 Consumer<WorkspaceBlockProvider>(
                     builder: (context, workspaceBlockProv, child) => Material(
-                      color: Colors.transparent,
+                      color: defCardEnabled(context),
                       elevation: 6,
                       child: Row(
                         children: [
@@ -398,7 +363,7 @@ void displaySong(BuildContext context, SongRaw song){
 
   SongPart refPart;
   if(song?.refrenPart == null)
-    refPart = SongPart.empty(isRefren: true);
+    refPart = SongPart.empty();
   else
     refPart = song.refrenPart;
 
