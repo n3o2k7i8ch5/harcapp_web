@@ -56,11 +56,11 @@ class SongPreview extends StatelessWidget{
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Icon(MdiIcons.eyeOutline, color: songPrevProv.code?iconDisabledColor(context):iconEnabledColor(context)),
+                                          Icon(MdiIcons.eyeOutline, color: songPrevProv.code?iconDisab_(context):iconEnab_(context)),
                                           SizedBox(width: Dimen.ICON_MARG),
                                           Text('Podgląd', style: AppTextStyle(
                                               fontWeight: weight.halfBold,
-                                              color: songPrevProv.code?iconDisabledColor(context):iconEnabledColor(context)
+                                              color: songPrevProv.code?iconDisab_(context):iconEnab_(context)
                                           ))
                                         ],
                                       ),
@@ -77,11 +77,11 @@ class SongPreview extends StatelessWidget{
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Icon(MdiIcons.codeTags, color: songPrevProv.code?iconEnabledColor(context):iconDisabledColor(context)),
+                                          Icon(MdiIcons.codeTags, color: songPrevProv.code?iconEnab_(context):iconDisab_(context)),
                                           SizedBox(width: Dimen.ICON_MARG),
                                           Text('Kod', style: AppTextStyle(
                                               fontWeight: weight.halfBold,
-                                              color: songPrevProv.code?iconEnabledColor(context):iconDisabledColor(context)
+                                              color: songPrevProv.code?iconEnab_(context):iconDisab_(context)
                                           ))
                                         ],
                                       ),

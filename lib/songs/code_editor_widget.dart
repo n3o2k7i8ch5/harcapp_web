@@ -62,7 +62,7 @@ class CodeEditorWidget extends StatelessWidget{
                                   ),
                                   title: Text(
                                     'Edytor kodu',
-                                    style: AppTextStyle(color: textEnabled(context)),
+                                    style: AppTextStyle(color: textEnab_(context)),
                                   ),
                                   actions: [
                                     IconButton(
@@ -105,8 +105,8 @@ class CodeEditorWidget extends StatelessWidget{
                                         }
                                     ),
                                   ],
-                                  iconTheme: IconThemeData(color: iconEnabledColor(context)),
-                                  actionsIconTheme: IconThemeData(color: iconEnabledColor(context)),
+                                  iconTheme: IconThemeData(color: iconEnab_(context)),
+                                  actionsIconTheme: IconThemeData(color: iconEnab_(context)),
                                 ),
 
                                 Expanded(
@@ -117,7 +117,7 @@ class CodeEditorWidget extends StatelessWidget{
                                       maxLines: null,
                                       controller: controller,
                                       onChanged: (text) => prov.text = text,
-                                      style: TextStyle(color: textEnabled(context)),
+                                      style: TextStyle(color: textEnab_(context)),
                                       decoration: InputDecoration(
                                         hintText: 'Wpisz kod piosenki',
                                         hintStyle: TextStyle(color: hintEnabled(context)),

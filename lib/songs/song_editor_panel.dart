@@ -110,7 +110,7 @@ class SongEditorPanel extends StatelessWidget{
                                 onChanged: (value) => prov.bind = value,
                                 secondary: Icon(
                                     MdiIcons.paperclip,
-                                    color: prov.bind?iconEnabledColor(context):iconDisabledColor(context)
+                                    color: prov.bind?iconEnab_(context):iconDisab_(context)
                                 ),
                                 title: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -119,7 +119,7 @@ class SongEditorPanel extends StatelessWidget{
                                       'Powiąż nazwę pliku z tytułem',
                                       style: AppTextStyle(
                                           fontWeight: weight.bold,
-                                          color: prov.bind?textEnabled(context):textDisabled(context),
+                                          color: prov.bind?textEnab_(context):textDisabled(context),
                                           fontSize: Dimen.TEXT_SIZE_APPBAR
                                       ),
                                     ),

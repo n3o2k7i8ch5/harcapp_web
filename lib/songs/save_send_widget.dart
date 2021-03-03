@@ -38,14 +38,14 @@ class SaveSendWidget extends StatelessWidget{
                     children: [
                       Icon(
                         MdiIcons.folderDownloadOutline,
-                        color: prov.count==0?iconEnabledColor(context):iconDisabledColor(context),
+                        color: prov.count==0?iconEnab_(context):iconDisab_(context),
                       ),
                       SizedBox(width: Dimen.ICON_MARG),
                       Text(
                         'Zapisz',
                         style: AppTextStyle(
                             fontWeight: weight.halfBold,
-                            color: prov.count==0?iconEnabledColor(context):iconDisabledColor(context)
+                            color: prov.count==0?iconEnab_(context):iconDisab_(context)
                         ),
                       )
                     ],
@@ -76,7 +76,7 @@ class SaveSendWidget extends StatelessWidget{
                     SizedBox(width: Dimen.ICON_MARG),
                     Text(
                       'Prześlij',
-                      style: AppTextStyle(fontWeight: weight.halfBold, color: iconEnabledColor(context)),
+                      style: AppTextStyle(fontWeight: weight.halfBold, color: iconEnab_(context)),
                     )
                   ],
                 ),
@@ -149,7 +149,7 @@ class SendSongWidgetState extends State<SendSongWidget>{
               hint: 'Podaj swój email:',
               hintTop: 'Email:',
               hintStyle: AppTextStyle(color: hintEnabled(context)),
-              style: AppTextStyle(color: textEnabled(context)),
+              style: AppTextStyle(color: textEnab_(context)),
               controller: controller,
               onChanged: (text) => setState((){}),
             ),
@@ -186,13 +186,13 @@ class SendSongWidgetState extends State<SendSongWidget>{
                           'Prześlij',
                           style: AppTextStyle(
                             fontWeight: weight.halfBold,
-                            color: sendable?iconEnabledColor(context):iconDisabledColor(context)
+                            color: sendable?iconEnab_(context):iconDisab_(context)
                           ),
                         ),
                         SizedBox(width: Dimen.ICON_MARG),
                         Icon(
                             MdiIcons.send,
-                            color: sendable?iconEnabledColor(context):iconDisabledColor(context)
+                            color: sendable?iconEnab_(context):iconDisab_(context)
                         ),
                       ],
                     ),

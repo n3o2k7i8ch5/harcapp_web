@@ -213,7 +213,7 @@ class SongListViewState extends State<SongListView>{
 
                 Consumer<WorkspaceBlockProvider>(
                   builder: (context, workspaceBlockProv, child) => Material(
-                    color: defCardEnabled(context),
+                    color: cardEnab_(context),
                     elevation: 3,
                     child: Row(
                       children: [
@@ -249,7 +249,7 @@ class SongListViewState extends State<SongListView>{
 
                         return DraggableScrollbar.rrect(
                           scrollbarTimeToFade: Duration(seconds: 2),
-                          backgroundColor: accentColor(context),
+                          backgroundColor: accent_(context),
                           child: ListView.builder(
                             controller: controller,
                             itemCount: searchListProv.length,
@@ -274,7 +274,7 @@ class SongListViewState extends State<SongListView>{
 
                 Consumer<WorkspaceBlockProvider>(
                     builder: (context, workspaceBlockProv, child) => Material(
-                      color: defCardEnabled(context),
+                      color: cardEnab_(context),
                       elevation: 6,
                       child: Row(
                         children: [

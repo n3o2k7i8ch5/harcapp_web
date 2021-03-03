@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
-import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/dimen.dart';
 
+import 'color_pack.dart';
 import 'main_page.dart';
 
 void main() {
@@ -36,8 +36,8 @@ class MyApp extends StatelessWidget {
             subtitle1: TextStyle(color: _realColorPack.hintEnabled),
             subtitle2: TextStyle(color: _realColorPack.hintEnabled)
         ).apply(
-          //bodyColor: _realColorPack.textEnabled,
-          //displayColor: _realColorPack.textEnabled,
+          //bodyColor: _realColorPack.textEnab_,
+          //displayColor: _realColorPack.textEnab_,
         ),
         timePickerTheme: TimePickerThemeData(
           backgroundColor: _realColorPack.background,
@@ -75,8 +75,8 @@ class MyApp extends StatelessWidget {
           backgroundColor: _realColorPack.background,
         ),
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          selectedIconTheme: IconThemeData(color: _realColorPack.iconEnabledColor),
-          unselectedIconTheme: IconThemeData(color: _realColorPack.iconDisabledColor),
+          selectedIconTheme: IconThemeData(color: _realColorPack.iconEnabled),
+          unselectedIconTheme: IconThemeData(color: _realColorPack.iconDisabled),
         ),
         floatingActionButtonTheme: FloatingActionButtonThemeData(
           backgroundColor: _realColorPack.accentColor,
@@ -108,7 +108,7 @@ class MyApp extends StatelessWidget {
         ),
         selectedRowColor: _realColorPack.accentColor.withOpacity(0.3),
         iconTheme: IconThemeData(
-            color: _realColorPack.iconEnabledColor
+            color: _realColorPack.iconEnabled
         ),
       ),
       home: MainPage(),

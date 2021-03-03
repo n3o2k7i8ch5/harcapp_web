@@ -67,7 +67,7 @@ class ItemWidgetState extends State<ItemWidget>{
                 Consumer2<CurrentItemProvider, WorkspaceBlockProvider>(
                     builder: (context, currItemProv, workspaceBlockProv, child) => ListTile(
                         dense: true,
-                        title: Text(title, style: AppTextStyle(color: workspaceBlockProv.blocked?hintEnabled(context):textEnabled(context))),
+                        title: Text(title, style: AppTextStyle(color: workspaceBlockProv.blocked?hintEnabled(context):textEnab_(context))),
                         subtitle: Text(fileName, style: AppTextStyle(color: fileName==HINT_FILE_NAME || fileNameTaken?Colors.red:hintEnabled(context))),
                         selected: currItemProv.song == song,
                         tileColor: workspaceBlockProv.blocked?
@@ -90,7 +90,7 @@ class ItemWidgetState extends State<ItemWidget>{
                                 if(prov.isConf(song))
                                   return Padding(
                                     padding: EdgeInsets.all(Dimen.ICON_MARG),
-                                    child: Icon(MdiIcons.eyeOffOutline, color: iconDisabledColor(context)),
+                                    child: Icon(MdiIcons.eyeOffOutline, color: iconDisab_(context)),
                                   );
                                 return Container();
                               }
@@ -208,7 +208,7 @@ class _FileNameEditorWidget extends StatelessWidget{
                     hint: 'podaj_nazwę_pliku:',
                     hintTop: fileNameTaken?'Nazwa pliku zajęta':'Nazwa pliku',
                     controller: TextEditingController(text: song.fileName.substring(isConfid?4:3)),
-                    style: TextStyle(color: fileNameTaken?Colors.red:textEnabled(context)),
+                    style: TextStyle(color: fileNameTaken?Colors.red:textEnab_(context)),
                     hintStyle: TextStyle(color: hintEnabled(context)),
                     onChanged: (text){
 
@@ -222,7 +222,7 @@ class _FileNameEditorWidget extends StatelessWidget{
           ],
         ),
         trailing: IconButton(
-            icon: Icon(MdiIcons.check, color: iconEnabledColor(context)),
+            icon: Icon(MdiIcons.check, color: iconEnab_(context)),
             onPressed: (){
               Provider.of<ShowFileNameEditorProvider>(context, listen: false).value = false;
               Provider.of<WorkspaceBlockProvider>(context, listen: false).blocked = false;
