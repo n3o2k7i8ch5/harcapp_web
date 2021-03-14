@@ -35,7 +35,7 @@ packages:
       name: avatar_glow
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.2.0"
+    version: "2.0.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -182,7 +182,7 @@ packages:
       name: file_picker
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.6"
+    version: "2.1.7"
   file_picker_cross:
     dependency: "direct main"
     description:
@@ -236,7 +236,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "073baeaa0166b51507e7a9977fb7f8a5f818cf44"
+      resolved-ref: "7eee1f607aa4b0b1a6d6c0e1eb8a41acb8af8feb"
       url: "git://github.com/n3o2k7i8ch5/harcapp_core.git"
     source: git
     version: "0.0.1"
@@ -245,7 +245,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "6551534a166420d53abb3b2dfde3defbec75f267"
+      resolved-ref: "5952bec596a39a7be0365aee3c657e64be6e8b4f"
       url: "git://github.com/n3o2k7i8ch5/harcapp_core_own_song.git"
     source: git
     version: "0.0.1"
@@ -254,7 +254,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "2f59774ebd593fc9b37c2971a7a83e2d5a233455"
+      resolved-ref: ce40c8bc124d28b80245af97ab47f4ea624bf3c4
       url: "git://github.com/n3o2k7i8ch5/harcapp_core_song.git"
     source: git
     version: "0.0.1"
@@ -263,7 +263,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "76f45f6ba77c369f26e269112d5e17e047576b15"
+      resolved-ref: "7a48f117d551764b70fa02d151a9521c8aaac888"
       url: "git://github.com/n3o2k7i8ch5/harcapp_core_song_widget.git"
     source: git
     version: "0.0.1"
@@ -485,7 +485,14 @@ packages:
       name: provider
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.3.3"
+    version: "5.0.0"
+  quiver:
+    dependency: transitive
+    description:
+      name: quiver
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.1.5"
   share:
     dependency: transitive
     description:
@@ -540,6 +547,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.19"
+  tuple:
+    dependency: transitive
+    description:
+      name: tuple
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.2"
   typed_data:
     dependency: transitive
     description:
@@ -560,7 +574,7 @@ packages:
       name: win32
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0"
+    version: "2.0.4"
   worker_manager:
     dependency: "direct main"
     description:
@@ -583,5 +597,5 @@ packages:
     source: hosted
     version: "4.5.1"
 sdks:
-  dart: ">=2.12.0-259.9.beta <3.0.0"
+  dart: ">=2.12.0 <3.0.0"
   flutter: ">=1.20.0"
