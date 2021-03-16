@@ -358,8 +358,10 @@ void displaySong(BuildContext context, SongRaw song){
   Provider.of<TitleCtrlProvider>(context, listen: false).text = song?.title??'';
   Provider.of<AuthorCtrlProvider>(context, listen: false).text = song?.author??'';
   Provider.of<PerformerCtrlProvider>(context, listen: false).text = song?.performer??'';
+  Provider.of<ComposerCtrlProvider>(context, listen: false).text = song?.composer??'';
   Provider.of<YTCtrlProvider>(context, listen: false).text = song?.youtubeLink??'';
   Provider.of<AddPersCtrlProvider>(context, listen: false).text = song?.addPers??'';
+
 
   SongPart refPart;
   if(song?.refrenPart == null)
