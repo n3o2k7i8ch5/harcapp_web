@@ -26,20 +26,17 @@ dependencies:
   provider: 5.0.0
 
   image_picker_web: 1.0.9
-  fluttertoast: 7.1.8
   image_picker: 0.6.7+12
   file_picker_cross: 4.2.6
   image: 2.1.18
   worker_manager: 3.0.3
   linked_scroll_controller: 0.1.2
   auto_size_text: 2.1.0
-  avatar_glow: 2.0.0
   icon_shadow: 1.0.1
   draggable_scrollbar: 0.0.4
   pretty_json: 1.1.0
   flutter_mailer: 1.0.1
   dio: ^3.0.10
-  connectivity: 2.0.2
   clipboard: 0.1.2+8
 
   harcapp_core:

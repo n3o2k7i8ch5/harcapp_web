@@ -30,12 +30,12 @@ packages:
     source: hosted
     version: "2.1.0"
   avatar_glow:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: avatar_glow
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0"
+    version: "2.0.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -79,33 +79,33 @@ packages:
     source: hosted
     version: "1.15.0"
   connectivity:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: connectivity
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.2"
+    version: "3.0.3"
   connectivity_for_web:
     dependency: transitive
     description:
       name: connectivity_for_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.1+4"
+    version: "0.4.0"
   connectivity_macos:
     dependency: transitive
     description:
       name: connectivity_macos
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.0+7"
+    version: "0.2.0"
   connectivity_platform_interface:
     dependency: transitive
     description:
       name: connectivity_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.6"
+    version: "2.0.0"
   convert:
     dependency: transitive
     description:
@@ -126,7 +126,7 @@ packages:
       name: cupertino_icons
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.2"
+    version: "1.0.3"
   dio:
     dependency: "direct main"
     description:
@@ -161,14 +161,14 @@ packages:
       name: ffi
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0"
+    version: "1.1.2"
   file:
     dependency: transitive
     description:
       name: file
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "6.1.0"
+    version: "6.1.1"
   file_chooser:
     dependency: transitive
     description:
@@ -225,18 +225,18 @@ packages:
     source: sdk
     version: "0.0.0"
   fluttertoast:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: fluttertoast
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "7.1.8"
+    version: "8.0.3"
   harcapp_core:
     dependency: "direct main"
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "7eee1f607aa4b0b1a6d6c0e1eb8a41acb8af8feb"
+      resolved-ref: ec01c8e706c38eccf80d8ec71b9c9a3fd7146f34
       url: "git://github.com/n3o2k7i8ch5/harcapp_core.git"
     source: git
     version: "0.0.1"
@@ -245,7 +245,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "5952bec596a39a7be0365aee3c657e64be6e8b4f"
+      resolved-ref: "110b54f0aeedeabcc0d7018809cfac3b5f56546a"
       url: "git://github.com/n3o2k7i8ch5/harcapp_core_own_song.git"
     source: git
     version: "0.0.1"
@@ -254,7 +254,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: ce40c8bc124d28b80245af97ab47f4ea624bf3c4
+      resolved-ref: ea599507822c223d0b5b2d6b081a056c72d70ab1
       url: "git://github.com/n3o2k7i8ch5/harcapp_core_song.git"
     source: git
     version: "0.0.1"
@@ -263,7 +263,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "7a48f117d551764b70fa02d151a9521c8aaac888"
+      resolved-ref: "2d7647765ff317faa4fa0b552fba43c432826513"
       url: "git://github.com/n3o2k7i8ch5/harcapp_core_song_widget.git"
     source: git
     version: "0.0.1"
@@ -272,7 +272,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: b8c313c39abf28a739e3cddf1177ae77ed616eda
+      resolved-ref: d7c7d9514915219387210a4d130ff3a7e7b2202b
       url: "git://github.com/n3o2k7i8ch5/harcapp_core_tags.git"
     source: git
     version: "0.0.1"
@@ -366,7 +366,7 @@ packages:
       name: material_design_icons_flutter
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.0.5855"
+    version: "4.0.5955"
   meta:
     dependency: transitive
     description:
@@ -478,7 +478,7 @@ packages:
       name: process
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.1.0"
+    version: "4.2.1"
   provider:
     dependency: "direct main"
     description:
@@ -574,7 +574,7 @@ packages:
       name: win32
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.4"
+    version: "2.0.5"
   worker_manager:
     dependency: "direct main"
     description:

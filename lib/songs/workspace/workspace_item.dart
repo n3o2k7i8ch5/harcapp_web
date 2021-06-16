@@ -67,8 +67,8 @@ class ItemWidgetState extends State<ItemWidget>{
                 Consumer2<CurrentItemProvider, WorkspaceBlockProvider>(
                     builder: (context, currItemProv, workspaceBlockProv, child) => ListTile(
                         dense: true,
-                        title: Text(title, style: AppTextStyle(color: workspaceBlockProv.blocked?hintEnabled(context):textEnab_(context))),
-                        subtitle: Text(fileName, style: AppTextStyle(color: fileName==HINT_FILE_NAME || fileNameTaken?Colors.red:hintEnabled(context))),
+                        title: Text(title, style: AppTextStyle(color: workspaceBlockProv.blocked?hintEnab_(context):textEnab_(context))),
+                        subtitle: Text(fileName, style: AppTextStyle(color: fileName==HINT_FILE_NAME || fileNameTaken?Colors.red:hintEnab_(context))),
                         selected: currItemProv.song == song,
                         tileColor: workspaceBlockProv.blocked?
                         Colors.black.withOpacity(0.05):Colors.transparent,
@@ -209,10 +209,10 @@ class _FileNameEditorWidget extends StatelessWidget{
                     hintTop: fileNameTaken?'Nazwa pliku zajęta':'Nazwa pliku',
                     controller: TextEditingController(text: song.fileName.substring(isConfid?4:3)),
                     style: TextStyle(color: fileNameTaken?Colors.red:textEnab_(context)),
-                    hintStyle: TextStyle(color: hintEnabled(context)),
+                    hintStyle: TextStyle(color: hintEnab_(context)),
                     onChanged: (text){
 
-                      song.fileName = (isConfid?'oc!_':'o!_') + text;
+                      song.fileName = (isConfid?'oc!_':'o!_') + text[0];
 
                       SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
                       songFileNameDupErrProv.chedkDupsFor(context, song);

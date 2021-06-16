@@ -45,6 +45,7 @@ class SongPreview extends StatelessWidget{
 
                           AppCard(
                             radius: AppCard.BIG_RADIUS,
+                            margin: AppCard.normMargin,
                             padding: EdgeInsets.zero,
                             elevation: AppCard.bigElevation,
                             child: Row(

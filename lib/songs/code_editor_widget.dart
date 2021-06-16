@@ -19,7 +19,7 @@ import 'package:provider/provider.dart';
 
 class CodeEditorWidget extends StatelessWidget{
 
-  SongPreviewProvider get songPrevProv => parent.songPrevProv;
+  //SongPreviewProvider get songPrevProv => parent.songPrevProv;
 
   SongsPageState parent;
 
@@ -89,10 +89,13 @@ class CodeEditorWidget extends StatelessWidget{
                                           }
 
                                           Provider.of<TitleCtrlProvider>(context, listen: false).text = song.title;
+                                          /*
                                           Provider.of<AuthorCtrlProvider>(context, listen: false).text = song.author;
                                           Provider.of<PerformerCtrlProvider>(context, listen: false).text = song.performer;
                                           Provider.of<YTCtrlProvider>(context, listen: false).text = song.youtubeLink;
                                           Provider.of<AddPersCtrlProvider>(context, listen: false).text = song.addPers;
+
+                                           */
                                           Provider.of<TagsProvider>(context, listen: false).set(Tag.ALL_TAG_NAMES, song.tags);
 
                                           prov.song.set(song);
@@ -120,7 +123,7 @@ class CodeEditorWidget extends StatelessWidget{
                                       style: TextStyle(color: textEnab_(context)),
                                       decoration: InputDecoration(
                                         hintText: 'Wpisz kod piosenki',
-                                        hintStyle: TextStyle(color: hintEnabled(context)),
+                                        hintStyle: TextStyle(color: hintEnab_(context)),
                                         border: InputBorder.none
                                       ),
                                     ),

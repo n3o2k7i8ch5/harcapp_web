@@ -1,49 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/colors.dart';
-
-abstract class ColorPack{
-
-  const ColorPack();
-
-  String get name;
-
-  Color get appBar => darkColor;
-  Color get appBarTextEnabled => Colors.white;
-  Color get appBarTextDisabled => Colors.white70;
-
-  Color get disabled => AppColors.text_def_disab;
-
-  Color get textEnabled => AppColors.text_def_enab;
-  Color get textDisabled => AppColors.text_def_disab;
-
-  Color get textDrawer => AppColors.text_def_enab;
-  Color get hintDrawer => AppColors.text_def_disab;
-
-  Color get hintEnabled => AppColors.text_hint_enab;
-
-  Color get defCardEnabled => AppColors.white_dark;//Colors.white;
-  Color get defCardDisabled => Color.fromARGB(255, 235, 235, 235);
-  Color get defCardElevation => Colors.black;
-
-  Color get colorCard => mainColor;
-  Color get colorBackground => darkColor;
-
-  Color get background => Colors.white;
-  Color get backgroundIcon => Colors.black.withOpacity(0.05);
-
-  Color get mainColor;
-  Color get lightColor;
-  Color get darkColor;
-  Color get accentColor;
-  Color get accentIconColor;
-  Color get iconEnabled;
-  Color get iconDisabled;
-  Color get drawerIconColor => Colors.black54;
-  Color get drawerIconDisabled => Colors.black26;
-
-  bool operator == (Object other) => other is ColorPack && name == other.name;
-  int get hashCode => name.hashCode;
-}
+import 'package:harcapp_core/comm_classes/color_pack.dart';
 
 class ColorPackGraphite extends ColorPack{
 

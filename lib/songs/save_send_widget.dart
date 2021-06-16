@@ -148,7 +148,7 @@ class SendSongWidgetState extends State<SendSongWidget>{
             AppTextFieldHint(
               hint: 'Podaj swój email:',
               hintTop: 'Email:',
-              hintStyle: AppTextStyle(color: hintEnabled(context)),
+              hintStyle: AppTextStyle(color: hintEnab_(context)),
               style: AppTextStyle(color: textEnab_(context)),
               controller: controller,
               onChanged: (text) => setState((){}),
@@ -160,7 +160,7 @@ class SendSongWidgetState extends State<SendSongWidget>{
               'Na adres email wysłana zostanie kopia przesyłanych piosenek.'
                   '\n\n'
                   'Możesz także pobrać plik z piosenkami i przesłać go na adres:',
-              style: AppTextStyle(color: hintEnabled(context), fontSize: Dimen.TEXT_SIZE_NORMAL),
+              style: AppTextStyle(color: hintEnab_(context), fontSize: Dimen.TEXT_SIZE_NORMAL),
             ),
 
             Row(

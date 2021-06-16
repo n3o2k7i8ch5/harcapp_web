@@ -65,9 +65,9 @@ SongRaw parseOldCode(String fileName, String code, {bool official = true}){
       fileName: fileName,
       title: basicData.title,
       hidTitles: hidTitles,
-      author: basicData.author,
-      performer: basicData.performer,
-      addPers: basicData.moderator,
+      authors: [basicData.author],
+      performers: [basicData.performer],
+      addPers: [basicData.moderator],
       youtubeLink: basicData.youtubeLink,
 
       tags: basicData.tags,

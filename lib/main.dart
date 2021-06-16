@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_classes/color_pack_provider.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_core_own_song/common.dart';
+import 'package:harcapp_core_own_song/providers.dart';
+import 'package:harcapp_core_own_song/song_raw.dart';
+import 'package:harcapp_core_tags/tag_layout.dart';
+import 'package:harcapp_web/songs/generate_file_name.dart';
+import 'package:harcapp_web/songs/providers.dart';
+import 'package:provider/provider.dart';
 
 import 'color_pack.dart';
 import 'main_page.dart';
@@ -13,112 +22,98 @@ void main() {
 
 class MyApp extends StatelessWidget {
 
+  AllSongsProvider allSongsProv;
+  CurrentItemProvider currItemProv;
+  BindTitleFileNameProvider bindTitleFileNameProv;
+  SongFileNameDupErrProvider songFileNameDupErrProv;
+
   @override
   Widget build(BuildContext context) {
 
-    ColorPack _realColorPack = ColorPackGraphite();
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ColorPackProvider(
+            colorPackDark: ColorPackGraphite(),
+            initColorPack: ColorPackGraphite(),
+            isDark: () => false
+        )),
 
-    return MaterialApp(
-      title: 'HarcApp Web',
-      theme: ThemeData(
-        appBarTheme: AppBarTheme(
-            color: _realColorPack.appBar,
-            textTheme: TextTheme(
-              headline6: AppTextStyle(fontSize: Dimen.TEXT_SIZE_APPBAR, color: _realColorPack.appBarTextEnabled),
-              headline5: AppTextStyle(fontSize: Dimen.TEXT_SIZE_APPBAR, color: _realColorPack.appBarTextDisabled),
-            ),
-            actionsIconTheme: IconThemeData(color: _realColorPack.appBarTextEnabled),
-            iconTheme: IconThemeData(color: _realColorPack.appBarTextEnabled)
-        ),
-        textTheme: TextTheme(
-            bodyText1: TextStyle(color: _realColorPack.textEnabled),
-            bodyText2: TextStyle(color: _realColorPack.textEnabled),
-            subtitle1: TextStyle(color: _realColorPack.hintEnabled),
-            subtitle2: TextStyle(color: _realColorPack.hintEnabled)
-        ).apply(
-          //bodyColor: _realColorPack.textEnab_,
-          //displayColor: _realColorPack.textEnab_,
-        ),
-        timePickerTheme: TimePickerThemeData(
-          backgroundColor: _realColorPack.background,
-          //hourMinuteColor: _realColorPack.accentColor.withOpacity(0.3),
-          //hourMinuteTextColor: _realColorPack.accentColor,
-          dialHandColor: _realColorPack.accentColor,
-          helpTextStyle: AppTextStyle(color: _realColorPack.hintEnabled),
-          dayPeriodTextStyle: AppTextStyle(),
-          hourMinuteTextStyle: TextStyle(
-            fontSize: 48,
-          ),
-          hourMinuteShape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10.0))
-          ),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(AppCard.DEF_RADIUS))
-          ),
-        ),
-        textSelectionHandleColor: _realColorPack.accentColor,
-        textSelectionColor: _realColorPack.accentColor.withOpacity(0.5),
+        ChangeNotifierProvider(create: (context){
+          allSongsProv = AllSongsProvider();
+          return allSongsProv;
+        }),
 
-        primaryTextTheme: TextTheme(
-          bodyText1: TextStyle(color: _realColorPack.textDrawer),
-          bodyText2: TextStyle(color: _realColorPack.textDrawer),
-          subtitle1: TextStyle(color: _realColorPack.hintDrawer),
-          subtitle2: TextStyle(color: _realColorPack.hintDrawer),
-        ),
-        backgroundColor: _realColorPack.background,
-        scaffoldBackgroundColor: _realColorPack.background,
+        ChangeNotifierProvider(create: (context) => LoadingProvider()),
+        ChangeNotifierProvider(create: (context){
+          currItemProv = CurrentItemProvider();
+          return currItemProv;
+        }),
 
-        toggleableActiveColor: _realColorPack.accentColor,
-        unselectedWidgetColor: _realColorPack.hintEnabled,
+        ChangeNotifierProvider(create: (context) => TitleCtrlProvider(
+            onChanged: (text){
+              LoadingProvider loadingProv = Provider.of<LoadingProvider>(context, listen: false);
+              if(loadingProv.loading)
+                return;
 
-        bottomSheetTheme: BottomSheetThemeData(
-          backgroundColor: _realColorPack.background,
-        ),
-        bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          selectedIconTheme: IconThemeData(color: _realColorPack.iconEnabled),
-          unselectedIconTheme: IconThemeData(color: _realColorPack.iconDisabled),
-        ),
-        floatingActionButtonTheme: FloatingActionButtonThemeData(
-          backgroundColor: _realColorPack.accentColor,
-          foregroundColor: _realColorPack.accentIconColor,
-        ),
+              SongRaw song = currItemProv.song;
 
-        cardColor: _realColorPack.defCardEnabled,
-        cardTheme: CardTheme(
-            color: _realColorPack.defCardEnabled,
-            shadowColor: _realColorPack.defCardElevation
-        ),
+              bool isConf = allSongsProv.isConf(song);
 
-        disabledColor: _realColorPack.disabled,
-        inputDecorationTheme: InputDecorationTheme(
-            fillColor: _realColorPack.textEnabled
-        ),
+              if(bindTitleFileNameProv.bind)
+                song.fileName = generateFileName(isConf: isConf, title: text);
 
-        //primarySwatch: _realColorPack.mainColor,
-        primaryColor: _realColorPack.mainColor,
-        primaryColorDark: _realColorPack.darkColor,
-        primaryColorLight: _realColorPack.lightColor,
-        accentColor: _realColorPack.accentColor,
-        accentIconTheme: IconThemeData(
-            color: _realColorPack.accentIconColor
-        ),
-        accentTextTheme: TextTheme().apply(
-            displayColor: _realColorPack.accentIconColor,
-            bodyColor: _realColorPack.accentIconColor
-        ),
-        selectedRowColor: _realColorPack.accentColor.withOpacity(0.3),
-        iconTheme: IconThemeData(
-            color: _realColorPack.iconEnabled
-        ),
+              songFileNameDupErrProv.chedkDupsFor(context, song);
+
+              allSongsProv.notifyListeners();
+
+            }
+        )),
+        /*
+        ChangeNotifierProvider(create: (context) => AuthorCtrlProvider()),
+        ChangeNotifierProvider(create: (context) => ComposerCtrlProvider()),
+        ChangeNotifierProvider(create: (context) => PerformerCtrlProvider()),
+        ChangeNotifierProvider(create: (context) => YTCtrlProvider()),
+        ChangeNotifierProvider(create: (context) => AddPersCtrlProvider()),
+*/
+        ChangeNotifierProvider(create: (context) => HidTitlesProvider(hidTitles: [])),
+        ChangeNotifierProvider(create: (context) => RefrenEnabProvider(true)),
+        ChangeNotifierProvider(create: (context) => RefrenPartProvider(SongPart.empty(isRefrenTemplate: true))),
+        ChangeNotifierProvider(create: (context) => TagsProvider(Tag.ALL_TAG_NAMES, [])),
+
+        ChangeNotifierProvider(create: (context){
+          bindTitleFileNameProv = BindTitleFileNameProvider();
+          return bindTitleFileNameProv;
+        }),
+
+        ChangeNotifierProvider(create: (context) => WorkspaceBlockProvider()),
+        ChangeNotifierProvider(create: (context){
+          songFileNameDupErrProv = SongFileNameDupErrProvider();
+          return songFileNameDupErrProv;
+        }),
+
+        ChangeNotifierProvider(create: (context) => ShowCodeEditorProvider()),
+
+        ChangeNotifierProvider(create: (context) => SongPreviewProvider()),
+
+        ChangeNotifierProvider(create: (context) => SongEditorPanelProvider()),
+      ],
+      builder: (context, child) => Consumer<ColorPackProvider>(
+          builder: (context, prov, child){
+            return MaterialApp(
+              title: 'HarcApp Web',
+              theme: prov.colorPack.themeData,
+              home: MainPage(),
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate, // ONLY if it's a RTL language
+              ],
+              supportedLocales: const [
+                Locale('pl', 'PL'), // include country code too
+              ],
+            );
+          }
       ),
-      home: MainPage(),
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate, // ONLY if it's a RTL language
-      ],
-      supportedLocales: const [
-        Locale('pl', 'PL'), // include country code too
-      ],
     );
+
   }
 }

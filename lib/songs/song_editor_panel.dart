@@ -43,7 +43,7 @@ class SongEditorPanel extends StatelessWidget{
                 'Dodaj lub importuj piosenkę.',
                 style: AppTextStyle(
                     fontSize: 32.0,
-                    color: textDisabled(context),
+                    color: textDisab_(context),
                     fontWeight: weight.halfBold
                 ),
               ),
@@ -53,18 +53,18 @@ class SongEditorPanel extends StatelessWidget{
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(MdiIcons.arrowLeft, color: textDisabled(context), size: 32.0),
+                  Icon(MdiIcons.arrowLeft, color: textDisab_(context), size: 32.0),
                   SizedBox(width: Dimen.ICON_MARG),
                   Text(
                     'Zerknij tam!',
                     style: AppTextStyle(
                         fontSize: 32.0,
-                        color: textDisabled(context),
+                        color: textDisab_(context),
                         fontWeight: weight.halfBold
                     ),
                   ),
                   SizedBox(width: Dimen.ICON_MARG),
-                  Icon(MdiIcons.musicNote, color: textDisabled(context), size: 32.0),
+                  Icon(MdiIcons.musicNote, color: textDisab_(context), size: 32.0),
                 ],
               )
             ],
@@ -119,7 +119,7 @@ class SongEditorPanel extends StatelessWidget{
                                       'Powiąż nazwę pliku z tytułem',
                                       style: AppTextStyle(
                                           fontWeight: weight.bold,
-                                          color: prov.bind?textEnab_(context):textDisabled(context),
+                                          color: prov.bind?textEnab_(context):textDisab_(context),
                                           fontSize: Dimen.TEXT_SIZE_APPBAR
                                       ),
                                     ),
@@ -134,20 +134,20 @@ class SongEditorPanel extends StatelessWidget{
                           onChangedTitle: (String text){
                             currItemProv.title = text;
                           },
-                          onChangedAuthor: (String text){
-                            currItemProv.author = text;
+                          onChangedAuthor: (List<String> texts){
+                            currItemProv.authors = texts;
                           },
-                          onChangedComposer: (String text){
-                            currItemProv.composer = text;
+                          onChangedComposer: (List<String> texts){
+                            currItemProv.composers = texts;
                           },
-                          onChangedPerformer: (String text){
-                            currItemProv.performer = text;
+                          onChangedPerformer: (List<String> texts){
+                            currItemProv.performers = texts;
                           },
                           onChangedYT: (String text){
                             currItemProv.youtubeLink = text;
                           },
-                          onChangedAddPers: (String text){
-                            currItemProv.addPers = text;
+                          onChangedAddPers: (List<String> texts){
+                            currItemProv.addPers = texts;
                           },
                         ),
 
