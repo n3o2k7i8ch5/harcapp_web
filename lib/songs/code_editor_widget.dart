@@ -51,11 +51,11 @@ class CodeEditorWidget extends StatelessWidget{
                           width: 500,
                           child: AppCard(
                             padding: EdgeInsets.zero,
+                            margin: AppCard.normMargin,
                             child: Column(
                               children: [
 
                                 AppBar(
-                                  backgroundColor: Colors.transparent,
                                   leading: IconButton(
                                       icon: Icon(MdiIcons.arrowLeft),
                                       onPressed: () => prov.value = false,
@@ -98,7 +98,9 @@ class CodeEditorWidget extends StatelessWidget{
                                            */
                                           Provider.of<TagsProvider>(context, listen: false).set(Tag.ALL_TAG_NAMES, song.tags);
 
+
                                           prov.song.set(song);
+                                          Provider.of<CurrentItemProvider>(context, listen: false).song = song;
                                           AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
                                           allSongsProv.set(prov.song, prov.song.isConfid);
 

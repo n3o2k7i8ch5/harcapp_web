@@ -199,6 +199,7 @@ class _FileNameEditorWidget extends StatelessWidget{
     return AppCard(
       elevation: 6.0,
       padding: EdgeInsets.zero,
+      margin: AppCard.normMargin,
       child: ListTile(
         title: Row(
           children: [
@@ -247,6 +248,7 @@ class _MoreButtonsWidget extends StatelessWidget{
 
     return AppCard(
       elevation: AppCard.bigElevation,
+      margin: AppCard.normMargin,
       child: Row(
         children: [
 
