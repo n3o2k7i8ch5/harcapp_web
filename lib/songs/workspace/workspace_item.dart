@@ -17,6 +17,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:pretty_json/pretty_json.dart';
 import 'package:provider/provider.dart';
 
+import '../generate_file_name.dart';
 import '../providers.dart';
 
 class ItemWidget extends StatefulWidget{
@@ -225,6 +226,9 @@ class _FileNameEditorWidget extends StatelessWidget{
         trailing: IconButton(
             icon: Icon(MdiIcons.check, color: iconEnab_(context)),
             onPressed: (){
+              Provider.of<BindTitleFileNameProvider>(context, listen: false).bind =
+                  song.fileName == generateFileName(title: song.title);
+
               Provider.of<ShowFileNameEditorProvider>(context, listen: false).value = false;
               Provider.of<WorkspaceBlockProvider>(context, listen: false).blocked = false;
             }

@@ -100,7 +100,6 @@ class CodeEditorWidget extends StatelessWidget{
 
 
                                           prov.song.set(song);
-                                          Provider.of<CurrentItemProvider>(context, listen: false).song = song;
                                           AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
                                           allSongsProv.set(prov.song, prov.song.isConfid);
 

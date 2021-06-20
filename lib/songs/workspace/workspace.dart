@@ -24,6 +24,8 @@ import 'package:harcapp_web/songs/workspace/workspace_item.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../generate_file_name.dart';
+
 void importSongsFromCode(String code, {@required Function(List<SongRaw> offSongs, List<SongRaw> confSongs) onFinished}){
 
   Map<String, dynamic> map = jsonDecode(code);
@@ -369,6 +371,9 @@ void displaySong(BuildContext context, SongRaw song){
     refPart = SongPart.empty();
   else
     refPart = song.refrenPart;
+
+  Provider.of<BindTitleFileNameProvider>(context, listen: false).bind =
+      song.fileName == generateFileName(title: song.title);
 
   Provider.of<RefrenPartProvider>(context, listen: false).part = refPart;
 
