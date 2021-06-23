@@ -212,9 +212,9 @@ class _FileNameEditorWidget extends StatelessWidget{
                     controller: TextEditingController(text: song.fileName.substring(isConfid?4:3)),
                     style: TextStyle(color: fileNameTaken?Colors.red:textEnab_(context)),
                     hintStyle: TextStyle(color: hintEnab_(context)),
-                    onChanged: (text){
+                    onAnyChanged: (texts){
 
-                      song.fileName = (isConfid?'oc!_':'o!_') + text[0];
+                      song.fileName = (isConfid?'oc!_':'o!_') + texts[0];
 
                       SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
                       songFileNameDupErrProv.chedkDupsFor(context, song);

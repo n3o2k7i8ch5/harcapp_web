@@ -151,7 +151,7 @@ class SendSongWidgetState extends State<SendSongWidget>{
               hintStyle: AppTextStyle(color: hintEnab_(context)),
               style: AppTextStyle(color: textEnab_(context)),
               controller: controller,
-              onChanged: (text) => setState((){}),
+              onAnyChanged: (text) => setState((){}),
             ),
 
             SizedBox(height: 20),

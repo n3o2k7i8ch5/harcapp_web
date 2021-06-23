@@ -168,7 +168,7 @@ packages:
       name: file_picker
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.2+2"
+    version: "3.0.3"
   file_picker_cross:
     dependency: "direct main"
     description:
@@ -264,7 +264,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "75d99729bc7b6c0a502df82f1b99d13379c07c8d"
+      resolved-ref: "2c9729879426d610c830da7c8a818da03c5a7597"
       url: "git://github.com/n3o2k7i8ch5/harcapp_core.git"
     source: git
     version: "0.0.1"
@@ -273,7 +273,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "0e1ff31638c130ab79c926d6bff0b3fb60a2c01c"
+      resolved-ref: fc99416edd08400f7379c97748967ba378f9e0f8
       url: "git://github.com/n3o2k7i8ch5/harcapp_core_own_song.git"
     source: git
     version: "0.0.1"
@@ -338,7 +338,7 @@ packages:
       name: image_picker
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.0+3"
+    version: "0.8.0+4"
   image_picker_for_web:
     dependency: transitive
     description:
@@ -672,7 +672,7 @@ packages:
       name: url_launcher
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "6.0.6"
+    version: "6.0.7"
   url_launcher_linux:
     dependency: transitive
     description:
