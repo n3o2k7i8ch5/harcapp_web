@@ -22,10 +22,10 @@ void main() {
 
 class MyApp extends StatelessWidget {
 
-  AllSongsProvider allSongsProv;
-  CurrentItemProvider currItemProv;
-  BindTitleFileNameProvider bindTitleFileNameProv;
-  SongFileNameDupErrProvider songFileNameDupErrProv;
+  AllSongsProvider? allSongsProv;
+  CurrentItemProvider? currItemProv;
+  BindTitleFileNameProvider? bindTitleFileNameProv;
+  SongFileNameDupErrProvider? songFileNameDupErrProv;
 
   @override
   Widget build(BuildContext context) {
@@ -52,19 +52,19 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => TitleCtrlProvider(
             onChanged: (text){
               LoadingProvider loadingProv = Provider.of<LoadingProvider>(context, listen: false);
-              if(loadingProv.loading)
+              if(loadingProv.loading!)
                 return;
 
-              SongRaw song = currItemProv.song;
+              SongRaw? song = currItemProv!.song;
 
-              bool isConf = allSongsProv.isConf(song);
+              bool? isConf = allSongsProv!.isConf(song);
 
-              if(bindTitleFileNameProv.bind)
-                song.fileName = generateFileName(isConf: isConf, title: text);
+              if(bindTitleFileNameProv!.bind!)
+                song!.fileName = generateFileName(isConf: isConf!, title: text);
 
-              songFileNameDupErrProv.chedkDupsFor(context, song);
+              songFileNameDupErrProv!.chedkDupsFor(context, song);
 
-              allSongsProv.notifyListeners();
+              allSongsProv!.notifyListeners();
 
             }
         )),
@@ -101,7 +101,7 @@ class MyApp extends StatelessWidget {
           builder: (context, prov, child){
             return MaterialApp(
               title: 'HarcApp Web',
-              theme: prov.colorPack.themeData,
+              theme: prov.colorPack!.themeData,
               home: MainPage(),
               localizationsDelegates: const [
                 GlobalMaterialLocalizations.delegate,

@@ -115,7 +115,7 @@ class SendSongWidgetState extends State<SendSongWidget>{
 
   static RegExp emailRegExp = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
 
-  TextEditingController controller;
+  TextEditingController? controller;
 
   @override
   void initState() {
@@ -125,7 +125,7 @@ class SendSongWidgetState extends State<SendSongWidget>{
   @override
   Widget build(BuildContext context) {
 
-    bool sendable = emailRegExp.hasMatch(controller.text);
+    bool sendable = emailRegExp.hasMatch(controller!.text);
 
     return SizedBox(
       width: 400,
@@ -201,7 +201,7 @@ class SendSongWidgetState extends State<SendSongWidget>{
                       try {
                         GoogleFormSender sender = GoogleFormSender(FORMS_URL);
                         sender.addTextResponse('entry.1848845001', convertAllToCode(context));
-                        sender.addTextResponse('emailAddress', controller.text);
+                        sender.addTextResponse('emailAddress', controller!.text);
                         await sender.submit();
 
                         AppScaffold.showMessage(context, 'Przesłano piosenkę. Dzięki!');
@@ -234,16 +234,16 @@ String convertAllToCode(BuildContext context){
   Map confSongMap = {};
 
   AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
-  List<SongRaw> allSongs = allSongsProv.songs;
+  List<SongRaw?> allSongs = allSongsProv.songs!;
 
   allSongs.sort(
-          (a, b) => compare(a.title, b.title)
+          (a, b) => compare(a!.title, b!.title)
   );
 
   int iterOff = 0;
   int iterConf = 0;
-  for(SongRaw song in allSongs){
-    Map map = song.toMap(withFileName: false);
+  for(SongRaw? song in allSongs){
+    Map map = song!.toMap(withFileName: false);
     if(allSongsProv.isConf(song))
       confSongMap[song.fileName] = {
         'song': map,

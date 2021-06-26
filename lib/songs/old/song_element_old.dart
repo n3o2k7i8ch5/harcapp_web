@@ -16,7 +16,7 @@ class SongElementOld{
     return SongElementOld(PrimitiveWrapper(text), PrimitiveWrapper(chords));
   }
 
-  static SongElementOld decodeOld(String code, {String firstElementChords}){
+  static SongElementOld decodeOld(String code, {String? firstElementChords}){
     String text, chords;
     List<String> parts = code.split('>');
     text = parts[1];
@@ -49,13 +49,13 @@ class SongElementOld{
 
     for(int i=0; i<codeLines.length; i++) {
 
-      String firstChar;
+      String? firstChar;
       if(codeLines[i].length>0)
         firstChar = codeLines[i].substring(0, 1);
       else
         firstChar = null;
 
-      if (codeLines[i].length > 0 && isDigit(firstChar))
+      if (codeLines[i].length > 0 && isDigit(firstChar!))
         output += codeLines[int.parse(codeLines[i])] + "\n";
       else
         output += codeLines[i] + "\n";

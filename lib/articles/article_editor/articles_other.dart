@@ -24,7 +24,7 @@ class ArticlesOther extends StatefulWidget{
 
 class ArticlesOtherState extends State<ArticlesOther>{
 
-  List<OtherArtItem> get otherArts => widget.parent.otherArts;
+  List<OtherArtItem>? get otherArts => widget.parent.otherArts;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +50,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
               SizedBox(height: MARGIN,),
 
               ImplicitlyAnimatedReorderableList<OtherArtItem>(
-                  items: otherArts,
+                  items: otherArts!,
                   areItemsTheSame: (oldItem, newItem) => oldItem.hashCode == newItem.hashCode,
                   onReorderFinished: (item, from, to, newItems) {
                     // Remember to update the underlying data when the list has been
@@ -58,11 +58,11 @@ class ArticlesOtherState extends State<ArticlesOther>{
 
                     widget.parent.setState(() {
                       otherArts
-                        ..clear()
+                        ?..clear()
                         ..addAll(newItems);
                     });
 
-                    print(otherArts.length);
+                    print(otherArts!.length);
 
                   },
                   itemBuilder: (context, itemAnimation, item, index) {
@@ -71,7 +71,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
                       key: ValueKey(item.hashCode),
                       builder: (context, dragAnimation, inDrag) {
                         final t = dragAnimation.value;
-                        final elevation = ui.lerpDouble(0, 8, t);
+                        final elevation = ui.lerpDouble(0, 8, t)!;
                         final color = Color.lerp(Colors.white, Colors.white.withOpacity(0.8), t);
 
                         return SizeFadeTransition(
@@ -99,7 +99,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
                                     icon: Icon(Icons.close),
                                     onPressed: () =>
                                     widget.parent.setState(() =>
-                                      widget.parent.otherArts.removeAt(index)
+                                      widget.parent.otherArts!.removeAt(index)
                                     ),
                                   ),
 
@@ -115,7 +115,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
                                           border: InputBorder.none
                                       ),
                                       style: AppTextStyle(fontSize: FONT_SIZE_NORM),
-                                      onChanged: (text) => otherArts[index].string = text,
+                                      onChanged: (text) => otherArts![index].string = text,
                                     ),
                                   )
 
@@ -133,7 +133,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
                       SimpleButton(
                         onTap: (){
                           widget.parent.setState(() {
-                            otherArts.add(OtherArtItem(''));
+                            otherArts!.add(OtherArtItem(''));
                           });
                         },
                         padding: EdgeInsets.zero,
@@ -178,7 +178,7 @@ class OtherArtItem{
 
   static int id = 0;
 
-  int _id;
+  int? _id;
 
   String string;
 

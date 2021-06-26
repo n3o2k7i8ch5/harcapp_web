@@ -24,7 +24,7 @@ abstract class ArticleElementWidget<T extends ArticleElement> extends StatelessW
   @override
   Widget build(BuildContext context) {
 
-    bool showClose = pageState.articleElements.length != 1;
+    bool showClose = pageState.articleElements!.length != 1;
 
     return Padding(
       padding: EdgeInsets.only(top: topPadding),

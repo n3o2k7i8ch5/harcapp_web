@@ -34,7 +34,7 @@ class CodeEditorWidget extends StatelessWidget{
 
           TextEditingController controller = TextEditingController(text: prov.text);
 
-          if(!prov.value)
+          if(!prov.value!)
             return Container();
 
           return GestureDetector(
@@ -72,13 +72,13 @@ class CodeEditorWidget extends StatelessWidget{
                                           SongRaw song;
 
                                           try{
-                                            song = parseOldCode('_nowa_piosenka', prov.text);
+                                            song = parseOldCode('_nowa_piosenka', prov.text!);
                                             String fileName = generateFileName(title: song.title);
                                             song.fileName = fileName;
                                           } catch(e){
 
                                             try {
-                                              Map map = jsonDecode(prov.text);
+                                              Map map = jsonDecode(prov.text!);
                                               String fileName = map.keys.toList()[0];
                                               song = SongRaw.fromMap(fileName, map[fileName]);
 
@@ -99,11 +99,11 @@ class CodeEditorWidget extends StatelessWidget{
                                           Provider.of<TagsProvider>(context, listen: false).set(Tag.ALL_TAG_NAMES, song.tags);
 
 
-                                          prov.song.set(song);
+                                          prov.song!.set(song);
                                           AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
-                                          allSongsProv.set(prov.song, prov.song.isConfid);
+                                          allSongsProv.set(prov.song, prov.song!.isConfid);
 
-                                          displaySong(context, prov.song);
+                                          displaySong(context, prov.song!);
 
                                           prov.value = false;
                                         }

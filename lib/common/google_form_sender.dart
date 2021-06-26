@@ -11,29 +11,29 @@ class GoogleFormSender{
   static const String SEPARATOR = '~';
 
   String url;
-  Function beforeSubmit;
-  Function(Response) afterSubmit;
+  Function? beforeSubmit;
+  Function(Response)? afterSubmit;
 
-  Map<String, String> body;
+  Map<String, String>? body;
 
   GoogleFormSender(this.url, {this.beforeSubmit, this.afterSubmit, this.body}){
     if(body == null) body = {};
   }
 
   addTextResponse(String entryId, String text){
-    body[entryId] = text;
+    body![entryId] = text;
   }
 
   Future<void> submit({saveLocalPath}) async {
-    if(beforeSubmit!=null) beforeSubmit();
+    if(beforeSubmit!=null) beforeSubmit!();
 
-    FormData formData = FormData.fromMap(body);
+    FormData formData = FormData.fromMap(body!);
     Response response = await Dio().post(
       url,
       data: formData,
     );
 
-    if(afterSubmit!=null) afterSubmit(response);
+    if(afterSubmit!=null) afterSubmit!(response);
   }
 
 

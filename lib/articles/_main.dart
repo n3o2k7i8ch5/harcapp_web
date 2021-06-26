@@ -18,20 +18,20 @@ class ArticlePage extends StatefulWidget{
 
 class ArticlePageState extends State<ArticlePage>{
 
-  PageController controller;
-  int lastSetPage;
+  PageController? controller;
+  int? lastSetPage;
 
   @override
   void initState() {
     controller = PageController();
     lastSetPage = 0;
 
-    controller.addListener(() {
+    controller!.addListener(() {
 
-      if(controller.page != lastSetPage &&
-          controller.page==0 || controller.page==1
+      if(controller!.page != lastSetPage &&
+          controller!.page==0 || controller!.page==1
       ) {
-        lastSetPage = controller.page.toInt();
+        lastSetPage = controller!.page!.toInt();
         setState(() {});
       }
 
@@ -66,7 +66,7 @@ class ArticlePageState extends State<ArticlePage>{
                   TopButton(
                     title: 'Stwórz artykuł',
                     icon: Icons.view_headline,
-                    onTap: () => controller.animateToPage(
+                    onTap: () => controller!.animateToPage(
                         0,
                         duration: Duration(milliseconds: 300),
                         curve: Curves.easeOutQuad
@@ -79,7 +79,7 @@ class ArticlePageState extends State<ArticlePage>{
                   TopButton(
                       title: 'Stwórz autora',
                       icon: Icons.account_circle,
-                      onTap: () => controller.animateToPage(
+                      onTap: () => controller!.animateToPage(
                           1,
                           duration: Duration(milliseconds: 300),
                           curve: Curves.easeOutQuad
@@ -117,9 +117,9 @@ class TopButton extends StatelessWidget{
   final bool isSelected;
 
   const TopButton({
-    @required this.title,
-    @required this.icon,
-    @required this.onTap,
+    required this.title,
+    required this.icon,
+    required this.onTap,
     this.isSelected: false});
 
   @override
@@ -143,7 +143,7 @@ class TopButton extends StatelessWidget{
           ),
         ],
       ),
-      onTap: isSelected?null:onTap,
+      onTap: isSelected?null:onTap as void Function()?,
     );
   }
 }

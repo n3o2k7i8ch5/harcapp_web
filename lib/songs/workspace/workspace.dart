@@ -26,12 +26,12 @@ import 'package:provider/provider.dart';
 
 import '../generate_file_name.dart';
 
-void importSongsFromCode(String code, {@required Function(List<SongRaw> offSongs, List<SongRaw> confSongs) onFinished}){
+void importSongsFromCode(String code, {required Function(List<SongRaw?> offSongs, List<SongRaw?> confSongs) onFinished}){
 
   Map<String, dynamic> map = jsonDecode(code);
 
-  Map<String, dynamic> offSongsMap = map['official'];
-  List<SongRaw> offSongs;
+  Map<String, dynamic>? offSongsMap = map['official'];
+  List<SongRaw?> offSongs;
   if(offSongsMap == null) offSongs = [];
   else {
     offSongs = List.filled(offSongsMap.keys.length, null, growable: true);
@@ -49,8 +49,8 @@ void importSongsFromCode(String code, {@required Function(List<SongRaw> offSongs
     }
   }
 
-  Map<String, dynamic> confSongsMap = map['conf'];
-  List<SongRaw> confSongs;
+  Map<String, dynamic>? confSongsMap = map['conf'];
+  List<SongRaw?> confSongs;
   if(confSongsMap == null) confSongs = [];
   else{
     confSongs = List.filled(confSongsMap.keys.length, null, growable: true);
@@ -80,7 +80,7 @@ class WorkspacePart extends StatefulWidget{
 
 class WorkspacePartState extends State<WorkspacePart>{
 
-  String code;
+  String? code;
 
   @override
   Widget build(BuildContext context) {
@@ -92,10 +92,10 @@ class WorkspacePartState extends State<WorkspacePart>{
             onLoaded: (String code){
               importSongsFromCode(
                   code,
-                  onFinished: (List<SongRaw> offSongs, List<SongRaw> confSongs){
-                    List<SongRaw> songs = confSongs + offSongs;
-                    Map<SongRaw, bool> map = {};
-                    for(SongRaw song in songs) map[song] = confSongs.contains(song);
+                  onFinished: (List<SongRaw?> offSongs, List<SongRaw?> confSongs){
+                    List<SongRaw?> songs = confSongs + offSongs;
+                    Map<SongRaw?, bool> map = {};
+                    for(SongRaw? song in songs) map[song] = confSongs.contains(song);
                     allSongsProv.init(songs, map);
                   });
 
@@ -120,7 +120,7 @@ class LoadWidget extends StatelessWidget{
 
   final Function(String code) onLoaded;
 
-  const LoadWidget({@required this.onLoaded});
+  const LoadWidget({required this.onLoaded});
 
   @override
   Widget build(BuildContext context) {
@@ -186,9 +186,9 @@ class SongListView extends StatefulWidget{
 
 class SongListViewState extends State<SongListView>{
 
-  ScrollController controller;
+  ScrollController? controller;
 
-  BuildContext itemContext;
+  late BuildContext itemContext;
 
   @override
   void initState() {
@@ -225,7 +225,7 @@ class SongListViewState extends State<SongListView>{
                         ),
                         Expanded(
                           child: TextField(
-                            readOnly: workspaceBlockProv.blocked,
+                            readOnly: workspaceBlockProv.blocked!,
                             style: AppTextStyle(color: AppColors.text_def_enab),
                             decoration: InputDecoration(
                                 hintText: 'Szukaj',
@@ -255,9 +255,9 @@ class SongListViewState extends State<SongListView>{
                           child: ListView.builder(
                             controller: controller,
                             itemCount: searchListProv.length,
-                            physics: workspaceBlockProv.blocked?NeverScrollableScrollPhysics():BouncingScrollPhysics(),
+                            physics: workspaceBlockProv.blocked!?NeverScrollableScrollPhysics():BouncingScrollPhysics(),
                             itemBuilder: (context, index) => GestureDetector(
-                              onTap: workspaceBlockProv.blocked?hideItemPopUps:null,
+                              onTap: workspaceBlockProv.blocked!?hideItemPopUps:null,
                               child: ItemWidget(
                                 searchListProv.get(index),
                                 controller,
@@ -268,7 +268,7 @@ class SongListViewState extends State<SongListView>{
                               ),
                             )
                           ),
-                          controller: controller,
+                          controller: controller!,
                         );
                       }
                   ),
@@ -283,7 +283,7 @@ class SongListViewState extends State<SongListView>{
                           Expanded(
                             child: IconButton(
                                 icon: Icon(MdiIcons.fileUploadOutline),
-                                onPressed: workspaceBlockProv.blocked?null:() async {
+                                onPressed: workspaceBlockProv.blocked!?null:() async {
 
                                   FilePickerCross filePicker = await FilePickerCross.importFromStorage(
                                       type: FileTypeCross.any,
@@ -300,10 +300,10 @@ class SongListViewState extends State<SongListView>{
 
                                   importSongsFromCode(
                                       code,
-                                      onFinished: (List<SongRaw> offSongs, List<SongRaw> confSongs){
-                                        List<SongRaw> songs = confSongs + offSongs;
-                                        Map<SongRaw, bool> map = {};
-                                        for(SongRaw song in songs) map[song] = confSongs.contains(song);
+                                      onFinished: (List<SongRaw?> offSongs, List<SongRaw?> confSongs){
+                                        List<SongRaw?> songs = confSongs + offSongs;
+                                        Map<SongRaw?, bool> map = {};
+                                        for(SongRaw? song in songs) map[song] = confSongs.contains(song);
                                         allSongsProv.addAll(songs, map);
                                       });
 
@@ -317,7 +317,7 @@ class SongListViewState extends State<SongListView>{
                           Expanded(
                             child: IconButton(
                                 icon: Icon(MdiIcons.musicNotePlus),
-                                onPressed: workspaceBlockProv.blocked?null:(){
+                                onPressed: workspaceBlockProv.blocked!?null:(){
 
                                   SongRaw song = SongRaw.empty();
                                   song.fileName = 'o!_';
@@ -353,11 +353,13 @@ class SongListViewState extends State<SongListView>{
 
 }
 
-void displaySong(BuildContext context, SongRaw song){
+void displaySong(BuildContext context, SongRaw? song){
   CurrentItemProvider currItemProv = Provider.of<CurrentItemProvider>(context, listen: false);
   currItemProv.song = song;
 
-  Provider.of<TitleCtrlProvider>(context, listen: false).text = song?.title??'';
+  if(song == null) return;
+
+  Provider.of<TitleCtrlProvider>(context, listen: false).text = song.title??'';
   /*
   Provider.of<AuthorCtrlProvider>(context, listen: false).text = song?.author??'';
   Provider.of<PerformerCtrlProvider>(context, listen: false).text = song?.performer??'';
@@ -366,8 +368,8 @@ void displaySong(BuildContext context, SongRaw song){
   Provider.of<AddPersCtrlProvider>(context, listen: false).text = song?.addPers??'';
 */
 
-  SongPart refPart;
-  if(song?.refrenPart == null)
+  SongPart? refPart;
+  if(song.refrenPart == null)
     refPart = SongPart.empty();
   else
     refPart = song.refrenPart;
@@ -375,7 +377,7 @@ void displaySong(BuildContext context, SongRaw song){
   Provider.of<BindTitleFileNameProvider>(context, listen: false).bind =
       song.fileName == generateFileName(title: song.title);
 
-  Provider.of<RefrenPartProvider>(context, listen: false).part = refPart;
+  Provider.of<RefrenPartProvider>(context, listen: false).part = refPart!;
 
   Provider.of<SongEditorPanelProvider>(context, listen: false).notify();
 
@@ -385,13 +387,13 @@ void displaySong(BuildContext context, SongRaw song){
 
 class SearchListProvider extends ChangeNotifier{
 
-  bool anySearchPhrase;
+  late bool anySearchPhrase;
 
-  List<SongRaw> currSongList;
+  late List<SongRaw?> currSongList;
 
-  List<SongRaw> _allSongs;
+  List<SongRaw?>? _allSongs;
 
-  List<SongRaw> get allSongs => _allSongs;
+  List<SongRaw?>? get allSongs => _allSongs;
 
   SearchListProvider(this._allSongs){
     anySearchPhrase = false;
@@ -402,8 +404,8 @@ class SearchListProvider extends ChangeNotifier{
     anySearchPhrase = text.length!=0;
     currSongList = [];
 
-    for(SongRaw song in allSongs){
-      if(remPolChars(song.title).contains(remPolChars(text)))
+    for(SongRaw? song in allSongs!){
+      if(remPolChars(song!.title).contains(remPolChars(text)))
         currSongList.add(song);
     }
 
@@ -415,14 +417,14 @@ class SearchListProvider extends ChangeNotifier{
     if(anySearchPhrase)
       return currSongList.length;
     else
-      return allSongs.length;
+      return allSongs!.length;
   }
 
-  SongRaw get(int index){
+  SongRaw? get(int index){
     if(anySearchPhrase)
       return currSongList[index];
     else
-      return allSongs[index];
+      return allSongs![index];
   }
 
 }

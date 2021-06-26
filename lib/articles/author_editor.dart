@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:html' as html;
@@ -34,14 +35,14 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
   @override
   bool get wantKeepAlive => true;
 
-  bool saving;
-  Uint8List imageBytes;
+  bool? saving;
+  Uint8List? imageBytes;
 
-  TextEditingController nameController;
-  String get name => nameController.text;
+  TextEditingController? nameController;
+  String get name => nameController!.text;
 
-  TextEditingController descController;
-  String get desc => descController.text;
+  TextEditingController? descController;
+  String get desc => descController!.text;
 
 
   @override
@@ -120,7 +121,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                             left: 0,
                             right: 0,
                             child: Image(
-                              image: MemoryImage(imageBytes),
+                              image: MemoryImage(imageBytes!),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -302,7 +303,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
         floatingActionButton: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            FloatingButton(Icons.input, Colors.blueGrey, 'Wczytaj autora', saving?null: () async {
+            FloatingButton(Icons.input, Colors.blueGrey, 'Wczytaj autora', saving!?null: () async {
 
               FilePickerCross filePicker = await FilePickerCross.importFromStorage(
                   type: FileTypeCross.custom,
@@ -318,8 +319,8 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
               Author author = Author.fromJson(code);
 
               imageBytes = author.imageBytes;
-              nameController.text = author.name;
-              descController.text = author.desc;
+              nameController!.text = author.name!;
+              descController!.text = author.desc!;
 
               setState(() {});
 
@@ -328,7 +329,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
             FloatingButton(
                 Icons.check,
                 Colors.blueAccent,
-                saving?'Zapisywanie...':'Zapisz autora', saving?null:(){
+                saving!?'Zapisywanie...':'Zapisz autora', saving!?null:(){
 
 
               if(name == null || name.length==0){
@@ -350,7 +351,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
 
               ()async{
 
-                imageBytes = await compute<Uint8List, Uint8List>(resize, imageBytes);
+                imageBytes = await compute<Uint8List?, Uint8List>(resize, imageBytes);
 
 
                 Author author = Author(
@@ -367,12 +368,12 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                 final anchor = html.document.createElement('a') as html.AnchorElement
                   ..href = url
                   ..style.display = 'none'
-                  ..download = '${remSpecChars(remPolChars(author.name.replaceAll(' ', '_')))}.hrcpathr';
-                html.document.body.children.add(anchor);
+                  ..download = '${remSpecChars(remPolChars(author.name!.replaceAll(' ', '_')))}.hrcpathr';
+                html.document.body!.children.add(anchor);
 
                 anchor.click();
 
-                html.document.body.children.remove(anchor);
+                html.document.body!.children.remove(anchor);
                 html.Url.revokeObjectUrl(url);
 
                 setState(() => saving = false);
@@ -390,9 +391,9 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
 
 }
 
-Uint8List resize(Uint8List imageBytes) {
+Uint8List resize(Uint8List? imageBytes) {
 
-  im.Image image = im.decodeImage(imageBytes);
+  im.Image image = im.decodeImage(imageBytes!)!;
 
   image = im.copyResize(image, width: 400);
 
@@ -402,7 +403,7 @@ Uint8List resize(Uint8List imageBytes) {
 }
 
 Future<void> loadImage(BuildContext context, AuthorEditorPageState state) async {
-  Uint8List imageBytes = await ImagePickerWeb.getImage(outputType: ImageType.bytes);
+  Uint8List imageBytes = await (ImagePickerWeb.getImage(outputType: ImageType.bytes) as FutureOr<Uint8List>);
 
   ui.Image image = await decodeImageFromList(imageBytes);
 

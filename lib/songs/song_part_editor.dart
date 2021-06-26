@@ -10,17 +10,17 @@ const double TEXT_FIELD_TOP_PADD = Dimen.TEXT_FIELD_PADD - 7;
 
 class SongPartEditor extends StatelessWidget{
 
-  final SongPart part;
-  final Function() onSongPartChanged;
-  final Function() onCheckPressed;
+  final SongPart? part;
+  final Function()? onSongPartChanged;
+  final Function()? onCheckPressed;
 
   const SongPartEditor(this.part, {this.onSongPartChanged, this.onCheckPressed});
 
   @override
   Widget build(BuildContext context) {
     return SongPartEditorTemplate(
-      part,
-      isRefren: part.isRefren(context),
+      part!,
+      isRefren: part!.isRefren(context),
       onTextChanged: onSongPartChanged,
       onChordsChanged: onSongPartChanged,
       onShiftChanged: onSongPartChanged,

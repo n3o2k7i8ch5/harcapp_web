@@ -52,19 +52,19 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
   @override
   bool get wantKeepAlive => true;
 
-  String title;
-  String intro;
-  String imageSource;
-  String authCode;
-  List<OtherArtItem> otherArts;
+  String? title;
+  String? intro;
+  String? imageSource;
+  String? authCode;
+  List<OtherArtItem>? otherArts;
 
-  DateTime articleDate;
-  Uint8List imageBytes;
+  DateTime? articleDate;
+  Uint8List? imageBytes;
 
-  ValueNotifier topNotifier;
-  ScrollController scrollController;
+  ValueNotifier? topNotifier;
+  late ScrollController scrollController;
 
-  List<ArticleElement> articleElements;
+  List<ArticleElement?>? articleElements;
 
   bool saving = false;
 
@@ -89,7 +89,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
 
     topNotifier = ValueNotifier<double>(0.0);
     scrollController = ScrollController();
-    scrollController.addListener(() => topNotifier.value = scrollController.offset);
+    scrollController.addListener(() => topNotifier!.value = scrollController.offset);
 
     super.initState();
   }
@@ -146,7 +146,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
                         padding: EdgeInsets.only(top: MARGIN),
                         child: SimpleButton(
                           onTap: (){
-                            setState(() => articleElements.add(Header()));
+                            setState(() => articleElements!.add(Header()));
                           },
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -178,7 +178,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
                         padding: EdgeInsets.only(top: MARGIN),
                         child: SimpleButton(
                           onTap: (){
-                            setState(() => articleElements.add(Paragraph()));
+                            setState(() => articleElements!.add(Paragraph()));
                           },
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -264,7 +264,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
                 imageSource = article.imageSource;
 
                 for (String str in article.otherArts)
-                  otherArts.add(OtherArtItem(str));
+                  otherArts!.add(OtherArtItem(str));
 
 
               } on Exception catch (error){
@@ -282,17 +282,17 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
                 Colors.blueAccent,
                 saving?'Zapisywanie...':'Zapisz atrykuł', saving?null:(){
 
-              if(title == null || title.length==0){
+              if(title == null || title!.length==0){
                 AppScaffold.showMessage(context, "Podaj tytuł artykułu.");
                 return;
               }
 
-              if(intro == null || intro.length==0){
+              if(intro == null || intro!.length==0){
                 AppScaffold.showMessage(context, "Wstęp artykułu nie może być pusty.");
                 return;
               }
 
-              if(authCode == null || authCode.length==0){
+              if(authCode == null || authCode!.length==0){
                 AppScaffold.showMessage(context, "Nie został podany autor artykułu.");
                 return;
               }
@@ -302,10 +302,10 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
               ()async{
 
                 if(imageBytes!=null)
-                  imageBytes = await compute<Uint8List, Uint8List>(resize, imageBytes);
+                  imageBytes = await compute<Uint8List?, Uint8List>(resize, imageBytes);
 
                 List<OtherArtItem> notEmptyOthertArts = [];
-                for(OtherArtItem item in otherArts)
+                for(OtherArtItem item in otherArts!)
                   if(item.string != null && item.string.length>0)
                     notEmptyOthertArts.add(item);
 
@@ -328,15 +328,15 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
                 final anchor = html.document.createElement('a') as html.AnchorElement
                   ..href = url
                   ..style.display = 'none'
-                  ..download = '${article.date.year}'
-                      '_${article.date.month}'
-                      '_${article.date.day}_'
-                      '${remSpecChars(remPolChars(article.title.replaceAll(' ', '_')))}.hrcpartcl';
-                html.document.body.children.add(anchor);
+                  ..download = '${article.date!.year}'
+                      '_${article.date!.month}'
+                      '_${article.date!.day}_'
+                      '${remSpecChars(remPolChars(article.title!.replaceAll(' ', '_')))}.hrcpartcl';
+                html.document.body!.children.add(anchor);
 
                 anchor.click();
 
-                html.document.body.children.remove(anchor);
+                html.document.body!.children.remove(anchor);
                 html.Url.revokeObjectUrl(url);
 
                 setState(() => saving = false);
@@ -350,15 +350,15 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
 
   }
 
-  void removeElement(ArticleElement element) => setState(() => articleElements.remove(element));
+  void removeElement(ArticleElement element) => setState(() => articleElements!.remove(element));
 
-  void setImage(Uint8List imageBytes) => imageBytes==null?null:setState(() => this.imageBytes = imageBytes);
+  void setImage(Uint8List? imageBytes) => imageBytes==null?null:setState(() => this.imageBytes = imageBytes);
 
 }
 
-Uint8List resize(Uint8List imageBytes) {
+Uint8List resize(Uint8List? imageBytes) {
 
-  im.Image image = im.decodeImage(imageBytes);
+  im.Image image = im.decodeImage(imageBytes!)!;
 
   if(image.width<image.height)
     image = im.copyResize(image, width: 1000);

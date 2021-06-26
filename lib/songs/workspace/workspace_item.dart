@@ -22,12 +22,12 @@ import '../providers.dart';
 
 class ItemWidget extends StatefulWidget{
 
-  final SongRaw song;
-  final ScrollController controller;
+  final SongRaw? song;
+  final ScrollController? controller;
   final int index;
-  final void Function(BuildContext context) onShowMoreButt;
+  final void Function(BuildContext context)? onShowMoreButt;
 
-  const ItemWidget(this.song, this.controller, this.index, {this.onShowMoreButt, Key key}):super(key: key);
+  const ItemWidget(this.song, this.controller, this.index, {this.onShowMoreButt, Key? key}):super(key: key);
 
   @override
   State<StatefulWidget> createState() => ItemWidgetState();
@@ -35,7 +35,7 @@ class ItemWidget extends StatefulWidget{
 
 class ItemWidgetState extends State<ItemWidget>{
 
-  SongRaw get song => widget.song;
+  SongRaw? get song => widget.song;
 
   static const String HINT_FILE_TITLE = 'Brak tytułu.';
   static const String HINT_FILE_NAME = 'Brak nazwy pliku.';
@@ -54,10 +54,10 @@ class ItemWidgetState extends State<ItemWidget>{
         return Consumer<SongFileNameDupErrProvider>(
           builder: (context, prov, child){
 
-            String title = song.title;
+            String title = song!.title;
             if(title.length==0) title = HINT_FILE_TITLE;
 
-            String fileName = song.fileName;
+            String fileName = song!.fileName;
             if(fileName.length==0) fileName = HINT_FILE_NAME;
 
             bool fileNameTaken = prov.hasAny(song);
@@ -68,17 +68,17 @@ class ItemWidgetState extends State<ItemWidget>{
                 Consumer2<CurrentItemProvider, WorkspaceBlockProvider>(
                     builder: (context, currItemProv, workspaceBlockProv, child) => ListTile(
                         dense: true,
-                        title: Text(title, style: AppTextStyle(color: workspaceBlockProv.blocked?hintEnab_(context):textEnab_(context))),
+                        title: Text(title, style: AppTextStyle(color: workspaceBlockProv.blocked!?hintEnab_(context):textEnab_(context))),
                         subtitle: Text(fileName, style: AppTextStyle(color: fileName==HINT_FILE_NAME || fileNameTaken?Colors.red:hintEnab_(context))),
                         selected: currItemProv.song == song,
-                        tileColor: workspaceBlockProv.blocked?
+                        tileColor: workspaceBlockProv.blocked!?
                         Colors.black.withOpacity(0.05):Colors.transparent,
                         selectedTileColor: Colors.black12,
-                        onTap: workspaceBlockProv.blocked?null:() {
+                        onTap: workspaceBlockProv.blocked!?null:() {
 
                           LoadingProvider loadingProv = Provider.of<LoadingProvider>(context, listen: false);
                           loadingProv.loading = true;
-                          displaySong(context, song);
+                          displaySong(context, song!);
                           loadingProv.loading = false;
                         },
                         trailing: Row(
@@ -102,11 +102,11 @@ class ItemWidgetState extends State<ItemWidget>{
                                 onTap: (){
                                   AppScaffold.showMessage(context, 'Przytrzymaj przycisk, by usunąć piosenkę.');
                                 },
-                                onLongPress: workspaceBlockProv.blocked?null:(){
+                                onLongPress: workspaceBlockProv.blocked!?null:(){
 
                                   AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
 
-                                  int remIndex = allSongsProv.songs.indexOf(song);
+                                  int remIndex = allSongsProv.songs!.indexOf(song);
                                   allSongsProv.remove(song);
 
                                   if(currItemProv.song == song){
@@ -117,14 +117,14 @@ class ItemWidgetState extends State<ItemWidget>{
                                     if(remIndex < 0)
                                       displaySong(context, null);
                                     else
-                                      displaySong(context, allSongsProv.songs[remIndex]);
+                                      displaySong(context, allSongsProv.songs![remIndex]!);
                                   }
 
                                   SongFileNameDupErrProvider errProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
 
-                                  List<SongRaw> errSongs = errProv.get(song);
+                                  List<SongRaw?>? errSongs = errProv.get(song);
                                   if(errSongs != null)
-                                    for(SongRaw errSongOth in errSongs)
+                                    for(SongRaw? errSongOth in errSongs)
                                       errProv.removePair(song, errSongOth);
 
                                   Provider.of<SongEditorPanelProvider>(context, listen: false).notify();
@@ -134,10 +134,10 @@ class ItemWidgetState extends State<ItemWidget>{
 
                             IconButton(
                                 icon: Icon(MdiIcons.dotsHorizontal),
-                                onPressed: workspaceBlockProv.blocked?null:(){
+                                onPressed: workspaceBlockProv.blocked!?null:(){
                                   workspaceBlockProv.blocked = true;
                                   Provider.of<ShowMoreButtProvider>(context, listen: false).value = true;
-                                  if(widget.onShowMoreButt!=null) widget.onShowMoreButt(context);
+                                  if(widget.onShowMoreButt!=null) widget.onShowMoreButt!(context);
                                 }
                             ),
 
@@ -149,7 +149,7 @@ class ItemWidgetState extends State<ItemWidget>{
                 Positioned(
                   child: Consumer<ShowMoreButtProvider>(
                     builder: (context, prov, child){
-                      if(prov.value)
+                      if(prov.value!)
                         return _MoreButtonsWidget(this);
                       else
                         return Container();
@@ -162,7 +162,7 @@ class ItemWidgetState extends State<ItemWidget>{
 
                 Positioned.fill(
                   child: Consumer<ShowFileNameEditorProvider>(
-                    builder: (context, prov, child) => prov.value?_FileNameEditorWidget(this):Container(),
+                    builder: (context, prov, child) => prov.value!?_FileNameEditorWidget(this):Container(),
                   )
                 )
 
@@ -184,7 +184,7 @@ class _FileNameEditorWidget extends StatelessWidget{
 
   ItemWidgetState parent;
 
-  SongRaw get song => parent.song;
+  SongRaw? get song => parent.song;
 
   _FileNameEditorWidget(this.parent);
 
@@ -209,12 +209,12 @@ class _FileNameEditorWidget extends StatelessWidget{
                 child: AppTextFieldHint(
                     hint: 'podaj_nazwę_pliku:',
                     hintTop: fileNameTaken?'Nazwa pliku zajęta':'Nazwa pliku',
-                    controller: TextEditingController(text: song.fileName.substring(isConfid?4:3)),
+                    controller: TextEditingController(text: song!.fileName.substring(isConfid?4:3)),
                     style: TextStyle(color: fileNameTaken?Colors.red:textEnab_(context)),
                     hintStyle: TextStyle(color: hintEnab_(context)),
                     onAnyChanged: (texts){
 
-                      song.fileName = (isConfid?'oc!_':'o!_') + texts[0];
+                      song!.fileName = (isConfid?'oc!_':'o!_') + texts[0];
 
                       SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
                       songFileNameDupErrProv.chedkDupsFor(context, song);
@@ -227,7 +227,7 @@ class _FileNameEditorWidget extends StatelessWidget{
             icon: Icon(MdiIcons.check, color: iconEnab_(context)),
             onPressed: (){
               Provider.of<BindTitleFileNameProvider>(context, listen: false).bind =
-                  song.fileName == generateFileName(title: song.title);
+                  song!.fileName == generateFileName(title: song!.title);
 
               Provider.of<ShowFileNameEditorProvider>(context, listen: false).value = false;
               Provider.of<WorkspaceBlockProvider>(context, listen: false).blocked = false;
@@ -243,7 +243,7 @@ class _MoreButtonsWidget extends StatelessWidget{
 
   ItemWidgetState parent;
 
-  SongRaw get song => parent.song;
+  SongRaw? get song => parent.song;
 
   _MoreButtonsWidget(this.parent);
 
@@ -264,8 +264,8 @@ class _MoreButtonsWidget extends StatelessWidget{
               return IconButton(
                   icon: Icon(isConf?MdiIcons.eyeOffOutline:MdiIcons.eyeOutline),
                   onPressed: (){
-                    if(isConf) song.fileName = 'o!_' + song.fileName.substring(4);
-                    else song.fileName = 'oc!_' + song.fileName.substring(3);
+                    if(isConf) song!.fileName = 'o!_' + song!.fileName.substring(4);
+                    else song!.fileName = 'oc!_' + song!.fileName.substring(3);
 
                     allSongsProv.set(song, !isConf);
 
@@ -279,7 +279,7 @@ class _MoreButtonsWidget extends StatelessWidget{
           IconButton(
               icon: Icon(MdiIcons.codeTags),
               onPressed: (){
-                Provider.of<ShowCodeEditorProvider>(context, listen: false).text = prettyJson(jsonDecode(song.toCode()), indent: 4);
+                Provider.of<ShowCodeEditorProvider>(context, listen: false).text = prettyJson(jsonDecode(song!.toCode()), indent: 4);
                 Provider.of<ShowCodeEditorProvider>(context, listen: false).song = song;
                 Provider.of<ShowCodeEditorProvider>(context, listen: false).value = true;
 
@@ -325,14 +325,14 @@ class _MoreButtonsWidget extends StatelessWidget{
 
 class ShowMoreButtProvider extends ChangeNotifier{
 
-  bool _value;
+  bool? _value;
 
   ShowMoreButtProvider(){
     _value = false;
   }
 
-  bool get value => _value;
-  set value(bool v){
+  bool? get value => _value;
+  set value(bool? v){
     _value = v;
     notifyListeners();
   }
@@ -340,14 +340,14 @@ class ShowMoreButtProvider extends ChangeNotifier{
 
 class ShowFileNameEditorProvider extends ChangeNotifier{
 
-  bool _value;
+  bool? _value;
 
   ShowFileNameEditorProvider(){
     _value = false;
   }
 
-  bool get value => _value;
-  set value(bool v){
+  bool? get value => _value;
+  set value(bool? v){
     _value = v;
     notifyListeners();
   }

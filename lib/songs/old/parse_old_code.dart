@@ -9,10 +9,10 @@ import 'package:harcapp_web/songs/old/song_element_old.dart';
 SongRaw parseOldCode(String fileName, String code, {bool official = true}){
   bool hasRefren;
   SongElementOld refrenElementOld;
-  SongElement refrenElement;
+  SongElement? refrenElement;
   bool hasChords = false;
-  List<SongElementOld> songElementOldList = [];
-  List<SongElement> songElements = [];
+  List<SongElementOld?> songElementOldList = [];
+  List<SongElement?> songElements = [];
 
   try {
 
@@ -32,7 +32,7 @@ SongRaw parseOldCode(String fileName, String code, {bool official = true}){
       hasRefren = false;
 
 //ZWROTKI
-    String firstElementChords;
+    String? firstElementChords;
     for(int i=2; i<parts.length; i++)
     {
       if (parts[i].length == 0) {
@@ -66,16 +66,21 @@ SongRaw parseOldCode(String fileName, String code, {bool official = true}){
       title: basicData.title,
       hidTitles: hidTitles,
       authors: [basicData.author],
+      composers: [],
       performers: [basicData.performer],
       addPers: [basicData.moderator],
       youtubeLink: basicData.youtubeLink,
 
       tags: basicData.tags,
 
+      releaseDate: null,
+      showRelDateMonth: false,
+      showRelDateDay: false,
+
       hasRefren: hasRefren,
       refrenPart: refrenElement == null? SongPart.empty():SongPart.from(refrenElement),
 
-      songParts: songElements.map((e) => SongPart.from(e)).toList(),
+      songParts: songElements.map((e) => SongPart.from(e!)).toList(),
 
     );
 

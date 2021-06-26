@@ -16,12 +16,12 @@ packages:
     source: hosted
     version: "2.6.1"
   auto_size_text:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: auto_size_text
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.0"
+    version: "3.0.0-nullsafety.0"
   avatar_glow:
     dependency: transitive
     description:
@@ -264,7 +264,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "7f501ac5ade03c264d8135c50d0dc17d0efec756"
+      resolved-ref: "79e240db50ff5f9908327b74c93386cf1d6e4838"
       url: "git://github.com/n3o2k7i8ch5/harcapp_core.git"
     source: git
     version: "0.0.1"
@@ -273,7 +273,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: a8955a344d082467af1fcb312c5fad0beb1f3c61
+      resolved-ref: bb171f976d5d608b58bb3a74077d7f10db3239ee
       url: "git://github.com/n3o2k7i8ch5/harcapp_core_own_song.git"
     source: git
     version: "0.0.1"
@@ -282,7 +282,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: ea599507822c223d0b5b2d6b081a056c72d70ab1
+      resolved-ref: "141387ecd940138ac43e02d31b13cd63b1cf869c"
       url: "git://github.com/n3o2k7i8ch5/harcapp_core_song.git"
     source: git
     version: "0.0.1"
@@ -291,7 +291,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "2d7647765ff317faa4fa0b552fba43c432826513"
+      resolved-ref: b850e9c4b51079ea3ca704a16cce259a8bdcb68b
       url: "git://github.com/n3o2k7i8ch5/harcapp_core_song_widget.git"
     source: git
     version: "0.0.1"
@@ -300,7 +300,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: d7c7d9514915219387210a4d130ff3a7e7b2202b
+      resolved-ref: a5b1527298848c22c6e6a710b8ebd8fa6bb2cf52
       url: "git://github.com/n3o2k7i8ch5/harcapp_core_tags.git"
     source: git
     version: "0.0.1"
@@ -318,13 +318,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.0"
-  icon_shadow:
-    dependency: "direct main"
-    description:
-      name: icon_shadow
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.1"
   image:
     dependency: "direct main"
     description:
@@ -366,7 +359,7 @@ packages:
       name: implicitly_animated_reorderable_list
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.2"
+    version: "0.4.0"
   intl:
     dependency: transitive
     description:
@@ -382,12 +375,12 @@ packages:
     source: hosted
     version: "0.6.3"
   linked_scroll_controller:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: linked_scroll_controller
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.2"
+    version: "0.2.0"
   matcher:
     dependency: transitive
     description:
@@ -401,7 +394,7 @@ packages:
       name: material_design_icons_flutter
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.0.5955"
+    version: "5.0.5955-rc.1"
   meta:
     dependency: transitive
     description:
@@ -562,7 +555,7 @@ packages:
       name: quiver
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.5"
+    version: "3.0.1"
   share_plus:
     dependency: transitive
     description:
@@ -658,7 +651,7 @@ packages:
       name: tuple
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.2"
+    version: "2.0.0"
   typed_data:
     dependency: transitive
     description:

@@ -9,8 +9,8 @@ class FloatingButton extends StatelessWidget{
   IconData iconData;
   Color color;
   String text;
-  Function onPressed;
-  bool saving;
+  Function? onPressed;
+  bool? saving;
 
   FloatingButton(this.iconData, this.color, this.text, this.onPressed, {this.saving: false});
 
@@ -25,7 +25,7 @@ class FloatingButton extends StatelessWidget{
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            saving?
+            saving!?
             SizedBox(
               width: Dimen.ICON_SIZE,
               height: Dimen.ICON_SIZE,
@@ -52,7 +52,7 @@ class FloatingButton extends StatelessWidget{
             SizedBox(width: 10),
           ],
         ),
-        onPressed: onPressed
+        onPressed: onPressed as void Function()?
     );
   }
 

@@ -5,7 +5,7 @@ import 'package:harcapp_core/comm_classes/app_text_style.dart';
 
 class ArticleTextStyle extends TextStyle{
 
-  const ArticleTextStyle({Color color: AppColors.text_def_enab, weight fontWeight:weight.normal, fontSize, bool shadow, FontStyle fontStyle, double height: 1.0}):super(
+  const ArticleTextStyle({Color color: AppColors.text_def_enab, weight fontWeight:weight.normal, fontSize, bool? shadow, FontStyle? fontStyle, double height: 1.0}):super(
       fontFamily: 'Gentium',
       color: color,
       fontStyle: fontStyle,

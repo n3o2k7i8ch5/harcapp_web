@@ -36,11 +36,11 @@ class SongsPage extends StatefulWidget{
 
 class SongsPageState extends State<SongsPage>{
 
-  ScrollController scrollController;
+  ScrollController? scrollController;
 
-  bool showEditor;
-  SongPart part;
-  Function() onSongPartChanged;
+  late bool showEditor;
+  SongPart? part;
+  late Function() onSongPartChanged;
 
   @override
   void initState(){
@@ -104,11 +104,11 @@ class SongsPageState extends State<SongsPage>{
                             allSongProv.length==0?Container():AppCard(
                               margin: AppCard.normMargin,
                               radius: AppCard.BIG_RADIUS,
-                              color: songFileNameBlockProv.blocked?Colors.black.withOpacity(0.1):null,
+                              color: songFileNameBlockProv.blocked!?Colors.black.withOpacity(0.1):null,
                               padding: EdgeInsets.zero,
                               elevation: AppCard.bigElevation,
                               child: IgnorePointer(
-                                ignoring: songFileNameBlockProv.blocked,
+                                ignoring: songFileNameBlockProv.blocked!,
                                 child: SaveSendWidget(),
                               )
                             )
@@ -119,7 +119,7 @@ class SongsPageState extends State<SongsPage>{
                               builder: (context, prov, child) => AppCard(
                                 radius: AppCard.BIG_RADIUS,
                                 margin: AppCard.normMargin,
-                                color: prov.blocked?Colors.black.withOpacity(0.1):null,
+                                color: prov.blocked!?Colors.black.withOpacity(0.1):null,
                                 elevation: AppCard.bigElevation,
                                 padding: EdgeInsets.zero,
                                 child: WorkspacePart(),
@@ -163,10 +163,10 @@ class SongsPageState extends State<SongsPage>{
               child: Text('Ładowanie...', style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_APPBAR)),
             ),
             builder: (context, prov, child) => AnimatedOpacity(
-              opacity: prov.loading?1:0,
+              opacity: prov.loading!?1:0,
               duration: Duration(milliseconds: 0),
               child: AbsorbPointer(
-                absorbing: prov.loading,
+                absorbing: prov.loading!,
                 child: Center(child: child),
               ),
             ),

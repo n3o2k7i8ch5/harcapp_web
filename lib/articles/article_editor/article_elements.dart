@@ -10,16 +10,16 @@ import 'widgets.dart';
 
 class ArticleElementListWidget extends StatefulWidget{
 
-  List<ArticleElement> get articleElements => page.articleElements;
+  List<ArticleElement?>? get articleElements => page.articleElements;
 
   final ArticleEditorPageState page;
 
-  final Widget header;
-  final Widget footer;
+  final Widget? header;
+  final Widget? footer;
 
-  final ScrollController scrollController;
+  final ScrollController? scrollController;
 
-  const ArticleElementListWidget({@required this.page, this.header, this.footer, this.scrollController});
+  const ArticleElementListWidget({required this.page, this.header, this.footer, this.scrollController});
 
   @override
   State<StatefulWidget> createState() => ArticleElementListWidgetState();
@@ -28,12 +28,12 @@ class ArticleElementListWidget extends StatefulWidget{
 
 class ArticleElementListWidgetState extends State<ArticleElementListWidget>{
 
-  List<ArticleElement> get articleElements => widget.articleElements;
+  List<ArticleElement?>? get articleElements => widget.articleElements;
 
   @override
   Widget build(BuildContext context) {
     return ImplicitlyAnimatedReorderableList<ArticleElement>(
-      items: articleElements,
+      items: articleElements as List<ArticleElement>,
       controller: widget.scrollController,
       areItemsTheSame: (oldItem, newItem) => oldItem.hashCode == newItem.hashCode,
       onReorderFinished: (item, from, to, newItems) {
@@ -42,13 +42,13 @@ class ArticleElementListWidgetState extends State<ArticleElementListWidget>{
 
         setState(() {
           articleElements
-            ..clear()
+            ?..clear()
             ..addAll(newItems);
         });
       },
       itemBuilder: (context, itemAnimation, item, index) {
 
-        Widget child;
+        Widget? child;
         if(item is Paragraph)
           child = ParagraphWidget(
               widget.page,
@@ -64,7 +64,7 @@ class ArticleElementListWidgetState extends State<ArticleElementListWidget>{
           key: ValueKey(item.hashCode),
           builder: (context, dragAnimation, inDrag) {
             final t = dragAnimation.value;
-            final elevation = ui.lerpDouble(0, 8, t);
+            final elevation = ui.lerpDouble(0, 8, t)!;
             final color = Color.lerp(Colors.white, Colors.white.withOpacity(0.8), t);
 
             return SizeFadeTransition(

@@ -15,7 +15,7 @@ class MainPage extends StatefulWidget{
 
 class MainPageState extends State<MainPage>{
 
-  Widget body;
+  Widget? body;
 
   @override
   void initState() {
@@ -67,9 +67,9 @@ class PageNavItem extends StatelessWidget{
   final String title;
   final Function onTap;
   const PageNavItem({
-    @required this.icon,
-    @required this.title,
-    @required this.onTap
+    required this.icon,
+    required this.title,
+    required this.onTap
   });
 
   @override
@@ -77,7 +77,7 @@ class PageNavItem extends StatelessWidget{
     return Container(
       width: 200,
       child: ListTile(
-        onTap: onTap,
+        onTap: onTap as void Function()?,
         leading: Icon(icon),
         title: Text(
           title,

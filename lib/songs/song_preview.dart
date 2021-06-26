@@ -57,11 +57,11 @@ class SongPreview extends StatelessWidget{
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Icon(MdiIcons.eyeOutline, color: songPrevProv.code?iconDisab_(context):iconEnab_(context)),
+                                          Icon(MdiIcons.eyeOutline, color: songPrevProv.code!?iconDisab_(context):iconEnab_(context)),
                                           SizedBox(width: Dimen.ICON_MARG),
                                           Text('Podgląd', style: AppTextStyle(
                                               fontWeight: weight.halfBold,
-                                              color: songPrevProv.code?iconDisab_(context):iconEnab_(context)
+                                              color: songPrevProv.code!?iconDisab_(context):iconEnab_(context)
                                           ))
                                         ],
                                       ),
@@ -78,11 +78,11 @@ class SongPreview extends StatelessWidget{
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Icon(MdiIcons.codeTags, color: songPrevProv.code?iconEnab_(context):iconDisab_(context)),
+                                          Icon(MdiIcons.codeTags, color: songPrevProv.code!?iconEnab_(context):iconDisab_(context)),
                                           SizedBox(width: Dimen.ICON_MARG),
                                           Text('Kod', style: AppTextStyle(
                                               fontWeight: weight.halfBold,
-                                              color: songPrevProv.code?iconEnab_(context):iconDisab_(context)
+                                              color: songPrevProv.code!?iconEnab_(context):iconDisab_(context)
                                           ))
                                         ],
                                       ),
@@ -104,12 +104,12 @@ class SongPreview extends StatelessWidget{
                                 ],
                                 builder: (context, child) => Container(
                                   width: 400,
-                                  child: songPrevProv.code?
+                                  child: songPrevProv.code!?
                                   SelectableText(
-                                      prettyJson(currItemProv.song.toMap(), indent: 2)
+                                      prettyJson(currItemProv.song!.toMap(), indent: 2)
                                   ):
                                   SongWidgetTemplate<SongRaw>(
-                                      currItemProv.song,
+                                      currItemProv.song!,
                                       SongBaseSettings(),
                                       screenWidth: 372,
                                       key: UniqueKey()//ValueKey(currItemProv.song)

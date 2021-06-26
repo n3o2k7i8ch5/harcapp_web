@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -15,12 +16,12 @@ class ArticleTop extends StatelessWidget{
 
   const ArticleTop(this.page);
 
-  DateTime get articleDate => page.articleDate;
+  DateTime? get articleDate => page.articleDate;
   set articleDate(value) => page.articleDate = value;
 
-  Uint8List get imageBytes => page.imageBytes;
+  Uint8List? get imageBytes => page.imageBytes;
 
-  ValueNotifier get topNotifier => page.topNotifier;
+  ValueNotifier? get topNotifier => page.topNotifier;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +34,7 @@ class ArticleTop extends StatelessWidget{
           icon: Icon(Icons.image, color: HEADER_TEXT_COLOR),
           onPressed: () async {
 
-            Uint8List imageBytes = await ImagePickerWeb.getImage(outputType: ImageType.bytes);
+            Uint8List? imageBytes = await (ImagePickerWeb.getImage(outputType: ImageType.bytes) as FutureOr<Uint8List?>);
 
             page.setImage(imageBytes);
 
@@ -93,7 +94,7 @@ class ArticleTop extends StatelessWidget{
             )),
             SimpleButton(
               onTap: () async {
-                DateTime dateTime = await showDatePicker(
+                DateTime? dateTime = await showDatePicker(
                   context: context,
                   initialDate: DateTime.now(),
                   firstDate: DateTime(2000),
@@ -106,7 +107,7 @@ class ArticleTop extends StatelessWidget{
 
               },
               child: Text(
-                '${articleDate.day} ${month[articleDate.month]} ${articleDate.year} A.D.',
+                '${articleDate!.day} ${month[articleDate!.month]} ${articleDate!.year} A.D.',
                 style: ArticleTextStyle(
                     fontSize: 20.0,
                     fontWeight: weight.bold,
@@ -132,7 +133,7 @@ class ArticleTop extends StatelessWidget{
               child: Image(
                 image: page.imageBytes==null?
                 AssetImage('assets/images/def_bg.webp'):
-                Image.memory(imageBytes).image,
+                Image.memory(imageBytes!).image,
                 fit: BoxFit.cover,
               ),
             ),
@@ -143,10 +144,10 @@ class ArticleTop extends StatelessWidget{
                 height: MediaQuery.of(context).size.width/1.3,
                 color: Colors.black38,
               ),
-              animation: topNotifier,
+              animation: topNotifier!,
               builder: (context, child) => Opacity(
                 child: child,
-                opacity: 1-Interval(0, 1, curve: Curves.easeOutQuad).transform(topNotifier.value),
+                opacity: 1-Interval(0, 1, curve: Curves.easeOutQuad).transform(topNotifier!.value),
               ),
             ),
 

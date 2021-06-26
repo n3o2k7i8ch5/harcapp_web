@@ -84,7 +84,7 @@ class SongEditorPanel extends StatelessWidget{
                         parent.showEditor = true;
                       });
 
-                      parent.onSongPartChanged = parent.getSongPartChangedFunction(prov);
+                      parent.onSongPartChanged = parent.getSongPartChangedFunction(prov) as dynamic Function();
                     },
                     onDelete: (){
                       currItemProv.notifyListeners();
@@ -106,11 +106,11 @@ class SongEditorPanel extends StatelessWidget{
                           builder: (context, prov, child) =>
                               SwitchListTile(
                                 contentPadding: EdgeInsets.only(left: Dimen.ICON_MARG),
-                                value: prov.bind,
+                                value: prov.bind!,
                                 onChanged: (value) => prov.bind = value,
                                 secondary: Icon(
                                     MdiIcons.paperclip,
-                                    color: prov.bind?iconEnab_(context):iconDisab_(context)
+                                    color: prov.bind!?iconEnab_(context):iconDisab_(context)
                                 ),
                                 title: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -119,7 +119,7 @@ class SongEditorPanel extends StatelessWidget{
                                       'Powiąż nazwę pliku z tytułem',
                                       style: AppTextStyle(
                                           fontWeight: weight.bold,
-                                          color: prov.bind?textEnab_(context):textDisab_(context),
+                                          color: prov.bind!?textEnab_(context):textDisab_(context),
                                           fontSize: Dimen.TEXT_SIZE_APPBAR
                                       ),
                                     ),
@@ -143,7 +143,7 @@ class SongEditorPanel extends StatelessWidget{
                           onChangedPerformer: (List<String> texts){
                             currItemProv.performers = texts;
                           },
-                          onChangedYT: (String text){
+                          onChangedYT: (String? text){
                             currItemProv.youtubeLink = text;
                           },
                           onChangedAddPers: (List<String> texts){
@@ -155,8 +155,8 @@ class SongEditorPanel extends StatelessWidget{
 
                         TagsWidget(
                           linear: false,
-                          onChanged: (List<String> tags){
-                            currItemProv.tags = tags;
+                          onChanged: (List<String>? tags){
+                            currItemProv.tags = tags!;
                           },
                         ),
 
@@ -168,7 +168,7 @@ class SongEditorPanel extends StatelessWidget{
                                 parent.part = part;
                                 parent.showEditor = true;
                               });
-                              parent.onSongPartChanged = parent.getSongPartChangedFunction(prov);
+                              parent.onSongPartChanged = parent.getSongPartChangedFunction(prov) as dynamic Function();
                             },
                             onRefrenEnabledChaned: (bool value){
                               currItemProv.hasRefren = value;
@@ -191,7 +191,7 @@ class SongEditorPanel extends StatelessWidget{
                 ),
               ),
 
-              AddButtonsWidget(onPressed: () => scrollToBottom(parent.scrollController))
+              AddButtonsWidget(onPressed: () => scrollToBottom(parent.scrollController!))
             ],
           );
 
