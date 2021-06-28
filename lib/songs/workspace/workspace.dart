@@ -359,7 +359,7 @@ void displaySong(BuildContext context, SongRaw? song){
 
   if(song == null) return;
 
-  Provider.of<TitleCtrlProvider>(context, listen: false).text = song.title??'';
+  Provider.of<TitleCtrlProvider>(context, listen: false).text = song.title;
   /*
   Provider.of<AuthorCtrlProvider>(context, listen: false).text = song?.author??'';
   Provider.of<PerformerCtrlProvider>(context, listen: false).text = song?.performer??'';
@@ -382,7 +382,7 @@ void displaySong(BuildContext context, SongRaw? song){
   Provider.of<SongEditorPanelProvider>(context, listen: false).notify();
 
   TagsProvider tagsProv = Provider.of<TagsProvider>(context, listen: false);
-  tagsProv.set(Tag.ALL_TAG_NAMES, song?.tags??[]);
+  tagsProv.set(Tag.ALL_TAG_NAMES, song.tags);
 }
 
 class SearchListProvider extends ChangeNotifier{

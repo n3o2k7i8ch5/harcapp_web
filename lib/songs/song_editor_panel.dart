@@ -5,6 +5,7 @@ import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_core_own_song/common.dart';
 import 'package:harcapp_core_own_song/page_widgets/add_buttons_widget.dart';
 import 'package:harcapp_core_own_song/page_widgets/refren_template.dart';
 import 'package:harcapp_core_own_song/page_widgets/scroll_to_bottom.dart';
@@ -13,6 +14,7 @@ import 'package:harcapp_core_own_song/page_widgets/tags_widget.dart';
 import 'package:harcapp_core_own_song/page_widgets/top_cards.dart';
 import 'package:harcapp_core_own_song/providers.dart';
 import 'package:harcapp_web/songs/providers.dart';
+import 'package:harcapp_web/songs/song_part_editor.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -79,12 +81,17 @@ class SongEditorPanel extends StatelessWidget{
                     shrinkWrap: true,
                     onPartTap: (part, prov) async {
                       if(part.isRefren(context)) return;
+
+                      /*
                       parent.setState((){
                         parent.part = part;
                         parent.showEditor = true;
                       });
+                      */
 
-                      parent.onSongPartChanged = parent.getSongPartChangedFunction(prov) as dynamic Function();
+                      showPartEditor(context, part);
+
+                      //parent.onSongPartChanged = parent.getSongPartChangedFunction(prov) as dynamic Function();
                     },
                     onDelete: (){
                       currItemProv.notifyListeners();
@@ -92,7 +99,6 @@ class SongEditorPanel extends StatelessWidget{
 
                     header: Column(
                       children: [
-
 
                         Padding(
                           padding: EdgeInsets.only(left: Dimen.ICON_MARG, top: Dimen.ICON_MARG),
@@ -164,11 +170,21 @@ class SongEditorPanel extends StatelessWidget{
 
                         RefrenTemplate(
                             onPartTap: (part, prov) {
+
+                              showPartEditor(
+                                  context,
+                                  part,
+                                  onCheckPressed: () => parent.getSongPartChangedFunction(prov)
+                              );
+
+                              /*
                               parent.setState((){
                                 parent.part = part;
                                 parent.showEditor = true;
                               });
                               parent.onSongPartChanged = parent.getSongPartChangedFunction(prov) as dynamic Function();
+
+                               */
                             },
                             onRefrenEnabledChaned: (bool value){
                               currItemProv.hasRefren = value;
@@ -199,5 +215,27 @@ class SongEditorPanel extends StatelessWidget{
     );
 
   }
+
+  void showPartEditor(BuildContext context, SongPart part, {void Function()? onCheckPressed}) => showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) => Center(
+        child: Container(
+          width: 500,
+          child: SongPartEditor(
+            part,
+            onSongPartChanged: (){
+              //parent.part = part;
+              //parent.getSongPartChangedFunction(prov);
+            },
+            onCheckPressed: (){
+              onCheckPressed?.call();
+              parent.setState(() {});
+              Navigator.pop(context);
+            },
+          ),
+        ),
+      )
+  );
 
 }

@@ -22,10 +22,10 @@ void main() {
 
 class MyApp extends StatelessWidget {
 
-  AllSongsProvider? allSongsProv;
-  CurrentItemProvider? currItemProv;
-  BindTitleFileNameProvider? bindTitleFileNameProv;
-  SongFileNameDupErrProvider? songFileNameDupErrProv;
+  late AllSongsProvider allSongsProv;
+  late CurrentItemProvider currItemProv;
+  late BindTitleFileNameProvider bindTitleFileNameProv;
+  late SongFileNameDupErrProvider songFileNameDupErrProv;
 
   @override
   Widget build(BuildContext context) {
@@ -55,16 +55,16 @@ class MyApp extends StatelessWidget {
               if(loadingProv.loading!)
                 return;
 
-              SongRaw? song = currItemProv!.song;
+              SongRaw? song = currItemProv.song;
 
-              bool? isConf = allSongsProv!.isConf(song);
+              bool? isConf = allSongsProv.isConf(song);
 
-              if(bindTitleFileNameProv!.bind!)
+              if(bindTitleFileNameProv.bind!)
                 song!.fileName = generateFileName(isConf: isConf!, title: text);
 
-              songFileNameDupErrProv!.chedkDupsFor(context, song);
+              songFileNameDupErrProv.chedkDupsFor(context, song);
 
-              allSongsProv!.notifyListeners();
+              allSongsProv.notifyListeners();
 
             }
         )),

@@ -38,13 +38,13 @@ class SongsPageState extends State<SongsPage>{
 
   ScrollController? scrollController;
 
-  late bool showEditor;
-  SongPart? part;
+  //late bool showEditor;
+  //SongPart? part;
   late Function() onSongPartChanged;
 
   @override
   void initState(){
-    showEditor = false;
+    //showEditor = false;
     scrollController = ScrollController();
     super.initState();
   }
@@ -143,7 +143,7 @@ class SongsPageState extends State<SongsPage>{
 
             ],
           ),
-
+/*
           AnimatedOpacity(
               opacity: showEditor?1:0,
               duration: Duration(milliseconds: 500),
@@ -152,7 +152,7 @@ class SongsPageState extends State<SongsPage>{
                 child: SongEditorDialog(this),
               )
           ),
-
+*/
 
           CodeEditorWidget(this),
 
@@ -186,46 +186,6 @@ class SongsPageState extends State<SongsPage>{
       prov.notify();
     };
 
-  }
-
-}
-
-
-class SongEditorDialog extends StatelessWidget{
-
-  final SongsPageState parent;
-
-  const SongEditorDialog(this.parent);
-
-  @override
-  Widget build(BuildContext context) {
-
-    if(parent.part == null)
-      return Container();
-
-    return GestureDetector(
-          onTap: (){
-            parent.setState(() => parent.showEditor = false);
-            parent.onSongPartChanged();
-          },
-          child: Container(
-            width: double.infinity,
-            color: Colors.black54,
-            child: Center(
-              child: Padding(
-                padding: EdgeInsets.all(32),
-                child: Container(
-                    width: 500,
-                    child: SongPartEditor(
-                        parent.part,
-                        onCheckPressed: () => parent.setState(() => parent.showEditor = false)
-                        //onSongPartChanged: parent.onSongPartChanged
-                    )
-                ),
-              )
-            ),
-          )
-      );
   }
 
 }
