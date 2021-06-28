@@ -273,7 +273,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "7bff24a7a32d7d35317db05e9bcaa23eeb13435d"
+      resolved-ref: dcda48400b1a2d88a06f007ce251008ed9ff99d3
       url: "git://github.com/n3o2k7i8ch5/harcapp_core_own_song.git"
     source: git
     version: "0.0.1"
