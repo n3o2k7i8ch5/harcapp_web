@@ -4,26 +4,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
-import 'package:harcapp_core/comm_classes/color_pack_provider.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/dimen.dart';
-import 'package:harcapp_core_own_song/common.dart';
 import 'package:harcapp_core_own_song/providers.dart';
-import 'package:harcapp_core_own_song/song_raw.dart';
-import 'package:harcapp_core_tags/tag_layout.dart';
-import 'package:harcapp_web/color_pack.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/save_send_widget.dart';
 import 'package:harcapp_web/songs/song_editor_panel.dart';
-import 'package:harcapp_web/songs/song_part_editor.dart';
 import 'package:harcapp_web/songs/song_preview.dart';
 import 'package:harcapp_web/songs/workspace/workspace.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'code_editor_widget.dart';
-import 'generate_file_name.dart';
 
 class SongsPage extends StatefulWidget{
 
@@ -181,7 +174,6 @@ class SongsPageState extends State<SongsPage>{
   Function getSongPartChangedFunction(SongPartProvider prov){
 
     return (){
-      //songPrevProv.resizeText();
       Provider.of<CurrentItemProvider>(context, listen: false).notifyListeners();
       prov.notify();
     };

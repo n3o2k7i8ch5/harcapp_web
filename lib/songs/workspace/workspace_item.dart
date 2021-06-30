@@ -105,6 +105,7 @@ class ItemWidgetState extends State<ItemWidget>{
                                 onLongPress: workspaceBlockProv.blocked!?null:(){
 
                                   AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
+                                  Provider.of<SongEditorPanelProvider>(context, listen: false).notify();
 
                                   int remIndex = allSongsProv.songs!.indexOf(song);
                                   allSongsProv.remove(song);
@@ -126,8 +127,6 @@ class ItemWidgetState extends State<ItemWidget>{
                                   if(errSongs != null)
                                     for(SongRaw? errSongOth in errSongs)
                                       errProv.removePair(song, errSongOth);
-
-                                  Provider.of<SongEditorPanelProvider>(context, listen: false).notify();
 
                                 }
                             ),
