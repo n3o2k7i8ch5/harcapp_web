@@ -23,9 +23,6 @@ class SongPreview extends StatelessWidget{
 
     return Consumer2<CurrentItemProvider, SongPreviewProvider>(
         builder: (context, currItemProv, songPrevProv, child){
-          if(currItemProv.song==null)
-            return Container();
-
           return LayoutBuilder(
               builder: (context, constrains){
                 return Container(
@@ -106,10 +103,10 @@ class SongPreview extends StatelessWidget{
                                   width: 400,
                                   child: songPrevProv.code!?
                                   SelectableText(
-                                      prettyJson(currItemProv.song!.toMap(), indent: 2)
+                                      prettyJson(currItemProv.song.toMap(), indent: 2)
                                   ):
                                   SongWidgetTemplate<SongRaw>(
-                                      currItemProv.song!,
+                                      currItemProv.song,
                                       SongBaseSettings(),
                                       screenWidth: 372,
                                       key: UniqueKey()//ValueKey(currItemProv.song)

@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
               bool? isConf = allSongsProv.isConf(song);
 
               if(bindTitleFileNameProv.bind!)
-                song!.fileName = generateFileName(isConf: isConf!, title: text);
+                song.fileName = generateFileName(isConf: isConf!, title: text);
 
               songFileNameDupErrProv.chedkDupsFor(context, song);
 
