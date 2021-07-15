@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:harcapp_core/comm_classes/app_text_style.dart';
-import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_classes/color_pack_provider.dart';
-import 'package:harcapp_core/comm_widgets/app_card.dart';
-import 'package:harcapp_core/dimen.dart';
-import 'package:harcapp_core_own_song/common.dart';
 import 'package:harcapp_core_own_song/providers.dart';
 import 'package:harcapp_core_own_song/song_raw.dart';
 import 'package:harcapp_core_tags/tag_layout.dart';
@@ -32,6 +27,7 @@ class MyApp extends StatelessWidget {
 
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (context) => ShowSongProvider(false)),
         ChangeNotifierProvider(create: (context) => ColorPackProvider(
             colorPackDark: ColorPackGraphite(),
             initColorPack: ColorPackGraphite(),
@@ -45,7 +41,7 @@ class MyApp extends StatelessWidget {
 
         ChangeNotifierProvider(create: (context) => LoadingProvider()),
         ChangeNotifierProvider(create: (context){
-          currItemProv = CurrentItemProvider();
+          currItemProv = CurrentItemProvider(song: SongRaw.empty());
           return currItemProv;
         }),
 
@@ -77,7 +73,7 @@ class MyApp extends StatelessWidget {
 */
         ChangeNotifierProvider(create: (context) => HidTitlesProvider(hidTitles: [])),
         ChangeNotifierProvider(create: (context) => RefrenEnabProvider(true)),
-        ChangeNotifierProvider(create: (context) => RefrenPartProvider(SongPart.empty(isRefrenTemplate: true))),
+        ChangeNotifierProvider(create: (context) => RefrenPartProvider()),
         ChangeNotifierProvider(create: (context) => TagsProvider(Tag.ALL_TAG_NAMES, [])),
 
         ChangeNotifierProvider(create: (context){

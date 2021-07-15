@@ -5,7 +5,6 @@ import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/dimen.dart';
-import 'package:harcapp_core_own_song/common.dart';
 import 'package:harcapp_core_own_song/page_widgets/add_buttons_widget.dart';
 import 'package:harcapp_core_own_song/page_widgets/refren_template.dart';
 import 'package:harcapp_core_own_song/page_widgets/scroll_to_bottom.dart';
@@ -31,11 +30,12 @@ class SongEditorPanel extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
 
-    return Consumer<SongEditorPanelProvider>(
-      builder: (context, prov, child){
+    return Consumer2<SongEditorPanelProvider, ShowSongProvider>(
+      builder: (context, prov, showSongProv, child){
 
         CurrentItemProvider currItemProv = Provider.of<CurrentItemProvider>(context, listen: false);
-        if(currItemProv.song == null)
+
+        if(!showSongProv.showSong)
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -79,23 +79,26 @@ class SongEditorPanel extends StatelessWidget{
                 child: SongPartsListWidget(
                     controller: parent.scrollController,
                     shrinkWrap: true,
-                    onPartTap: (part, prov) async {
-                      if(part.isRefren(context)) return;
-
-                      /*
-                      parent.setState((){
-                        parent.part = part;
-                        parent.showEditor = true;
-                      });
-                      */
-
-                      showPartEditor(context, part);
-
-                      //parent.onSongPartChanged = parent.getSongPartChangedFunction(prov) as dynamic Function();
-                    },
-                    onDelete: (){
-                      currItemProv.notifyListeners();
-                    },
+                    onPartTap: (index) => showDialog(context: context, builder: (_) => SongPartEditor(
+                      initText: currItemProv.song.songParts[index].getText(),
+                      initChords: currItemProv.song.songParts[index].chords,
+                      initShifted: currItemProv.song.songParts[index].shift,
+                      isRefren: currItemProv.song.songParts[index].isRefren(context),
+                      onTextChanged: (text, errCount){
+                        currItemProv.song.songParts[index].setText(text);
+                        currItemProv.song.songParts[index].isError = errCount != 0;
+                        currItemProv.notify();
+                      },
+                      onChordsChanged: (text, errCount){
+                        currItemProv.song.songParts[index].chords = text;
+                        currItemProv.song.songParts[index].isError = errCount != 0;
+                        currItemProv.notify();
+                      },
+                      onShiftedChanged: (shifted){
+                        currItemProv.song.songParts[index].shift = shifted;
+                        currItemProv.notify();
+                      },
+                    )),
 
                     header: Column(
                       children: [
@@ -169,27 +172,38 @@ class SongEditorPanel extends StatelessWidget{
                         SizedBox(height: SEPARATOR_HEIGHT),
 
                         RefrenTemplate(
-                            onPartTap: (part, prov) {
-
-                              showPartEditor(
-                                  context,
-                                  part,
-                                  onCheckPressed: () => parent.getSongPartChangedFunction(prov)
-                              );
-
-                              /*
-                              parent.setState((){
-                                parent.part = part;
-                                parent.showEditor = true;
-                              });
-                              parent.onSongPartChanged = parent.getSongPartChangedFunction(prov) as dynamic Function();
-
-                               */
-                            },
-                            onRefrenEnabledChaned: (bool value){
-                              currItemProv.hasRefren = value;
-                              //songPrevProv.resizeText();
-                            }
+                            onPartTap: () => showDialog(
+                                barrierDismissible: false,
+                                context: context,
+                                builder: (context) => Center(
+                                  child: Container(
+                                    width: 500,
+                                    child: SongPartEditor(
+                                      initText: currItemProv.song.refrenPart.getText(),
+                                      initChords: currItemProv.song.refrenPart.chords,
+                                      initShifted: currItemProv.song.refrenPart.shift,
+                                      isRefren: currItemProv.song.refrenPart.isRefren(context),
+                                      onTextChanged: (text, errCount){
+                                        currItemProv.song.refrenPart.setText(text);
+                                        currItemProv.song.refrenPart.isError = errCount != 0;
+                                        currItemProv.notify();
+                                        Provider.of<RefrenPartProvider>(context, listen: false).notify();
+                                      },
+                                      onChordsChanged: (text, errCount){
+                                        currItemProv.song.refrenPart.chords = text;
+                                        currItemProv.song.refrenPart.isError = errCount != 0;
+                                        currItemProv.notify();
+                                        Provider.of<RefrenPartProvider>(context, listen: false).notify();
+                                      },
+                                      onShiftedChanged: (shifted){
+                                        currItemProv.song.refrenPart.shift = shifted;
+                                        currItemProv.notify();
+                                        Provider.of<RefrenPartProvider>(context, listen: false).notify();
+                                      },
+                                    ),
+                                  ),
+                                )
+                            ),
                         ),
 
                         SizedBox(height: SEPARATOR_HEIGHT),
@@ -206,8 +220,8 @@ class SongEditorPanel extends StatelessWidget{
                     ),
                 ),
               ),
+        AddButtonsWidget(onPressed: () => scrollToBottom(parent.scrollController!))
 
-              AddButtonsWidget(onPressed: () => scrollToBottom(parent.scrollController!))
             ],
           );
 
@@ -215,27 +229,5 @@ class SongEditorPanel extends StatelessWidget{
     );
 
   }
-
-  void showPartEditor(BuildContext context, SongPart part, {void Function()? onCheckPressed}) => showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (context) => Center(
-        child: Container(
-          width: 500,
-          child: SongPartEditor(
-            part,
-            onSongPartChanged: (){
-              //parent.part = part;
-              //parent.getSongPartChangedFunction(prov);
-            },
-            onCheckPressed: (){
-              onCheckPressed?.call();
-              parent.setState(() {});
-              Navigator.pop(context);
-            },
-          ),
-        ),
-      )
-  );
 
 }

@@ -2,6 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:harcapp_core_own_song/song_raw.dart';
 import 'package:provider/provider.dart';
 
+class ShowSongProvider extends ChangeNotifier{
+
+  bool _showSong;
+
+  ShowSongProvider(this._showSong);
+
+  bool get showSong => _showSong;
+  set showSong(bool value){
+    if(_showSong == value) return;
+    _showSong = value;
+    notifyListeners();
+  }
+
+}
 
 class LoadingProvider extends ChangeNotifier{
 

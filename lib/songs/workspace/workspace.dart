@@ -13,7 +13,6 @@ import 'package:harcapp_core/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/dimen.dart';
-import 'package:harcapp_core_own_song/common.dart';
 import 'package:harcapp_core_own_song/providers.dart';
 import 'package:harcapp_core_own_song/song_raw.dart';
 import 'package:harcapp_core_tags/tag_layout.dart';
@@ -353,11 +352,10 @@ class SongListViewState extends State<SongListView>{
 
 }
 
-void displaySong(BuildContext context, SongRaw? song){
+void displaySong(BuildContext context, SongRaw song){
+  Provider.of<ShowSongProvider>(context, listen: false).showSong = true;
   CurrentItemProvider currItemProv = Provider.of<CurrentItemProvider>(context, listen: false);
   currItemProv.song = song;
-
-  if(song == null) return;
 
   Provider.of<TitleCtrlProvider>(context, listen: false).text = song.title;
   /*
@@ -368,16 +366,8 @@ void displaySong(BuildContext context, SongRaw? song){
   Provider.of<AddPersCtrlProvider>(context, listen: false).text = song?.addPers??'';
 */
 
-  SongPart? refPart;
-  if(song.refrenPart == null)
-    refPart = SongPart.empty();
-  else
-    refPart = song.refrenPart;
-
   Provider.of<BindTitleFileNameProvider>(context, listen: false).bind =
       song.fileName == generateFileName(title: song.title);
-
-  Provider.of<RefrenPartProvider>(context, listen: false).part = refPart!;
 
   Provider.of<SongEditorPanelProvider>(context, listen: false).notify();
 

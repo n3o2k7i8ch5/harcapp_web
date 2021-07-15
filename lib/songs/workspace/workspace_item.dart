@@ -85,18 +85,6 @@ class ItemWidgetState extends State<ItemWidget>{
                           mainAxisSize: MainAxisSize.min,
                           children: [
 
-                            /*
-                            Consumer<AllSongsProvider>(
-                              builder: (context, prov, child){
-                                if(prov.isConf(song))
-                                  return Padding(
-                                    padding: EdgeInsets.all(Dimen.ICON_MARG),
-                                    child: Icon(MdiIcons.eyeOffOutline, color: iconDisab_(context)),
-                                  );
-                                return Container();
-                              }
-                            ),
-*/
                             AppButton(
                                 icon: Icon(MdiIcons.close),
                                 onTap: (){
@@ -116,9 +104,10 @@ class ItemWidgetState extends State<ItemWidget>{
                                       remIndex--;
 
                                     if(remIndex < 0)
-                                      displaySong(context, null);
-                                    else
+                                      Provider.of<ShowSongProvider>(context, listen: false).showSong = false;
+                                    else {
                                       displaySong(context, allSongsProv.songs![remIndex]!);
+                                    }
                                   }
 
                                   SongFileNameDupErrProvider errProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
