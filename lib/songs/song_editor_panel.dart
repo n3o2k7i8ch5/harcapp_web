@@ -21,6 +21,7 @@ import '_main.dart';
 
 class SongEditorPanel extends StatelessWidget{
 
+  static const double SONG_PART_EDITOR_WIDTH = 500;
   static const double SEPARATOR_HEIGHT = 42;
 
   final SongsPageState parent;
@@ -79,25 +80,30 @@ class SongEditorPanel extends StatelessWidget{
                 child: SongPartsListWidget(
                     controller: parent.scrollController,
                     shrinkWrap: true,
-                    onPartTap: (index) => showDialog(context: context, builder: (_) => SongPartEditor(
-                      initText: currItemProv.song.songParts[index].getText(),
-                      initChords: currItemProv.song.songParts[index].chords,
-                      initShifted: currItemProv.song.songParts[index].shift,
-                      isRefren: currItemProv.song.songParts[index].isRefren(context),
-                      onTextChanged: (text, errCount){
-                        currItemProv.song.songParts[index].setText(text);
-                        currItemProv.song.songParts[index].isError = errCount != 0;
-                        currItemProv.notify();
-                      },
-                      onChordsChanged: (text, errCount){
-                        currItemProv.song.songParts[index].chords = text;
-                        currItemProv.song.songParts[index].isError = errCount != 0;
-                        currItemProv.notify();
-                      },
-                      onShiftedChanged: (shifted){
-                        currItemProv.song.songParts[index].shift = shifted;
-                        currItemProv.notify();
-                      },
+                    onPartTap: (index) => showDialog(context: context, builder: (_) => Center(
+                      child: Container(
+                        width: SONG_PART_EDITOR_WIDTH,
+                        child: SongPartEditor(
+                          initText: currItemProv.song.songParts[index].getText(),
+                          initChords: currItemProv.song.songParts[index].chords,
+                          initShifted: currItemProv.song.songParts[index].shift,
+                          isRefren: currItemProv.song.songParts[index].isRefren(context),
+                          onTextChanged: (text, errCount){
+                            currItemProv.song.songParts[index].setText(text);
+                            currItemProv.song.songParts[index].isError = errCount != 0;
+                            currItemProv.notify();
+                          },
+                          onChordsChanged: (text, errCount){
+                            currItemProv.song.songParts[index].chords = text;
+                            currItemProv.song.songParts[index].isError = errCount != 0;
+                            currItemProv.notify();
+                          },
+                          onShiftedChanged: (shifted){
+                            currItemProv.song.songParts[index].shift = shifted;
+                            currItemProv.notify();
+                          },
+                        ),
+                      ),
                     )),
 
                     header: Column(
@@ -177,7 +183,7 @@ class SongEditorPanel extends StatelessWidget{
                                 context: context,
                                 builder: (context) => Center(
                                   child: Container(
-                                    width: 500,
+                                    width: SONG_PART_EDITOR_WIDTH,
                                     child: SongPartEditor(
                                       initText: currItemProv.song.refrenPart.getText(),
                                       initChords: currItemProv.song.refrenPart.chords,

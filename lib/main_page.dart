@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_widgets/harc_app.dart';
+import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_web/songs/_main.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -36,7 +37,13 @@ class MainPageState extends State<MainPage>{
 
               Padding(
                 padding: EdgeInsets.only(left: 64.0, right: 64.0),
-                child: HarcApp(size: 32.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    HarcApp(size: 32.0),
+                    Text('1.0.0', style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_SMALL, fontWeight: weight.halfBold)),
+                  ],
+                )
               ),
               PageNavItem(
                 icon: MdiIcons.bookmarkMusicOutline,
