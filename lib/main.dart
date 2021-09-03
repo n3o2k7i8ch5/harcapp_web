@@ -6,6 +6,7 @@ import 'package:harcapp_core_own_song/song_raw.dart';
 import 'package:harcapp_core_tags/tag_layout.dart';
 import 'package:harcapp_web/songs/generate_file_name.dart';
 import 'package:harcapp_web/songs/providers.dart';
+import 'package:harcapp_web/songs/song_editor_panel.dart';
 import 'package:provider/provider.dart';
 
 import 'color_pack.dart';
@@ -43,6 +44,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context){
           currItemProv = CurrentItemProvider(song: SongRaw.empty());
           return currItemProv;
+        }),
+
+        ChangeNotifierProvider(create: (context){
+          SimilarSongProvider prov = SimilarSongProvider();
+          prov.init();
+          return prov;
         }),
 
         ChangeNotifierProvider(create: (context) => TitleCtrlProvider(

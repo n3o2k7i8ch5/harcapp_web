@@ -1,8 +1,12 @@
 
+import 'dart:collection';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_widgets/app_card.dart';
+import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_core_own_song/page_widgets/add_buttons_widget.dart';
@@ -12,8 +16,14 @@ import 'package:harcapp_core_own_song/page_widgets/song_parts_list_widget.dart';
 import 'package:harcapp_core_own_song/page_widgets/tags_widget.dart';
 import 'package:harcapp_core_own_song/page_widgets/top_cards.dart';
 import 'package:harcapp_core_own_song/providers.dart';
+import 'package:harcapp_core_own_song/song_raw.dart';
+import 'package:harcapp_core_song_widget/providers.dart';
+import 'package:harcapp_core_song_widget/song_widget_template.dart';
+import 'package:harcapp_web/articles/article_editor/common.dart';
 import 'package:harcapp_web/songs/providers.dart';
+import 'package:harcapp_web/songs/song_loader.dart';
 import 'package:harcapp_web/songs/song_part_editor.dart';
+import 'package:harcapp_web/songs/song_preview.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -145,9 +155,14 @@ class SongEditorPanel extends StatelessWidget{
                               ),
                         ),
 
+                        SimilarSongWidget(),
+
+                        SizedBox(height: Dimen.DEF_MARG),
+
                         TopCards(
                           onChangedTitle: (String text){
                             currItemProv.title = text;
+                            Provider.of<SimilarSongProvider>(context, listen: false).title = text;
                           },
                           onChangedAuthor: (List<String> texts){
                             currItemProv.authors = texts;
@@ -226,7 +241,8 @@ class SongEditorPanel extends StatelessWidget{
                     ),
                 ),
               ),
-        AddButtonsWidget(onPressed: () => scrollToBottom(parent.scrollController!))
+
+              AddButtonsWidget(onPressed: () => scrollToBottom(parent.scrollController!))
 
             ],
           );
@@ -234,6 +250,129 @@ class SongEditorPanel extends StatelessWidget{
       },
     );
 
+  }
+
+}
+
+class SimilarSongWidget extends StatelessWidget{
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<SimilarSongProvider>(
+      builder: (context, prov, child){
+        return AppCard(
+            elevation: AppCard.bigElevation,
+            radius: AppCard.BIG_RADIUS,
+            margin: AppCard.normMargin,
+            child:
+            prov.similarSong == null?
+            Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(Dimen.ICON_MARG),
+                  child: Icon(MdiIcons.timerSand, color: hintEnab_(context)),
+                ),
+                Expanded(child: Text(
+                  'Ładowanie listy weryfikacyjnej piosenek...',
+                  style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_BIG, fontWeight: weight.halfBold, color: hintEnab_(context)),
+                  textAlign: TextAlign.center,
+                )),
+                SizedBox(width: Dimen.ICON_FOOTPRINT)
+              ],
+            ):(
+                prov.similarSong!.length==0?
+                Row(
+                  children: [
+                    Padding(
+                        padding: EdgeInsets.all(Dimen.ICON_MARG),
+                        child: Icon(MdiIcons.check, color: accent_(context))
+                    ),
+
+                    Expanded(child: Text(
+                      'Sądząc po tytule, tego jeszcze nie ma w śpiewniku!',
+                      style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_BIG, fontWeight: weight.halfBold, color: accent_(context)),
+                      textAlign: TextAlign.center,
+                    )),
+                    SizedBox(width: Dimen.ICON_FOOTPRINT)
+                  ],
+                ):
+                Row(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(Dimen.ICON_MARG),
+                      child: Icon(MdiIcons.alertCircleOutline, color: Colors.red),
+                    ),
+
+                    Expanded(child: Text(
+                      'Ostrożnie! Piosenka o takim tytule już jest!',
+                      style: AppTextStyle(color: Colors.red, fontWeight: weight.halfBold, fontSize: Dimen.TEXT_SIZE_BIG),
+                      textAlign: TextAlign.center,
+                    )),
+                    IconButton(icon: Icon(MdiIcons.eye), onPressed: () => showDialog(
+                      context: context,
+                      builder: (context) => Center(
+                          child: AppCard(
+                            padding: EdgeInsets.zero,
+                            color: Colors.white,
+                            radius: AppCard.BIG_RADIUS,
+                            child: MultiProvider(
+                              providers: [
+                                ChangeNotifierProvider(create: (context) => ShowChordsProvider(SongBaseSettings())),
+                                ChangeNotifierProvider(create: (context) => ChordsDrawTypeProvider(SongBaseSettings())),
+                                ChangeNotifierProvider(create: (context) => ChordsDrawShowProvider(SongBaseSettings())),
+                              ],
+                              builder: (context, child) => Container(
+                                width: 400,
+                                child: SongWidgetTemplate<SongRaw>(
+                                    prov.similarSong![0],
+                                    SongBaseSettings(),
+                                    screenWidth: 372,
+                                    key: UniqueKey()//ValueKey(currItemProv.song)
+                                ),
+                              ),
+                            ),
+                          )
+                      ),
+                    )),
+                  ],
+                )
+            )
+
+        );
+
+        return Container();
+      },
+    );
+  }
+
+}
+
+class SimilarSongProvider extends ChangeNotifier{
+
+  HashMap<String, List<SongRaw>>? allSongs;
+
+  late String _title;
+  String get title => _title;
+  set title(String value){
+    _title = value;
+    notifyListeners();
+  }
+
+  List<SongRaw>? get similarSong{
+    if(allSongs == null) return null;
+
+    String _title = remSpecChars(remPolChars(this._title.toLowerCase()));
+    List<SongRaw>? songs = allSongs![_title];
+    return songs??[];
+  }
+
+  SimilarSongProvider(){
+    _title = '';
+  }
+
+  void init() async {
+    allSongs = await loadSongs();
+    notifyListeners();
   }
 
 }

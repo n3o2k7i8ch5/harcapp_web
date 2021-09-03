@@ -41,7 +41,7 @@ class MainPageState extends State<MainPage>{
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     HarcApp(size: 32.0),
-                    Text('1.0.0', style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_SMALL, fontWeight: weight.halfBold)),
+                    Text('1.0.1', style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_SMALL, fontWeight: weight.halfBold)),
                   ],
                 )
               ),
