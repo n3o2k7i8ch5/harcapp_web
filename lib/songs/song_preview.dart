@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
+import 'package:harcapp_core/comm_widgets/instrument_type.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/dimen.dart';
@@ -155,8 +156,8 @@ class SongBaseSettings extends SongBookSettTempl{
   set chordsDrawShow(bool value) => null;
 
   @override
-  bool get chordsDrawType => true;
+  InstrumentType get chordsDrawType => InstrumentType.GUITAR;
   @override
-  set chordsDrawType(bool value) => null;
+  set chordsDrawType(InstrumentType value) => null;
 
 }
