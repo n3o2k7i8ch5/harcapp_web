@@ -125,7 +125,7 @@ class ItemWidgetState extends State<ItemWidget>{
                                 onPressed: workspaceBlockProv.blocked!?null:(){
                                   workspaceBlockProv.blocked = true;
                                   Provider.of<ShowMoreButtProvider>(context, listen: false).value = true;
-                                  if(widget.onShowMoreButt!=null) widget.onShowMoreButt!(context);
+                                  widget.onShowMoreButt?.call(context);
                                 }
                             ),
 
@@ -179,7 +179,6 @@ class _FileNameEditorWidget extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
 
-    SongFileNameDupErrProvider errProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
     bool fileNameTaken = Provider.of<SongFileNameDupErrProvider>(context, listen: false).hasAny(song);
 
     AllSongsProvider allSongsProvider = Provider.of<AllSongsProvider>(context, listen: false);

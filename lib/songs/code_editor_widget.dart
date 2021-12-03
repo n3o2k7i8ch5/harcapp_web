@@ -15,6 +15,7 @@ import 'package:harcapp_web/songs/old/parse_old_code.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/workspace/workspace.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:pretty_json/pretty_json.dart';
 import 'package:provider/provider.dart';
 
 class CodeEditorWidget extends StatelessWidget{
@@ -50,6 +51,7 @@ class CodeEditorWidget extends StatelessWidget{
                       child: Container(
                           width: 500,
                           child: AppCard(
+                            radius: AppCard.BIG_RADIUS,
                             padding: EdgeInsets.zero,
                             margin: AppCard.normMargin,
                             child: Column(
@@ -65,6 +67,16 @@ class CodeEditorWidget extends StatelessWidget{
                                     style: AppTextStyle(color: textEnab_(context)),
                                   ),
                                   actions: [
+
+                                    IconButton(
+                                      icon: Icon(MdiIcons.formatIndentIncrease),
+                                      onPressed: (){
+                                        String prettyText = prettyJson(jsonDecode(controller.text));
+                                        controller.text = prettyText;
+                                        prov.text = prettyText;
+                                      },
+                                    ),
+
                                     IconButton(
                                         icon: Icon(MdiIcons.check),
                                         onPressed: (){

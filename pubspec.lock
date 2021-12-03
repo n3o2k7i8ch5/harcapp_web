@@ -161,7 +161,7 @@ packages:
       name: file_picker
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.2.6"
+    version: "4.2.7"
   file_picker_cross:
     dependency: "direct main"
     description:
@@ -266,7 +266,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "3ee97a3ec3f102af690cbc7912740b95a3992bff"
+      resolved-ref: "653d7a19cf40f152905387f32d5af5259a39e6d2"
       url: "git://github.com/n3o2k7i8ch5/harcapp_core_own_song.git"
     source: git
     version: "0.0.1"
@@ -485,7 +485,7 @@ packages:
       name: platform
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.2"
+    version: "3.1.0"
   plugin_platform_interface:
     dependency: transitive
     description:
