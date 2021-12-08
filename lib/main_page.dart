@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_widgets/harc_app.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_web/songs/_main.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 
 class MainPage extends StatefulWidget{
@@ -17,6 +17,11 @@ class MainPage extends StatefulWidget{
 class MainPageState extends State<MainPage>{
 
   Widget? body;
+  late String version;
+  void establishVersion() async {
+    version = (await PackageInfo.fromPlatform()).version;
+    setState(() {});
+  }
 
   @override
   void initState() {
@@ -41,7 +46,7 @@ class MainPageState extends State<MainPage>{
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     HarcApp(size: 32.0),
-                    Text('1.0.1', style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_SMALL, fontWeight: weight.halfBold)),
+                    Text(version, style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_SMALL, fontWeight: weight.halfBold)),
                   ],
                 )
               ),
