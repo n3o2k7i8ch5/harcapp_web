@@ -8,6 +8,10 @@
     ],
     "rewrites": [
       {
+        "source": "*/.well-known/microsoft-identity-association.json",
+        "destination": "/.well-known/microsoft-identity-association.json"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
