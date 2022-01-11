@@ -17,7 +17,7 @@ class MainPage extends StatefulWidget{
 class MainPageState extends State<MainPage>{
 
   Widget? body;
-  late String version;
+  String? version;
   void establishVersion() async {
     version = (await PackageInfo.fromPlatform()).version;
     setState(() {});
@@ -25,6 +25,7 @@ class MainPageState extends State<MainPage>{
 
   @override
   void initState() {
+    establishVersion();
     body = SongsPage();
     super.initState();
   }
@@ -46,7 +47,7 @@ class MainPageState extends State<MainPage>{
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     HarcApp(size: 32.0),
-                    Text(version, style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_SMALL, fontWeight: weight.halfBold)),
+                    Text(version??'x.x.x', style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_SMALL, fontWeight: weight.halfBold)),
                   ],
                 )
               ),
