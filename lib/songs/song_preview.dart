@@ -108,7 +108,7 @@ class SongPreview extends StatelessWidget{
                                   SongWidgetTemplate<SongRaw>(
                                       currItemProv.song,
                                       SongBaseSettings(),
-                                      screenWidth: 372,
+                                      screenWidth: 372 - 6,
                                       key: UniqueKey()//ValueKey(currItemProv.song)
                                   ),
                                 ),
