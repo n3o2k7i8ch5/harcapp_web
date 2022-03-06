@@ -31,17 +31,16 @@ class MainPageState extends State<MainPage>{
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size(double.infinity, 72),
-        child: Material(
-          color: Colors.white,
-          elevation: 6.0,
-          child: Row(
-            children: [
+  Widget build(BuildContext context) => Scaffold(
+    appBar: PreferredSize(
+      preferredSize: Size(double.infinity, 72),
+      child: Material(
+        color: Colors.white,
+        elevation: 6.0,
+        child: Row(
+          children: [
 
-              Padding(
+            Padding(
                 padding: EdgeInsets.only(left: 64.0, right: 64.0),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -50,27 +49,25 @@ class MainPageState extends State<MainPage>{
                     Text(version??'x.x.x', style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_SMALL, fontWeight: weight.halfBold)),
                   ],
                 )
-              ),
-              PageNavItem(
-                icon: MdiIcons.bookmarkMusicOutline,
-                title: 'Warsztat piosenki',
-                onTap: () => setState(() => body = SongsPage()),
-              ),
-              /*
+            ),
+            PageNavItem(
+              icon: MdiIcons.bookmarkMusicOutline,
+              title: 'Warsztat piosenki',
+              onTap: () => setState(() => body = SongsPage()),
+            ),
+            /*
               PageNavItem(
                 icon: MdiIcons.feather,
                 title: 'Warsztat artykułów',
                 onTap: () => setState(() => body = ArticlePage()),
               )
                */
-            ],
-          ),
+          ],
         ),
       ),
-      body: body,
-    );
-  }
-
+    ),
+    body: body,
+  );
 
 }
 
@@ -86,18 +83,16 @@ class PageNavItem extends StatelessWidget{
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 200,
-      child: ListTile(
-        onTap: onTap as void Function()?,
-        leading: Icon(icon),
-        title: Text(
-          title,
-          style: AppTextStyle(),
-        ),
+  Widget build(BuildContext context) => SizedBox(
+    width: 200,
+    child: ListTile(
+      onTap: onTap as void Function()?,
+      leading: Icon(icon),
+      title: Text(
+        title,
+        style: AppTextStyle(),
       ),
-    );
-  }
+    ),
+  );
 
 }

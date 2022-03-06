@@ -20,12 +20,9 @@ import 'package:provider/provider.dart';
 
 class CodeEditorWidget extends StatelessWidget{
 
-  //SongPreviewProvider get songPrevProv => parent.songPrevProv;
+  final SongsPageState parent;
 
-  SongsPageState parent;
-
-  CodeEditorWidget(this.parent);
-
+  const CodeEditorWidget(this.parent, {Key? key}): super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -110,10 +107,8 @@ class CodeEditorWidget extends StatelessWidget{
                                            */
                                           Provider.of<TagsProvider>(context, listen: false).set(Tag.ALL_TAG_NAMES, song.tags);
 
-
                                           prov.song!.set(song);
-                                          AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
-                                          allSongsProv.set(prov.song, prov.song!.isConfid);
+                                          Provider.of<AllSongsProvider>(context, listen: false).set(prov.song, prov.song!.isConfid);
 
                                           displaySong(context, prov.song!);
 

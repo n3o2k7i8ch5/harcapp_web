@@ -19,112 +19,105 @@ import 'package:provider/provider.dart';
 class SongPreview extends StatelessWidget{
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Consumer2<CurrentItemProvider, SongPreviewProvider>(
+      builder: (context, currItemProv, songPrevProv, child) => LayoutBuilder(
+          builder: (context, constrains) => SizedBox(
+            width: MediaQuery.of(context).size.width<1200 + 4*32?0:400,
+            child: Padding(
+                padding: EdgeInsets.only(bottom: 32, right: 32),
+                child: Column(
+                  children: [
 
-    return Consumer2<CurrentItemProvider, SongPreviewProvider>(
-        builder: (context, currItemProv, songPrevProv, child){
-          return LayoutBuilder(
-              builder: (context, constrains){
-                return Container(
-                  width: MediaQuery.of(context).size.width<1200 + 4*32?0:400,
-                  child: Padding(
-                      padding: EdgeInsets.only(bottom: 32, right: 32),
-                      child: Column(
+                    Padding(
+                      padding: EdgeInsets.only(left: Dimen.ICON_MARG, top: Dimen.ICON_MARG),
+                      child: TitleShortcutRowWidget(
+                        title: 'Podgląd piosenki',
+                        textAlign: TextAlign.start,
+                      ),
+                    ),
+
+                    AppCard(
+                      radius: AppCard.BIG_RADIUS,
+                      margin: AppCard.normMargin,
+                      padding: EdgeInsets.zero,
+                      elevation: AppCard.bigElevation,
+                      child: Row(
                         children: [
-
-                          Padding(
-                            padding: EdgeInsets.only(left: Dimen.ICON_MARG, top: Dimen.ICON_MARG),
-                            child: TitleShortcutRowWidget(
-                              title: 'Podgląd piosenki',
-                              textAlign: TextAlign.start,
-                            ),
-                          ),
-
-                          AppCard(
-                            radius: AppCard.BIG_RADIUS,
-                            margin: AppCard.normMargin,
-                            padding: EdgeInsets.zero,
-                            elevation: AppCard.bigElevation,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: SimpleButton(
-                                    padding: EdgeInsets.all(Dimen.ICON_MARG),
-                                      margin: EdgeInsets.zero,
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Icon(MdiIcons.eyeOutline, color: songPrevProv.code!?iconDisab_(context):iconEnab_(context)),
-                                          SizedBox(width: Dimen.ICON_MARG),
-                                          Text('Podgląd', style: AppTextStyle(
-                                              fontWeight: weight.halfBold,
-                                              color: songPrevProv.code!?iconDisab_(context):iconEnab_(context)
-                                          ))
-                                        ],
-                                      ),
-                                      onTap: (){
-                                        songPrevProv.code = false;
-                                      }
-                                  ),
+                          Expanded(
+                            child: SimpleButton(
+                                padding: EdgeInsets.all(Dimen.ICON_MARG),
+                                margin: EdgeInsets.zero,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(MdiIcons.eyeOutline, color: songPrevProv.code!?iconDisab_(context):iconEnab_(context)),
+                                    SizedBox(width: Dimen.ICON_MARG),
+                                    Text('Podgląd', style: AppTextStyle(
+                                        fontWeight: weight.halfBold,
+                                        color: songPrevProv.code!?iconDisab_(context):iconEnab_(context)
+                                    ))
+                                  ],
                                 ),
-
-                                Expanded(
-                                  child: SimpleButton(
-                                      padding: EdgeInsets.all(Dimen.ICON_MARG),
-                                      margin: EdgeInsets.zero,
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Icon(MdiIcons.codeTags, color: songPrevProv.code!?iconEnab_(context):iconDisab_(context)),
-                                          SizedBox(width: Dimen.ICON_MARG),
-                                          Text('Kod', style: AppTextStyle(
-                                              fontWeight: weight.halfBold,
-                                              color: songPrevProv.code!?iconEnab_(context):iconDisab_(context)
-                                          ))
-                                        ],
-                                      ),
-                                      onTap: (){
-                                        songPrevProv.code = true;
-                                      }
-                                  ),
-                                )
-                              ],
+                                onTap: (){
+                                  songPrevProv.code = false;
+                                }
                             ),
                           ),
 
                           Expanded(
-                              child: MultiProvider(
-                                providers: [
-                                  ChangeNotifierProvider(create: (context) => ShowChordsProvider(SongBaseSettings())),
-                                  ChangeNotifierProvider(create: (context) => ChordsDrawTypeProvider(SongBaseSettings())),
-                                  ChangeNotifierProvider(create: (context) => ChordsDrawShowProvider(SongBaseSettings())),
-                                ],
-                                builder: (context, child) => Container(
-                                  width: 400,
-                                  child: songPrevProv.code!?
-                                  SelectableText(
-                                      prettyJson(currItemProv.song.toMap(), indent: 2)
-                                  ):
-                                  SongWidgetTemplate<SongRaw>(
-                                      currItemProv.song,
-                                      SongBaseSettings(),
-                                      screenWidth: 372 - 6,
-                                      key: UniqueKey()//ValueKey(currItemProv.song)
-                                  ),
+                            child: SimpleButton(
+                                padding: EdgeInsets.all(Dimen.ICON_MARG),
+                                margin: EdgeInsets.zero,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(MdiIcons.codeTags, color: songPrevProv.code!?iconEnab_(context):iconDisab_(context)),
+                                    SizedBox(width: Dimen.ICON_MARG),
+                                    Text('Kod', style: AppTextStyle(
+                                        fontWeight: weight.halfBold,
+                                        color: songPrevProv.code!?iconEnab_(context):iconDisab_(context)
+                                    ))
+                                  ],
                                 ),
-                              )
+                                onTap: (){
+                                  songPrevProv.code = true;
+                                }
+                            ),
                           )
-
                         ],
-                      )
-                  ),
-                );
-              }
-          );
-        }
-    );
+                      ),
+                    ),
 
-  }
+                    Expanded(
+                        child: MultiProvider(
+                          providers: [
+                            ChangeNotifierProvider(create: (context) => ShowChordsProvider(SongBaseSettings())),
+                            ChangeNotifierProvider(create: (context) => ChordsDrawTypeProvider(SongBaseSettings())),
+                            ChangeNotifierProvider(create: (context) => ChordsDrawShowProvider(SongBaseSettings())),
+                          ],
+                          builder: (context, child) => SizedBox(
+                            width: 400,
+                            child: songPrevProv.code!?
+                            SelectableText(
+                                prettyJson(currItemProv.song.toMap(), indent: 2)
+                            ):
+                            SongWidgetTemplate<SongRaw>(
+                                currItemProv.song,
+                                SongBaseSettings(),
+                                screenWidth: 372,
+                                cacheSizes: false,
+                                key: UniqueKey()//ValueKey(currItemProv.song)
+                            ),
+                          ),
+                        )
+                    )
+
+                  ],
+                )
+            ),
+          )
+      )
+  );
 }
 
 class SongBaseSettings extends SongBookSettTempl{

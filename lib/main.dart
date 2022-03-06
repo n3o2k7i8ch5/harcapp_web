@@ -12,9 +12,7 @@ import 'package:provider/provider.dart';
 import 'color_pack.dart';
 import 'main_page.dart';
 
-void main() {
-  runApp(MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
 
@@ -23,100 +21,96 @@ class MyApp extends StatelessWidget {
   late BindTitleFileNameProvider bindTitleFileNameProv;
   late SongFileNameDupErrProvider songFileNameDupErrProv;
 
+  MyApp({Key? key}): super(key: key);
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (context) => ShowSongProvider(false)),
+      ChangeNotifierProvider(create: (context) => ColorPackProvider(
+          colorPackDark: ColorPackGraphite(),
+          initColorPack: ColorPackGraphite(),
+          isDark: () => false
+      )),
 
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => ShowSongProvider(false)),
-        ChangeNotifierProvider(create: (context) => ColorPackProvider(
-            colorPackDark: ColorPackGraphite(),
-            initColorPack: ColorPackGraphite(),
-            isDark: () => false
-        )),
+      ChangeNotifierProvider(create: (context){
+        allSongsProv = AllSongsProvider();
+        return allSongsProv;
+      }),
 
-        ChangeNotifierProvider(create: (context){
-          allSongsProv = AllSongsProvider();
-          return allSongsProv;
-        }),
+      ChangeNotifierProvider(create: (context) => LoadingProvider()),
+      ChangeNotifierProvider(create: (context){
+        currItemProv = CurrentItemProvider(song: SongRaw.empty());
+        return currItemProv;
+      }),
 
-        ChangeNotifierProvider(create: (context) => LoadingProvider()),
-        ChangeNotifierProvider(create: (context){
-          currItemProv = CurrentItemProvider(song: SongRaw.empty());
-          return currItemProv;
-        }),
+      ChangeNotifierProvider(create: (context){
+        SimilarSongProvider prov = SimilarSongProvider();
+        prov.init();
+        return prov;
+      }),
 
-        ChangeNotifierProvider(create: (context){
-          SimilarSongProvider prov = SimilarSongProvider();
-          prov.init();
-          return prov;
-        }),
+      ChangeNotifierProvider(create: (context) => TitleCtrlProvider(
+          onChanged: (text){
+            LoadingProvider loadingProv = Provider.of<LoadingProvider>(context, listen: false);
+            if(loadingProv.loading!)
+              return;
 
-        ChangeNotifierProvider(create: (context) => TitleCtrlProvider(
-            onChanged: (text){
-              LoadingProvider loadingProv = Provider.of<LoadingProvider>(context, listen: false);
-              if(loadingProv.loading!)
-                return;
+            SongRaw? song = currItemProv.song;
 
-              SongRaw? song = currItemProv.song;
+            bool? isConf = allSongsProv.isConf(song);
 
-              bool? isConf = allSongsProv.isConf(song);
+            if(bindTitleFileNameProv.bind!)
+              song.fileName = generateFileName(isConf: isConf!, title: text);
 
-              if(bindTitleFileNameProv.bind!)
-                song.fileName = generateFileName(isConf: isConf!, title: text);
+            songFileNameDupErrProv.chedkDupsFor(context, song);
 
-              songFileNameDupErrProv.chedkDupsFor(context, song);
+            allSongsProv.notifyListeners();
 
-              allSongsProv.notifyListeners();
-
-            }
-        )),
-        /*
+          }
+      )),
+      /*
         ChangeNotifierProvider(create: (context) => AuthorCtrlProvider()),
         ChangeNotifierProvider(create: (context) => ComposerCtrlProvider()),
         ChangeNotifierProvider(create: (context) => PerformerCtrlProvider()),
         ChangeNotifierProvider(create: (context) => YTCtrlProvider()),
         ChangeNotifierProvider(create: (context) => AddPersCtrlProvider()),
 */
-        ChangeNotifierProvider(create: (context) => HidTitlesProvider(hidTitles: [])),
-        ChangeNotifierProvider(create: (context) => RefrenEnabProvider(true)),
-        ChangeNotifierProvider(create: (context) => RefrenPartProvider()),
-        ChangeNotifierProvider(create: (context) => TagsProvider(Tag.ALL_TAG_NAMES, [])),
+      ChangeNotifierProvider(create: (context) => HidTitlesProvider(hidTitles: [])),
+      ChangeNotifierProvider(create: (context) => RefrenEnabProvider(true)),
+      ChangeNotifierProvider(create: (context) => RefrenPartProvider()),
+      ChangeNotifierProvider(create: (context) => TagsProvider(Tag.ALL_TAG_NAMES, [])),
 
-        ChangeNotifierProvider(create: (context){
-          bindTitleFileNameProv = BindTitleFileNameProvider();
-          return bindTitleFileNameProv;
-        }),
+      ChangeNotifierProvider(create: (context){
+        bindTitleFileNameProv = BindTitleFileNameProvider();
+        return bindTitleFileNameProv;
+      }),
 
-        ChangeNotifierProvider(create: (context) => WorkspaceBlockProvider()),
-        ChangeNotifierProvider(create: (context){
-          songFileNameDupErrProv = SongFileNameDupErrProvider();
-          return songFileNameDupErrProv;
-        }),
+      ChangeNotifierProvider(create: (context) => WorkspaceBlockProvider()),
+      ChangeNotifierProvider(create: (context){
+        songFileNameDupErrProv = SongFileNameDupErrProvider();
+        return songFileNameDupErrProv;
+      }),
 
-        ChangeNotifierProvider(create: (context) => ShowCodeEditorProvider()),
+      ChangeNotifierProvider(create: (context) => ShowCodeEditorProvider()),
 
-        ChangeNotifierProvider(create: (context) => SongPreviewProvider()),
+      ChangeNotifierProvider(create: (context) => SongPreviewProvider()),
 
-        ChangeNotifierProvider(create: (context) => SongEditorPanelProvider()),
-      ],
-      builder: (context, child) => Consumer<ColorPackProvider>(
-          builder: (context, prov, child){
-            return MaterialApp(
-              title: 'HarcApp Web',
-              theme: prov.colorPack!.themeData,
-              home: MainPage(),
-              localizationsDelegates: const [
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate, // ONLY if it's a RTL language
-              ],
-              supportedLocales: const [
-                Locale('pl', 'PL'), // include country code too
-              ],
-            );
-          }
-      ),
-    );
-
-  }
+      ChangeNotifierProvider(create: (context) => SongEditorPanelProvider()),
+    ],
+    builder: (context, child) => Consumer<ColorPackProvider>(
+        builder: (context, prov, child) => MaterialApp(
+          title: 'HarcApp Web',
+          theme: prov.colorPack!.themeData,
+          home: MainPage(),
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate, // ONLY if it's a RTL language
+          ],
+          supportedLocales: const [
+            Locale('pl', 'PL'), // include country code too
+          ],
+        )
+    ),
+  );
 }
