@@ -3,16 +3,18 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:harcapp_core/comm_classes/color_pack_provider.dart';
 import 'package:harcapp_core_own_song/providers.dart';
 import 'package:harcapp_core_own_song/song_raw.dart';
+import 'package:harcapp_core_song_widget/providers.dart';
 import 'package:harcapp_core_tags/tag_layout.dart';
 import 'package:harcapp_web/songs/generate_file_name.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/song_editor_panel.dart';
+import 'package:harcapp_web/songs/song_preview.dart';
 import 'package:provider/provider.dart';
 
 import 'color_pack.dart';
 import 'main_page.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(HarcAppSongBook(MyApp(), SongBaseSettings()));
 
 class MyApp extends StatelessWidget {
 

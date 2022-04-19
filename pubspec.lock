@@ -7,7 +7,7 @@ packages:
       name: archive
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.2.1"
+    version: "3.3.0"
   async:
     dependency: transitive
     description:
@@ -161,7 +161,7 @@ packages:
       name: file_picker
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.5.0"
+    version: "4.5.1"
   file_picker_cross:
     dependency: "direct main"
     description:
@@ -235,6 +235,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.5"
+  flutter_reorderable_list:
+    dependency: transitive
+    description:
+      name: flutter_reorderable_list
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.2.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -257,8 +264,8 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "05203e93fc26e62a1cdfdea88c54bdcd7da676de"
-      url: "git://github.com/n3o2k7i8ch5/harcapp_core.git"
+      resolved-ref: "3454de2c1a979ead66533c71762e3fc7103bcc3f"
+      url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"
   harcapp_core_own_song:
@@ -266,8 +273,8 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "653d7a19cf40f152905387f32d5af5259a39e6d2"
-      url: "git://github.com/n3o2k7i8ch5/harcapp_core_own_song.git"
+      resolved-ref: "6a255763f70559680ff12063e78680252c10bdd5"
+      url: "https://github.com/n3o2k7i8ch5/harcapp_core_own_song"
     source: git
     version: "0.0.1"
   harcapp_core_song:
@@ -275,8 +282,8 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "141387ecd940138ac43e02d31b13cd63b1cf869c"
-      url: "git://github.com/n3o2k7i8ch5/harcapp_core_song.git"
+      resolved-ref: db67f34a8d5d6bac317cee08ea2e58d227d5f007
+      url: "https://github.com/n3o2k7i8ch5/harcapp_core_song"
     source: git
     version: "0.0.1"
   harcapp_core_song_widget:
@@ -284,8 +291,8 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "8d44bfcb4ef6489feba6714f7bf6bc7be8bcd379"
-      url: "git://github.com/n3o2k7i8ch5/harcapp_core_song_widget.git"
+      resolved-ref: "4a6792d1ee922b5af36aac665d3960f33a98ac9e"
+      url: "https://github.com/n3o2k7i8ch5/harcapp_core_song_widget"
     source: git
     version: "0.0.1"
   harcapp_core_tags:
@@ -293,8 +300,8 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "66825380d437f51edf51bb22b3459d79153bf55b"
-      url: "git://github.com/n3o2k7i8ch5/harcapp_core_tags.git"
+      resolved-ref: "89abd433157545290e8ad5aebb2dba66b4bbfe71"
+      url: "https://github.com/n3o2k7i8ch5/harcapp_core_tags"
     source: git
     version: "0.0.1"
   http:
@@ -324,7 +331,14 @@ packages:
       name: image_picker
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.4+10"
+    version: "0.8.5"
+  image_picker_android:
+    dependency: transitive
+    description:
+      name: image_picker_android
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.8.4+11"
   image_picker_for_web:
     dependency: transitive
     description:
@@ -332,6 +346,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.6"
+  image_picker_ios:
+    dependency: transitive
+    description:
+      name: image_picker_ios
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.8.4+11"
   image_picker_platform_interface:
     dependency: transitive
     description:
@@ -345,7 +366,7 @@ packages:
       name: image_picker_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.0"
+    version: "2.1.1"
   implicitly_animated_reorderable_list:
     dependency: transitive
     description:
@@ -429,14 +450,14 @@ packages:
       name: package_info_plus
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.4.0"
+    version: "1.4.2"
   package_info_plus_linux:
     dependency: transitive
     description:
       name: package_info_plus_linux
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.3"
+    version: "1.0.5"
   package_info_plus_macos:
     dependency: transitive
     description:
@@ -457,14 +478,14 @@ packages:
       name: package_info_plus_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.4"
+    version: "1.0.5"
   package_info_plus_windows:
     dependency: transitive
     description:
       name: package_info_plus_windows
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.4"
+    version: "1.0.5"
   path:
     dependency: transitive
     description:
@@ -651,7 +672,7 @@ packages:
       name: win32
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.4.1"
+    version: "2.5.1"
   worker_manager:
     dependency: "direct main"
     description:

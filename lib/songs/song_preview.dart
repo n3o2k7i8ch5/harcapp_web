@@ -8,6 +8,7 @@ import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_core_own_song/providers.dart';
 import 'package:harcapp_core_own_song/song_raw.dart';
+import 'package:harcapp_core_song_widget/add_pers_resolver.dart';
 import 'package:harcapp_core_song_widget/providers.dart';
 import 'package:harcapp_core_song_widget/settings.dart';
 import 'package:harcapp_core_song_widget/song_widget_template.dart';
@@ -89,25 +90,19 @@ class SongPreview extends StatelessWidget{
                     ),
 
                     Expanded(
-                        child: MultiProvider(
-                          providers: [
-                            ChangeNotifierProvider(create: (context) => ShowChordsProvider(SongBaseSettings())),
-                            ChangeNotifierProvider(create: (context) => ChordsDrawTypeProvider(SongBaseSettings())),
-                            ChangeNotifierProvider(create: (context) => ChordsDrawShowProvider(SongBaseSettings())),
-                          ],
-                          builder: (context, child) => SizedBox(
-                            width: 400,
-                            child: songPrevProv.code!?
-                            SelectableText(
-                                prettyJson(currItemProv.song.toMap(), indent: 2)
-                            ):
-                            SongWidgetTemplate<SongRaw>(
-                                currItemProv.song,
-                                SongBaseSettings(),
-                                screenWidth: 372,
-                                cacheSizes: false,
-                                key: UniqueKey()//ValueKey(currItemProv.song)
-                            ),
+                        child: SizedBox(
+                          width: 400,
+                          child: songPrevProv.code!?
+                          SelectableText(
+                              prettyJson(currItemProv.song.toMap(), indent: 2)
+                          ):
+                          SongWidgetTemplate<SongRaw, AddPersSimpleResolver>(
+                            currItemProv.song,
+                            SongBaseSettings(),
+                            screenWidth: 372,
+                            cacheSizes: false,
+                            key: UniqueKey(),
+                            addPersResolver: AddPersSimpleResolver(),//ValueKey(currItemProv.song)
                           ),
                         )
                     )
@@ -151,5 +146,8 @@ class SongBaseSettings extends SongBookSettTempl{
   InstrumentType get chordsDrawType => InstrumentType.GUITAR;
   @override
   set chordsDrawType(InstrumentType value) => null;
+
+  @override
+  bool chordsTrailing = true;
 
 }

@@ -1,15 +1,13 @@
-
 import 'dart:collection';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
-import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_core_own_song/page_widgets/add_buttons_widget.dart';
+import 'package:harcapp_core_own_song/page_widgets/add_pers_list_widget.dart';
 import 'package:harcapp_core_own_song/page_widgets/refren_template.dart';
 import 'package:harcapp_core_own_song/page_widgets/scroll_to_bottom.dart';
 import 'package:harcapp_core_own_song/page_widgets/song_parts_list_widget.dart';
@@ -17,6 +15,7 @@ import 'package:harcapp_core_own_song/page_widgets/tags_widget.dart';
 import 'package:harcapp_core_own_song/page_widgets/top_cards.dart';
 import 'package:harcapp_core_own_song/providers.dart';
 import 'package:harcapp_core_own_song/song_raw.dart';
+import 'package:harcapp_core_song_widget/add_pers_resolver.dart';
 import 'package:harcapp_core_song_widget/providers.dart';
 import 'package:harcapp_core_song_widget/song_widget_template.dart';
 import 'package:harcapp_web/articles/article_editor/common.dart';
@@ -176,12 +175,13 @@ class SongEditorPanel extends StatelessWidget{
                           onChangedYT: (String? text){
                             currItemProv.youtubeLink = text;
                           },
-                          onChangedAddPers: (List<String> texts){
-                            currItemProv.addPers = texts;
-                          },
                         ),
 
-                        SizedBox(height: SEPARATOR_HEIGHT),
+                        const SizedBox(height: Dimen.DEF_MARG),
+
+                        const AddPersListWidget(),
+
+                        const SizedBox(height: Dimen.DEF_MARG),
 
                         TagsWidget(
                           linear: false,
@@ -315,20 +315,14 @@ class SimilarSongWidget extends StatelessWidget{
                             padding: EdgeInsets.zero,
                             color: Colors.white,
                             radius: AppCard.BIG_RADIUS,
-                            child: MultiProvider(
-                              providers: [
-                                ChangeNotifierProvider(create: (context) => ShowChordsProvider(SongBaseSettings())),
-                                ChangeNotifierProvider(create: (context) => ChordsDrawTypeProvider(SongBaseSettings())),
-                                ChangeNotifierProvider(create: (context) => ChordsDrawShowProvider(SongBaseSettings())),
-                              ],
-                              builder: (context, child) => Container(
-                                width: 400,
-                                child: SongWidgetTemplate<SongRaw>(
-                                    prov.similarSong![0],
-                                    SongBaseSettings(),
-                                    screenWidth: 372,
-                                    key: UniqueKey()//ValueKey(currItemProv.song)
-                                ),
+                            child: SizedBox(
+                              width: 400,
+                              child: SongWidgetTemplate<SongRaw, AddPersSimpleResolver>(
+                                  prov.similarSong![0],
+                                  SongBaseSettings(),
+                                  screenWidth: 372,
+                                  addPersResolver: AddPersSimpleResolver(),
+                                  key: UniqueKey()//ValueKey(currItemProv.song)
                               ),
                             ),
                           )
@@ -339,9 +333,7 @@ class SimilarSongWidget extends StatelessWidget{
             )
 
         );
-
-        return Container();
-      },
+        },
     );
   }
 
