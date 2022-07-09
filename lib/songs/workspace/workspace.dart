@@ -12,6 +12,7 @@ import 'package:flutter/widgets.dart';
 import 'package:harcapp_core/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_core_own_song/providers.dart';
 import 'package:harcapp_core_own_song/song_raw.dart';
@@ -19,13 +20,13 @@ import 'package:harcapp_core_tags/tag_layout.dart';
 import 'package:harcapp_web/articles/article_editor/common.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_web/songs/providers.dart';
-import 'package:harcapp_web/songs/workspace/workspace_item.dart';
+import 'package:harcapp_web/songs/workspace/workspace_tile.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../generate_file_name.dart';
 
-void importSongsFromCode(String code, {required Function(List<SongRaw?> offSongs, List<SongRaw?> confSongs) onFinished}){
+void importSongsFromCode(String code, {required Function(List<SongRaw> offSongs, List<SongRaw> confSongs) onFinished}){
 
   Map<String, dynamic> map = jsonDecode(code);
 
@@ -67,7 +68,7 @@ void importSongsFromCode(String code, {required Function(List<SongRaw?> offSongs
     }
   }
 
-  onFinished(offSongs, confSongs);
+  onFinished(offSongs.cast<SongRaw>(), confSongs.cast<SongRaw>());
 }
 
 class WorkspacePart extends StatefulWidget{
@@ -91,10 +92,10 @@ class WorkspacePartState extends State<WorkspacePart>{
             onLoaded: (String code){
               importSongsFromCode(
                   code,
-                  onFinished: (List<SongRaw?> offSongs, List<SongRaw?> confSongs){
-                    List<SongRaw?> songs = confSongs + offSongs;
-                    Map<SongRaw?, bool> map = {};
-                    for(SongRaw? song in songs) map[song] = confSongs.contains(song);
+                  onFinished: (List<SongRaw> offSongs, List<SongRaw> confSongs){
+                    List<SongRaw> songs = confSongs + offSongs;
+                    Map<SongRaw, bool> map = {};
+                    for(SongRaw song in songs) map[song] = confSongs.contains(song);
                     allSongsProv.init(songs, map);
                   });
 
@@ -185,7 +186,7 @@ class SongListView extends StatefulWidget{
 
 class SongListViewState extends State<SongListView>{
 
-  ScrollController? controller;
+  late ScrollController controller;
 
   late BuildContext itemContext;
 
@@ -212,10 +213,11 @@ class SongListViewState extends State<SongListView>{
             Column(
               children: [
 
-                Consumer<WorkspaceBlockProvider>(
-                  builder: (context, workspaceBlockProv, child) => Material(
-                    color: cardEnab_(context),
-                    elevation: 3,
+                Padding(
+                  padding: EdgeInsets.all(Dimen.DEF_MARG),
+                  child: Material(
+                    borderRadius: BorderRadius.circular(AppCard.BIG_RADIUS - 4),
+                    color: backgroundIcon_(context),
                     child: Row(
                       children: [
                         Padding(
@@ -224,7 +226,6 @@ class SongListViewState extends State<SongListView>{
                         ),
                         Expanded(
                           child: TextField(
-                            readOnly: workspaceBlockProv.blocked!,
                             style: AppTextStyle(color: AppColors.text_def_enab),
                             decoration: InputDecoration(
                                 hintText: 'Szukaj',
@@ -245,95 +246,101 @@ class SongListViewState extends State<SongListView>{
                 ),
 
                 Expanded(
-                  child: Consumer3<AllSongsProvider, WorkspaceBlockProvider, SearchListProvider>(
-                      builder: (context, allSongsProv, workspaceBlockProv, searchListProv, child){
+                  child: Consumer3<AllSongsProvider, CurrentItemProvider, SearchListProvider>(
+                      builder: (context, allSongsProv, currItemProv, searchListProv, child){
 
                         return DraggableScrollbar.rrect(
                           scrollbarTimeToFade: Duration(seconds: 2),
                           backgroundColor: accent_(context),
-                          child: ListView.builder(
+                          child: ListView.separated(
+                            padding: EdgeInsets.symmetric(horizontal: Dimen.DEF_MARG),
                             controller: controller,
                             itemCount: searchListProv.length,
-                            physics: workspaceBlockProv.blocked!?NeverScrollableScrollPhysics():BouncingScrollPhysics(),
-                            itemBuilder: (context, index) => GestureDetector(
-                              onTap: workspaceBlockProv.blocked!?hideItemPopUps:null,
-                              child: ItemWidget(
-                                searchListProv.get(index),
-                                controller,
-                                index,
-                                onShowMoreButt: (BuildContext context){
-                                  this.itemContext = context;
-                                },
-                              ),
-                            )
+                            physics: BouncingScrollPhysics(),
+                            itemBuilder: (context, index) => WorkspaceTile(
+                              searchListProv.get(index)!,
+                              controller,
+                              index,
+                              onShowMoreButt: (BuildContext context) =>
+                                this.itemContext = context
+                            ),
+                            separatorBuilder: (context, index) => SizedBox(height: Dimen.DEF_MARG),
                           ),
-                          controller: controller!,
+                          controller: controller,
                         );
                       }
                   ),
                 ),
 
-                Consumer<WorkspaceBlockProvider>(
-                    builder: (context, workspaceBlockProv, child) => Material(
-                      color: cardEnab_(context),
-                      elevation: 6,
+                Padding(
+                  padding: EdgeInsets.all(Dimen.DEF_MARG),
+                  child: Material(
+                    borderRadius: BorderRadius.circular(AppCard.BIG_RADIUS - 4),
+                    clipBehavior: Clip.hardEdge,
+                    color: backgroundIcon_(context),
+                    child: SizedBox(
+                      height: Dimen.ICON_FOOTPRINT,
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Expanded(
-                            child: IconButton(
-                                icon: Icon(MdiIcons.fileUploadOutline),
-                                onPressed: workspaceBlockProv.blocked!?null:() async {
+                            child: SimpleButton(
+                              radius: 0,
+                              child: Icon(MdiIcons.fileUploadOutline),
+                              onTap: () async {
 
-                                  FilePickerCross filePicker = await FilePickerCross.importFromStorage(
-                                      type: FileTypeCross.any,
-                                      fileExtension: '.hrcpsng'
-                                  );
+                                FilePickerCross filePicker = await FilePickerCross.importFromStorage(
+                                    type: FileTypeCross.any,
+                                    fileExtension: '.hrcpsng'
+                                );
 
-                                  if(filePicker.fileName==null)
-                                    return;
+                                if(filePicker.fileName==null)
+                                  return;
 
-                                  Uint8List uint8List = filePicker.toUint8List();
-                                  String code = utf8.decode(uint8List);
+                                Uint8List uint8List = filePicker.toUint8List();
+                                String code = utf8.decode(uint8List);
 
-                                  AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
+                                AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
 
-                                  importSongsFromCode(
-                                      code,
-                                      onFinished: (List<SongRaw?> offSongs, List<SongRaw?> confSongs){
-                                        List<SongRaw?> songs = confSongs + offSongs;
-                                        Map<SongRaw?, bool> map = {};
-                                        for(SongRaw? song in songs) map[song] = confSongs.contains(song);
-                                        allSongsProv.addAll(songs, map);
-                                      });
+                                importSongsFromCode(
+                                    code,
+                                    onFinished: (List<SongRaw> offSongs, List<SongRaw> confSongs){
+                                      List<SongRaw> songs = confSongs + offSongs;
+                                      Map<SongRaw, bool> map = {};
+                                      for(SongRaw song in songs) map[song] = confSongs.contains(song);
+                                      allSongsProv.addAll(songs, map);
+                                    });
 
-                                  SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
-                                  songFileNameDupErrProv.checkAllDups(context);
+                                SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
+                                songFileNameDupErrProv.checkAllDups(context);
 
-                                }
+                              }
                             ),
                           ),
 
                           Expanded(
-                            child: IconButton(
-                                icon: Icon(MdiIcons.musicNotePlus),
-                                onPressed: workspaceBlockProv.blocked!?null:(){
+                            child: SimpleButton(
+                              radius: 0,
+                              child: Icon(MdiIcons.musicNotePlus),
+                              onTap: (){
 
-                                  SongRaw song = SongRaw.empty();
-                                  song.fileName = 'o!_';
-                                  Provider.of<AllSongsProvider>(context, listen: false).addOff(song);
+                                SongRaw song = SongRaw.empty();
+                                song.fileName = 'o!_';
+                                Provider.of<AllSongsProvider>(context, listen: false).addOff(song);
 
-                                  SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
-                                  songFileNameDupErrProv.checkAllDups(context);
+                                SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
+                                songFileNameDupErrProv.checkAllDups(context);
 
-                                  displaySong(context, song);
+                                displaySong(context, song);
 
-                                }
+                              }
                             ),
                           ),
 
                         ],
                       ),
-                    )
+                    ),
+                  ),
                 )
               ],
             ),
@@ -343,11 +350,6 @@ class SongListViewState extends State<SongListView>{
       },
     );
 
-  }
-
-  void hideItemPopUps(){
-    Provider.of<ShowMoreButtProvider>(itemContext, listen: false).value = false;
-    Provider.of<WorkspaceBlockProvider>(context, listen: false).blocked = false;
   }
 
 }
@@ -366,8 +368,8 @@ void displaySong(BuildContext context, SongRaw song){
   Provider.of<AddPersCtrlProvider>(context, listen: false).text = song?.addPers??'';
 */
 
-  Provider.of<BindTitleFileNameProvider>(context, listen: false).bind =
-      song.fileName == generateFileName(title: song.title);
+  BindTitleFileNameProvider bindTitleFileNameProv = Provider.of<BindTitleFileNameProvider>(context, listen: false);
+  bindTitleFileNameProv.setSetBasedOnSong(song);
 
   Provider.of<SongEditorPanelProvider>(context, listen: false).notify();
 
@@ -381,9 +383,9 @@ class SearchListProvider extends ChangeNotifier{
 
   late List<SongRaw?> currSongList;
 
-  List<SongRaw?>? _allSongs;
+  List<SongRaw> _allSongs;
 
-  List<SongRaw?>? get allSongs => _allSongs;
+  List<SongRaw> get allSongs => _allSongs;
 
   SearchListProvider(this._allSongs){
     anySearchPhrase = false;
@@ -394,7 +396,7 @@ class SearchListProvider extends ChangeNotifier{
     anySearchPhrase = text.length!=0;
     currSongList = [];
 
-    for(SongRaw? song in allSongs!){
+    for(SongRaw? song in allSongs){
       if(remPolChars(song!.title).contains(remPolChars(text)))
         currSongList.add(song);
     }
@@ -407,14 +409,14 @@ class SearchListProvider extends ChangeNotifier{
     if(anySearchPhrase)
       return currSongList.length;
     else
-      return allSongs!.length;
+      return allSongs.length;
   }
 
   SongRaw? get(int index){
     if(anySearchPhrase)
       return currSongList[index];
     else
-      return allSongs![index];
+      return allSongs[index];
   }
 
 }

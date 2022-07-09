@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/harc_app.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_web/songs/_main.dart';
@@ -33,37 +34,55 @@ class MainPageState extends State<MainPage>{
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: PreferredSize(
-      preferredSize: Size(double.infinity, 72),
+      preferredSize: Size(double.infinity, 92),
       child: Material(
-        color: Colors.white,
-        elevation: 6.0,
-        child: Row(
-          children: [
+        color: cardEnab_(context),
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 10.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
 
-            Padding(
-                padding: EdgeInsets.only(left: 64.0, right: 64.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    HarcApp(size: 32.0),
-                    Text(version??'x.x.x', style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_SMALL, fontWeight: weight.halfBold)),
-                  ],
-                )
-            ),
-            PageNavItem(
-              icon: MdiIcons.bookmarkMusicOutline,
-              title: 'Warsztat piosenki',
-              onTap: () => setState(() => body = SongsPage()),
-            ),
-            /*
+              PageNavItem(
+                icon: MdiIcons.bookmarkMusicOutline,
+                title: 'Warsztat piosenki',
+                onTap: () => setState(() => body = SongsPage()),
+              ),
+
+
+              /*
               PageNavItem(
                 icon: MdiIcons.feather,
                 title: 'Warsztat artykułów',
                 onTap: () => setState(() => body = ArticlePage()),
               )
                */
-          ],
-        ),
+
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    HarcApp(size: 28.0),
+                    Text(
+                        ' platforma twórców',
+                        style: AppTextStyle(
+                            fontSize: 28.0,
+                            fontWeight: weight.bold,
+                            color: hintEnab_(context)
+                        )
+                    ),
+
+                    Text(version??'x.x.x', style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_NORMAL, fontWeight: weight.halfBold)),
+                  ],
+                ),
+              ),
+
+              SizedBox(width: PageNavItem.width),
+
+            ],
+          ),
+        )
       ),
     ),
     body: body,
@@ -73,9 +92,11 @@ class MainPageState extends State<MainPage>{
 
 class PageNavItem extends StatelessWidget{
 
+  static const double width = 300;
+
   final IconData icon;
   final String title;
-  final Function onTap;
+  final void Function() onTap;
   const PageNavItem({
     required this.icon,
     required this.title,
@@ -84,9 +105,9 @@ class PageNavItem extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    width: 200,
+    width: width,
     child: ListTile(
-      onTap: onTap as void Function()?,
+      onTap: onTap,
       leading: Icon(icon),
       title: Text(
         title,

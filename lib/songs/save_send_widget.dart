@@ -24,81 +24,80 @@ const String EMAIL_TO_SEND = 'harcapp@gmail.com';
 class SaveSendWidget extends StatelessWidget{
 
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
+  Widget build(BuildContext context) => SizedBox(
+    height: Dimen.ICON_FOOTPRINT,
+    child: Material(
+      clipBehavior: Clip.hardEdge,
+      color: cardEnab_(context),
+      borderRadius: BorderRadius.circular(AppCard.BIG_RADIUS),
+      child: Row(
+        children: [
 
-        Expanded(
-            child: Consumer<SongFileNameDupErrProvider>(
-              builder: (context, prov, child) => SimpleButton(
+          Expanded(
+              child: Consumer<SongFileNameDupErrProvider>(
+                builder: (context, prov, child) => SimpleButton(
+                    padding: EdgeInsets.all(Dimen.ICON_MARG),
+                    radius: 0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          MdiIcons.folderDownloadOutline,
+                          color: prov.count==0?iconEnab_(context):iconDisab_(context),
+                        ),
+                        SizedBox(width: Dimen.ICON_MARG),
+                        Text(
+                          'Zapisz',
+                          style: AppTextStyle(
+                              fontWeight: weight.halfBold,
+                              color: prov.count==0?iconEnab_(context):iconDisab_(context)
+                          ),
+                        )
+                      ],
+                    ),
+                    onTap: prov.count!=0?null:(){
+
+                      SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
+                      songFileNameDupErrProv.checkAllDups(context);
+
+                      if(songFileNameDupErrProv.count != 0) return;
+
+                      String code = convertAllToCode(context);
+
+                      downloadFile(content: code, fileName: 'songs.hrcpsng');
+                    }
+                ),
+              )
+          ),
+
+          Expanded(
+              child: SimpleButton(
                   padding: EdgeInsets.all(Dimen.ICON_MARG),
-                  margin: EdgeInsets.zero,
+                  radius: 0,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        MdiIcons.folderDownloadOutline,
-                        color: prov.count==0?iconEnab_(context):iconDisab_(context),
-                      ),
+                      Icon(MdiIcons.sendCircleOutline),
                       SizedBox(width: Dimen.ICON_MARG),
                       Text(
-                        'Zapisz',
-                        style: AppTextStyle(
-                            fontWeight: weight.halfBold,
-                            color: prov.count==0?iconEnab_(context):iconDisab_(context)
-                        ),
+                        'Prześlij',
+                        style: AppTextStyle(fontWeight: weight.halfBold, color: iconEnab_(context)),
                       )
                     ],
                   ),
-                  onTap: prov.count!=0?null:(){
+                  onTap: () => showDialog(
+                      context: context,
+                      builder: (context) => Center(
+                        child: SendSongWidget(),
+                      )
+                  )
+              )
+          ),
 
-                    SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
-                    songFileNameDupErrProv.checkAllDups(context);
-
-                    if(songFileNameDupErrProv.count != 0) return;
-
-                    String code = convertAllToCode(context);
-
-                    downloadFile(content: code, fileName: 'songs.hrcpsng');
-                  }
-              ),
-            )
-        ),
-
-        Expanded(
-            child: SimpleButton(
-                padding: EdgeInsets.all(Dimen.ICON_MARG),
-                margin: EdgeInsets.zero,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(MdiIcons.sendCircleOutline),
-                    SizedBox(width: Dimen.ICON_MARG),
-                    Text(
-                      'Prześlij',
-                      style: AppTextStyle(fontWeight: weight.halfBold, color: iconEnab_(context)),
-                    )
-                  ],
-                ),
-                onTap: ()async{
-
-                  showDialog(
-                    context: context,
-                    builder: (context) => Center(
-                      child: SendSongWidget(
-
-                      ),
-                    )
-                  );
-
-
-                }
-            )
-        ),
-        
-      ],
-    );
-  }
+        ],
+      ),
+    ),
+  );
 
 }
 
@@ -234,7 +233,7 @@ String convertAllToCode(BuildContext context){
   Map confSongMap = {};
 
   AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
-  List<SongRaw?> allSongs = allSongsProv.songs!;
+  List<SongRaw?> allSongs = allSongsProv.songs;
 
   allSongs.sort(
           (a, b) => compare(a!.title, b!.title)

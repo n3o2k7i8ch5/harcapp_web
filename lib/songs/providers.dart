@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:harcapp_core_own_song/song_raw.dart';
 import 'package:provider/provider.dart';
 
+import 'generate_file_name.dart';
+
 class ShowSongProvider extends ChangeNotifier{
 
   bool _showSong;
@@ -35,17 +37,36 @@ class LoadingProvider extends ChangeNotifier{
 
 class BindTitleFileNameProvider extends ChangeNotifier{
 
+  static BindTitleFileNameProvider of(BuildContext context) => Provider.of<BindTitleFileNameProvider>(context, listen: false);
+
   static const bool DEF_VAL = true;
 
-  bool? _bind;
+  late bool _bindTitle;
+  late bool _bindPerformer;
 
   BindTitleFileNameProvider(){
-    _bind = DEF_VAL;
+    _bindTitle = DEF_VAL;
+    _bindPerformer = DEF_VAL;
   }
 
-  bool? get bind => _bind;
-  set bind(bool? value){
-    _bind = value;
+  bool get bindTitle => _bindTitle;
+  set bindTitle(bool value){
+    _bindTitle = value;
+    notifyListeners();
+  }
+
+  bool get bindPerformer => _bindPerformer;
+  set bindPerformer(bool value){
+    _bindPerformer = value;
+    notifyListeners();
+  }
+
+  void setSetBasedOnSong(SongRaw song){
+    bindTitle =
+        song.fileName == generateFileName(prov: this, song: song);
+
+    bindPerformer =
+        song.fileName.contains('@') && bindTitle;
     notifyListeners();
   }
 
@@ -53,73 +74,56 @@ class BindTitleFileNameProvider extends ChangeNotifier{
 
 class AllSongsProvider extends ChangeNotifier{
 
+  static AllSongsProvider of(BuildContext context) => Provider.of<AllSongsProvider>(context, listen: false);
+
   //List<SongRaw> _songs;
 
-  void init(List<SongRaw?> songs, Map<SongRaw?, bool> confMap){
+  void init(List<SongRaw> songs, Map<SongRaw, bool> confMap){
     _songs = songs;
     _confMap = confMap;
     notifyListeners();
   }
 
-  List<SongRaw?>? _songs;
-  Map<SongRaw?, bool> _confMap = {};
+  List<SongRaw> _songs;
+  Map<SongRaw, bool> _confMap = {};
 
-  int get length => _songs!.length;
+  int get length => _songs.length;
 
-  List<SongRaw?>? get songs => _songs;
+  List<SongRaw> get songs => _songs;
 
-  AllSongsProvider(){
-    _songs = [];
-    _confMap = {};
-  }
+  AllSongsProvider(): _songs = [], _confMap = {};
 
   void addOff(SongRaw song){
-    _songs!.add(song);
+    _songs.add(song);
     _confMap[song] = false;
     notifyListeners();
   }
 
   void addConf(SongRaw song){
-    _songs!.add(song);
+    _songs.add(song);
     _confMap[song] = true;
     notifyListeners();
   }
 
   void remove(SongRaw? song){
-    _songs!.remove(song);
+    _songs.remove(song);
     _confMap.remove(song);
     notifyListeners();
   }
 
-  addAll(List<SongRaw?> songs, Map<SongRaw?, bool> confMap){
-    _songs!.addAll(songs);
+  addAll(List<SongRaw> songs, Map<SongRaw, bool> confMap){
+    _songs.addAll(songs);
     _confMap.addAll(confMap);
 
     notifyListeners();
   }
 
-  isConf(SongRaw? song){
+  isConf(SongRaw song){
     return _confMap[song];
   }
 
-  set(SongRaw? song, bool isConf){
+  set(SongRaw song, bool isConf){
     _confMap[song] = isConf;
-    notifyListeners();
-  }
-
-}
-
-class WorkspaceBlockProvider extends ChangeNotifier{
-
-  bool? _blocked;
-
-  WorkspaceBlockProvider(){
-    _blocked = false;
-  }
-
-  bool? get blocked => _blocked;
-  set blocked(bool? value){
-    _blocked = value;
     notifyListeners();
   }
 
@@ -172,8 +176,8 @@ class SongFileNameDupErrProvider extends ChangeNotifier{
   void checkAllDups(BuildContext context){
     AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
 
-    for(SongRaw? song1 in allSongsProv.songs!)
-      for(SongRaw? song2 in allSongsProv.songs!)
+    for(SongRaw? song1 in allSongsProv.songs)
+      for(SongRaw? song2 in allSongsProv.songs)
         if(song1 != song2 && song1!.fileName == song2!.fileName){
           putPair(song1, song2);
         }
@@ -181,7 +185,7 @@ class SongFileNameDupErrProvider extends ChangeNotifier{
 
   void chedkDupsFor(BuildContext context, SongRaw? song){
     AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
-    List<SongRaw?> allSongs = allSongsProv.songs!;
+    List<SongRaw?> allSongs = allSongsProv.songs;
     for(SongRaw? _song in allSongs)
       if(_song != song && song!.fileName == _song!.fileName)
         putPair(_song, song);
@@ -208,6 +212,7 @@ class SongPreviewProvider extends ChangeNotifier{
 
 }
 
+/*
 class ShowCodeEditorProvider extends ChangeNotifier{
 
   String? _text;
@@ -237,6 +242,7 @@ class ShowCodeEditorProvider extends ChangeNotifier{
   }
 
 }
+*/
 
 class SongEditorPanelProvider extends ChangeNotifier{
 

@@ -37,17 +37,16 @@ class SongPreview extends StatelessWidget{
                       ),
                     ),
 
-                    AppCard(
-                      radius: AppCard.BIG_RADIUS,
-                      margin: AppCard.normMargin,
-                      padding: EdgeInsets.zero,
-                      elevation: AppCard.bigElevation,
+                    Material(
+                      clipBehavior: Clip.hardEdge,
+                      color: cardEnab_(context),
+                      borderRadius: BorderRadius.circular(AppCard.BIG_RADIUS),
                       child: Row(
                         children: [
                           Expanded(
                             child: SimpleButton(
                                 padding: EdgeInsets.all(Dimen.ICON_MARG),
-                                margin: EdgeInsets.zero,
+                                radius: 0,
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -68,7 +67,7 @@ class SongPreview extends StatelessWidget{
                           Expanded(
                             child: SimpleButton(
                                 padding: EdgeInsets.all(Dimen.ICON_MARG),
-                                margin: EdgeInsets.zero,
+                                radius: 0,
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -88,6 +87,8 @@ class SongPreview extends StatelessWidget{
                         ],
                       ),
                     ),
+
+                    SizedBox(height: Dimen.DEF_MARG),
 
                     Expanded(
                         child: SizedBox(

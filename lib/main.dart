@@ -60,10 +60,8 @@ class MyApp extends StatelessWidget {
 
             SongRaw? song = currItemProv.song;
 
-            bool? isConf = allSongsProv.isConf(song);
-
-            if(bindTitleFileNameProv.bind!)
-              song.fileName = generateFileName(isConf: isConf!, title: text);
+            if(bindTitleFileNameProv.bindTitle)
+              song.fileName = generateFileName(song: song, context: context);
 
             songFileNameDupErrProv.chedkDupsFor(context, song);
 
@@ -71,13 +69,7 @@ class MyApp extends StatelessWidget {
 
           }
       )),
-      /*
-        ChangeNotifierProvider(create: (context) => AuthorCtrlProvider()),
-        ChangeNotifierProvider(create: (context) => ComposerCtrlProvider()),
-        ChangeNotifierProvider(create: (context) => PerformerCtrlProvider()),
-        ChangeNotifierProvider(create: (context) => YTCtrlProvider()),
-        ChangeNotifierProvider(create: (context) => AddPersCtrlProvider()),
-*/
+
       ChangeNotifierProvider(create: (context) => HidTitlesProvider(hidTitles: [])),
       ChangeNotifierProvider(create: (context) => RefrenEnabProvider(true)),
       ChangeNotifierProvider(create: (context) => RefrenPartProvider()),
@@ -88,13 +80,10 @@ class MyApp extends StatelessWidget {
         return bindTitleFileNameProv;
       }),
 
-      ChangeNotifierProvider(create: (context) => WorkspaceBlockProvider()),
       ChangeNotifierProvider(create: (context){
         songFileNameDupErrProv = SongFileNameDupErrProvider();
         return songFileNameDupErrProv;
       }),
-
-      ChangeNotifierProvider(create: (context) => ShowCodeEditorProvider()),
 
       ChangeNotifierProvider(create: (context) => SongPreviewProvider()),
 
@@ -103,7 +92,7 @@ class MyApp extends StatelessWidget {
     builder: (context, child) => Consumer<ColorPackProvider>(
         builder: (context, prov, child) => MaterialApp(
           title: 'HarcApp Web',
-          theme: prov.colorPack!.themeData,
+          theme: prov.colorPack.themeData,
           home: MainPage(),
           localizationsDelegates: const [
             GlobalMaterialLocalizations.delegate,

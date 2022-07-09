@@ -1,8 +1,4 @@
-
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
@@ -16,8 +12,6 @@ import 'package:harcapp_web/songs/workspace/workspace.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
-import 'code_editor_widget.dart';
-
 class SongsPage extends StatefulWidget{
 
   const SongsPage();
@@ -29,15 +23,13 @@ class SongsPage extends StatefulWidget{
 
 class SongsPageState extends State<SongsPage>{
 
-  ScrollController? scrollController;
+  late ScrollController scrollController;
 
-  //late bool showEditor;
-  //SongPart? part;
   late Function() onSongPartChanged;
 
   @override
   void initState(){
-    //showEditor = false;
+
     scrollController = ScrollController();
     super.initState();
   }
@@ -63,7 +55,7 @@ class SongsPageState extends State<SongsPage>{
                           child: Consumer<AllSongsProvider>(
                               builder: (context, prov, child) =>
                                   TitleShortcutRowWidget(
-                                    title: 'Lista piosenek' + (prov.songs!=null?' (${prov.length})':''),
+                                    title: 'Lista piosenek (${prov.length})',
                                     textAlign: TextAlign.start,
                                     trailing: Consumer<SongFileNameDupErrProvider>(
                                         builder: (context, prov, child) => AnimatedOpacity(
@@ -92,32 +84,21 @@ class SongsPageState extends State<SongsPage>{
                           ),
                         ),
 
-                        Consumer2<AllSongsProvider, WorkspaceBlockProvider>(
-                            builder: (context, allSongProv, songFileNameBlockProv, child) =>
-                            allSongProv.length==0?Container():AppCard(
-                              margin: AppCard.normMargin,
-                              radius: AppCard.BIG_RADIUS,
-                              color: songFileNameBlockProv.blocked!?Colors.black.withOpacity(0.1):null,
-                              padding: EdgeInsets.zero,
-                              elevation: AppCard.bigElevation,
-                              child: IgnorePointer(
-                                ignoring: songFileNameBlockProv.blocked!,
-                                child: SaveSendWidget(),
-                              )
+                        Consumer<AllSongsProvider>(
+                            builder: (context, allSongProv, child) =>
+                            allSongProv.length==0?
+                            Container():
+                            Padding(
+                              padding: EdgeInsets.only(bottom: Dimen.DEF_MARG),
+                              child: SaveSendWidget(),
                             )
                         ),
 
                         Expanded(
-                            child: Consumer<WorkspaceBlockProvider>(
-                              builder: (context, prov, child) => AppCard(
-                                radius: AppCard.BIG_RADIUS,
-                                margin: AppCard.normMargin,
-                                color: prov.blocked!?Colors.black.withOpacity(0.1):null,
-                                elevation: AppCard.bigElevation,
-                                padding: EdgeInsets.zero,
-                                child: WorkspacePart(),
-                              ),
-                            )
+                            child: Material(
+                              borderRadius: BorderRadius.circular(AppCard.BIG_RADIUS),
+                              child: WorkspacePart(),
+                            ),
                         ),
 
                       ],
@@ -146,8 +127,6 @@ class SongsPageState extends State<SongsPage>{
               )
           ),
 */
-
-          CodeEditorWidget(this),
 
           Consumer<LoadingProvider>(
             child: AppCard(

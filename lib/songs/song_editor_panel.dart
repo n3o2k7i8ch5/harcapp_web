@@ -16,10 +16,11 @@ import 'package:harcapp_core_own_song/page_widgets/top_cards.dart';
 import 'package:harcapp_core_own_song/providers.dart';
 import 'package:harcapp_core_own_song/song_raw.dart';
 import 'package:harcapp_core_song_widget/add_pers_resolver.dart';
-import 'package:harcapp_core_song_widget/providers.dart';
 import 'package:harcapp_core_song_widget/song_widget_template.dart';
 import 'package:harcapp_web/articles/article_editor/common.dart';
+import 'package:harcapp_web/songs/generate_file_name.dart';
 import 'package:harcapp_web/songs/providers.dart';
+import 'package:harcapp_web/songs/song_editor_no_song_widget.dart';
 import 'package:harcapp_web/songs/song_loader.dart';
 import 'package:harcapp_web/songs/song_part_editor.dart';
 import 'package:harcapp_web/songs/song_preview.dart';
@@ -46,6 +47,12 @@ class SongEditorPanel extends StatelessWidget{
         CurrentItemProvider currItemProv = Provider.of<CurrentItemProvider>(context, listen: false);
 
         if(!showSongProv.showSong)
+          return Padding(
+            padding: EdgeInsets.only(top: 54.0),
+            child: SongEditorNoSongWidget(),
+          );
+
+        if(!showSongProv.showSong)
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -54,29 +61,29 @@ class SongEditorPanel extends StatelessWidget{
               Text(
                 'Dodaj lub importuj piosenkę.',
                 style: AppTextStyle(
-                    fontSize: 32.0,
+                    fontSize: 24.0,
                     color: textDisab_(context),
                     fontWeight: weight.halfBold
                 ),
               ),
 
-              SizedBox(height: 32.0),
+              SizedBox(height: 24.0),
 
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(MdiIcons.arrowLeft, color: textDisab_(context), size: 32.0),
+                  Icon(MdiIcons.arrowLeft, color: textDisab_(context), size: 24.0),
                   SizedBox(width: Dimen.ICON_MARG),
                   Text(
                     'Zerknij tam!',
                     style: AppTextStyle(
-                        fontSize: 32.0,
+                        fontSize: 24.0,
                         color: textDisab_(context),
                         fontWeight: weight.halfBold
                     ),
                   ),
                   SizedBox(width: Dimen.ICON_MARG),
-                  Icon(MdiIcons.musicNote, color: textDisab_(context), size: 32.0),
+                  Icon(MdiIcons.musicNote, color: textDisab_(context), size: 24.0),
                 ],
               )
             ],
@@ -89,31 +96,43 @@ class SongEditorPanel extends StatelessWidget{
                 child: SongPartsListWidget(
                     controller: parent.scrollController,
                     shrinkWrap: true,
-                    onPartTap: (index) => showDialog(context: context, builder: (_) => Center(
-                      child: Container(
-                        width: SONG_PART_EDITOR_WIDTH,
-                        child: SongPartEditor(
-                          initText: currItemProv.song.songParts[index].getText(),
-                          initChords: currItemProv.song.songParts[index].chords,
-                          initShifted: currItemProv.song.songParts[index].shift,
-                          isRefren: currItemProv.song.songParts[index].isRefren(context),
-                          onTextChanged: (text, errCount){
-                            currItemProv.song.songParts[index].setText(text);
-                            currItemProv.song.songParts[index].isError = errCount != 0;
-                            currItemProv.notify();
-                          },
-                          onChordsChanged: (text, errCount){
-                            currItemProv.song.songParts[index].chords = text;
-                            currItemProv.song.songParts[index].isError = errCount != 0;
-                            currItemProv.notify();
-                          },
-                          onShiftedChanged: (shifted){
-                            currItemProv.song.songParts[index].shift = shifted;
-                            currItemProv.notify();
-                          },
+                    onPartTap: (index) async {
+
+                      String _text = currItemProv.song.songParts[index].getText();
+                      String _chords = currItemProv.song.songParts[index].chords;
+                      bool _shifted = currItemProv.song.songParts[index].shift;
+                      bool _isError = currItemProv.song.songParts[index].isError;
+
+                      await showDialog(context: context, builder: (_) => Center(
+                        child: Container(
+                          width: SONG_PART_EDITOR_WIDTH,
+                          child: SongPartEditor(
+                            initText: currItemProv.song.songParts[index].getText(),
+                            initChords: currItemProv.song.songParts[index].chords,
+                            initShifted: currItemProv.song.songParts[index].shift,
+                            isRefren: currItemProv.song.songParts[index].isRefren(context),
+                            onTextChanged: (text, errCount){
+                              _text = text;
+                              _isError = errCount != 0;
+                            },
+                            onChordsChanged: (text, errCount){
+                              _chords = text;
+                              _isError = errCount != 0;
+                            },
+                            onShiftedChanged: (shifted){
+                              _shifted = shifted;
+                            },
+                          ),
                         ),
-                      ),
-                    )),
+                      ));
+
+                      currItemProv.song.songParts[index].setText(_text);
+                      currItemProv.song.songParts[index].chords = _chords;
+                      currItemProv.song.songParts[index].shift = _shifted;
+                      currItemProv.song.songParts[index].isError = _isError;
+                      currItemProv.notify();
+
+                    },
 
                     header: Column(
                       children: [
@@ -128,31 +147,83 @@ class SongEditorPanel extends StatelessWidget{
 
                         Consumer<BindTitleFileNameProvider>(
                           builder: (context, prov, child) =>
-                              SwitchListTile(
-                                contentPadding: EdgeInsets.only(left: Dimen.ICON_MARG),
-                                value: prov.bind!,
-                                onChanged: (value) => prov.bind = value,
-                                secondary: Icon(
-                                    MdiIcons.paperclip,
-                                    color: prov.bind!?iconEnab_(context):iconDisab_(context)
-                                ),
-                                title: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      'Powiąż nazwę pliku z tytułem',
-                                      style: AppTextStyle(
-                                          fontWeight: weight.bold,
-                                          color: prov.bind!?textEnab_(context):textDisab_(context),
-                                          fontSize: Dimen.TEXT_SIZE_APPBAR
-                                      ),
-                                    ),
-                                    SizedBox(width: Dimen.ICON_MARG),
+                              Material(
+                                color: Colors.transparent,
+                                clipBehavior: Clip.hardEdge,
+                                borderRadius: BorderRadius.circular(AppCard.BIG_RADIUS),
+                                child: SwitchListTile(
+                                  contentPadding: EdgeInsets.only(left: Dimen.ICON_MARG),
+                                  value: prov.bindTitle,
+                                  onChanged: (value){
+                                    prov.bindTitle = value;
 
-                                  ],
+                                    if(prov.bindTitle)
+                                      Provider.of<CurrentItemProvider>(context, listen: false).fileName =
+                                          generateFileName(
+                                              song: Provider.of<CurrentItemProvider>(context, listen: false).song,
+                                              context: context
+                                          );
+                                  },
+                                  title: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+
+                                      Text(
+                                        'Powiąż nazwę pliku z tytułem',
+                                        style: AppTextStyle(
+                                            color: prov.bindTitle?textEnab_(context):textDisab_(context),
+                                            fontSize: Dimen.TEXT_SIZE_BIG
+                                        ),
+                                      ),
+                                      SizedBox(width: Dimen.ICON_MARG),
+
+                                    ],
+                                  ),
                                 ),
                               ),
                         ),
+
+                        SizedBox(height: Dimen.DEF_MARG),
+
+                        Consumer<BindTitleFileNameProvider>(
+                          builder: (context, prov, child) =>
+                              Material(
+                                color: Colors.transparent,
+                                clipBehavior: Clip.hardEdge,
+                                borderRadius: BorderRadius.circular(AppCard.BIG_RADIUS),
+                                child: SwitchListTile(
+                                  contentPadding: EdgeInsets.only(left: Dimen.ICON_MARG),
+                                  value: prov.bindPerformer,
+                                  onChanged: (value) {
+                                    prov.bindPerformer = value;
+
+                                    if(prov.bindTitle)
+                                      Provider.of<CurrentItemProvider>(context, listen: false).fileName =
+                                          generateFileName(
+                                              song: Provider.of<CurrentItemProvider>(context, listen: false).song,
+                                              context: context
+                                          );
+                                  },
+                                  title: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+
+                                      Text(
+                                        'Powiąż nazwę pliku z wykonawcą',
+                                        style: AppTextStyle(
+                                            color: prov.bindPerformer?textEnab_(context):textDisab_(context),
+                                            fontSize: Dimen.TEXT_SIZE_BIG
+                                        ),
+                                      ),
+                                      SizedBox(width: Dimen.ICON_MARG),
+
+                                    ],
+                                  ),
+                                ),
+                              ),
+                        ),
+
+                        SizedBox(height: Dimen.DEF_MARG),
 
                         SimilarSongWidget(),
 
@@ -161,7 +232,13 @@ class SongEditorPanel extends StatelessWidget{
                         TopCards(
                           onChangedTitle: (String text){
                             currItemProv.title = text;
-                            Provider.of<SimilarSongProvider>(context, listen: false).title = text;
+                            SimilarSongProvider.of(context).title = text;
+                            if(BindTitleFileNameProvider.of(context).bindTitle)
+                              Provider.of<CurrentItemProvider>(context, listen: false).fileName =
+                                  generateFileName(
+                                      song: Provider.of<CurrentItemProvider>(context, listen: false).song,
+                                      context: context
+                                  );
                           },
                           onChangedAuthor: (List<String> texts){
                             currItemProv.authors = texts;
@@ -171,6 +248,12 @@ class SongEditorPanel extends StatelessWidget{
                           },
                           onChangedPerformer: (List<String> texts){
                             currItemProv.performers = texts;
+                            if(BindTitleFileNameProvider.of(context).bindTitle)
+                              Provider.of<CurrentItemProvider>(context, listen: false).fileName =
+                                  generateFileName(
+                                      song: Provider.of<CurrentItemProvider>(context, listen: false).song,
+                                      context: context
+                                  );
                           },
                           onChangedYT: (String? text){
                             currItemProv.youtubeLink = text;
@@ -242,7 +325,7 @@ class SongEditorPanel extends StatelessWidget{
                 ),
               ),
 
-              AddButtonsWidget(onPressed: () => scrollToBottom(parent.scrollController!))
+              AddButtonsWidget(onPressed: () => scrollToBottom(parent.scrollController))
 
             ],
           );
@@ -257,89 +340,85 @@ class SongEditorPanel extends StatelessWidget{
 class SimilarSongWidget extends StatelessWidget{
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<SimilarSongProvider>(
-      builder: (context, prov, child){
-        return AppCard(
-            elevation: AppCard.bigElevation,
-            radius: AppCard.BIG_RADIUS,
-            margin: AppCard.normMargin,
-            child:
-            prov.similarSong == null?
-            Row(
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(Dimen.ICON_MARG),
-                  child: Icon(MdiIcons.timerSand, color: hintEnab_(context)),
-                ),
-                Expanded(child: Text(
-                  'Ładowanie listy weryfikacyjnej piosenek...',
-                  style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_BIG, fontWeight: weight.halfBold, color: hintEnab_(context)),
-                  textAlign: TextAlign.center,
-                )),
-                SizedBox(width: Dimen.ICON_FOOTPRINT)
-              ],
-            ):(
-                prov.similarSong!.length==0?
-                Row(
-                  children: [
-                    Padding(
-                        padding: EdgeInsets.all(Dimen.ICON_MARG),
-                        child: Icon(MdiIcons.check, color: accent_(context))
-                    ),
-
-                    Expanded(child: Text(
-                      'Sądząc po tytule, tego jeszcze nie ma w śpiewniku!',
-                      style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_BIG, fontWeight: weight.halfBold, color: accent_(context)),
-                      textAlign: TextAlign.center,
-                    )),
-                    SizedBox(width: Dimen.ICON_FOOTPRINT)
-                  ],
-                ):
-                Row(
-                  children: [
-                    Padding(
+  Widget build(BuildContext context) => Consumer<SimilarSongProvider>(
+      builder: (context, prov, child) => Material(
+          borderRadius: BorderRadius.circular(AppCard.BIG_RADIUS),
+          child:
+          prov.similarSong == null?
+          Row(
+            children: [
+              Padding(
+                padding: EdgeInsets.all(Dimen.ICON_MARG),
+                child: Icon(MdiIcons.timerSand, color: hintEnab_(context)),
+              ),
+              Expanded(child: Text(
+                'Ładowanie listy weryfikacyjnej piosenek...',
+                style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_BIG, fontWeight: weight.halfBold, color: hintEnab_(context)),
+                textAlign: TextAlign.center,
+              )),
+              SizedBox(width: Dimen.ICON_FOOTPRINT)
+            ],
+          ):(
+              prov.similarSong!.length==0?
+              Row(
+                children: [
+                  Padding(
                       padding: EdgeInsets.all(Dimen.ICON_MARG),
-                      child: Icon(MdiIcons.alertCircleOutline, color: Colors.red),
-                    ),
+                      child: Icon(MdiIcons.check, color: accent_(context))
+                  ),
 
-                    Expanded(child: Text(
-                      'Ostrożnie! Piosenka o takim tytule już jest!',
-                      style: AppTextStyle(color: Colors.red, fontWeight: weight.halfBold, fontSize: Dimen.TEXT_SIZE_BIG),
-                      textAlign: TextAlign.center,
-                    )),
-                    IconButton(icon: Icon(MdiIcons.eye), onPressed: () => showDialog(
-                      context: context,
-                      builder: (context) => Center(
-                          child: AppCard(
-                            padding: EdgeInsets.zero,
-                            color: Colors.white,
-                            radius: AppCard.BIG_RADIUS,
-                            child: SizedBox(
-                              width: 400,
-                              child: SongWidgetTemplate<SongRaw, AddPersSimpleResolver>(
-                                  prov.similarSong![0],
-                                  SongBaseSettings(),
-                                  screenWidth: 372,
-                                  addPersResolver: AddPersSimpleResolver(),
-                                  key: UniqueKey()//ValueKey(currItemProv.song)
-                              ),
+                  Expanded(child: Text(
+                    'Sądząc po tytule, tego jeszcze nie ma w śpiewniku!',
+                    style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_BIG, fontWeight: weight.halfBold, color: accent_(context)),
+                    textAlign: TextAlign.center,
+                  )),
+                  SizedBox(width: Dimen.ICON_FOOTPRINT)
+                ],
+              ):
+              Row(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(Dimen.ICON_MARG),
+                    child: Icon(MdiIcons.alertCircleOutline, color: Colors.red),
+                  ),
+
+                  Expanded(child: Text(
+                    'Ostrożnie! Piosenka o takim tytule już jest!',
+                    style: AppTextStyle(color: Colors.red, fontWeight: weight.halfBold, fontSize: Dimen.TEXT_SIZE_BIG),
+                    textAlign: TextAlign.center,
+                  )),
+                  IconButton(icon: Icon(MdiIcons.eye), onPressed: () => showDialog(
+                    context: context,
+                    builder: (context) => Center(
+                        child: AppCard(
+                          padding: EdgeInsets.zero,
+                          color: Colors.white,
+                          radius: AppCard.BIG_RADIUS,
+                          child: SizedBox(
+                            width: 400,
+                            child: SongWidgetTemplate<SongRaw, AddPersSimpleResolver>(
+                                prov.similarSong![0],
+                                SongBaseSettings(),
+                                screenWidth: 372,
+                                addPersResolver: AddPersSimpleResolver(),
+                                key: UniqueKey()//ValueKey(currItemProv.song)
                             ),
-                          )
-                      ),
-                    )),
-                  ],
-                )
-            )
+                          ),
+                        )
+                    ),
+                  )),
+                ],
+              )
+          )
 
-        );
-        },
-    );
-  }
+      )
+  );
 
 }
 
 class SimilarSongProvider extends ChangeNotifier{
+
+  static SimilarSongProvider of(BuildContext context) => Provider.of<SimilarSongProvider>(context, listen: false);
 
   HashMap<String, List<SongRaw>>? allSongs;
 
