@@ -138,7 +138,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                                 child: Container(
                                   color: Color.fromARGB(140, 0, 0, 0),
                                   child: Padding(
-                                    padding: EdgeInsets.all(Dimen.DEF_MARG),
+                                    padding: EdgeInsets.all(Dimen.defMarg),
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
@@ -403,7 +403,9 @@ Uint8List resize(Uint8List? imageBytes) {
 }
 
 Future<void> loadImage(BuildContext context, AuthorEditorPageState state) async {
-  Uint8List imageBytes = await (ImagePickerWeb.getImage(outputType: ImageType.bytes) as FutureOr<Uint8List>);
+  Uint8List? imageBytes = await ImagePickerWeb.getImageAsBytes();
+
+  if(imageBytes == null) return;
 
   ui.Image image = await decodeImageFromList(imageBytes);
 

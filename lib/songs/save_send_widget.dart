@@ -29,7 +29,7 @@ class SaveSendWidget extends StatelessWidget{
     child: Material(
       clipBehavior: Clip.hardEdge,
       color: cardEnab_(context),
-      borderRadius: BorderRadius.circular(AppCard.BIG_RADIUS),
+      borderRadius: BorderRadius.circular(AppCard.bigRadius),
       child: Row(
         children: [
 
@@ -129,7 +129,7 @@ class SendSongWidgetState extends State<SendSongWidget>{
     return SizedBox(
       width: 400,
       child: AppCard(
-        radius: AppCard.BIG_RADIUS,
+        radius: AppCard.bigRadius,
         padding: EdgeInsets.all(2*Dimen.ICON_MARG),
         color: Colors.white,
         child: Column(

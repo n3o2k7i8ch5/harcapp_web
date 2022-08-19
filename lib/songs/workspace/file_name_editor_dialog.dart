@@ -27,7 +27,6 @@ class FileNameEditorDialogState extends State<FileNameEditorDialog>{
   SongRaw get song => widget.song;
 
   bool get isConfid => allSongsProvider.isConf(song);
-  bool get fileNameTaken => Provider.of<SongFileNameDupErrProvider>(context, listen: false).hasAny(song);
 
   late AllSongsProvider allSongsProvider;
   late TextEditingController textController;
@@ -47,27 +46,28 @@ class FileNameEditorDialogState extends State<FileNameEditorDialog>{
         padding: EdgeInsets.all(Dimen.ICON_MARG),
         child: Material(
             elevation: 6.0,
-            borderRadius: BorderRadius.circular(AppCard.BIG_RADIUS),
+            borderRadius: BorderRadius.circular(AppCard.bigRadius),
             child: Padding(
-              padding: EdgeInsets.only(top: Dimen.DEF_MARG, bottom: Dimen.DEF_MARG, right: Dimen.DEF_MARG),
+              padding: EdgeInsets.only(top: Dimen.defMarg, bottom: Dimen.defMarg, right: Dimen.defMarg),
               child: ListTile(
                 title: Row(
                   children: [
                     Text(isConfid?'oc!_':'o!_', style: AppTextStyle(fontWeight: weight.bold, fontSize: Dimen.TEXT_SIZE_BIG),),
                     Expanded(
-                        child: AppTextFieldHint(
-                            hint: 'podaj_nazwę_pliku:',
-                            hintTop: fileNameTaken?'Nazwa pliku zajęta':'Nazwa pliku',
-                            controller: textController,
-                            style: TextStyle(color: fileNameTaken?Colors.red:textEnab_(context)),
-                            hintStyle: TextStyle(color: hintEnab_(context)),
-                            onAnyChanged: (texts){
+                        child: Consumer<SongFileNameDupErrProvider>(
+                          builder: (context, prov, child) => AppTextFieldHint(
+                              hint: 'podaj_nazwę_pliku:',
+                              hintTop: prov.hasDup(song)?'Nazwa pliku zajęta':'Nazwa pliku',
+                              controller: textController,
+                              style: TextStyle(color: prov.hasDup(song)?Colors.red:textEnab_(context)),
+                              hintStyle: TextStyle(color: hintEnab_(context)),
+                              onAnyChanged: (texts){
 
-                              song.fileName = (isConfid?'oc!_':'o!_') + texts[0];
+                                song.fileName = (isConfid?'oc!_':'o!_') + texts[0];
 
-                              SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
-                              songFileNameDupErrProv.chedkDupsFor(context, song);
-                            }
+                                prov.checkAllDups(context);
+                              }
+                          ),
                         )
                     )
                   ],
@@ -75,7 +75,8 @@ class FileNameEditorDialogState extends State<FileNameEditorDialog>{
                 trailing: IconButton(
                     icon: Icon(MdiIcons.check, color: iconEnab_(context)),
                     onPressed: (){
-                      Provider.of<BindTitleFileNameProvider>(context, listen: false).setSetBasedOnSong(song);
+                      BindTitleFileNameProvider.of(context).setSetBasedOnSong(song);
+                      SongFileNameDupErrProvider.of(context).checkAllDups(context);
                       Navigator.pop(context);
                     }
                 ),

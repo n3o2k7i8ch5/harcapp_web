@@ -9,7 +9,6 @@ import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_core_own_song/providers.dart';
 import 'package:harcapp_core_own_song/song_raw.dart';
 import 'package:harcapp_core_song_widget/add_pers_resolver.dart';
-import 'package:harcapp_core_song_widget/providers.dart';
 import 'package:harcapp_core_song_widget/settings.dart';
 import 'package:harcapp_core_song_widget/song_widget_template.dart';
 import 'package:harcapp_web/songs/providers.dart';
@@ -40,7 +39,7 @@ class SongPreview extends StatelessWidget{
                     Material(
                       clipBehavior: Clip.hardEdge,
                       color: cardEnab_(context),
-                      borderRadius: BorderRadius.circular(AppCard.BIG_RADIUS),
+                      borderRadius: BorderRadius.circular(AppCard.bigRadius),
                       child: Row(
                         children: [
                           Expanded(
@@ -88,7 +87,7 @@ class SongPreview extends StatelessWidget{
                       ),
                     ),
 
-                    SizedBox(height: Dimen.DEF_MARG),
+                    SizedBox(height: Dimen.defMarg),
 
                     Expanded(
                         child: SizedBox(

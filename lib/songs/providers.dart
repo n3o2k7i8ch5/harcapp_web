@@ -63,10 +63,10 @@ class BindTitleFileNameProvider extends ChangeNotifier{
 
   void setSetBasedOnSong(SongRaw song){
     bindTitle =
-        song.fileName == generateFileName(prov: this, song: song);
+      song.fileName == generateFileName(prov: this, song: song);
 
     bindPerformer =
-        song.fileName.contains('@') && bindTitle;
+      (song.fileName.contains('@') && bindTitle) || song.fileName == 'o!_' || song.fileName == 'oc!_';
     notifyListeners();
   }
 
@@ -131,68 +131,41 @@ class AllSongsProvider extends ChangeNotifier{
 
 class SongFileNameDupErrProvider extends ChangeNotifier{
 
-  late Map<SongRaw?, List<SongRaw?>> _errMap;
+  static SongFileNameDupErrProvider of(BuildContext context) => Provider.of<SongFileNameDupErrProvider>(context, listen: false);
+  static notify_(BuildContext context) => of(context).notify();
+
+  late Map<String, List<SongRaw>> _map;
 
   SongFileNameDupErrProvider(){
-    _errMap = {};
+    _map = {};
   }
 
-  List<SongRaw?>? get(SongRaw? song) => _errMap[song];
-  void putPair(SongRaw? song1, SongRaw? song2){
-    if(_errMap[song1] == null)
-      _errMap[song1] = [];
-
-    if(!_errMap[song1]!.contains(song2))
-      _errMap[song1]!.add(song2);
-
-    if(_errMap[song2] == null)
-      _errMap[song2] = [];
-
-    if(!_errMap[song2]!.contains(song1))
-      _errMap[song2]!.add(song1);
-
-    notifyListeners();
-  }
-
-  void removePair(SongRaw? song1, SongRaw? song2){
-    if(_errMap[song1] != null)
-      _errMap[song1]!.remove(song2);
-
-    if(_errMap[song2] != null)
-      _errMap[song2]!.remove(song1);
-    notifyListeners();
-  }
+  List<SongRaw> get(SongRaw song) => _map[song.fileName]??[];
 
   int get count{
     int num = 0;
-    for(SongRaw? song in _errMap.keys)
-      num += _errMap[song]!.length;
+    for(String songFileName in _map.keys)
+      if(_map[songFileName]!.length > 1)
+        num += _map[songFileName]!.length;
 
     return num;
   }
 
-  bool hasAny(SongRaw? song) => _errMap[song] != null && _errMap[song]!.length!= 0;
+  bool hasDup(SongRaw song) => _map[song.fileName] != null && _map[song.fileName]!.length > 1;
 
   void checkAllDups(BuildContext context){
-    AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
+    _map.clear();
 
-    for(SongRaw? song1 in allSongsProv.songs)
-      for(SongRaw? song2 in allSongsProv.songs)
-        if(song1 != song2 && song1!.fileName == song2!.fileName){
-          putPair(song1, song2);
-        }
+    for(SongRaw song in Provider.of<AllSongsProvider>(context, listen: false).songs) {
+      if(_map[song.fileName] == null)
+        _map[song.fileName] = [];
+      _map[song.fileName]!.add(song);
+    }
+
+    notifyListeners();
   }
 
-  void chedkDupsFor(BuildContext context, SongRaw? song){
-    AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
-    List<SongRaw?> allSongs = allSongsProv.songs;
-    for(SongRaw? _song in allSongs)
-      if(_song != song && song!.fileName == _song!.fileName)
-        putPair(_song, song);
-      else
-        removePair(_song, song);
-
-  }
+  void notify() => notifyListeners();
 
 }
 
@@ -212,39 +185,10 @@ class SongPreviewProvider extends ChangeNotifier{
 
 }
 
-/*
-class ShowCodeEditorProvider extends ChangeNotifier{
-
-  String? _text;
-  bool? _value;
-  SongRaw? _song;
-
-  ShowCodeEditorProvider(){
-    _text = '';
-    _value = false;
-  }
-
-  String? get text => _text;
-  set text(String? val){
-    _text = val;
-  }
-
-  bool? get value => _value;
-  set value(bool? val){
-    _value = val;
-    notifyListeners();
-  }
-
-  SongRaw? get song => _song;
-  set song(SongRaw? value){
-    _song = value;
-    notifyListeners();
-  }
-
-}
-*/
-
 class SongEditorPanelProvider extends ChangeNotifier{
+
+  static SongEditorPanelProvider of(BuildContext context) => Provider.of<SongEditorPanelProvider>(context, listen: false);
+  static void notify_(BuildContext context) => of(context).notify();
 
   void notify() => notifyListeners();
 

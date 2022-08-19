@@ -34,7 +34,7 @@ class ArticleTop extends StatelessWidget{
           icon: Icon(Icons.image, color: HEADER_TEXT_COLOR),
           onPressed: () async {
 
-            Uint8List? imageBytes = await (ImagePickerWeb.getImage(outputType: ImageType.bytes) as FutureOr<Uint8List?>);
+            Uint8List? imageBytes = await ImagePickerWeb.getImageAsBytes();
 
             page.setImage(imageBytes);
 
@@ -71,7 +71,7 @@ class ArticleTop extends StatelessWidget{
           children: [
 
             Expanded(child: Padding(
-              padding: EdgeInsets.all(Dimen.DEF_MARG),
+              padding: EdgeInsets.all(Dimen.defMarg),
               child: TextField(
                 controller: TextEditingController(text: page.imageSource??''),
                 decoration: InputDecoration(

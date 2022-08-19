@@ -34,13 +34,13 @@ class SongEditorNoSongWidget extends StatelessWidget{
       Center(
         child: Material(
           color: cardEnab_(context),
-          borderRadius: BorderRadius.circular(AppCard.BIG_RADIUS),
+          borderRadius: BorderRadius.circular(AppCard.bigRadius),
           clipBehavior: Clip.hardEdge,
           child: Padding(
-            padding: const EdgeInsets.all(Dimen.DEF_MARG),
+            padding: const EdgeInsets.all(Dimen.defMarg),
             child: Material(
               color: background_(context),
-              borderRadius: BorderRadius.circular(AppCard.BIG_RADIUS - 4),
+              borderRadius: BorderRadius.circular(AppCard.bigRadius - 4),
               clipBehavior: Clip.hardEdge,
               child: Padding(
                 padding: EdgeInsets.all(40.0),

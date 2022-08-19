@@ -35,7 +35,7 @@ class CodeEditorDialog extends StatelessWidget{
               child: Container(
                   width: 500,
                   child: AppCard(
-                    radius: AppCard.BIG_RADIUS,
+                    radius: AppCard.bigRadius,
                     padding: EdgeInsets.zero,
                     margin: AppCard.normMargin,
                     child: Column(
@@ -84,7 +84,9 @@ class CodeEditorDialog extends StatelessWidget{
                                   Provider.of<TagsProvider>(context, listen: false).set(Tag.ALL_TAG_NAMES, song.tags);
 
                                   this.song.set(song);
-                                  Provider.of<AllSongsProvider>(context, listen: false).set(this.song, this.song.isConfid);
+                                  AllSongsProvider.of(context).set(this.song, this.song.isConfid);
+
+                                  SongFileNameDupErrProvider.of(context).checkAllDups(context);
 
                                   displaySong(context, this.song);
                                   Navigator.pop(context);
@@ -97,7 +99,7 @@ class CodeEditorDialog extends StatelessWidget{
 
                         Expanded(
                             child: Padding(
-                              padding: EdgeInsets.only(left: Dimen.DEF_MARG, right: Dimen.DEF_MARG),
+                              padding: EdgeInsets.only(left: Dimen.defMarg, right: Dimen.defMarg),
                               child: TextField(
                                 minLines: 10,
                                 maxLines: null,

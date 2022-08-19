@@ -63,7 +63,7 @@ class MyApp extends StatelessWidget {
             if(bindTitleFileNameProv.bindTitle)
               song.fileName = generateFileName(song: song, context: context);
 
-            songFileNameDupErrProv.chedkDupsFor(context, song);
+            songFileNameDupErrProv.checkAllDups(context);
 
             allSongsProv.notifyListeners();
 

@@ -12,6 +12,7 @@ import 'package:harcapp_web/songs/workspace/workspace.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../song_editor_panel.dart';
 import 'code_editor_dialog.dart';
 import '../providers.dart';
 import 'file_name_editor_dialog.dart';
@@ -42,7 +43,7 @@ class WorkspaceTileState extends State<WorkspaceTile>{
 
   @override
   Widget build(BuildContext context) => Consumer2<SongFileNameDupErrProvider, CurrentItemProvider>(
-    builder: (context, prov, currItemProv, child){
+    builder: (context, songFileNameDupErrProv, currItemProv, child){
 
       String title = song.title;
       if(title.length==0) title = HINT_FILE_TITLE;
@@ -50,10 +51,8 @@ class WorkspaceTileState extends State<WorkspaceTile>{
       String fileName = song.fileName;
       if(fileName.length==0) fileName = HINT_FILE_NAME;
 
-      bool fileNameTaken = prov.hasAny(song);
-
       return SimpleButton(
-        radius: AppCard.BIG_RADIUS - 4,
+        radius: AppCard.bigRadius - 4,
         onTap: () {
           LoadingProvider loadingProv = Provider.of<LoadingProvider>(context, listen: false);
           loadingProv.loading = true;
@@ -61,8 +60,47 @@ class WorkspaceTileState extends State<WorkspaceTile>{
           loadingProv.loading = false;
         },
         child: ListTile(
-          title: Text(title, style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_NORMAL)),
-          subtitle: Text(fileName, style: AppTextStyle(color: fileName==HINT_FILE_NAME || fileNameTaken?Colors.red:hintEnab_(context))),
+          title: Row(
+            children: [
+
+              Consumer<SimilarSongProvider>(
+                builder: (context, prov, child){
+                  if(prov.hasSimilarSong(song.title))
+                    return Padding(
+                      padding: EdgeInsets.only(right: Dimen.defMarg),
+                      child: Tooltip(
+                        message: 'Piosenka o takim tytule już jest w śpiewniku',
+                        child: Icon(MdiIcons.musicBoxMultiple, color: hintEnab_(context)),
+                      ),
+                    );
+
+                  return Container();
+                },
+              ),
+
+              Expanded(
+                  child: Text(
+                      title,
+                      style: AppTextStyle(
+                          fontSize: Dimen.TEXT_SIZE_BIG
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.fade
+                  )
+              )
+
+            ],
+          ),
+          subtitle: Text(
+              fileName,
+              maxLines: 1,
+              overflow: TextOverflow.fade,
+              style: AppTextStyle(
+                  color:
+                  fileName==HINT_FILE_NAME || songFileNameDupErrProv.hasDup(song)?
+                  Colors.red:hintEnab_(context)
+              )
+          ),
           selected: currItemProv.song == song,
           selectedTileColor: backgroundIcon_(context),
           trailing: Row(
@@ -78,7 +116,7 @@ class WorkspaceTileState extends State<WorkspaceTile>{
                   onLongPress: (){
 
                     AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
-                    Provider.of<SongEditorPanelProvider>(context, listen: false).notify();
+                    SongEditorPanelProvider.of(context).notify();
 
                     int remIndex = allSongsProv.songs.indexOf(song);
                     allSongsProv.remove(song);
@@ -90,17 +128,13 @@ class WorkspaceTileState extends State<WorkspaceTile>{
 
                       if(remIndex < 0)
                         Provider.of<ShowSongProvider>(context, listen: false).showSong = false;
-                      else {
+                      else
                         displaySong(context, allSongsProv.songs[remIndex]);
-                      }
+
                     }
 
-                    SongFileNameDupErrProvider errProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
+                    SongFileNameDupErrProvider.of(context).checkAllDups(context);
 
-                    List<SongRaw?>? errSongs = errProv.get(song);
-                    if(errSongs != null)
-                      for(SongRaw? errSongOth in errSongs)
-                        errProv.removePair(song, errSongOth);
 
                   }
               ),
@@ -115,7 +149,7 @@ class WorkspaceTileState extends State<WorkspaceTile>{
                         onTap: null
                     ),
                     dropdownDecoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(AppCard.BIG_RADIUS),
+                      borderRadius: BorderRadius.circular(AppCard.bigRadius),
                     ),
                     value: null,
                     onChanged: (value){

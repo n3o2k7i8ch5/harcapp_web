@@ -104,12 +104,12 @@ class SongEditorPanel extends StatelessWidget{
                       bool _isError = currItemProv.song.songParts[index].isError;
 
                       await showDialog(context: context, builder: (_) => Center(
-                        child: Container(
+                        child: SizedBox(
                           width: SONG_PART_EDITOR_WIDTH,
                           child: SongPartEditor(
-                            initText: currItemProv.song.songParts[index].getText(),
-                            initChords: currItemProv.song.songParts[index].chords,
-                            initShifted: currItemProv.song.songParts[index].shift,
+                            initText: _text,
+                            initChords: _chords,
+                            initShifted: _shifted,
                             isRefren: currItemProv.song.songParts[index].isRefren(context),
                             onTextChanged: (text, errCount){
                               _text = text;
@@ -150,7 +150,7 @@ class SongEditorPanel extends StatelessWidget{
                               Material(
                                 color: Colors.transparent,
                                 clipBehavior: Clip.hardEdge,
-                                borderRadius: BorderRadius.circular(AppCard.BIG_RADIUS),
+                                borderRadius: BorderRadius.circular(AppCard.bigRadius),
                                 child: SwitchListTile(
                                   contentPadding: EdgeInsets.only(left: Dimen.ICON_MARG),
                                   value: prov.bindTitle,
@@ -163,6 +163,9 @@ class SongEditorPanel extends StatelessWidget{
                                               song: Provider.of<CurrentItemProvider>(context, listen: false).song,
                                               context: context
                                           );
+
+                                    SongFileNameDupErrProvider.of(context).checkAllDups(context);
+
                                   },
                                   title: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -183,14 +186,14 @@ class SongEditorPanel extends StatelessWidget{
                               ),
                         ),
 
-                        SizedBox(height: Dimen.DEF_MARG),
+                        SizedBox(height: Dimen.defMarg),
 
                         Consumer<BindTitleFileNameProvider>(
                           builder: (context, prov, child) =>
                               Material(
                                 color: Colors.transparent,
                                 clipBehavior: Clip.hardEdge,
-                                borderRadius: BorderRadius.circular(AppCard.BIG_RADIUS),
+                                borderRadius: BorderRadius.circular(AppCard.bigRadius),
                                 child: SwitchListTile(
                                   contentPadding: EdgeInsets.only(left: Dimen.ICON_MARG),
                                   value: prov.bindPerformer,
@@ -203,6 +206,9 @@ class SongEditorPanel extends StatelessWidget{
                                               song: Provider.of<CurrentItemProvider>(context, listen: false).song,
                                               context: context
                                           );
+
+                                    SongFileNameDupErrProvider.of(context).checkAllDups(context);
+
                                   },
                                   title: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -223,11 +229,11 @@ class SongEditorPanel extends StatelessWidget{
                               ),
                         ),
 
-                        SizedBox(height: Dimen.DEF_MARG),
+                        SizedBox(height: Dimen.defMarg),
 
                         SimilarSongWidget(),
 
-                        SizedBox(height: Dimen.DEF_MARG),
+                        SizedBox(height: Dimen.defMarg),
 
                         TopCards(
                           onChangedTitle: (String text){
@@ -260,11 +266,11 @@ class SongEditorPanel extends StatelessWidget{
                           },
                         ),
 
-                        const SizedBox(height: Dimen.DEF_MARG),
+                        const SizedBox(height: Dimen.defMarg),
 
                         const AddPersListWidget(),
 
-                        const SizedBox(height: Dimen.DEF_MARG),
+                        const SizedBox(height: Dimen.defMarg),
 
                         TagsWidget(
                           linear: false,
@@ -276,38 +282,48 @@ class SongEditorPanel extends StatelessWidget{
                         SizedBox(height: SEPARATOR_HEIGHT),
 
                         RefrenTemplate(
-                            onPartTap: () => showDialog(
+                          onPartTap: () async {
+
+                            String _text = currItemProv.song.refrenPart.getText();
+                            String _chords = currItemProv.song.refrenPart.chords;
+                            bool _shifted = currItemProv.song.refrenPart.shift;
+                            bool _isError = currItemProv.song.refrenPart.isError;
+
+                            await showDialog(
                                 barrierDismissible: false,
                                 context: context,
                                 builder: (context) => Center(
-                                  child: Container(
+                                  child: SizedBox(
                                     width: SONG_PART_EDITOR_WIDTH,
                                     child: SongPartEditor(
-                                      initText: currItemProv.song.refrenPart.getText(),
-                                      initChords: currItemProv.song.refrenPart.chords,
-                                      initShifted: currItemProv.song.refrenPart.shift,
+                                      initText: _text,
+                                      initChords: _chords,
+                                      initShifted: _shifted,
                                       isRefren: currItemProv.song.refrenPart.isRefren(context),
                                       onTextChanged: (text, errCount){
-                                        currItemProv.song.refrenPart.setText(text);
-                                        currItemProv.song.refrenPart.isError = errCount != 0;
-                                        currItemProv.notify();
-                                        Provider.of<RefrenPartProvider>(context, listen: false).notify();
+                                        _text = text;
+                                        _isError = errCount != 0;
                                       },
                                       onChordsChanged: (text, errCount){
-                                        currItemProv.song.refrenPart.chords = text;
-                                        currItemProv.song.refrenPart.isError = errCount != 0;
-                                        currItemProv.notify();
-                                        Provider.of<RefrenPartProvider>(context, listen: false).notify();
+                                        _chords = text;
+                                        _isError = errCount != 0;
                                       },
                                       onShiftedChanged: (shifted){
-                                        currItemProv.song.refrenPart.shift = shifted;
-                                        currItemProv.notify();
-                                        Provider.of<RefrenPartProvider>(context, listen: false).notify();
+                                        _shifted = shifted;
                                       },
                                     ),
                                   ),
                                 )
-                            ),
+                            );
+
+                            currItemProv.song.refrenPart.setText(_text);
+                            currItemProv.song.refrenPart.chords = _chords;
+                            currItemProv.song.refrenPart.shift = _shifted;
+                            currItemProv.song.refrenPart.isError = _isError;
+                            currItemProv.notify();
+                            Provider.of<RefrenPartProvider>(context, listen: false).notify();
+
+                          }
                         ),
 
                         SizedBox(height: SEPARATOR_HEIGHT),
@@ -342,7 +358,7 @@ class SimilarSongWidget extends StatelessWidget{
   @override
   Widget build(BuildContext context) => Consumer<SimilarSongProvider>(
       builder: (context, prov, child) => Material(
-          borderRadius: BorderRadius.circular(AppCard.BIG_RADIUS),
+          borderRadius: BorderRadius.circular(AppCard.bigRadius),
           child:
           prov.similarSong == null?
           Row(
@@ -393,7 +409,7 @@ class SimilarSongWidget extends StatelessWidget{
                         child: AppCard(
                           padding: EdgeInsets.zero,
                           color: Colors.white,
-                          radius: AppCard.BIG_RADIUS,
+                          radius: AppCard.bigRadius,
                           child: SizedBox(
                             width: 400,
                             child: SongWidgetTemplate<SongRaw, AddPersSimpleResolver>(
@@ -439,6 +455,13 @@ class SimilarSongProvider extends ChangeNotifier{
 
   SimilarSongProvider(){
     _title = '';
+  }
+
+  bool hasSimilarSong(String title){
+    String _title = remSpecChars(remPolChars(title.toLowerCase()));
+    List<SongRaw> songs = allSongs![_title]??[];
+
+    return songs.isNotEmpty;
   }
 
   void init() async {
