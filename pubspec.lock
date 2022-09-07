@@ -14,7 +14,7 @@ packages:
       name: async
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.8.2"
+    version: "2.9.0"
   auto_size_text:
     dependency: transitive
     description:
@@ -42,14 +42,7 @@ packages:
       name: characters
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.2.0"
-  charcode:
-    dependency: transitive
-    description:
-      name: charcode
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.3.1"
+    version: "1.2.1"
   clipboard:
     dependency: "direct main"
     description:
@@ -63,7 +56,7 @@ packages:
       name: clock
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.0"
+    version: "1.1.1"
   collection:
     dependency: transitive
     description:
@@ -147,7 +140,7 @@ packages:
       name: fake_async
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.3.0"
+    version: "1.3.1"
   ffi:
     dependency: transitive
     description:
@@ -229,7 +222,7 @@ packages:
       name: flutter_file_dialog
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.3.0"
+    version: "2.3.1"
   flutter_localizations:
     dependency: "direct main"
     description: flutter
@@ -278,7 +271,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "721930e449ad7e41c0dad418114573543babd977"
+      resolved-ref: "4439b7b3f3afefa2005135a814c3027f28edfd2d"
       url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"
@@ -287,7 +280,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: f7225c31b0f1948e57f7870f7a75157ff6bad1bf
+      resolved-ref: f1402167bee13d5f860c61ff64bd5ee673c5b2b5
       url: "https://github.com/n3o2k7i8ch5/harcapp_core_own_song"
     source: git
     version: "0.0.1"
@@ -296,7 +289,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: dc62edb063670036df063ed8e00901b888780ebd
+      resolved-ref: "19d6ea958717ae74da5189413fdb0a94c6ce40ac"
       url: "https://github.com/n3o2k7i8ch5/harcapp_core_song"
     source: git
     version: "0.0.1"
@@ -305,7 +298,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: dbf8014c1894a1fb864e4ae1b2bb01ebdba1e937
+      resolved-ref: b27ffc0c24c2ccb6b73e606ea72dd52f153d0c7f
       url: "https://github.com/n3o2k7i8ch5/harcapp_core_song_widget"
     source: git
     version: "0.0.1"
@@ -352,7 +345,7 @@ packages:
       name: image_picker_android
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.5+2"
+    version: "0.8.5+3"
   image_picker_for_web:
     dependency: transitive
     description:
@@ -366,7 +359,7 @@ packages:
       name: image_picker_ios
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.5+6"
+    version: "0.8.6"
   image_picker_platform_interface:
     dependency: transitive
     description:
@@ -415,14 +408,14 @@ packages:
       name: matcher
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.12.11"
+    version: "0.12.12"
   material_color_utilities:
     dependency: transitive
     description:
       name: material_color_utilities
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.4"
+    version: "0.1.5"
   material_design_icons_flutter:
     dependency: transitive
     description:
@@ -436,7 +429,7 @@ packages:
       name: meta
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.7.0"
+    version: "1.8.0"
   mime:
     dependency: transitive
     description:
@@ -457,7 +450,7 @@ packages:
       name: oktoast
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.2.0"
+    version: "3.3.0"
   package_info_plus:
     dependency: "direct main"
     description:
@@ -506,7 +499,7 @@ packages:
       name: path
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.8.1"
+    version: "1.8.2"
   path_provider:
     dependency: "direct main"
     description:
@@ -520,7 +513,7 @@ packages:
       name: path_provider_android
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.19"
+    version: "2.0.20"
   path_provider_ios:
     dependency: transitive
     description:
@@ -611,7 +604,7 @@ packages:
       name: share_plus
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.0.10+1"
+    version: "4.1.0"
   share_plus_linux:
     dependency: transitive
     description:
@@ -658,7 +651,7 @@ packages:
       name: source_span
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.8.2"
+    version: "1.9.0"
   stack_trace:
     dependency: transitive
     description:
@@ -679,21 +672,21 @@ packages:
       name: string_scanner
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.0"
+    version: "1.1.1"
   term_glyph:
     dependency: transitive
     description:
       name: term_glyph
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.2.0"
+    version: "1.2.1"
   test_api:
     dependency: transitive
     description:
       name: test_api
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.9"
+    version: "0.4.12"
   tuple:
     dependency: transitive
     description:
@@ -721,7 +714,7 @@ packages:
       name: url_launcher_android
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "6.0.17"
+    version: "6.0.18"
   url_launcher_ios:
     dependency: transitive
     description:
@@ -791,7 +784,7 @@ packages:
       name: xdg_directories
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.2.0+1"
+    version: "0.2.0+2"
   xml:
     dependency: transitive
     description:
