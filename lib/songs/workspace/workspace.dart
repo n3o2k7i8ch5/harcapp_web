@@ -360,6 +360,7 @@ void displaySong(BuildContext context, SongRaw song){
   currItemProv.song = song;
 
   Provider.of<TitleCtrlProvider>(context, listen: false).text = song.title;
+  Provider.of<HidTitlesProvider>(context, listen: false).controllers = song.hidTitles.map((title) => TextEditingController(text: title)).toList();
   /*
   Provider.of<AuthorCtrlProvider>(context, listen: false).text = song?.author??'';
   Provider.of<PerformerCtrlProvider>(context, listen: false).text = song?.performer??'';

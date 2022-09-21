@@ -110,6 +110,7 @@ class WorkspaceTileState extends State<WorkspaceTile>{
               SimpleButton.from(
                   context: context,
                   margin: EdgeInsets.zero,
+                  radius: 100,
                   icon: MdiIcons.close,
                   onTap: () =>
                       AppScaffold.showMessage(context, 'Przytrzymaj przycisk, by usunąć piosenkę.'),
@@ -147,6 +148,9 @@ class WorkspaceTileState extends State<WorkspaceTile>{
                         margin: EdgeInsets.zero,
                         icon: MdiIcons.dotsHorizontal,
                         onTap: null
+                    ),
+                    buttonDecoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100)
                     ),
                     dropdownDecoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(AppCard.bigRadius),
