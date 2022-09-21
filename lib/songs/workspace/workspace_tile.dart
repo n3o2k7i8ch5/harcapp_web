@@ -85,7 +85,7 @@ class WorkspaceTileState extends State<WorkspaceTile>{
                           fontSize: Dimen.TEXT_SIZE_BIG
                       ),
                       maxLines: 1,
-                      overflow: TextOverflow.fade
+                      overflow: TextOverflow.clip
                   )
               )
 
@@ -94,7 +94,7 @@ class WorkspaceTileState extends State<WorkspaceTile>{
           subtitle: Text(
               fileName,
               maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              overflow: TextOverflow.clip,
               style: AppTextStyle(
                   color:
                   fileName==HINT_FILE_NAME || songFileNameDupErrProv.hasDup(song)?
