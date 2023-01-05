@@ -66,11 +66,11 @@ class SaveSendWidget extends StatelessWidget{
 
                       int songCount = AllSongsProvider.of(context).length;
                       if(songCount <= 4)
-                        AppScaffold.showMessage(context, 'Rozpoczęto pobieranie ${songCount} piosenki');
+                        AppScaffold.showMessage(context, 'Rozpoczęto pobieranie $songCount piosenki', duration: Duration(seconds: 5));
                       else
-                        AppScaffold.showMessage(context, 'Rozpoczęto pobieranie ${songCount} piosenek');
+                        AppScaffold.showMessage(context, 'Rozpoczęto pobieranie $songCount piosenek', duration: Duration(seconds: 5));
 
-                      downloadFile(content: code, fileName: 'songs.hrcpsng');
+                      downloadFile(content: code, fileName: '${songCount}_songs.hrcpsng');
                     }
                 ),
               )

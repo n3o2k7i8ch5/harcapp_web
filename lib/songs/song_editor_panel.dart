@@ -172,7 +172,7 @@ class SongEditorPanel extends StatelessWidget{
                                     children: [
 
                                       Text(
-                                        'Powiąż nazwę pliku z tytułem',
+                                        'Powiąż identyfikator piosenki z tytułem',
                                         style: AppTextStyle(
                                             color: prov.bindTitle?textEnab_(context):textDisab_(context),
                                             fontSize: Dimen.TEXT_SIZE_BIG
@@ -215,7 +215,7 @@ class SongEditorPanel extends StatelessWidget{
                                     children: [
 
                                       Text(
-                                        'Powiąż nazwę pliku z wykonawcą',
+                                        'Powiąż identyfikator piosenki z wykonawcą',
                                         style: AppTextStyle(
                                             color: prov.bindPerformer?textEnab_(context):textDisab_(context),
                                             fontSize: Dimen.TEXT_SIZE_BIG

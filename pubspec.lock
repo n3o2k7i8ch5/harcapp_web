@@ -296,7 +296,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "0abde4f6a791c3bbe4da45c1857861e7f792bfab"
+      resolved-ref: afeaf8c80afd48a55ea676a90ac150619765c0fd
       url: "https://github.com/n3o2k7i8ch5/harcapp_core_song"
     source: git
     version: "0.0.1"
@@ -338,7 +338,7 @@ packages:
       name: image
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.0.5"
+    version: "4.0.6"
   image_picker:
     dependency: "direct main"
     description:
