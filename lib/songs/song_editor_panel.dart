@@ -246,12 +246,8 @@ class SongEditorPanel extends StatelessWidget{
                                       context: context
                                   );
                           },
-                          onChangedAuthor: (List<String> texts){
-                            currItemProv.authors = texts;
-                          },
-                          onChangedComposer: (List<String> texts){
-                            currItemProv.composers = texts;
-                          },
+                          onChangedAuthor: (List<String> texts) => currItemProv.authors = texts,
+                          onChangedComposer: (List<String> texts) => currItemProv.composers = texts,
                           onChangedPerformer: (List<String> texts){
                             currItemProv.performers = texts;
                             if(BindTitleFileNameProvider.of(context).bindTitle)
@@ -261,9 +257,7 @@ class SongEditorPanel extends StatelessWidget{
                                       context: context
                                   );
                           },
-                          onChangedYT: (String? text){
-                            currItemProv.youtubeLink = text;
-                          },
+                          onChangedYT: (String? text) => currItemProv.youtubeLink = text,
                         ),
 
                         const SizedBox(height: Dimen.defMarg),
@@ -359,6 +353,7 @@ class SimilarSongWidget extends StatelessWidget{
   Widget build(BuildContext context) => Consumer<SimilarSongProvider>(
       builder: (context, prov, child) => Material(
           borderRadius: BorderRadius.circular(AppCard.bigRadius),
+          clipBehavior: Clip.hardEdge,
           child:
           prov.similarSong == null?
           Row(

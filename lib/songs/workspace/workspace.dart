@@ -38,7 +38,7 @@ void importSongsFromCode(String code, {required Function(List<SongRaw> offSongs,
       Map<String, dynamic> songPackMap = offSongsMap[fileName];
       Map<String, dynamic> songMap = songPackMap['song'];
       int index = songPackMap['index'];
-      SongRaw song = SongRaw.fromMap(fileName, songMap);
+      SongRaw song = SongRaw.fromRespMap(fileName, songMap);
 
       if(!song.isOfficial) song.fileName = 'o!_' + song.fileName;
 
@@ -58,7 +58,7 @@ void importSongsFromCode(String code, {required Function(List<SongRaw> offSongs,
       Map<String, dynamic> songMap = songPackMap['song'];
       int index = songPackMap['index'];
 
-      SongRaw song = SongRaw.fromMap(fileName, songMap);
+      SongRaw song = SongRaw.fromRespMap(fileName, songMap);
       if(!song.isConfid) song.fileName = 'oc!_' + song.fileName;
 
       confSongs[index] = song;
@@ -166,7 +166,7 @@ class SongListViewState extends State<SongListView>{
   Widget build(BuildContext context) => MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => SearchListProvider(
-          Provider.of<AllSongsProvider>(context, listen: false).songs
+          AllSongsProvider.of(context).songs
       ))
     ],
     builder: (context, child){
@@ -198,7 +198,7 @@ class SongListViewState extends State<SongListView>{
                           ),
                           onChanged: (text){
 
-                            SearchListProvider searchListProv = Provider.of<SearchListProvider>(context, listen: false);
+                            SearchListProvider searchListProv = SearchListProvider.of(context);
                             searchListProv.changeSearchPhrase(text);
 
                           },
@@ -336,7 +336,7 @@ void handleNewSongTap(BuildContext context){
   song.fileName = 'o!_';
   Provider.of<AllSongsProvider>(context, listen: false).addOff(song);
 
-  SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
+  SongFileNameDupErrProvider songFileNameDupErrProv = SongFileNameDupErrProvider.of(context);
   songFileNameDupErrProv.checkAllDups(context);
 
   displaySong(context, song);
@@ -347,7 +347,7 @@ void handleExampleSongTap(BuildContext context){
 
   SongRaw song = SimilarSongProvider.of(context).allSongs!.values.firstWhere((songs) => songs.first.fileName == 'o!_addio_pomidory@kabaret_starszych_panow').first;
 
-  Provider.of<AllSongsProvider>(context, listen: false).addOff(song);
+  AllSongsProvider.of(context).addOff(song);
   displaySong(context, song);
 
   SongFileNameDupErrProvider.of(context).checkAllDups(context);
@@ -381,6 +381,8 @@ void displaySong(BuildContext context, SongRaw song){
 }
 
 class SearchListProvider extends ChangeNotifier{
+
+  static SearchListProvider of(BuildContext context) => Provider.of<SearchListProvider>(context, listen: false);
 
   late bool anySearchPhrase;
 

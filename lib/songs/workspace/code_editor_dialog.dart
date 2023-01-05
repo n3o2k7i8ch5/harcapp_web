@@ -15,7 +15,6 @@ import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/workspace/workspace.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:pretty_json/pretty_json.dart';
-import 'package:provider/provider.dart';
 
 class CodeEditorDialog extends StatelessWidget{
 
@@ -72,7 +71,7 @@ class CodeEditorDialog extends StatelessWidget{
                                     try {
                                       Map map = jsonDecode(controller.text);
                                       String fileName = map.keys.toList()[0];
-                                      song = SongRaw.fromMap(fileName, map[fileName]);
+                                      song = SongRaw.fromRespMap(fileName, map[fileName]);
 
                                     } catch(e){
                                       AppScaffold.showMessage(context, 'Błędny kod piosneki.');
@@ -80,8 +79,8 @@ class CodeEditorDialog extends StatelessWidget{
                                     }
                                   }
 
-                                  Provider.of<TitleCtrlProvider>(context, listen: false).text = song.title;
-                                  Provider.of<TagsProvider>(context, listen: false).set(Tag.ALL_TAG_NAMES, song.tags);
+                                  TitleCtrlProvider.of(context).text = song.title;
+                                  TagsProvider.of(context).set(Tag.ALL_TAG_NAMES, song.tags);
 
                                   this.song.set(song);
                                   AllSongsProvider.of(context).set(this.song, this.song.isConfid);

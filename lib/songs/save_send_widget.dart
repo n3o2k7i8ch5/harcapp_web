@@ -47,7 +47,7 @@ class SaveSendWidget extends StatelessWidget{
                         ),
                         SizedBox(width: Dimen.ICON_MARG),
                         Text(
-                          'Zapisz',
+                          'Zapisz wszystko',
                           style: AppTextStyle(
                               fontWeight: weight.halfBold,
                               color: prov.count==0?iconEnab_(context):iconDisab_(context)
@@ -57,12 +57,18 @@ class SaveSendWidget extends StatelessWidget{
                     ),
                     onTap: prov.count!=0?null:(){
 
-                      SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
+                      SongFileNameDupErrProvider songFileNameDupErrProv = SongFileNameDupErrProvider.of(context);
                       songFileNameDupErrProv.checkAllDups(context);
 
                       if(songFileNameDupErrProv.count != 0) return;
 
                       String code = convertAllToCode(context);
+
+                      int songCount = AllSongsProvider.of(context).length;
+                      if(songCount <= 4)
+                        AppScaffold.showMessage(context, 'Rozpoczęto pobieranie ${songCount} piosenki');
+                      else
+                        AppScaffold.showMessage(context, 'Rozpoczęto pobieranie ${songCount} piosenek');
 
                       downloadFile(content: code, fileName: 'songs.hrcpsng');
                     }

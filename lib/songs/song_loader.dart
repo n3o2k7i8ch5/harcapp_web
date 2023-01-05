@@ -19,7 +19,7 @@ Future<HashMap<String, List<SongRaw>>> decodeSongs(String allSongsCode) async{
   for(String fileName in allSongsJSONMap['official'].keys) {
     try {
       Map songMap = allSongsJSONMap['official'][fileName]['song'];
-      SongRaw song = SongRaw.fromMap(fileName, songMap);
+      SongRaw song = SongRaw.fromRespMap(fileName, songMap);
       String title = remSpecChars(remPolChars(song.title.toLowerCase())).trim();
       if(!songsMap.containsKey(title)) songsMap[title] = [];
       songsMap[title]!.add(song);
@@ -36,7 +36,7 @@ Future<HashMap<String, List<SongRaw>>> decodeSongs(String allSongsCode) async{
   for(String fileName in allSongsJSONMap['conf'].keys) {
     try {
       Map songMap = allSongsJSONMap['conf'][fileName]['song'];
-      SongRaw song = SongRaw.fromMap(fileName, songMap);
+      SongRaw song = SongRaw.fromRespMap(fileName, songMap);
       String title = remSpecChars(remPolChars(song.title.toLowerCase())).trim();
       if(!songsMap.containsKey(title)) songsMap[title] = [];
       songsMap[title]!.add(song);
