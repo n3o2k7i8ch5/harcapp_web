@@ -158,11 +158,12 @@ class SongEditorPanel extends StatelessWidget{
                                     prov.bindTitle = value;
 
                                     if(prov.bindTitle)
-                                      Provider.of<CurrentItemProvider>(context, listen: false).fileName =
+                                      Provider.of<CurrentItemProvider>(context, listen: false).setFileName(
                                           generateFileName(
                                               song: Provider.of<CurrentItemProvider>(context, listen: false).song,
                                               context: context
-                                          );
+                                          )
+                                      );
 
                                     SongFileNameDupErrProvider.of(context).checkAllDups(context);
 
@@ -201,11 +202,12 @@ class SongEditorPanel extends StatelessWidget{
                                     prov.bindPerformer = value;
 
                                     if(prov.bindTitle)
-                                      CurrentItemProvider.of(context).fileName =
+                                      CurrentItemProvider.of(context).setFileName(
                                           generateFileName(
                                               song: CurrentItemProvider.of(context).song,
                                               context: context
-                                          );
+                                          )
+                                      );
 
                                     SongFileNameDupErrProvider.of(context).checkAllDups(context);
 
@@ -237,28 +239,30 @@ class SongEditorPanel extends StatelessWidget{
 
                         TopCards(
                           onChangedTitle: (String text){
-                            currItemProv.title = text;
+                            currItemProv.setTitle(text, notify: false);
                             SimilarSongProvider.of(context).title = text;
                             if(BindTitleFileNameProvider.of(context).bindTitle)
-                              CurrentItemProvider.of(context).fileName =
+                              CurrentItemProvider.of(context).setFileName(
                                   generateFileName(
                                       song: CurrentItemProvider.of(context).song,
                                       context: context
-                                  );
+                                  )
+                              );
                           },
-                          onChangedHiddenTitles: (List<String> texts) => currItemProv.hidTitles = texts,
-                          onChangedAuthor: (List<String> texts) => currItemProv.authors = texts,
-                          onChangedComposer: (List<String> texts) => currItemProv.composers = texts,
+                          onChangedHiddenTitles: (List<String> texts) => currItemProv.setHidTitles(texts, notify: false),
+                          onChangedAuthor: (List<String> texts) => currItemProv.setAuthors(texts, notify: false),
+                          onChangedComposer: (List<String> texts) => currItemProv.setComposers(texts, notify: false),
                           onChangedPerformer: (List<String> texts){
-                            currItemProv.performers = texts;
+                            currItemProv.setPerformers(texts, notify: false);
                             if(BindTitleFileNameProvider.of(context).bindTitle)
-                              CurrentItemProvider.of(context).fileName =
+                              CurrentItemProvider.of(context).setFileName(
                                   generateFileName(
                                       song: CurrentItemProvider.of(context).song,
                                       context: context
-                                  );
+                                  )
+                              );
                           },
-                          onChangedYT: (String? text) => currItemProv.youtubeLink = text,
+                          onChangedYT: (String? text) => currItemProv.setYoutubeLink(text, notify: false),
                         ),
 
                         const SizedBox(height: Dimen.defMarg),
@@ -269,8 +273,8 @@ class SongEditorPanel extends StatelessWidget{
 
                         TagsWidget(
                           linear: false,
-                          onChanged: (List<String>? tags){
-                            currItemProv.tags = tags!;
+                          onChanged: (List<String> tags){
+                            currItemProv.setTags(tags, notify: false);
                           },
                         ),
 
