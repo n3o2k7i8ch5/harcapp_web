@@ -116,8 +116,7 @@ class WorkspaceTileState extends State<WorkspaceTile>{
                       AppScaffold.showMessage(context, 'Przytrzymaj przycisk, by usunąć piosenkę.'),
                   onLongPress: (){
 
-                    AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
-                    SongEditorPanelProvider.of(context).notify();
+                    AllSongsProvider allSongsProv = AllSongsProvider.of(context);
 
                     int remIndex = allSongsProv.songs.indexOf(song);
                     allSongsProv.remove(song);
@@ -128,14 +127,17 @@ class WorkspaceTileState extends State<WorkspaceTile>{
                         remIndex--;
 
                       if(remIndex < 0)
-                        Provider.of<ShowSongProvider>(context, listen: false).showSong = false;
+                        ShowSongProvider.of(context).showSong = false;
                       else
                         displaySong(context, allSongsProv.songs[remIndex]);
 
                     }
 
-                    SongFileNameDupErrProvider.of(context).checkAllDups(context);
+                    SearchListProvider searchListProv = SearchListProvider.of(context);
+                    searchListProv.research();
 
+                    SongFileNameDupErrProvider.of(context).checkAllDups(context);
+                    SongEditorPanelProvider.of(context).notify();
 
                   }
               ),

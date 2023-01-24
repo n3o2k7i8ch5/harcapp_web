@@ -5,7 +5,6 @@ import 'package:harcapp_core_own_song/providers.dart';
 import 'package:harcapp_core_own_song/song_raw.dart';
 import 'package:harcapp_core_song_widget/providers.dart';
 import 'package:harcapp_core_tags/tag_layout.dart';
-import 'package:harcapp_web/songs/generate_file_name.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/song_editor_panel.dart';
 import 'package:harcapp_web/songs/song_preview.dart';
@@ -42,7 +41,10 @@ class MyApp extends StatelessWidget {
 
       ChangeNotifierProvider(create: (context) => LoadingProvider()),
       ChangeNotifierProvider(create: (context){
-        currItemProv = CurrentItemProvider(song: SongRaw.empty());
+        currItemProv = CurrentItemProvider(
+          song: SongRaw.empty(),
+
+        );
         return currItemProv;
       }),
 
@@ -52,25 +54,25 @@ class MyApp extends StatelessWidget {
         return prov;
       }),
 
-      ChangeNotifierProvider(create: (context) => TitleCtrlProvider(
-          onChanged: (text){
-            LoadingProvider loadingProv = Provider.of<LoadingProvider>(context, listen: false);
-            if(loadingProv.loading!)
-              return;
+      // ChangeNotifierProvider(create: (context) => TitleCtrlProvider(
+      //     onChanged: (text){
+      //       LoadingProvider loadingProv = Provider.of<LoadingProvider>(context, listen: false);
+      //       if(loadingProv.loading!)
+      //         return;
+      //
+      //       SongRaw? song = currItemProv.song;
+      //
+      //       if(bindTitleFileNameProv.bindTitle)
+      //         song.fileName = generateFileName(song: song, context: context);
+      //
+      //       songFileNameDupErrProv.checkAllDups(context);
+      //
+      //       allSongsProv.notifyListeners();
+      //
+      //     }
+      // )),
 
-            SongRaw? song = currItemProv.song;
-
-            if(bindTitleFileNameProv.bindTitle)
-              song.fileName = generateFileName(song: song, context: context);
-
-            songFileNameDupErrProv.checkAllDups(context);
-
-            allSongsProv.notifyListeners();
-
-          }
-      )),
-
-      ChangeNotifierProvider(create: (context) => HidTitlesProvider(hidTitles: [])),
+      // ChangeNotifierProvider(create: (context) => HidTitlesProvider(hidTitles: [])),
       ChangeNotifierProvider(create: (context) => RefrenEnabProvider(true)),
       ChangeNotifierProvider(create: (context) => RefrenPartProvider()),
       ChangeNotifierProvider(create: (context) => TagsProvider(Tag.ALL_TAG_NAMES, [])),

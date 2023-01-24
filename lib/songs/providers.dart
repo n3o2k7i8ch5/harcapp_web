@@ -6,6 +6,8 @@ import 'generate_file_name.dart';
 
 class ShowSongProvider extends ChangeNotifier{
 
+  static ShowSongProvider of(BuildContext context) => Provider.of<ShowSongProvider>(context, listen: false);
+
   bool _showSong;
 
   ShowSongProvider(this._showSong);

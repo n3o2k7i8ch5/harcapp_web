@@ -79,7 +79,6 @@ class CodeEditorDialog extends StatelessWidget{
                                     }
                                   }
 
-                                  TitleCtrlProvider.of(context).text = song.title;
                                   TagsProvider.of(context).set(Tag.ALL_TAG_NAMES, song.tags);
 
                                   this.song.set(song);

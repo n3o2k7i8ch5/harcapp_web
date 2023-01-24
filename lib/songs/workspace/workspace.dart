@@ -356,11 +356,10 @@ void handleExampleSongTap(BuildContext context){
 
 void displaySong(BuildContext context, SongRaw song){
   Provider.of<ShowSongProvider>(context, listen: false).showSong = true;
-  CurrentItemProvider currItemProv = Provider.of<CurrentItemProvider>(context, listen: false);
-  currItemProv.song = song;
+  CurrentItemProvider.of(context).song = song;
 
-  Provider.of<TitleCtrlProvider>(context, listen: false).text = song.title;
-  Provider.of<HidTitlesProvider>(context, listen: false).controllers = song.hidTitles.map((title) => TextEditingController(text: title)).toList();
+  // Provider.of<TitleCtrlProvider>(context, listen: false).text = song.title;
+  // Provider.of<HidTitlesProvider>(context, listen: false).controllers = song.hidTitles.map((title) => TextEditingController(text: title)).toList();
   /*
   Provider.of<AuthorCtrlProvider>(context, listen: false).text = song?.author??'';
   Provider.of<PerformerCtrlProvider>(context, listen: false).text = song?.performer??'';
@@ -369,13 +368,9 @@ void displaySong(BuildContext context, SongRaw song){
   Provider.of<AddPersCtrlProvider>(context, listen: false).text = song?.addPers??'';
 */
 
-  BindTitleFileNameProvider bindTitleFileNameProv = Provider.of<BindTitleFileNameProvider>(context, listen: false);
-  bindTitleFileNameProv.setSetBasedOnSong(song);
-
-  Provider.of<SongEditorPanelProvider>(context, listen: false).notify();
-
-  TagsProvider tagsProv = Provider.of<TagsProvider>(context, listen: false);
-  tagsProv.set(Tag.ALL_TAG_NAMES, song.tags);
+  BindTitleFileNameProvider.of(context).setSetBasedOnSong(song);
+  SongEditorPanelProvider.notify_(context);
+  TagsProvider.of(context).set(Tag.ALL_TAG_NAMES, song.tags);
 
   SimilarSongProvider.of(context).title = song.title;
 }
@@ -388,6 +383,8 @@ class SearchListProvider extends ChangeNotifier{
 
   late List<SongRaw?> currSongList;
 
+  late String searchPhrase;
+
   List<SongRaw> _allSongs;
 
   List<SongRaw> get allSongs => _allSongs;
@@ -397,7 +394,8 @@ class SearchListProvider extends ChangeNotifier{
     currSongList = [];
   }
 
-  changeSearchPhrase(String text){
+  void changeSearchPhrase(String text){
+    searchPhrase = text;
     anySearchPhrase = text.length!=0;
     currSongList = [];
 
@@ -409,6 +407,8 @@ class SearchListProvider extends ChangeNotifier{
     notifyListeners();
 
   }
+
+  void research() => changeSearchPhrase(searchPhrase);
 
   int get length{
     if(anySearchPhrase)

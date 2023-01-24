@@ -201,9 +201,9 @@ class SongEditorPanel extends StatelessWidget{
                                     prov.bindPerformer = value;
 
                                     if(prov.bindTitle)
-                                      Provider.of<CurrentItemProvider>(context, listen: false).fileName =
+                                      CurrentItemProvider.of(context).fileName =
                                           generateFileName(
-                                              song: Provider.of<CurrentItemProvider>(context, listen: false).song,
+                                              song: CurrentItemProvider.of(context).song,
                                               context: context
                                           );
 
@@ -240,20 +240,21 @@ class SongEditorPanel extends StatelessWidget{
                             currItemProv.title = text;
                             SimilarSongProvider.of(context).title = text;
                             if(BindTitleFileNameProvider.of(context).bindTitle)
-                              Provider.of<CurrentItemProvider>(context, listen: false).fileName =
+                              CurrentItemProvider.of(context).fileName =
                                   generateFileName(
-                                      song: Provider.of<CurrentItemProvider>(context, listen: false).song,
+                                      song: CurrentItemProvider.of(context).song,
                                       context: context
                                   );
                           },
+                          onChangedHiddenTitles: (List<String> texts) => currItemProv.hidTitles = texts,
                           onChangedAuthor: (List<String> texts) => currItemProv.authors = texts,
                           onChangedComposer: (List<String> texts) => currItemProv.composers = texts,
                           onChangedPerformer: (List<String> texts){
                             currItemProv.performers = texts;
                             if(BindTitleFileNameProvider.of(context).bindTitle)
-                              Provider.of<CurrentItemProvider>(context, listen: false).fileName =
+                              CurrentItemProvider.of(context).fileName =
                                   generateFileName(
-                                      song: Provider.of<CurrentItemProvider>(context, listen: false).song,
+                                      song: CurrentItemProvider.of(context).song,
                                       context: context
                                   );
                           },
