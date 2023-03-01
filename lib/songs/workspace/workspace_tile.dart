@@ -144,18 +144,22 @@ class WorkspaceTileState extends State<WorkspaceTile>{
 
               DropdownButtonHideUnderline(
                   child: DropdownButton2<String>(
-                    dropdownWidth: 180,
+                    dropdownStyleData: DropdownStyleData(
+                      width: 180,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(AppCard.bigRadius),
+                      ),
+                    ),
+                    buttonStyleData: ButtonStyleData(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100)
+                      ),
+                    ),
                     customButton: SimpleButton.from(
                         context: context,
                         margin: EdgeInsets.zero,
                         icon: MdiIcons.dotsHorizontal,
                         onTap: null
-                    ),
-                    buttonDecoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100)
-                    ),
-                    dropdownDecoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(AppCard.bigRadius),
                     ),
                     value: null,
                     onChanged: (value){

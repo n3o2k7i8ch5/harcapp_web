@@ -27,260 +27,273 @@ import 'package:harcapp_web/songs/song_preview.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
-import '_main.dart';
+class SongEditorPanel extends StatefulWidget{
 
-class SongEditorPanel extends StatelessWidget{
+  const SongEditorPanel();
+
+  @override
+  State<StatefulWidget> createState() => SongEditorPanelState();
+
+}
+
+class SongEditorPanelState extends State<SongEditorPanel>{
 
   static const double SONG_PART_EDITOR_WIDTH = 500;
   static const double SEPARATOR_HEIGHT = 42;
 
-  final SongsPageState parent;
-
-  const SongEditorPanel(this.parent);
+  late ScrollController scrollController;
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    scrollController = ScrollController();
+    super.initState();
+  }
 
-    return Consumer2<SongEditorPanelProvider, ShowSongProvider>(
-      builder: (context, prov, showSongProv, child){
+  @override
+  Widget build(BuildContext context) => Consumer2<SongEditorPanelProvider, ShowSongProvider>(
+    builder: (context, prov, showSongProv, child){
 
-        CurrentItemProvider currItemProv = Provider.of<CurrentItemProvider>(context, listen: false);
+      CurrentItemProvider currItemProv = CurrentItemProvider.of(context);
 
-        if(!showSongProv.showSong)
-          return Padding(
-            padding: EdgeInsets.only(top: 54.0),
-            child: SongEditorNoSongWidget(),
-          );
+      if(!showSongProv.showSong)
+        return Padding(
+          padding: EdgeInsets.only(top: 54.0),
+          child: SongEditorNoSongWidget(),
+        );
 
-        if(!showSongProv.showSong)
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(height: 54.0),
+      if(!showSongProv.showSong)
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(height: 54.0),
 
-              Text(
-                'Dodaj lub importuj piosenkę.',
-                style: AppTextStyle(
-                    fontSize: 24.0,
-                    color: textDisab_(context),
-                    fontWeight: weight.halfBold
-                ),
+            Text(
+              'Dodaj lub importuj piosenkę.',
+              style: AppTextStyle(
+                  fontSize: 24.0,
+                  color: textDisab_(context),
+                  fontWeight: weight.halfBold
               ),
+            ),
 
-              SizedBox(height: 24.0),
+            SizedBox(height: 24.0),
 
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(MdiIcons.arrowLeft, color: textDisab_(context), size: 24.0),
-                  SizedBox(width: Dimen.ICON_MARG),
-                  Text(
-                    'Zerknij tam!',
-                    style: AppTextStyle(
-                        fontSize: 24.0,
-                        color: textDisab_(context),
-                        fontWeight: weight.halfBold
-                    ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(MdiIcons.arrowLeft, color: textDisab_(context), size: 24.0),
+                SizedBox(width: Dimen.ICON_MARG),
+                Text(
+                  'Zerknij tam!',
+                  style: AppTextStyle(
+                      fontSize: 24.0,
+                      color: textDisab_(context),
+                      fontWeight: weight.halfBold
                   ),
-                  SizedBox(width: Dimen.ICON_MARG),
-                  Icon(MdiIcons.musicNote, color: textDisab_(context), size: 24.0),
-                ],
-              )
-            ],
-          );
-        else
-          return Column(
-            children: [
+                ),
+                SizedBox(width: Dimen.ICON_MARG),
+                Icon(MdiIcons.musicNote, color: textDisab_(context), size: 24.0),
+              ],
+            )
+          ],
+        );
+      else
+        return Column(
+          children: [
 
-              Expanded(
+            // SingleChildScrollView is used with SongPartsListWidget(shrinkWrap: true),
+            // because for some reason this is the only way the Handle used for moving
+            // ImplicitlyAnimatedReorderableList items doesn't throw a Scrollable.of() exception.
+            Expanded(
+              child: SingleChildScrollView(
+                controller: scrollController,
                 child: SongPartsListWidget(
-                    controller: parent.scrollController,
-                    shrinkWrap: true,
-                    onPartTap: (index) async {
+                  shrinkWrap: true,
+                  onPartTap: (index) async {
 
-                      String _text = currItemProv.song.songParts[index].getText();
-                      String _chords = currItemProv.song.songParts[index].chords;
-                      bool _shifted = currItemProv.song.songParts[index].shift;
-                      bool _isError = currItemProv.song.songParts[index].isError;
+                    String _text = currItemProv.song.songParts[index].getText();
+                    String _chords = currItemProv.song.songParts[index].chords;
+                    bool _shifted = currItemProv.song.songParts[index].shift;
+                    bool _isError = currItemProv.song.songParts[index].isError;
 
-                      await showDialog(context: context, builder: (_) => Center(
-                        child: SizedBox(
-                          width: SONG_PART_EDITOR_WIDTH,
-                          child: SongPartEditor(
-                            initText: _text,
-                            initChords: _chords,
-                            initShifted: _shifted,
-                            isRefren: currItemProv.song.songParts[index].isRefren(context),
-                            onTextChanged: (text, errCount){
-                              _text = text;
-                              _isError = errCount != 0;
-                            },
-                            onChordsChanged: (text, errCount){
-                              _chords = text;
-                              _isError = errCount != 0;
-                            },
-                            onShiftedChanged: (shifted){
-                              _shifted = shifted;
-                            },
-                          ),
+                    await showDialog(context: context, builder: (_) => Center(
+                      child: SizedBox(
+                        width: SONG_PART_EDITOR_WIDTH,
+                        child: SongPartEditor(
+                          initText: _text,
+                          initChords: _chords,
+                          initShifted: _shifted,
+                          isRefren: currItemProv.song.songParts[index].isRefren(context),
+                          onTextChanged: (text, errCount){
+                            _text = text;
+                            _isError = errCount != 0;
+                          },
+                          onChordsChanged: (text, errCount){
+                            _chords = text;
+                            _isError = errCount != 0;
+                          },
+                          onShiftedChanged: (shifted){
+                            _shifted = shifted;
+                          },
                         ),
-                      ));
+                      ),
+                    ));
 
-                      currItemProv.song.songParts[index].setText(_text);
-                      currItemProv.song.songParts[index].chords = _chords;
-                      currItemProv.song.songParts[index].shift = _shifted;
-                      currItemProv.song.songParts[index].isError = _isError;
-                      currItemProv.notify();
+                    currItemProv.song.songParts[index].setText(_text);
+                    currItemProv.song.songParts[index].chords = _chords;
+                    currItemProv.song.songParts[index].shift = _shifted;
+                    currItemProv.song.songParts[index].isError = _isError;
+                    currItemProv.notify();
 
-                    },
+                  },
 
-                    header: Column(
-                      children: [
+                  header: Column(
+                    children: [
 
-                        Padding(
-                          padding: EdgeInsets.only(left: Dimen.ICON_MARG, top: Dimen.ICON_MARG),
-                          child: TitleShortcutRowWidget(
-                            title: 'Info. ogólne',
-                            textAlign: TextAlign.start,
-                          ),
+                      Padding(
+                        padding: EdgeInsets.only(left: Dimen.ICON_MARG, top: Dimen.ICON_MARG),
+                        child: TitleShortcutRowWidget(
+                          title: 'Info. ogólne',
+                          textAlign: TextAlign.start,
                         ),
+                      ),
 
-                        Consumer<BindTitleFileNameProvider>(
-                          builder: (context, prov, child) =>
-                              Material(
-                                color: Colors.transparent,
-                                clipBehavior: Clip.hardEdge,
-                                borderRadius: BorderRadius.circular(AppCard.bigRadius),
-                                child: SwitchListTile(
-                                  contentPadding: EdgeInsets.only(left: Dimen.ICON_MARG),
-                                  value: prov.bindTitle,
-                                  onChanged: (value){
-                                    prov.bindTitle = value;
+                      Consumer<BindTitleFileNameProvider>(
+                        builder: (context, prov, child) =>
+                            Material(
+                              color: Colors.transparent,
+                              clipBehavior: Clip.hardEdge,
+                              borderRadius: BorderRadius.circular(AppCard.bigRadius),
+                              child: SwitchListTile(
+                                contentPadding: EdgeInsets.only(left: Dimen.ICON_MARG),
+                                value: prov.bindTitle,
+                                onChanged: (value){
+                                  prov.bindTitle = value;
 
-                                    if(prov.bindTitle)
-                                      Provider.of<CurrentItemProvider>(context, listen: false).setFileName(
-                                          generateFileName(
-                                              song: Provider.of<CurrentItemProvider>(context, listen: false).song,
-                                              context: context
-                                          )
-                                      );
+                                  if(prov.bindTitle)
+                                    Provider.of<CurrentItemProvider>(context, listen: false).setFileName(
+                                        generateFileName(
+                                            song: Provider.of<CurrentItemProvider>(context, listen: false).song,
+                                            context: context
+                                        )
+                                    );
 
-                                    SongFileNameDupErrProvider.of(context).checkAllDups(context);
+                                  SongFileNameDupErrProvider.of(context).checkAllDups(context);
 
-                                  },
-                                  title: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
+                                },
+                                title: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
 
-                                      Text(
-                                        'Powiąż identyfikator piosenki z tytułem',
-                                        style: AppTextStyle(
-                                            color: prov.bindTitle?textEnab_(context):textDisab_(context),
-                                            fontSize: Dimen.TEXT_SIZE_BIG
-                                        ),
+                                    Text(
+                                      'Powiąż identyfikator piosenki z tytułem',
+                                      style: AppTextStyle(
+                                          color: prov.bindTitle?textEnab_(context):textDisab_(context),
+                                          fontSize: Dimen.TEXT_SIZE_BIG
                                       ),
-                                      SizedBox(width: Dimen.ICON_MARG),
+                                    ),
+                                    SizedBox(width: Dimen.ICON_MARG),
 
-                                    ],
-                                  ),
+                                  ],
                                 ),
                               ),
-                        ),
+                            ),
+                      ),
 
-                        SizedBox(height: Dimen.defMarg),
+                      SizedBox(height: Dimen.defMarg),
 
-                        Consumer<BindTitleFileNameProvider>(
-                          builder: (context, prov, child) =>
-                              Material(
-                                color: Colors.transparent,
-                                clipBehavior: Clip.hardEdge,
-                                borderRadius: BorderRadius.circular(AppCard.bigRadius),
-                                child: SwitchListTile(
-                                  contentPadding: EdgeInsets.only(left: Dimen.ICON_MARG),
-                                  value: prov.bindPerformer,
-                                  onChanged: (value) {
-                                    prov.bindPerformer = value;
+                      Consumer<BindTitleFileNameProvider>(
+                        builder: (context, prov, child) =>
+                            Material(
+                              color: Colors.transparent,
+                              clipBehavior: Clip.hardEdge,
+                              borderRadius: BorderRadius.circular(AppCard.bigRadius),
+                              child: SwitchListTile(
+                                contentPadding: EdgeInsets.only(left: Dimen.ICON_MARG),
+                                value: prov.bindPerformer,
+                                onChanged: (value) {
+                                  prov.bindPerformer = value;
 
-                                    if(prov.bindTitle)
-                                      CurrentItemProvider.of(context).setFileName(
-                                          generateFileName(
-                                              song: CurrentItemProvider.of(context).song,
-                                              context: context
-                                          )
-                                      );
+                                  if(prov.bindTitle)
+                                    CurrentItemProvider.of(context).setFileName(
+                                        generateFileName(
+                                            song: CurrentItemProvider.of(context).song,
+                                            context: context
+                                        )
+                                    );
 
-                                    SongFileNameDupErrProvider.of(context).checkAllDups(context);
+                                  SongFileNameDupErrProvider.of(context).checkAllDups(context);
 
-                                  },
-                                  title: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
+                                },
+                                title: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
 
-                                      Text(
-                                        'Powiąż identyfikator piosenki z wykonawcą',
-                                        style: AppTextStyle(
-                                            color: prov.bindPerformer?textEnab_(context):textDisab_(context),
-                                            fontSize: Dimen.TEXT_SIZE_BIG
-                                        ),
+                                    Text(
+                                      'Powiąż identyfikator piosenki z wykonawcą',
+                                      style: AppTextStyle(
+                                          color: prov.bindPerformer?textEnab_(context):textDisab_(context),
+                                          fontSize: Dimen.TEXT_SIZE_BIG
                                       ),
-                                      SizedBox(width: Dimen.ICON_MARG),
+                                    ),
+                                    SizedBox(width: Dimen.ICON_MARG),
 
-                                    ],
-                                  ),
+                                  ],
                                 ),
                               ),
-                        ),
+                            ),
+                      ),
 
-                        SizedBox(height: Dimen.defMarg),
+                      SizedBox(height: Dimen.defMarg),
 
-                        SimilarSongWidget(),
+                      SimilarSongWidget(),
 
-                        SizedBox(height: Dimen.defMarg),
+                      SizedBox(height: Dimen.defMarg),
 
-                        TopCards(
-                          onChangedTitle: (String text){
-                            currItemProv.setTitle(text, notify: false);
-                            SimilarSongProvider.of(context).title = text;
-                            if(BindTitleFileNameProvider.of(context).bindTitle)
-                              CurrentItemProvider.of(context).setFileName(
-                                  generateFileName(
-                                      song: CurrentItemProvider.of(context).song,
-                                      context: context
-                                  )
-                              );
-                          },
-                          onChangedHiddenTitles: (List<String> texts) => currItemProv.setHidTitles(texts, notify: false),
-                          onChangedAuthor: (List<String> texts) => currItemProv.setAuthors(texts, notify: false),
-                          onChangedComposer: (List<String> texts) => currItemProv.setComposers(texts, notify: false),
-                          onChangedPerformer: (List<String> texts){
-                            currItemProv.setPerformers(texts, notify: false);
-                            if(BindTitleFileNameProvider.of(context).bindTitle)
-                              CurrentItemProvider.of(context).setFileName(
-                                  generateFileName(
-                                      song: CurrentItemProvider.of(context).song,
-                                      context: context
-                                  )
-                              );
-                          },
-                          onChangedYT: (String? text) => currItemProv.setYoutubeLink(text, notify: false),
-                        ),
+                      TopCards(
+                        onChangedTitle: (String text){
+                          currItemProv.setTitle(text, notify: false);
+                          SimilarSongProvider.of(context).title = text;
+                          if(BindTitleFileNameProvider.of(context).bindTitle)
+                            CurrentItemProvider.of(context).setFileName(
+                                generateFileName(
+                                    song: CurrentItemProvider.of(context).song,
+                                    context: context
+                                )
+                            );
+                        },
+                        onChangedHiddenTitles: (List<String> texts) => currItemProv.setHidTitles(texts, notify: false),
+                        onChangedAuthor: (List<String> texts) => currItemProv.setAuthors(texts, notify: false),
+                        onChangedComposer: (List<String> texts) => currItemProv.setComposers(texts, notify: false),
+                        onChangedPerformer: (List<String> texts){
+                          currItemProv.setPerformers(texts, notify: false);
+                          if(BindTitleFileNameProvider.of(context).bindTitle)
+                            CurrentItemProvider.of(context).setFileName(
+                                generateFileName(
+                                    song: CurrentItemProvider.of(context).song,
+                                    context: context
+                                )
+                            );
+                        },
+                        onChangedYT: (String? text) => currItemProv.setYoutubeLink(text, notify: false),
+                      ),
 
-                        const SizedBox(height: Dimen.defMarg),
+                      const SizedBox(height: Dimen.defMarg),
 
-                        const AddPersListWidget(),
+                      const AddPersListWidget(),
 
-                        const SizedBox(height: Dimen.defMarg),
+                      const SizedBox(height: Dimen.defMarg),
 
-                        TagsWidget(
-                          linear: false,
-                          onChanged: (List<String> tags){
-                            currItemProv.setTags(tags, notify: false);
-                          },
-                        ),
+                      TagsWidget(
+                        linear: false,
+                        onChanged: (List<String> tags){
+                          currItemProv.setTags(tags, notify: false);
+                        },
+                      ),
 
-                        SizedBox(height: SEPARATOR_HEIGHT),
+                      SizedBox(height: SEPARATOR_HEIGHT),
 
-                        RefrenTemplate(
+                      RefrenTemplate(
                           onPartTap: () async {
 
                             String _text = currItemProv.song.refrenPart.getText();
@@ -323,32 +336,31 @@ class SongEditorPanel extends StatelessWidget{
                             Provider.of<RefrenPartProvider>(context, listen: false).notify();
 
                           }
+                      ),
+
+                      SizedBox(height: SEPARATOR_HEIGHT),
+
+                      Padding(
+                        padding: EdgeInsets.only(left: Dimen.ICON_MARG),
+                        child: TitleShortcutRowWidget(
+                          title: 'Struktura piosenki',
+                          textAlign: TextAlign.start,
                         ),
+                      )
 
-                        SizedBox(height: SEPARATOR_HEIGHT),
-
-                        Padding(
-                          padding: EdgeInsets.only(left: Dimen.ICON_MARG),
-                          child: TitleShortcutRowWidget(
-                            title: 'Struktura piosenki',
-                            textAlign: TextAlign.start,
-                          ),
-                        )
-
-                      ],
-                    ),
+                    ],
+                  ),
                 ),
-              ),
+              )
+            ),
 
-              AddButtonsWidget(onPressed: () => scrollToBottom(parent.scrollController))
+            AddButtonsWidget(onPressed: () => scrollToBottom(scrollController))
 
-            ],
-          );
+          ],
+        );
 
-      },
-    );
-
-  }
+    },
+  );
 
 }
 
