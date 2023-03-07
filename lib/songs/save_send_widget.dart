@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_classes/common.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/app_text_field_hint.dart';
@@ -236,24 +236,24 @@ String convertAllToCode(BuildContext context){
   Map offSongMap = {};
   Map confSongMap = {};
 
-  AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
-  List<SongRaw?> allSongs = allSongsProv.songs;
+  AllSongsProvider allSongsProv = AllSongsProvider.of(context);
+  List<SongRaw> allSongs = allSongsProv.songs;
 
   allSongs.sort(
-          (a, b) => compare(a!.title, b!.title)
+          (a, b) => compareText(a.title, b.title)
   );
 
   int iterOff = 0;
   int iterConf = 0;
   for(SongRaw? song in allSongs){
-    Map map = song!.toMap(withFileName: false);
+    Map map = song!.toMap(withLclId: false);
     if(allSongsProv.isConf(song))
-      confSongMap[song.fileName] = {
+      confSongMap[song.lclId] = {
         'song': map,
         'index': iterConf++
       };
     else
-      offSongMap[song.fileName] = {
+      offSongMap[song.lclId] = {
         'song': map,
         'index': iterOff++
       };
@@ -265,107 +265,4 @@ String convertAllToCode(BuildContext context){
   });
 
   return code;
-}
-
-int compare(String s1, String s2){
-
-  s1 = s1.toLowerCase()
-      .replaceAll(RegExp(r'[^a-ząćęłńóśźżA-ZĄĆĘŁŃÓŚŹŻ0-9]'), '');
-
-  s2 = s2.toLowerCase()
-      .replaceAll(RegExp(r'[^a-ząćęłńóśźżA-ZĄĆĘŁŃÓŚŹŻ0-9]'), '');
-
-  for(int i=0; i<min(s1.length, s2.length); i++){
-
-    String c1 = s1[i];
-    String c2 = s2[i];
-
-    int int1 = charToInt(c1);
-    int int2 = charToInt(c2);
-
-    if(int1 != int2)
-      return int1-int2;
-
-  }
-
-  return s1.length - s2.length;
-}
-
-int charToInt(String c) {
-  switch (c) {
-    case ' ':
-      return 0;
-    case 'a':
-      return 1;
-    case 'ą':
-      return 2;
-    case 'b':
-      return 3;
-    case 'c':
-      return 4;
-    case 'ć':
-      return 5;
-    case 'd':
-      return 6;
-    case 'e':
-      return 7;
-    case 'ę':
-      return 8;
-    case 'f':
-      return 9;
-    case 'g':
-      return 10;
-    case 'h':
-      return 11;
-    case 'i':
-      return 12;
-    case 'j':
-      return 13;
-    case 'k':
-      return 14;
-    case 'l':
-      return 15;
-    case 'ł':
-      return 16;
-    case 'm':
-      return 17;
-    case 'n':
-      return 18;
-    case 'ń':
-      return 19;
-    case 'o':
-      return 20;
-    case 'ó':
-      return 21;
-    case 'p':
-      return 22;
-    case 'q':
-      return 23;
-    case 'r':
-      return 24;
-    case 's':
-      return 25;
-    case 'ś':
-      return 26;
-    case 't':
-      return 27;
-    case 'u':
-      return 28;
-    case 'v':
-      return 29;
-    case 'w':
-      return 30;
-    case 'x':
-      return 31;
-    case 'y':
-      return 32;
-    case 'z':
-      return 33;
-    case 'ź':
-      return 34;
-    case 'ż':
-      return 35;
-    default:
-      return -1;
-  }
 }

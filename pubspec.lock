@@ -279,10 +279,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_plugin_android_lifecycle
-      sha256: "4bef634684b2c7f3468c77c766c831229af829a0cd2d4ee6c1b99558bd14e5d2"
+      sha256: c224ac897bed083dabf11f238dd11a239809b446740be0c2044608c50029ffdf
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.8"
+    version: "2.0.9"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -306,7 +306,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "97c9575fa0929d634cad74fad889667550390f35"
+      resolved-ref: a1cc7e5422621da158ad64496e1f3dce4f1e8d6a
       url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"
@@ -315,7 +315,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: de2f5e1f7badb06f331695bd589eab55f988f0fa
+      resolved-ref: bda0e091c259347558a3cebc933de675c7e01c1d
       url: "https://github.com/n3o2k7i8ch5/harcapp_core_own_song"
     source: git
     version: "0.0.1"
@@ -324,7 +324,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "237f4ca3ccd40d2803bb777fbc742a7b2e98f94d"
+      resolved-ref: "08dbd7be029189db9a91c9fbcb24c0ba6177b627"
       url: "https://github.com/n3o2k7i8ch5/harcapp_core_song"
     source: git
     version: "0.0.1"
@@ -342,7 +342,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "79ac38da27a1a41a360ff9563c6c657bd8058ee3"
+      resolved-ref: cb2820180de2f136642ffa5afb5af8db2f40262c
       url: "https://github.com/n3o2k7i8ch5/harcapp_core_tags"
     source: git
     version: "0.0.1"
@@ -382,10 +382,10 @@ packages:
     dependency: transitive
     description:
       name: image_picker_android
-      sha256: "845f793834d5d3af887ce39e3c97186996928cd43c8350a23e5499268398cc16"
+      sha256: ca14b663fecbe7f5ddda83782abfb2e1dd2a23d6da49b6ed344bf8cf3871225a
       url: "https://pub.dev"
     source: hosted
-    version: "0.8.5+8"
+    version: "0.8.5+9"
   image_picker_for_web:
     dependency: transitive
     description:

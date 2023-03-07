@@ -48,8 +48,8 @@ class WorkspaceTileState extends State<WorkspaceTile>{
       String title = song.title;
       if(title.length==0) title = HINT_FILE_TITLE;
 
-      String fileName = song.fileName;
-      if(fileName.length==0) fileName = HINT_FILE_NAME;
+      String lclId = song.lclId;
+      if(lclId.length==0) lclId = HINT_FILE_NAME;
 
       return SimpleButton(
         radius: AppCard.bigRadius - 4,
@@ -92,12 +92,12 @@ class WorkspaceTileState extends State<WorkspaceTile>{
             ],
           ),
           subtitle: Text(
-              fileName,
+              lclId,
               maxLines: 1,
               overflow: TextOverflow.clip,
               style: AppTextStyle(
                   color:
-                  fileName==HINT_FILE_NAME || songFileNameDupErrProv.hasDup(song)?
+                  lclId==HINT_FILE_NAME || songFileNameDupErrProv.hasDup(song)?
                   Colors.red:hintEnab_(context)
               )
           ),
@@ -166,8 +166,8 @@ class WorkspaceTileState extends State<WorkspaceTile>{
 
                       switch(value){
                         case MENU_CONF:
-                          if(song.isConfid) song.fileName = 'o!_' + song.fileName.substring(4);
-                          else song.fileName = 'oc!_' + song.fileName.substring(3);
+                          if(song.isConfid) song.lclId = 'o!_' + song.lclId.substring(4);
+                          else song.lclId = 'oc!_' + song.lclId.substring(3);
 
                           AllSongsProvider.of(context).set(song, song.isConfid);
 

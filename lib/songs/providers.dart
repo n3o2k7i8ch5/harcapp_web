@@ -65,10 +65,10 @@ class BindTitleFileNameProvider extends ChangeNotifier{
 
   void setSetBasedOnSong(SongRaw song){
     bindTitle =
-      song.fileName == generateFileName(prov: this, song: song);
+      song.lclId == generateFileName(prov: this, song: song);
 
     bindPerformer =
-      (song.fileName.contains('@') && bindTitle) || song.fileName == 'o!_' || song.fileName == 'oc!_';
+      (song.lclId.contains('@') && bindTitle) || song.lclId == 'o!_' || song.lclId == 'oc!_';
     notifyListeners();
   }
 
@@ -142,7 +142,7 @@ class SongFileNameDupErrProvider extends ChangeNotifier{
     _map = {};
   }
 
-  List<SongRaw> get(SongRaw song) => _map[song.fileName]??[];
+  List<SongRaw> get(SongRaw song) => _map[song.lclId]??[];
 
   int get count{
     int num = 0;
@@ -153,15 +153,15 @@ class SongFileNameDupErrProvider extends ChangeNotifier{
     return num;
   }
 
-  bool hasDup(SongRaw song) => _map[song.fileName] != null && _map[song.fileName]!.length > 1;
+  bool hasDup(SongRaw song) => _map[song.lclId] != null && _map[song.lclId]!.length > 1;
 
   void checkAllDups(BuildContext context){
     _map.clear();
 
     for(SongRaw song in Provider.of<AllSongsProvider>(context, listen: false).songs) {
-      if(_map[song.fileName] == null)
-        _map[song.fileName] = [];
-      _map[song.fileName]!.add(song);
+      if(_map[song.lclId] == null)
+        _map[song.lclId] = [];
+      _map[song.lclId]!.add(song);
     }
 
     notifyListeners();

@@ -40,7 +40,7 @@ void importSongsFromCode(String code, {required Function(List<SongRaw> offSongs,
       int index = songPackMap['index'];
       SongRaw song = SongRaw.fromRespMap(fileName, songMap);
 
-      if(!song.isOfficial) song.fileName = 'o!_' + song.fileName;
+      if(!song.isOfficial) song.lclId = 'o!_' + song.lclId;
 
       offSongs[index] = song;
 
@@ -59,7 +59,7 @@ void importSongsFromCode(String code, {required Function(List<SongRaw> offSongs,
       int index = songPackMap['index'];
 
       SongRaw song = SongRaw.fromRespMap(fileName, songMap);
-      if(!song.isConfid) song.fileName = 'oc!_' + song.fileName;
+      if(!song.isConfid) song.lclId = 'oc!_' + song.lclId;
 
       confSongs[index] = song;
 
@@ -333,7 +333,7 @@ void handleImportSongTap(BuildContext context) async {
 void handleNewSongTap(BuildContext context){
 
   SongRaw song = SongRaw.empty();
-  song.fileName = 'o!_';
+  song.lclId = 'o!_';
   Provider.of<AllSongsProvider>(context, listen: false).addOff(song);
 
   SongFileNameDupErrProvider songFileNameDupErrProv = SongFileNameDupErrProvider.of(context);
@@ -345,7 +345,7 @@ void handleNewSongTap(BuildContext context){
 
 void handleExampleSongTap(BuildContext context){
 
-  SongRaw song = SimilarSongProvider.of(context).allSongs!.values.firstWhere((songs) => songs.first.fileName == 'o!_addio_pomidory@kabaret_starszych_panow').first;
+  SongRaw song = SimilarSongProvider.of(context).allSongs!.values.firstWhere((songs) => songs.first.lclId == 'o!_addio_pomidory@kabaret_starszych_panow').first;
 
   AllSongsProvider.of(context).addOff(song);
   displaySong(context, song);

@@ -171,7 +171,7 @@ class SongEditorPanelState extends State<SongEditorPanel>{
                                   prov.bindTitle = value;
 
                                   if(prov.bindTitle)
-                                    Provider.of<CurrentItemProvider>(context, listen: false).setFileName(
+                                    Provider.of<CurrentItemProvider>(context, listen: false).setLclId(
                                         generateFileName(
                                             song: Provider.of<CurrentItemProvider>(context, listen: false).song,
                                             context: context
@@ -215,7 +215,7 @@ class SongEditorPanelState extends State<SongEditorPanel>{
                                   prov.bindPerformer = value;
 
                                   if(prov.bindTitle)
-                                    CurrentItemProvider.of(context).setFileName(
+                                    CurrentItemProvider.of(context).setLclId(
                                         generateFileName(
                                             song: CurrentItemProvider.of(context).song,
                                             context: context
@@ -255,7 +255,7 @@ class SongEditorPanelState extends State<SongEditorPanel>{
                           currItemProv.setTitle(text, notify: false);
                           SimilarSongProvider.of(context).title = text;
                           if(BindTitleFileNameProvider.of(context).bindTitle)
-                            CurrentItemProvider.of(context).setFileName(
+                            CurrentItemProvider.of(context).setLclId(
                                 generateFileName(
                                     song: CurrentItemProvider.of(context).song,
                                     context: context
@@ -268,7 +268,7 @@ class SongEditorPanelState extends State<SongEditorPanel>{
                         onChangedPerformer: (List<String> texts){
                           currItemProv.setPerformers(texts, notify: false);
                           if(BindTitleFileNameProvider.of(context).bindTitle)
-                            CurrentItemProvider.of(context).setFileName(
+                            CurrentItemProvider.of(context).setLclId(
                                 generateFileName(
                                     song: CurrentItemProvider.of(context).song,
                                     context: context

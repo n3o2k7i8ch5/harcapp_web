@@ -64,8 +64,8 @@ class CodeEditorDialog extends StatelessWidget{
 
                                   try{
                                     song = parseOldCode('_nowa_piosenka', controller.text);
-                                    String fileName = generateFileName(context: context, song: song);
-                                    song.fileName = fileName;
+                                    String lclId = generateFileName(context: context, song: song);
+                                    song.lclId = lclId;
                                   } catch(e){
 
                                     try {

@@ -7,17 +7,16 @@ import 'package:harcapp_core_song/song_element.dart';
 import 'package:harcapp_web/songs/old/song_basic_data.dart';
 import 'package:harcapp_web/songs/old/song_element_old.dart';
 
-SongRaw parseOldCode(String fileName, String code, {bool official = true}){
+SongRaw parseOldCode(String lclId, String code, {bool official = true}){
   bool hasRefren;
   SongElementOld refrenElementOld;
   SongElement? refrenElement;
-  bool hasChords = false;
   List<SongElementOld?> songElementOldList = [];
   List<SongElement?> songElements = [];
 
   try {
 
-    SongBasicData1 basicData = SongBasicData1.parse(fileName, code, official: official);
+    SongBasicData1 basicData = SongBasicData1.parse(lclId, code, official: official);
 
     List<String> parts = code.split('<');
 
@@ -25,7 +24,6 @@ SongRaw parseOldCode(String fileName, String code, {bool official = true}){
     if(parts[1].length != 0) {
       hasRefren = true;
       refrenElementOld = SongElementOld.decodeOld(parts[1]);
-      if(refrenElementOld.getChords().length!=0) hasChords = true;
 
       refrenElement = SongElement.from(refrenElementOld.getText(), refrenElementOld.getChords(), true);
 
@@ -51,9 +49,6 @@ SongRaw parseOldCode(String fileName, String code, {bool official = true}){
       if (zwrotka_elements[0] == '1')
         zwrotka_elements[0] = firstElementChords;
 
-      if(zwrotka_elements[0].replaceAll('\n', '').length != 0)
-        hasChords = true;
-
       SongElementOld songElementOld = SongElementOld.decodeOld(parts[i], firstElementChords: firstElementChords);
       songElementOldList.add(songElementOld);
       songElements.add(SongElement.from(songElementOld.getText(), songElementOld.getChords(), false));
@@ -63,7 +58,7 @@ SongRaw parseOldCode(String fileName, String code, {bool official = true}){
     List<String> hidTitles = [];
 
     return SongRaw(
-      fileName: fileName,
+      lclId: lclId,
       title: basicData.title,
       hidTitles: hidTitles,
       authors: [basicData.author],
