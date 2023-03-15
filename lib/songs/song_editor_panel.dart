@@ -429,6 +429,7 @@ class SimilarSongWidget extends StatelessWidget{
                                 SongBaseSettings(),
                                 screenWidth: 372,
                                 addPersResolver: AddPersSimpleResolver(),
+                                scrollController: ScrollController(),
                                 key: UniqueKey()//ValueKey(currItemProv.song)
                             ),
                           ),

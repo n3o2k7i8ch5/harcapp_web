@@ -101,6 +101,7 @@ class SongPreview extends StatelessWidget{
                             SongBaseSettings(),
                             screenWidth: 372,
                             cacheSizes: false,
+                            scrollController: ScrollController(),
                             key: UniqueKey(),
                             addPersResolver: AddPersSimpleResolver(),//ValueKey(currItemProv.song)
                           ),
