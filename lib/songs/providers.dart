@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:harcapp_core_own_song/song_raw.dart';
 import 'package:provider/provider.dart';
 
-import 'generate_file_name.dart';
+import 'utils/generate_file_name.dart';
 
 class ShowSongProvider extends ChangeNotifier{
 
@@ -141,6 +141,8 @@ class SongFileNameDupErrProvider extends ChangeNotifier{
   SongFileNameDupErrProvider(){
     _map = {};
   }
+
+  get lclIds => _map.keys.toList();
 
   List<SongRaw> get(SongRaw song) => _map[song.lclId]??[];
 

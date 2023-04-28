@@ -8,7 +8,7 @@ import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_core_own_song/providers.dart';
 import 'package:harcapp_core_own_song/song_raw.dart';
-import 'package:harcapp_web/songs/workspace/workspace.dart';
+import 'package:harcapp_web/songs/workspace/workspace_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -23,8 +23,9 @@ class WorkspaceTile extends StatefulWidget{
   final ScrollController controller;
   final int index;
   final void Function(BuildContext context)? onShowMoreButt;
+  final void Function()? onTap;
 
-  const WorkspaceTile(this.song, this.controller, this.index, {this.onShowMoreButt, Key? key}):super(key: key);
+  const WorkspaceTile(this.song, this.controller, this.index, {this.onShowMoreButt, this.onTap, Key? key}):super(key: key);
 
   @override
   State<StatefulWidget> createState() => WorkspaceTileState();
@@ -58,6 +59,7 @@ class WorkspaceTileState extends State<WorkspaceTile>{
           loadingProv.loading = true;
           displaySong(context, song);
           loadingProv.loading = false;
+          widget.onTap?.call();
         },
         child: ListTile(
           title: Row(

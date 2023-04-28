@@ -18,12 +18,12 @@ import 'package:harcapp_core_own_song/song_raw.dart';
 import 'package:harcapp_core_song_widget/add_pers_resolver.dart';
 import 'package:harcapp_core_song_widget/song_widget_template.dart';
 import 'package:harcapp_web/articles/article_editor/common.dart';
-import 'package:harcapp_web/songs/generate_file_name.dart';
+import 'package:harcapp_web/songs/utils/generate_file_name.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/song_editor_no_song_widget.dart';
-import 'package:harcapp_web/songs/song_loader.dart';
+import 'package:harcapp_web/songs/utils/song_loader.dart';
 import 'package:harcapp_web/songs/song_part_editor.dart';
-import 'package:harcapp_web/songs/song_preview.dart';
+import 'package:harcapp_web/songs/song_preview_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -106,6 +106,7 @@ class SongEditorPanelState extends State<SongEditorPanel>{
             // ImplicitlyAnimatedReorderableList items doesn't throw a Scrollable.of() exception.
             Expanded(
               child: SingleChildScrollView(
+                physics: BouncingScrollPhysics(),
                 controller: scrollController,
                 child: SongPartsListWidget(
                   shrinkWrap: true,

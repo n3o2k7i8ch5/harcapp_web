@@ -23,10 +23,12 @@ environment:
 dependencies:
 
   clipboard: ^0.1.3
+  dio: 5.1.1
   draggable_scrollbar: ^0.1.0
   dropdown_button2: ^2.0.0
   file_picker_cross: ^4.4.2
   flutter_mailer: ^2.0.0
+  go_router: 6.5.8
   http: ^0.13.4
   image: ^4.0.5
   image_picker_web: ^3.0.0+1
@@ -36,6 +38,8 @@ dependencies:
   path_provider: ^2.0.2
   pretty_json: ^2.0.0
   provider: ^6.0.0
+  flutter_svg: 2.0.5
+  url_strategy: 0.2.0
   worker_manager: ^5.0.3
 
   harcapp_core:

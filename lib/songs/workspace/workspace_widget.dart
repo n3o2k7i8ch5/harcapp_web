@@ -3,10 +3,7 @@ import 'dart:typed_data';
 
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:file_picker_cross/file_picker_cross.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:harcapp_core/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
@@ -69,31 +66,32 @@ void importSongsFromCode(String code, {required Function(List<SongRaw> offSongs,
   onFinished(offSongs.cast<SongRaw>(), confSongs.cast<SongRaw>());
 }
 
-class WorkspacePart extends StatefulWidget{
+class WorkspaceWidget extends StatefulWidget{
+
+  final void Function(int)? onItemTap;
+
+  const WorkspaceWidget({this.onItemTap});
 
   @override
-  State<StatefulWidget> createState() => WorkspacePartState();
+  State<StatefulWidget> createState() => WorkspaceWidgetState();
 
 }
 
-class WorkspacePartState extends State<WorkspacePart>{
-
-  String? code;
+class WorkspaceWidgetState extends State<WorkspaceWidget>{
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Consumer<AllSongsProvider>(
+    builder: (context, allSongsProv, child){
+      if(allSongsProv.length==0)
+        return LoadWidget();
+      else
+        return SongListView(
+          onItemTap: widget.onItemTap,
+        );
 
-    return Consumer<AllSongsProvider>(
-      builder: (context, allSongsProv, child){
-        if(allSongsProv.length==0)
-          return LoadWidget();
-        else
-          return SongListView();
+    },
+  );
 
-      },
-    );
-
-  }
 }
 
 class LoadWidget extends StatelessWidget{
@@ -143,7 +141,9 @@ class LoadWidget extends StatelessWidget{
 
 class SongListView extends StatefulWidget{
 
-  const SongListView();
+  final void Function(int)? onItemTap;
+
+  const SongListView({this.onItemTap});
 
   @override
   State<StatefulWidget> createState() => SongListViewState();
@@ -226,7 +226,8 @@ class SongListViewState extends State<SongListView>{
                               controller,
                               index,
                               onShowMoreButt: (BuildContext context) =>
-                              this.itemContext = context
+                              this.itemContext = context,
+                              onTap: () => widget.onItemTap?.call(index),
                           ),
                           separatorBuilder: (context, index) => SizedBox(height: Dimen.defMarg),
                         ),

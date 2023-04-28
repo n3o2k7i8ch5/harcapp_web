@@ -1,0 +1,1 @@
+const double defPageWidth = 800;
