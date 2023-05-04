@@ -57,6 +57,16 @@ class TopNavigationBarState extends State<TopNavigationBar>{
               Expanded(child: Container()),
 
               PageNavItem(
+                icon: MdiIcons.dominoMask,
+                title: 'Polityka prywatności',
+                subtitle: 'Czyli nic interesującego',
+                path: pathPrivacyPolicy, //setState(() => body = SongsPage()),
+                dense: constraints.maxWidth < denseMaxWidth,
+              ),
+
+              SizedBox(width: 12.0),
+
+              PageNavItem(
                 icon: MdiIcons.music,
                 title: 'Warsztat piosenki',
                 subtitle: 'Twój i dodawaj!',
