@@ -26,7 +26,7 @@ class FileNameEditorDialogState extends State<FileNameEditorDialog>{
 
   SongRaw get song => widget.song;
 
-  bool get isConfid => allSongsProvider.isConf(song);
+  bool get isConfid => allSongsProvider.isConf(song)!;
 
   late AllSongsProvider allSongsProvider;
   late TextEditingController textController;

@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:harcapp_core/comm_classes/common.dart';
 import 'package:harcapp_core_own_song/song_raw.dart';
+import 'package:harcapp_web/common/sha_pref.dart';
+import 'package:harcapp_web/songs/utils/song_loader.dart';
 import 'package:provider/provider.dart';
 
 import 'utils/generate_file_name.dart';
@@ -78,14 +83,6 @@ class AllSongsProvider extends ChangeNotifier{
 
   static AllSongsProvider of(BuildContext context) => Provider.of<AllSongsProvider>(context, listen: false);
 
-  //List<SongRaw> _songs;
-
-  void init(List<SongRaw> songs, Map<SongRaw, bool> confMap){
-    _songs = songs;
-    _confMap = confMap;
-    notifyListeners();
-  }
-
   List<SongRaw> _songs;
   Map<SongRaw, bool> _confMap = {};
 
@@ -93,40 +90,105 @@ class AllSongsProvider extends ChangeNotifier{
 
   List<SongRaw> get songs => _songs;
 
-  AllSongsProvider(): _songs = [], _confMap = {};
+  AllSongsProvider(List<SongRaw> songs): _songs = songs, _confMap = {for (SongRaw song in songs) song: song.isConfid};
+
+  void clear(){
+    _songs.clear();
+    _confMap.clear();
+    _cacheSongs();
+    notifyListeners();
+  }
 
   void addOff(SongRaw song){
     _songs.add(song);
     _confMap[song] = false;
+    _cacheSongs();
     notifyListeners();
   }
 
   void addConf(SongRaw song){
     _songs.add(song);
     _confMap[song] = true;
+    _cacheSongs();
     notifyListeners();
   }
 
   void remove(SongRaw? song){
     _songs.remove(song);
     _confMap.remove(song);
+    _cacheSongs();
     notifyListeners();
   }
 
-  addAll(List<SongRaw> songs, Map<SongRaw, bool> confMap){
+  void addAll(List<SongRaw> songs, Map<SongRaw, bool> confMap){
     _songs.addAll(songs);
     _confMap.addAll(confMap);
-
+    _cacheSongs();
     notifyListeners();
   }
 
-  isConf(SongRaw song){
+  bool? isConf(SongRaw song){
     return _confMap[song];
   }
 
-  set(SongRaw song, bool isConf){
+  void set(SongRaw song, bool isConf){
     _confMap[song] = isConf;
+    _cacheSongs();
     notifyListeners();
+  }
+
+  void _cacheSongs(){
+    ShaPref.setString(ShaPref.SHA_PREF_LAST_EDITED_SONGS, convertAllToCode());
+  }
+
+  static Future<List<SongRaw>> loadCachedSongs() async {
+    String? code = ShaPref.getStringOrNull(ShaPref.SHA_PREF_LAST_EDITED_SONGS);
+    if(code == null) return [];
+
+    Map<String, List<SongRaw>> decodedSongs = await decodeSongs(code);
+
+    List<SongRaw> result = [];
+    for (List<SongRaw> songs in decodedSongs.values)
+      result.addAll(songs);
+
+    return result;
+  }
+
+  static void clearCachedSongs(){
+    ShaPref.remove(ShaPref.SHA_PREF_LAST_EDITED_SONGS);
+  }
+  
+  String convertAllToCode(){
+
+    Map offSongMap = {};
+    Map confSongMap = {};
+
+    songs.sort(
+            (a, b) => compareText(a.title, b.title)
+    );
+
+    int iterOff = 0;
+    int iterConf = 0;
+    for(SongRaw? song in songs){
+      Map map = song!.toMap(withLclId: false);
+      if(isConf(song)!)
+        confSongMap[song.lclId] = {
+          'song': map,
+          'index': iterConf++
+        };
+      else
+        offSongMap[song.lclId] = {
+          'song': map,
+          'index': iterOff++
+        };
+    }
+
+    String code = jsonEncode({
+      'official': offSongMap,
+      'conf': confSongMap,
+    });
+
+    return code;
   }
 
 }

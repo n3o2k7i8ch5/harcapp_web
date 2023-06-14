@@ -93,12 +93,12 @@ class DownloadHarcAppPage extends StatelessWidget{
               Align(
                 alignment: Alignment.centerLeft,
                 child: DownloadButton(
-                  title: 'HarcApp (.apk)',
+                  title: 'HarcApp (Google Play)',
                   image: Image.asset(
-                    'assets/images/harcapp_app_icon.png',
+                    'assets/images/google_play_icon.jpg',
                     isAntiAlias: true,
                   ),
-                  url: MyAppState.availableAppApkSource!,
+                  url: 'https://play.google.com/store/apps/details?id=zhp.harc.app',
                 ),
               ),
 
@@ -107,12 +107,12 @@ class DownloadHarcAppPage extends StatelessWidget{
               Align(
                 alignment: Alignment.centerLeft,
                 child: DownloadButton(
-                  title: 'HarcApp (Google Play)',
+                  title: 'HarcApp (.apk)',
                   image: Image.asset(
-                    'assets/images/google_play_icon.jpg',
+                    'assets/images/harcapp_app_icon.png',
                     isAntiAlias: true,
                   ),
-                  url: 'https://play.google.com/store/apps/details?id=zhp.harc.app',
+                  url: MyAppState.availableAppApkSource!,
                 ),
               ),
 

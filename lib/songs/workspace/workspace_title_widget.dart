@@ -18,9 +18,9 @@ class WorkspaceTitleWidget extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) => Consumer<AllSongsProvider>(
-      builder: (context, prov, child) =>
+      builder: (context, allSongsProv, child) =>
           TitleShortcutRowWidget(
-            title: 'Zarządzaj piosenkami (${prov.length})',
+            title: 'Zarządzaj piosenkami (${allSongsProv.length})',
             textAlign: textAlign,
             trailing: showDuplicated?Consumer<SongFileNameDupErrProvider>(
                 builder: (context, prov, child) => AnimatedOpacity(

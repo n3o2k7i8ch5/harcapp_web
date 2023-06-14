@@ -1,8 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 import 'dart:html' as html;
 
-import 'package:file_picker_cross/file_picker_cross.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -96,6 +97,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
 
     return Scaffold(
         body: ArticleElementListWidget(
@@ -242,15 +244,16 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
           children: [
             FloatingButton(Icons.input, Colors.blueGrey, 'Wczytaj artykuł', saving?null: () async {
 
-              FilePickerCross filePicker = await FilePickerCross.importFromStorage(
-                  type: FileTypeCross.any,
-                  fileExtension: '.hrcpsng'
-              );
+              FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+              if(result==null)
+                return;
+
 
               //FilePickerCross filePicker = FilePickerCross();
               //await filePicker.pick();
               try {
-                Uint8List uint8List = filePicker.toUint8List();
+                Uint8List uint8List = result.files.single.bytes!;
                 String code = utf8.decode(uint8List);
 
                 Article article = Article.fromJson(code);

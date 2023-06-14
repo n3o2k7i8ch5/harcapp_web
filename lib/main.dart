@@ -9,6 +9,7 @@ import 'package:harcapp_core_own_song/providers.dart';
 import 'package:harcapp_core_own_song/song_raw.dart';
 import 'package:harcapp_core_song_widget/providers.dart';
 import 'package:harcapp_core_tags/tag_layout.dart';
+import 'package:harcapp_web/common/sha_pref.dart';
 import 'package:harcapp_web/router.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/song_editor_panel.dart';
@@ -18,14 +19,18 @@ import 'package:url_strategy/url_strategy.dart';
 
 import 'color_pack.dart';
 
-
-void main(){
+void main() async {
   // When changing this, delete the `web` folder.
   setPathUrlStrategy();
+  await ShaPref.init();
+  List<SongRaw> loadedSongs = await AllSongsProvider.loadCachedSongs();
+  MyApp.lastLoadedSongs = loadedSongs;
   runApp(HarcAppSongBook(MyApp(), SongBaseSettings()));
 }
 
 class MyApp extends StatefulWidget {
+
+  static late List<SongRaw> lastLoadedSongs;
 
   MyApp({Key? key}): super(key: key);
 
@@ -71,6 +76,7 @@ class MyAppState extends State<MyApp>{
   @override
   void initState() {
     loadedDownloadMetadata = false;
+
     getMetaData();
     super.initState();
   }
@@ -86,16 +92,13 @@ class MyAppState extends State<MyApp>{
       )),
 
       ChangeNotifierProvider(create: (context){
-        allSongsProv = AllSongsProvider();
+        allSongsProv = AllSongsProvider(MyApp.lastLoadedSongs);
         return allSongsProv;
       }),
 
       ChangeNotifierProvider(create: (context) => LoadingProvider()),
       ChangeNotifierProvider(create: (context){
-        currItemProv = CurrentItemProvider(
-          song: SongRaw.empty(),
-
-        );
+        currItemProv = CurrentItemProvider(song: SongRaw.empty());
         return currItemProv;
       }),
 
@@ -105,25 +108,6 @@ class MyAppState extends State<MyApp>{
         return prov;
       }),
 
-      // ChangeNotifierProvider(create: (context) => TitleCtrlProvider(
-      //     onChanged: (text){
-      //       LoadingProvider loadingProv = Provider.of<LoadingProvider>(context, listen: false);
-      //       if(loadingProv.loading!)
-      //         return;
-      //
-      //       SongRaw? song = currItemProv.song;
-      //
-      //       if(bindTitleFileNameProv.bindTitle)
-      //         song.fileName = generateFileName(song: song, context: context);
-      //
-      //       songFileNameDupErrProv.checkAllDups(context);
-      //
-      //       allSongsProv.notifyListeners();
-      //
-      //     }
-      // )),
-
-      // ChangeNotifierProvider(create: (context) => HidTitlesProvider(hidTitles: [])),
       ChangeNotifierProvider(create: (context) => RefrenEnabProvider(true)),
       ChangeNotifierProvider(create: (context) => RefrenPartProvider()),
       ChangeNotifierProvider(create: (context) => TagsProvider(Tag.ALL_TAG_NAMES, [])),

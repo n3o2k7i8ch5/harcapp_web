@@ -101,7 +101,7 @@ class SlidingMusicIcon extends StatefulWidget{
 
 class SlidingMusicIconState extends State<SlidingMusicIcon>{
 
-  static const List<IconData> icons = [
+  static List<IconData> icons = [
     MdiIcons.musicClefBass,
     MdiIcons.musicClefTreble,
 

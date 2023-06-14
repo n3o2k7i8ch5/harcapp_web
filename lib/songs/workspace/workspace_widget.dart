@@ -1,8 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
-import 'package:file_picker_cross/file_picker_cross.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
@@ -304,15 +305,20 @@ class SongListViewState extends State<SongListView>{
 
 void handleImportSongTap(BuildContext context) async {
 
-  FilePickerCross filePicker = await FilePickerCross.importFromStorage(
-    type: FileTypeCross.any,
-    fileExtension: '.hrcpsng'
+  FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['hrcpsng'],
   );
 
-  if(filePicker.fileName==null)
+  // FilePicker filePicker = await FilePicker.importFromStorage(
+  //   type: FileTypeCross.any,
+  //   fileExtension: '.hrcpsng'
+  // );
+
+  if(result==null)
     return;
 
-  Uint8List uint8List = filePicker.toUint8List();
+  Uint8List uint8List = result.files.single.bytes!;
   String code = utf8.decode(uint8List);
 
   AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
@@ -391,6 +397,7 @@ class SearchListProvider extends ChangeNotifier{
   List<SongRaw> get allSongs => _allSongs;
 
   SearchListProvider(this._allSongs){
+    searchPhrase = '';
     anySearchPhrase = false;
     currSongList = [];
   }

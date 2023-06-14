@@ -1,16 +1,13 @@
-import 'dart:convert';
 
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
-import 'package:harcapp_core/comm_classes/common.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/app_text_field_hint.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
-import 'package:harcapp_core_own_song/song_raw.dart';
 import 'package:harcapp_web/common/download_file.dart';
 import 'package:harcapp_web/common/google_form_sender.dart';
 import 'package:harcapp_web/songs/providers.dart';
@@ -60,7 +57,8 @@ class SaveSendWidget extends StatelessWidget{
 
                       if(songFileNameDupErrProv.count != 0) return;
 
-                      String code = convertAllToCode(context);
+                      AllSongsProvider allSongsProv = AllSongsProvider.of(context);
+                      String code = allSongsProv.convertAllToCode();
 
                       int songCount = AllSongsProvider.of(context).length;
                       if(songCount <= 4)
@@ -69,6 +67,7 @@ class SaveSendWidget extends StatelessWidget{
                         AppScaffold.showMessage(context, 'Rozpoczęto pobieranie $songCount piosenek', duration: Duration(seconds: 5));
 
                       downloadFile(content: code, fileName: '${songCount}_songs.hrcpsng');
+                      AllSongsProvider.clearCachedSongs();
                     }
                 ),
               )
@@ -129,6 +128,8 @@ class SendSongWidgetState extends State<SendSongWidget>{
   Widget build(BuildContext context) {
 
     bool sendable = emailRegExp.hasMatch(controller!.text);
+
+    AllSongsProvider allSongsProv = AllSongsProvider.of(context);
 
     return SizedBox(
       width: 400,
@@ -203,7 +204,7 @@ class SendSongWidgetState extends State<SendSongWidget>{
 
                       try {
                         GoogleFormSender sender = GoogleFormSender(FORMS_URL);
-                        sender.addTextResponse('entry.1848845001', convertAllToCode(context));
+                        sender.addTextResponse('entry.1848845001', allSongsProv.convertAllToCode());
                         sender.addTextResponse('emailAddress', controller!.text);
                         await sender.submit();
 
@@ -229,40 +230,4 @@ class SendSongWidgetState extends State<SendSongWidget>{
     );
   }
 
-}
-
-String convertAllToCode(BuildContext context){
-
-  Map offSongMap = {};
-  Map confSongMap = {};
-
-  AllSongsProvider allSongsProv = AllSongsProvider.of(context);
-  List<SongRaw> allSongs = allSongsProv.songs;
-
-  allSongs.sort(
-          (a, b) => compareText(a.title, b.title)
-  );
-
-  int iterOff = 0;
-  int iterConf = 0;
-  for(SongRaw? song in allSongs){
-    Map map = song!.toMap(withLclId: false);
-    if(allSongsProv.isConf(song))
-      confSongMap[song.lclId] = {
-        'song': map,
-        'index': iterConf++
-      };
-    else
-      offSongMap[song.lclId] = {
-        'song': map,
-        'index': iterOff++
-      };
-  }
-
-  String code = jsonEncode({
-    'official': offSongMap,
-    'conf': confSongMap,
-  });
-
-  return code;
 }

@@ -4,11 +4,9 @@ import 'dart:typed_data';
 import 'dart:html' as html;
 import 'dart:ui' as ui;
 
-import 'package:file_picker_cross/file_picker_cross.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:harcapp_core/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
@@ -57,6 +55,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
 
     return Scaffold(
         body: Padding(
@@ -305,15 +304,20 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
           children: [
             FloatingButton(Icons.input, Colors.blueGrey, 'Wczytaj autora', saving!?null: () async {
 
-              FilePickerCross filePicker = await FilePickerCross.importFromStorage(
-                  type: FileTypeCross.custom,
-                  fileExtension: '.hrcpsng'
-              );
+              // FilePickerCross filePicker = await FilePickerCross.importFromStorage(
+              //     type: FileTypeCross.custom,
+              //     fileExtension: '.hrcpsng'
+              // );
+
+              FilePickerResult? result = await FilePicker.platform.pickFiles();
 
               //FilePickerCross filePicker = FilePickerCross();
               //await filePicker.pick();
 
-              Uint8List uint8List = filePicker.toUint8List();
+              if(result==null)
+                return;
+
+              Uint8List uint8List = result.files.single.bytes!;
               String code = utf8.decode(uint8List);
 
               Author author = Author.fromJson(code);
@@ -332,12 +336,12 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                 saving!?'Zapisywanie...':'Zapisz autora', saving!?null:(){
 
 
-              if(name == null || name.length==0){
+              if(name.isEmpty){
                 AppScaffold.showMessage(context, "Nie podałeś swojego imienia i nazwiska.");
                 return;
               }
 
-              if(desc == null || desc.length==0){
+              if(desc.isEmpty){
                 AppScaffold.showMessage(context, "Napisz kilka słów o sobie!");
                 return;
               }
@@ -387,7 +391,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
 
   }
 
-  void setImage(Uint8List imageBytes) => imageBytes==null?null:setState(() => this.imageBytes = imageBytes);
+  void setImage(Uint8List? imageBytes) => imageBytes==null?null:setState(() => this.imageBytes = imageBytes);
 
 }
 
