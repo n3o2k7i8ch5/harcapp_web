@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
@@ -352,7 +351,7 @@ void handleNewSongTap(BuildContext context){
 
 void handleExampleSongTap(BuildContext context){
 
-  SongRaw song = SimilarSongProvider.of(context).allSongs!.values.firstWhere((songs) => songs.first.lclId == 'o!_addio_pomidory@kabaret_starszych_panow').first;
+  SongRaw song = SimilarSongProvider.of(context).allSongs!.values.firstWhere((songs) => songs.first.lclId == 'o!_addio_pomidory@kabaret_starszych_panow').first.copy(withLclId: true);
 
   AllSongsProvider.of(context).addOff(song);
   displaySong(context, song);

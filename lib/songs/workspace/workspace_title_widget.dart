@@ -19,25 +19,48 @@ class WorkspaceTitleWidget extends StatelessWidget{
   @override
   Widget build(BuildContext context) => Consumer<AllSongsProvider>(
       builder: (context, allSongsProv, child) =>
-          TitleShortcutRowWidget(
-            title: 'Zarządzaj piosenkami (${allSongsProv.length})',
-            textAlign: textAlign,
-            trailing: showDuplicated?Consumer<SongFileNameDupErrProvider>(
-                builder: (context, prov, child) => AnimatedOpacity(
-                  opacity: prov.count==0?0:1,
-                  duration: Duration(milliseconds: 300),
-                  child: SimpleButton.from(
-                      textColor: Colors.red,
-                      icon: MdiIcons.alertCircleOutline,
-                      text: '${prov.count}',
-                      onTap: () => AppScaffold.showMessage(
-                        context,
-                        'Liczba piosenek o takiej samej nazwie: ${prov.count}.'
-                            '\nMowa o: ${prov.lclIds.map((s) => '<b>$s</b>').join(', ')}',
-                      )
-                  ),
+          Row(
+            children: [
+
+              IntrinsicWidth(
+                child: TitleShortcutRowWidget(
+                  title: 'Piosenki (${allSongsProv.length})',
+                  textAlign: textAlign,
+                ),
+              ),
+
+              if(showDuplicated)
+                Consumer<SongFileNameDupErrProvider>(
+                    builder: (context, prov, child) => AnimatedOpacity(
+                      opacity: prov.count==0?0:1,
+                      duration: Duration(milliseconds: 300),
+                      child: SimpleButton.from(
+                          textColor: Colors.red,
+                          icon: MdiIcons.alertCircleOutline,
+                          text: '${prov.count}',
+                          onTap: () => AppScaffold.showMessage(
+                            context,
+                            'Liczba piosenek o takiej samej nazwie: ${prov.count}.'
+                                '\nMowa o: ${prov.lclIds.map((s) => '<b>$s</b>').join(', ')}',
+                          )
+                      ),
+                    )
+                ),
+
+              Expanded(child: Container()),
+
+              if(allSongsProv.length>0)
+                SimpleButton.from(
+                    context: context,
+                    onTap: () => AppScaffold.showMessage(context,
+                      'Przytrzymaj, by usunąć wszystkie piosenki',
+                    ),
+                    onLongPress: () => allSongsProv.clear(),
+                    icon: MdiIcons.close,
+                    text: 'Zeruj'
                 )
-            ):null,
+
+            ],
           )
   );
 

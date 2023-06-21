@@ -163,7 +163,7 @@ class AllSongsProvider extends ChangeNotifier{
     Map offSongMap = {};
     Map confSongMap = {};
 
-    songs.sort(
+    _songs.sort(
             (a, b) => compareText(a.title, b.title)
     );
 
@@ -222,9 +222,8 @@ class SongFileNameDupErrProvider extends ChangeNotifier{
   void checkAllDups(BuildContext context){
     _map.clear();
 
-    for(SongRaw song in Provider.of<AllSongsProvider>(context, listen: false).songs) {
-      if(_map[song.lclId] == null)
-        _map[song.lclId] = [];
+    for(SongRaw song in AllSongsProvider.of(context).songs) {
+      if(_map[song.lclId] == null) _map[song.lclId] = [];
       _map[song.lclId]!.add(song);
     }
 
