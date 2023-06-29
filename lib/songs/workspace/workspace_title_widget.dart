@@ -38,7 +38,7 @@ class WorkspaceTitleWidget extends StatelessWidget{
                           textColor: Colors.red,
                           icon: MdiIcons.alertCircleOutline,
                           text: '${prov.count}',
-                          onTap: () => AppScaffold.showMessage(
+                          onTap: prov.count==0?null:() => AppScaffold.showMessage(
                             context,
                             'Liczba piosenek o takiej samej nazwie: ${prov.count}.'
                                 '\nMowa o: ${prov.lclIds.map((s) => '<b>$s</b>').join(', ')}',
