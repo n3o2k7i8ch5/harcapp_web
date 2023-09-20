@@ -309,11 +309,6 @@ void handleImportSongTap(BuildContext context) async {
       allowedExtensions: ['hrcpsng'],
   );
 
-  // FilePicker filePicker = await FilePicker.importFromStorage(
-  //   type: FileTypeCross.any,
-  //   fileExtension: '.hrcpsng'
-  // );
-
   if(result==null)
     return;
 
@@ -326,9 +321,11 @@ void handleImportSongTap(BuildContext context) async {
       code,
       onFinished: (List<SongRaw> offSongs, List<SongRaw> confSongs){
         List<SongRaw> songs = confSongs + offSongs;
+        if(songs.isEmpty) return;
         Map<SongRaw, bool> map = {};
         for(SongRaw song in songs) map[song] = confSongs.contains(song);
         allSongsProv.addAll(songs, map);
+        displaySong(context, songs.first);
       });
 
   SongFileNameDupErrProvider songFileNameDupErrProv = SongFileNameDupErrProvider.of(context);

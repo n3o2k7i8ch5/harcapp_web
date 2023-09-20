@@ -69,7 +69,7 @@ class TopNavigationBarState extends State<TopNavigationBar>{
               PageNavItem(
                 icon: MdiIcons.music,
                 title: 'Warsztat piosenki',
-                subtitle: 'Twój i dodawaj!',
+                subtitle: 'Twórz i dodawaj!',
                 path: pathSong, //setState(() => body = SongsPage()),
                 dense: constraints.maxWidth < denseMaxWidth,
               ),
