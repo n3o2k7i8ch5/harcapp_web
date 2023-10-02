@@ -9,6 +9,10 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 
 class SongEditorNoSongWidget extends StatelessWidget{
 
+  final bool workspaceAlwaysVisible;
+
+  const SongEditorNoSongWidget({required this.workspaceAlwaysVisible});
+
   @override
   Widget build(BuildContext context) => Stack(
     fit: StackFit.expand,
@@ -65,10 +69,14 @@ class SongEditorNoSongWidget extends StatelessWidget{
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(MdiIcons.arrowLeft, color: textDisab_(context), size: 24.0),
+                        Icon(
+                            workspaceAlwaysVisible?MdiIcons.arrowLeft:MdiIcons.gestureTap,
+                            color: textDisab_(context),
+                            size: 24.0
+                        ),
                         SizedBox(width: Dimen.ICON_MARG),
                         Text(
-                          'Zerknij tam!',
+                          workspaceAlwaysVisible?'Zerknij tam!':'Kliknij',
                           style: AppTextStyle(
                               fontSize: 20.0,
                               color: textDisab_(context),

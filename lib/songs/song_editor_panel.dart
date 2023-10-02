@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
@@ -29,7 +27,9 @@ import 'package:provider/provider.dart';
 
 class SongEditorPanel extends StatefulWidget{
 
-  const SongEditorPanel();
+  final bool workspaceAlwaysVisible;
+
+  const SongEditorPanel({required this.workspaceAlwaysVisible});
 
   @override
   State<StatefulWidget> createState() => SongEditorPanelState();
@@ -58,44 +58,7 @@ class SongEditorPanelState extends State<SongEditorPanel>{
       if(!showSongProv.showSong)
         return Padding(
           padding: EdgeInsets.only(top: 54.0),
-          child: SongEditorNoSongWidget(),
-        );
-
-      if(!showSongProv.showSong)
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(height: 54.0),
-
-            Text(
-              'Dodaj lub importuj piosenkę.',
-              style: AppTextStyle(
-                  fontSize: 24.0,
-                  color: textDisab_(context),
-                  fontWeight: weight.halfBold
-              ),
-            ),
-
-            SizedBox(height: 24.0),
-
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(MdiIcons.arrowLeft, color: textDisab_(context), size: 24.0),
-                SizedBox(width: Dimen.ICON_MARG),
-                Text(
-                  'Zerknij tam!',
-                  style: AppTextStyle(
-                      fontSize: 24.0,
-                      color: textDisab_(context),
-                      fontWeight: weight.halfBold
-                  ),
-                ),
-                SizedBox(width: Dimen.ICON_MARG),
-                Icon(MdiIcons.musicNote, color: textDisab_(context), size: 24.0),
-              ],
-            )
-          ],
+          child: SongEditorNoSongWidget(workspaceAlwaysVisible: widget.workspaceAlwaysVisible),
         );
       else
         return Column(
@@ -450,7 +413,7 @@ class SimilarSongProvider extends ChangeNotifier{
 
   static SimilarSongProvider of(BuildContext context) => Provider.of<SimilarSongProvider>(context, listen: false);
 
-  HashMap<String, List<SongRaw>>? allSongs;
+  Map<String, List<SongRaw>>? allSongs;
 
   late String _title;
   String get title => _title;
@@ -463,8 +426,8 @@ class SimilarSongProvider extends ChangeNotifier{
     if(allSongs == null) return null;
 
     String _title = remSpecChars(remPolChars(this._title.toLowerCase()));
-    List<SongRaw>? songs = allSongs![_title];
-    return songs??[];
+    List<SongRaw> songs = allSongs![_title]??[];
+    return songs;
   }
 
   SimilarSongProvider(){

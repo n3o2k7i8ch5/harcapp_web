@@ -315,7 +315,7 @@ void handleImportSongTap(BuildContext context) async {
   Uint8List uint8List = result.files.single.bytes!;
   String code = utf8.decode(uint8List);
 
-  AllSongsProvider allSongsProv = Provider.of<AllSongsProvider>(context, listen: false);
+  AllSongsProvider allSongsProv = AllSongsProvider.of(context);
 
   importSongsFromCode(
       code,
