@@ -111,12 +111,12 @@ class Header extends ArticleElement{
 
   String text;
 
-  Header({this.text:''}):super();
+  Header({this.text =''}):super();
 
   static const String JSON_NAME = 'head';
 
   @override
-  bool get isEmpty => text==null || text.length==0;
+  bool get isEmpty => text.length==0;
 
   @override
   Object toJson(){
@@ -132,10 +132,10 @@ class Paragraph extends ArticleElement{
 
   String text;
 
-  Paragraph({this.text:''}):super();
+  Paragraph({this.text =''}):super();
 
   @override
-  bool get isEmpty => text==null || text.length==0;
+  bool get isEmpty => text.length==0;
 
   static const String JSON_NAME = 'para';
 

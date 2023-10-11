@@ -25,7 +25,7 @@ Map<String, List<SongRaw>> decodeSongs(String allSongsCode) {
           songsMap[hidTitle] = [];
         songsMap[hidTitle]!.add(song);
       }
-    } on Error catch(e){}
+    } on Error {}
 
   // CONFIDENTIAL SONGS
   for(String fileName in allSongsJSONMap['conf'].keys)
@@ -41,7 +41,7 @@ Map<String, List<SongRaw>> decodeSongs(String allSongsCode) {
           songsMap[hidTitle] = [];
         songsMap[hidTitle]!.add(song);
       }
-    } on Error catch(e){}
+    } on Error {}
 
   return songsMap;
 

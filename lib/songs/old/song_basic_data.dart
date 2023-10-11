@@ -33,7 +33,7 @@ class SongBasicData1{
       this.tagsAsString,
     );
 
-  static SongBasicData1 parse(String filePath, String code, {bool official: true}){
+  static SongBasicData1 parse(String filePath, String code, {bool official = true}){
 
     String fileName = basename(filePath);
 
@@ -57,7 +57,7 @@ class SongBasicData1{
 
     String moderator = lines[4];
 
-    String? youtubeLink = null;
+    String? youtubeLink;
     if (lines[5].length != 0)
       youtubeLink = lines[5];
 

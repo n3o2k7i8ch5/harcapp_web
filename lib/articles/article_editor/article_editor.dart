@@ -1,14 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
 import 'dart:html' as html;
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
 import 'package:harcapp_core/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
@@ -309,7 +304,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
 
                 List<OtherArtItem> notEmptyOthertArts = [];
                 for(OtherArtItem item in otherArts!)
-                  if(item.string != null && item.string.length>0)
+                  if(item.string.length>0)
                     notEmptyOthertArts.add(item);
 
                 Article article = Article(

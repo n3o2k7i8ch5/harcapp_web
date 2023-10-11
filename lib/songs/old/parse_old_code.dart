@@ -42,12 +42,12 @@ SongRaw parseOldCode(String lclId, String code, {bool official = true}){
         continue;
       }
 
-      List<String> zwrotka_elements = parts[i].split('>');
+      List<String> zwrotkaElements = parts[i].split('>');
       if(firstElementChords==null)
-        firstElementChords = zwrotka_elements[0];
+        firstElementChords = zwrotkaElements[0];
 
-      if (zwrotka_elements[0] == '1')
-        zwrotka_elements[0] = firstElementChords;
+      if (zwrotkaElements[0] == '1')
+        zwrotkaElements[0] = firstElementChords;
 
       SongElementOld songElementOld = SongElementOld.decodeOld(parts[i], firstElementChords: firstElementChords);
       songElementOldList.add(songElementOld);

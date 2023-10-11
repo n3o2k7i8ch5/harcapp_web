@@ -5,10 +5,10 @@ packages:
     dependency: transitive
     description:
       name: archive
-      sha256: e0902a06f0e00414e4e3438a084580161279f137aeb862274710f29ec10cf01e
+      sha256: "7e0d52067d05f2e0324268097ba723b71cb41ac8a6a2b24d1edf9c536b987b03"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.9"
+    version: "3.4.6"
   args:
     dependency: transitive
     description:
@@ -73,38 +73,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.17.2"
-  connectivity:
+  connectivity_plus:
     dependency: transitive
     description:
-      name: connectivity
-      sha256: a8e91263cf3e25fb5cc95e19dfde4999e32a648ac3b9e8a558a28165731678f8
+      name: connectivity_plus
+      sha256: "77a180d6938f78ca7d2382d2240eb626c0f6a735d0bfdce227d8ffb80f95c48b"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.6"
-  connectivity_for_web:
+    version: "4.0.2"
+  connectivity_plus_platform_interface:
     dependency: transitive
     description:
-      name: connectivity_for_web
-      sha256: "01a390c1d5adc2ed1fa1f52d120c07fe9fd01166a93f965a832fd6cfc0ea6482"
+      name: connectivity_plus_platform_interface
+      sha256: cf1d1c28f4416f8c654d7dc3cd638ec586076255d407cef3ddbdaf178272a71a
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.0+1"
-  connectivity_macos:
-    dependency: transitive
-    description:
-      name: connectivity_macos
-      sha256: "51ae08d5162eca9669b9d8951ed83ce19c5355a81149f94e4dee2740beb93628"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.1+2"
-  connectivity_platform_interface:
-    dependency: transitive
-    description:
-      name: connectivity_platform_interface
-      sha256: "2d82e942df9d49f29a24bb07fb5ce085d4a53e47818c62364d2b6deb9e0d7a8e"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.1"
+    version: "1.2.4"
   convert:
     dependency: transitive
     description:
@@ -129,14 +113,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.6"
+  dbus:
+    dependency: transitive
+    description:
+      name: dbus
+      sha256: "6f07cba3f7b3448d42d015bfd3d53fe12e5b36da2423f23838efc1d5fb31a263"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.8"
   dio:
     dependency: "direct main"
     description:
       name: dio
-      sha256: ce75a1b40947fea0a0e16ce73337122a86762e38b982e1ccb909daa3b9bc4197
+      sha256: "417e2a6f9d83ab396ec38ff4ea5da6c254da71e4db765ad737a42af6930140b7"
       url: "https://pub.dev"
     source: hosted
-    version: "5.3.2"
+    version: "5.3.3"
   draggable_scrollbar:
     dependency: "direct main"
     description:
@@ -181,10 +173,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: b1729fc96627dd44012d0a901558177418818d6bd428df59dcfeb594e5f66432
+      sha256: be325344c1f3070354a1d84a231a1ba75ea85d413774ec4bdf444c023342e030
       url: "https://pub.dev"
     source: hosted
-    version: "5.3.2"
+    version: "5.5.0"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -249,16 +241,16 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: "2cb236ba3f923043fdbe14a6a3a796b8c250e85658e28caee3e86c0c275847e5"
+      sha256: "1bd28265168045adb2df3da178bdbd44d37dddca0e7cfc867f8665d4f6b31f0c"
       url: "https://pub.dev"
     source: hosted
-    version: "8.2.0"
+    version: "11.1.3"
   harcapp_core:
     dependency: "direct main"
     description:
       path: "."
       ref: HEAD
-      resolved-ref: e16c02b98ea4425a7a26edfe8ff6adbe89c13a46
+      resolved-ref: f53676210acfd8100edb1a3af1a8ca106a7de5f4
       url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"
@@ -267,7 +259,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: f2bb4e408f5e36fba01f8e4fab394fdd02e7b165
+      resolved-ref: e5775a5f5e321cce1bf4d5620fb6f2669d8f8d0f
       url: "https://github.com/n3o2k7i8ch5/harcapp_core_own_song"
     source: git
     version: "0.0.1"
@@ -276,7 +268,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "08dbd7be029189db9a91c9fbcb24c0ba6177b627"
+      resolved-ref: "792420f43f190395e1ced8bd3ef49f36a729e167"
       url: "https://github.com/n3o2k7i8ch5/harcapp_core_song"
     source: git
     version: "0.0.1"
@@ -318,10 +310,10 @@ packages:
     dependency: "direct main"
     description:
       name: image
-      sha256: a72242c9a0ffb65d03de1b7113bc4e189686fc07c7147b8b41811d0dd0e0d9bf
+      sha256: "028f61960d56f26414eb616b48b04eb37d700cbe477b7fb09bf1d7ce57fd9271"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.17"
+    version: "4.1.3"
   image_picker_web:
     dependency: "direct main"
     description:
@@ -406,10 +398,10 @@ packages:
     dependency: transitive
     description:
       name: native_device_orientation
-      sha256: "7d2fa1a1420b7b4ac3317760ffd063b86704679fb4f1796644581da4a6356ccc"
+      sha256: c0b52f6bb2310dc5d5efc71e48644ad029f77d8ce007f91f635e9a00ddfbd5d5
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.4"
+    version: "1.2.0"
   nested:
     dependency: transitive
     description:
@@ -418,22 +410,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  nm:
+    dependency: transitive
+    description:
+      name: nm
+      sha256: "2c9aae4127bdc8993206464fcc063611e0e36e72018696cd9631023a31b24254"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.0"
   oktoast:
     dependency: transitive
     description:
       name: oktoast
-      sha256: fd5dd5c7dd02c41c56bdbdbc163351bd6cd59cba61c416daf255e35d1a86dce1
+      sha256: "8aaba888125c991375156b1d88b4cd2f594ba5baf027850075ac101e0d4c56b3"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.1"
+    version: "3.3.2"
   package_info_plus:
     dependency: "direct main"
     description:
       name: package_info_plus
-      sha256: "6ff267fcd9d48cb61c8df74a82680e8b82e940231bb5f68356672fde0397334a"
+      sha256: "0351aaba3b267c4962ed73058a5f62a84de7e39670a20e2916a6baff2ffcfbe5"
       url: "https://pub.dev"
     source: hosted
-    version: "4.1.0"
+    version: "5.0.0"
   package_info_plus_platform_interface:
     dependency: transitive
     description:
@@ -518,10 +518,10 @@ packages:
     dependency: transitive
     description:
       name: platform
-      sha256: ae68c7bfcd7383af3629daafb32fb4e8681c7154428da4febcff06200585f102
+      sha256: "0a279f0707af40c890e80b1e9df8bb761694c074ba7e1d4ab1bc4b728e200b59"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.2"
+    version: "3.1.3"
   plugin_platform_interface:
     dependency: transitive
     description:
@@ -558,10 +558,10 @@ packages:
     dependency: "direct main"
     description:
       name: shared_preferences
-      sha256: b7f41bad7e521d205998772545de63ff4e6c97714775902c199353f8bf1511ac
+      sha256: "81429e4481e1ccfb51ede496e916348668fd0921627779233bd24cc3ff6abd02"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.1"
+    version: "2.2.2"
   shared_preferences_android:
     dependency: transitive
     description:
@@ -803,10 +803,10 @@ packages:
     dependency: transitive
     description:
       name: win32
-      sha256: c97defd418eef4ec88c0d1652cdce84b9f7b63dd7198e266d06ac1710d527067
+      sha256: "350a11abd2d1d97e0cc7a28a81b781c08002aa2864d9e3f192ca0ffa18b06ed3"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.8"
+    version: "5.0.9"
   worker_manager:
     dependency: "direct main"
     description:

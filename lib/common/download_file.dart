@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:html';
 
-import 'package:flutter/widgets.dart';
 
 void downloadFile({
   required String fileName,

@@ -12,7 +12,7 @@ class FloatingButton extends StatelessWidget{
   Function? onPressed;
   bool? saving;
 
-  FloatingButton(this.iconData, this.color, this.text, this.onPressed, {this.saving: false});
+  FloatingButton(this.iconData, this.color, this.text, this.onPressed, {this.saving = false});
 
   @override
   Widget build(BuildContext context) {

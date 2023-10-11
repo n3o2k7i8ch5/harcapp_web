@@ -144,7 +144,7 @@ class PageNavItem extends StatelessWidget{
   SimpleButton.from(
     textColor: textEnab_(context),
     icon: icon,
-    color: GoRouter.of(context).location == path?backgroundIcon_(context):null,
+    color: GoRouterState.of(context).uri.toString() == path?backgroundIcon_(context):null,
     onTap: () => context.go(path),
   ):
   IntrinsicWidth(
@@ -153,7 +153,7 @@ class PageNavItem extends StatelessWidget{
           side: BorderSide(color: backgroundIcon_(context), width: 4.0),
           borderRadius: BorderRadius.circular(AppCard.bigRadius),
         ),
-        tileColor: GoRouter.of(context).location == path?backgroundIcon_(context):null,
+        tileColor: GoRouterState.of(context).uri.toString() == path?backgroundIcon_(context):null,
         selectedColor: backgroundIcon_(context),
         onTap: () => context.go(path),
         leading: Icon(icon),

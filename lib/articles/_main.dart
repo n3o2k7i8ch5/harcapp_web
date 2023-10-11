@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_widgets/harc_app.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
@@ -120,7 +119,7 @@ class TopButton extends StatelessWidget{
     required this.title,
     required this.icon,
     required this.onTap,
-    this.isSelected: false});
+    this.isSelected = false});
 
   @override
   Widget build(BuildContext context) {

@@ -145,7 +145,7 @@ class AllSongsProvider extends ChangeNotifier{
     String? code = ShaPref.getStringOrNull(ShaPref.SHA_PREF_LAST_EDITED_SONGS);
     if(code == null) return [];
 
-    Map<String, List<SongRaw>> decodedSongs = await decodeSongs(code);
+    Map<String, List<SongRaw>> decodedSongs = decodeSongs(code);
 
     List<SongRaw> result = [];
     for (List<SongRaw> songs in decodedSongs.values)
