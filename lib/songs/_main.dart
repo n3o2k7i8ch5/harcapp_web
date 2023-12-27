@@ -126,7 +126,7 @@ class SongsPageState extends State<SongsPage>{
                                         color: cardEnab_(context),
                                         radius: AppCard.bigRadius,
                                         child: IgnorePointer(child: Padding(
-                                          padding: EdgeInsets.only(left: Dimen.SIDE_MARG),
+                                          padding: EdgeInsets.only(left: Dimen.sideMarg),
                                           child: WorkspaceTitleWidget(textAlign: TextAlign.center, showDuplicated: false),
                                         )),
                                         margin: EdgeInsets.only(
@@ -158,7 +158,7 @@ class SongsPageState extends State<SongsPage>{
                   Consumer<LoadingProvider>(
                     child: AppCard(
                       elevation: AppCard.bigElevation,
-                      padding: EdgeInsets.all(Dimen.ICON_MARG),
+                      padding: EdgeInsets.all(Dimen.iconMarg),
                       child: Text('Ładowanie...', style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_APPBAR)),
                     ),
                     builder: (context, prov, child) => AnimatedOpacity(

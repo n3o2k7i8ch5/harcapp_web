@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_web/songs/providers.dart';
@@ -19,7 +20,7 @@ class WorkspacePart extends StatelessWidget{
     children: [
 
       Padding(
-        padding: EdgeInsets.only(left: Dimen.ICON_MARG, top: Dimen.ICON_MARG),
+        padding: EdgeInsets.only(left: Dimen.iconMarg, top: Dimen.iconMarg),
         child: WorkspaceTitleWidget()
       ),
 
@@ -35,6 +36,7 @@ class WorkspacePart extends StatelessWidget{
 
       Expanded(
         child: Material(
+          color: cardEnab_(context),
           borderRadius: BorderRadius.circular(AppCard.bigRadius),
           child: WorkspaceWidget(onItemTap: onItemTap),
         ),

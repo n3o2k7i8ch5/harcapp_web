@@ -16,7 +16,7 @@ class PrivacyPolicyPage extends StatelessWidget{
       child: Container(
         constraints: BoxConstraints(maxWidth: defPageWidth),
         child: Padding(
-          padding: const EdgeInsets.all(Dimen.SIDE_MARG),
+          padding: const EdgeInsets.all(Dimen.sideMarg),
           child: ListView(
             clipBehavior: Clip.none,
             physics: BouncingScrollPhysics(),
@@ -39,7 +39,7 @@ class PrivacyPolicyPage extends StatelessWidget{
                 'Polityka prywatności Aplikacji HarcApp i Strony harcapp.web.app'
                 '\n\nZapewniamy naszym użytkownikom pełne poszanowanie ich prywatności oraz ochronę ich danych osobowych.',
                 style: TextStyle(
-                  fontSize: Dimen.TEXT_SIZE_BIG,
+                  fontSize: Dimen.textSizeBig,
                   fontWeight: FontWeight.w700,
                   color: iconEnab_(context),
                 ),
@@ -53,9 +53,7 @@ class PrivacyPolicyPage extends StatelessWidget{
                       '\n'
                       '\nDane są przetwarzane zgodne z ww. rozporządzeniem. Osoba fizyczna ma prawo do żądania od Administratora Danych Osobowych informacji o:'
                       '\n1. okresie przetwarzania jej danych,'
-                      '\n2.dostępu do danych – ich poprawiania, zaprzestania przetwarzania (cofnięcia zgody na przetwarzanie), zmiany lub usunięcia,'
-                      '\nprzenoszenia danych na warunkach wynikających z przepisów prawa i uzgodnionych z Administratorem Danych Osobowych,'
-                      '\nwniesienia ewentualnej skargi do Prezesa Urzędu Ochrony Danych Osobowych.'
+                      '\n2.dostępu do danych – ich poprawiania, zaprzestania przetwarzania (cofnięcia zgody na przetwarzanie), zmiany lub usunięcia, przenoszenia danych na warunkach wynikających z przepisów prawa i uzgodnionych z Administratorem Danych Osobowych, wniesienia ewentualnej skargi do Prezesa Urzędu Ochrony Danych Osobowych.'
                       '\n'
                       '\nAdministrator Danych Osobowych nie podejmuje decyzji, która opiera się wyłącznie na zautomatyzowanym przetwarzaniu danych osobowych. ADO nie stosuje zautomatyzowanego przetwarzania danych osobowych, które polega na wykorzystaniu danych osobowych do oceny niektórych czynników osobowych osoby fizycznej, w szczególności do analizy lub prognozy aspektów dotyczących sytuacji ekonomicznej osoby fizycznej, jej statusu, osobistych preferencji, zainteresowań, wiarygodności, zachowania, lokalizacji lub przemieszczania się.'
                       '\n'
@@ -74,7 +72,7 @@ class PrivacyPolicyPage extends StatelessWidget{
                       '\n'
                       '\nWszelkie pytania, wnioski i sugestie odnoszące się do ochrony Państwa prywatności, w szczególności danych osobowych prosimy zgłaszać na adres harcapp@gmail.com.',
                   style: TextStyle(
-                    fontSize: Dimen.TEXT_SIZE_BIG,
+                    fontSize: Dimen.textSizeBig,
                     color: iconEnab_(context),
                   ),
                   textAlign: TextAlign.justify,

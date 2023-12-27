@@ -1,9 +1,6 @@
-
-
-import 'package:harcapp_core_own_song/common.dart';
-import 'package:harcapp_core_own_song/song_raw.dart';
-import 'package:harcapp_core_song/song_core.dart';
-import 'package:harcapp_core_song/song_element.dart';
+import 'package:harcapp_core/song_book/add_person.dart';
+import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
+import 'package:harcapp_core/song_book/song_element.dart';
 import 'package:harcapp_web/songs/old/song_basic_data.dart';
 import 'package:harcapp_web/songs/old/song_element_old.dart';
 
@@ -20,7 +17,7 @@ SongRaw parseOldCode(String lclId, String code, {bool official = true}){
 
     List<String> parts = code.split('<');
 
-// REFREN
+    // REFREN
     if(parts[1].length != 0) {
       hasRefren = true;
       refrenElementOld = SongElementOld.decodeOld(parts[1]);

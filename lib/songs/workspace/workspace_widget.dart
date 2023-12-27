@@ -9,9 +9,9 @@ import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/dimen.dart';
-import 'package:harcapp_core_own_song/providers.dart';
-import 'package:harcapp_core_own_song/song_raw.dart';
-import 'package:harcapp_core_tags/tag_layout.dart';
+import 'package:harcapp_core/song_book/song_editor/providers.dart';
+import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
+import 'package:harcapp_core/song_book/song_tags.dart';
 import 'package:harcapp_web/articles/article_editor/common.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_web/songs/providers.dart';
@@ -114,11 +114,11 @@ class LoadWidget extends StatelessWidget{
           )
       ),
 
-      SizedBox(height: Dimen.SIDE_MARG),
+      SizedBox(height: Dimen.sideMarg),
 
       Icon(MdiIcons.circleMedium, color: hintEnab_(context)),
 
-      SizedBox(height: Dimen.SIDE_MARG),
+      SizedBox(height: Dimen.sideMarg),
 
       SimpleButton.from(
           context: context,
@@ -185,7 +185,7 @@ class SongListViewState extends State<SongListView>{
                   child: Row(
                     children: [
                       Padding(
-                        padding: EdgeInsets.all(Dimen.ICON_MARG),
+                        padding: EdgeInsets.all(Dimen.iconMarg),
                         child: Icon(MdiIcons.magnify, color: hintEnab_(context)),
                       ),
                       Expanded(
@@ -244,7 +244,7 @@ class SongListViewState extends State<SongListView>{
                   clipBehavior: Clip.hardEdge,
                   color: backgroundIcon_(context),
                   child: SizedBox(
-                    height: Dimen.ICON_FOOTPRINT,
+                    height: Dimen.iconFootprint,
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -373,7 +373,7 @@ void displaySong(BuildContext context, SongRaw song){
 
   BindTitleFileNameProvider.of(context).setSetBasedOnSong(song);
   SongEditorPanelProvider.notify_(context);
-  TagsProvider.of(context).set(Tag.ALL_TAG_NAMES, song.tags);
+  TagsProvider.of(context).set(SongTag.ALL, song.tags);
 
   SimilarSongProvider.of(context).title = song.title;
 }

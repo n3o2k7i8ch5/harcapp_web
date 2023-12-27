@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:harcapp_core_own_song/song_raw.dart';
+import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_web/songs/providers.dart';
 
 String generateFileName({required SongRaw song, BuildContext? context, BindTitleFileNameProvider? prov}){

@@ -73,7 +73,7 @@ class ArticlePageState extends State<ArticlePage>{
                     isSelected: lastSetPage == 0,
                   ),
 
-                  SizedBox(width: Dimen.ICON_MARG),
+                  SizedBox(width: Dimen.iconMarg),
 
                   TopButton(
                       title: 'Stwórz autora',
@@ -85,7 +85,7 @@ class ArticlePageState extends State<ArticlePage>{
                       ),
                       isSelected: lastSetPage == 1
                   ),
-                  SizedBox(width: Dimen.ICON_MARG),
+                  SizedBox(width: Dimen.iconMarg),
 
 
                 ],
@@ -128,7 +128,7 @@ class TopButton extends StatelessWidget{
         children: [
 
           Padding(
-            padding: EdgeInsets.only(left: Dimen.ICON_MARG, right: Dimen.ICON_MARG),
+            padding: EdgeInsets.only(left: Dimen.iconMarg, right: Dimen.iconMarg),
             child: Icon(icon, color: Colors.white,),
           ),
 

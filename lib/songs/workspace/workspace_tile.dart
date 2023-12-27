@@ -6,8 +6,8 @@ import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
-import 'package:harcapp_core_own_song/providers.dart';
-import 'package:harcapp_core_own_song/song_raw.dart';
+import 'package:harcapp_core/song_book/song_editor/providers.dart';
+import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_web/songs/workspace/workspace_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
@@ -84,7 +84,7 @@ class WorkspaceTileState extends State<WorkspaceTile>{
                   child: Text(
                       title,
                       style: AppTextStyle(
-                          fontSize: Dimen.TEXT_SIZE_BIG
+                          fontSize: Dimen.textSizeBig
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.clip
@@ -198,8 +198,8 @@ class WorkspaceTileState extends State<WorkspaceTile>{
                           child: Row(
                             children: [
                               Icon(song.isConfid?MdiIcons.eyeOutline:MdiIcons.eyeOffOutline),
-                              SizedBox(width: Dimen.ICON_MARG),
-                              Text(song.isConfid?'Pokaż':'Ukryj', style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_BIG)),
+                              SizedBox(width: Dimen.iconMarg),
+                              Text(song.isConfid?'Pokaż':'Ukryj', style: AppTextStyle(fontSize: Dimen.textSizeBig)),
                             ],
                           )
                       ),
@@ -209,8 +209,8 @@ class WorkspaceTileState extends State<WorkspaceTile>{
                         child: Row(
                           children: [
                             Icon(MdiIcons.codeTags),
-                            SizedBox(width: Dimen.ICON_MARG),
-                            Text('Edytuj kod', style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_BIG)),
+                            SizedBox(width: Dimen.iconMarg),
+                            Text('Edytuj kod', style: AppTextStyle(fontSize: Dimen.textSizeBig)),
                           ],
                         ),
                       ),
@@ -220,8 +220,8 @@ class WorkspaceTileState extends State<WorkspaceTile>{
                           child: Row(
                             children: [
                               Icon(MdiIcons.formTextbox),
-                              SizedBox(width: Dimen.ICON_MARG),
-                              Text('Edytuj nazwę', style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_BIG)),
+                              SizedBox(width: Dimen.iconMarg),
+                              Text('Edytuj nazwę', style: AppTextStyle(fontSize: Dimen.textSizeBig)),
                             ],
                           )
                       )

@@ -6,11 +6,11 @@ import 'package:harcapp_core/comm_widgets/instrument_type.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/dimen.dart';
-import 'package:harcapp_core_own_song/providers.dart';
-import 'package:harcapp_core_own_song/song_raw.dart';
-import 'package:harcapp_core_song_widget/add_pers_resolver.dart';
-import 'package:harcapp_core_song_widget/settings.dart';
-import 'package:harcapp_core_song_widget/song_widget_template.dart';
+import 'package:harcapp_core/song_book/add_person_resolver.dart';
+import 'package:harcapp_core/song_book/settings.dart';
+import 'package:harcapp_core/song_book/song_editor/providers.dart';
+import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
+import 'package:harcapp_core/song_book/widgets/song_widget_template.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:pretty_json/pretty_json.dart';
@@ -24,7 +24,7 @@ class SongPreviewWidget extends StatelessWidget{
         children: [
 
           Padding(
-            padding: EdgeInsets.only(left: Dimen.ICON_MARG, top: Dimen.ICON_MARG),
+            padding: EdgeInsets.only(left: Dimen.iconMarg, top: Dimen.iconMarg),
             child: TitleShortcutRowWidget(
               title: 'Podgląd piosenki',
               textAlign: TextAlign.start,
@@ -39,16 +39,16 @@ class SongPreviewWidget extends StatelessWidget{
               children: [
                 Expanded(
                   child: SimpleButton(
-                      padding: EdgeInsets.all(Dimen.ICON_MARG),
+                      padding: EdgeInsets.all(Dimen.iconMarg),
                       radius: 0,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(MdiIcons.eyeOutline, color: songPrevProv.code!?iconDisab_(context):iconEnab_(context)),
-                          SizedBox(width: Dimen.ICON_MARG),
+                          Icon(MdiIcons.eyeOutline, color: songPrevProv.code?iconDisab_(context):iconEnab_(context)),
+                          SizedBox(width: Dimen.iconMarg),
                           Text('Podgląd', style: AppTextStyle(
                               fontWeight: weight.halfBold,
-                              color: songPrevProv.code!?iconDisab_(context):iconEnab_(context)
+                              color: songPrevProv.code?iconDisab_(context):iconEnab_(context)
                           ))
                         ],
                       ),
@@ -60,16 +60,16 @@ class SongPreviewWidget extends StatelessWidget{
 
                 Expanded(
                   child: SimpleButton(
-                      padding: EdgeInsets.all(Dimen.ICON_MARG),
+                      padding: EdgeInsets.all(Dimen.iconMarg),
                       radius: 0,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(MdiIcons.codeTags, color: songPrevProv.code!?iconEnab_(context):iconDisab_(context)),
-                          SizedBox(width: Dimen.ICON_MARG),
+                          Icon(MdiIcons.codeTags, color: songPrevProv.code?iconEnab_(context):iconDisab_(context)),
+                          SizedBox(width: Dimen.iconMarg),
                           Text('Kod', style: AppTextStyle(
                               fontWeight: weight.halfBold,
-                              color: songPrevProv.code!?iconEnab_(context):iconDisab_(context)
+                              color: songPrevProv.code?iconEnab_(context):iconDisab_(context)
                           ))
                         ],
                       ),
@@ -87,18 +87,17 @@ class SongPreviewWidget extends StatelessWidget{
           Expanded(
               child: SizedBox(
                 width: 400,
-                child: songPrevProv.code!?
+                child: songPrevProv.code?
                 SelectableText(
                     prettyJson(currItemProv.song.toMap(), indent: 2)
                 ):
-                SongWidgetTemplate<SongRaw, AddPersSimpleResolver>(
+                SongWidgetTemplate<SongRaw, AddPersonSimpleResolver>(
                   currItemProv.song,
                   SongBaseSettings(),
-                  screenWidth: 372,
                   cacheSizes: false,
                   scrollController: ScrollController(),
                   key: UniqueKey(),
-                  addPersResolver: AddPersSimpleResolver(),//ValueKey(currItemProv.song)
+                  addPersonResolver: AddPersonSimpleResolver(),
                 ),
               )
           )

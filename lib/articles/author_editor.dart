@@ -93,7 +93,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                               children: [
 
                                 Icon(Icons.account_box, size: 64, color: AppColors.text_hint_enab,),
-                                SizedBox(height: Dimen.ICON_MARG),
+                                SizedBox(height: Dimen.iconMarg),
 
                                 Padding(
                                   padding: EdgeInsets.all(10.0),
@@ -142,7 +142,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                                       children: [
 
                                         Icon(Icons.account_box, color: Colors.white,),
-                                        SizedBox(width: Dimen.ICON_MARG),
+                                        SizedBox(width: Dimen.iconMarg),
                                         Text(
                                           'ZMIEŃ OBRAZ',
                                           style: AppTextStyle(
@@ -169,7 +169,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                       child: Column(
                         children: [
 
-                          SizedBox(height: Dimen.ICON_MARG),
+                          SizedBox(height: Dimen.iconMarg),
 
                           Row(
                             children: [
@@ -234,7 +234,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                             ),
                           ),
 
-                          SizedBox(height: Dimen.ICON_MARG),
+                          SizedBox(height: Dimen.iconMarg),
 
                         ],
                       ),

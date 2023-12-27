@@ -27,8 +27,8 @@ class FloatingButton extends StatelessWidget{
           children: [
             saving!?
             SizedBox(
-              width: Dimen.ICON_SIZE,
-              height: Dimen.ICON_SIZE,
+              width: Dimen.iconSize,
+              height: Dimen.iconSize,
               child: CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   backgroundColor: Colors.transparent

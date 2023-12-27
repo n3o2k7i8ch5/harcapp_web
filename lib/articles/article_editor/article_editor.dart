@@ -150,7 +150,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Padding(
-                                padding: EdgeInsets.all(Dimen.ICON_MARG),
+                                padding: EdgeInsets.all(Dimen.iconMarg),
                                 child: Icon(Icons.add),
                               ),
 
@@ -182,7 +182,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Padding(
-                                padding: EdgeInsets.all(Dimen.ICON_MARG),
+                                padding: EdgeInsets.all(Dimen.iconMarg),
                                 child: Icon(Icons.playlist_add),
                               ),
 

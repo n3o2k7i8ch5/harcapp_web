@@ -76,9 +76,9 @@ class AlertDialogButton extends StatelessWidget{
   @override
   Widget build(BuildContext context) => SimpleButton(
       radius: AppCard.bigRadius,
-      padding: const EdgeInsets.all(Dimen.ICON_MARG),
+      padding: const EdgeInsets.all(Dimen.iconMarg),
       onTap: enabled?onTap:null,
-      child: Text(text, style: AppTextStyle(fontWeight: weight.halfBold, color: textColor??(enabled?textEnab_(context):textDisab_(context)), fontSize: Dimen.TEXT_SIZE_BIG))
+      child: Text(text, style: AppTextStyle(fontWeight: weight.halfBold, color: textColor??(enabled?textEnab_(context):textDisab_(context)), fontSize: Dimen.textSizeBig))
   );
 
 }
@@ -98,13 +98,13 @@ Future<void> showAlertDialog(
     content: Row(
       children: [
         if(leading != null) leading,
-        Expanded(child: AppText(content, size: Dimen.TEXT_SIZE_BIG))
+        Expanded(child: AppText(content, size: Dimen.textSizeBig))
       ],
     ),
     actions: actionBuilder==null?null:actionBuilder(context),
-    actionsPadding: const EdgeInsets.only(bottom: Dimen.ICON_MARG, right: Dimen.ICON_MARG),
+    actionsPadding: const EdgeInsets.only(bottom: Dimen.iconMarg, right: Dimen.iconMarg),
     backgroundColor: cardEnab_(context),
     contentTextStyle: TextStyle(color: textEnab_(context)),
-    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(Dimen.SIDE_MARG))),
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(Dimen.sideMarg))),
   ),
 );

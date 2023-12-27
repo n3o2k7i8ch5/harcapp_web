@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 
 class WorkspaceTitleWidget extends StatelessWidget{
 
-  static const double height = Dimen.ICON_FOOTPRINT;
+  static const double height = Dimen.iconFootprint;
 
   final TextAlign textAlign;
   final bool showDuplicated;
@@ -55,7 +55,10 @@ class WorkspaceTitleWidget extends StatelessWidget{
                     onTap: () => AppScaffold.showMessage(context,
                       'Przytrzymaj, by usunąć wszystkie piosenki',
                     ),
-                    onLongPress: () => allSongsProv.clear(),
+                    onLongPress: (){
+                      allSongsProv.clear();
+                      SongFileNameDupErrProvider.of(context).checkAllDups(context);
+                    },
                     icon: MdiIcons.close,
                     text: 'Zeruj'
                 )

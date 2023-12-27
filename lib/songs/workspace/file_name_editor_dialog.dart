@@ -4,7 +4,7 @@ import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_text_field_hint.dart';
 import 'package:harcapp_core/dimen.dart';
-import 'package:harcapp_core_own_song/song_raw.dart';
+import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -43,7 +43,7 @@ class FileNameEditorDialogState extends State<FileNameEditorDialog>{
     child: SizedBox(
       width: 400,
       child: Padding(
-        padding: EdgeInsets.all(Dimen.ICON_MARG),
+        padding: EdgeInsets.all(Dimen.iconMarg),
         child: Material(
             elevation: 6.0,
             borderRadius: BorderRadius.circular(AppCard.bigRadius),
@@ -52,7 +52,7 @@ class FileNameEditorDialogState extends State<FileNameEditorDialog>{
               child: ListTile(
                 title: Row(
                   children: [
-                    Text(isConfid?'oc!_':'o!_', style: AppTextStyle(fontWeight: weight.bold, fontSize: Dimen.TEXT_SIZE_BIG),),
+                    Text(isConfid?'oc!_':'o!_', style: AppTextStyle(fontWeight: weight.bold, fontSize: Dimen.textSizeBig),),
                     Expanded(
                         child: Consumer<SongFileNameDupErrProvider>(
                           builder: (context, prov, child) => AppTextFieldHint(

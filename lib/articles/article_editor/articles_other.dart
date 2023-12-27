@@ -35,7 +35,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
             children: [
 
               Padding(
-                padding: EdgeInsets.only(top: Dimen.ICON_MARG, right: Dimen.ICON_MARG, left: Dimen.ICON_MARG),
+                padding: EdgeInsets.only(top: Dimen.iconMarg, right: Dimen.iconMarg, left: Dimen.iconMarg),
                 child: Text(
                   'Odnośniki do innych artykułów:',
                   style: AppTextStyle(
@@ -86,7 +86,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
 
                                   Handle(
                                     child: Padding(
-                                      padding: EdgeInsets.all(Dimen.ICON_MARG),
+                                      padding: EdgeInsets.all(Dimen.iconMarg),
                                       child: Icon(
                                         Icons.list,
                                         color: Colors.grey,
@@ -139,7 +139,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
                         child: Row(
                           children: [
                             Padding(
-                              padding: EdgeInsets.all(Dimen.ICON_MARG),
+                              padding: EdgeInsets.all(Dimen.iconMarg),
                               child: Icon(Icons.add),
                             ),
 
@@ -152,7 +152,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
                               ),
                             ),
 
-                            SizedBox(width: 2*Dimen.ICON_MARG,)
+                            SizedBox(width: 2*Dimen.iconMarg,)
 
                           ],
                         ),
@@ -163,7 +163,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
                   )
               ),
 
-              //SizedBox(height: Dimen.icon_margin,)
+              //SizedBox(height: Dimen.iconMargin,)
 
             ],
           ),

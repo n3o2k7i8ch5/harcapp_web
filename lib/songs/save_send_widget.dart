@@ -19,7 +19,7 @@ class SaveSendWidget extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    height: Dimen.ICON_FOOTPRINT,
+    height: Dimen.iconFootprint,
     child: Material(
       clipBehavior: Clip.hardEdge,
       color: cardEnab_(context),
@@ -30,7 +30,7 @@ class SaveSendWidget extends StatelessWidget{
           Expanded(
               child: Consumer<SongFileNameDupErrProvider>(
                 builder: (context, prov, child) => SimpleButton(
-                    padding: EdgeInsets.all(Dimen.ICON_MARG),
+                    padding: EdgeInsets.all(Dimen.iconMarg),
                     radius: 0,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -39,7 +39,7 @@ class SaveSendWidget extends StatelessWidget{
                           MdiIcons.folderDownloadOutline,
                           color: prov.count==0?iconEnab_(context):iconDisab_(context),
                         ),
-                        SizedBox(width: Dimen.ICON_MARG),
+                        SizedBox(width: Dimen.iconMarg),
                         Text(
                           'Zapisz wszystko',
                           style: AppTextStyle(
@@ -74,13 +74,13 @@ class SaveSendWidget extends StatelessWidget{
 
           Expanded(
               child: SimpleButton(
-                  padding: EdgeInsets.all(Dimen.ICON_MARG),
+                  padding: EdgeInsets.all(Dimen.iconMarg),
                   radius: 0,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(MdiIcons.sendCircleOutline),
-                      SizedBox(width: Dimen.ICON_MARG),
+                      SizedBox(width: Dimen.iconMarg),
                       Text(
                         'Prześlij',
                         style: AppTextStyle(fontWeight: weight.halfBold, color: iconEnab_(context)),
@@ -134,7 +134,7 @@ class SendSongWidgetState extends State<SendSongWidget>{
       width: 400,
       child: AppCard(
         radius: AppCard.bigRadius,
-        padding: EdgeInsets.all(2*Dimen.ICON_MARG),
+        padding: EdgeInsets.all(2*Dimen.iconMarg),
         color: Colors.white,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -163,7 +163,7 @@ class SendSongWidgetState extends State<SendSongWidget>{
               'Na adres email wysłana zostanie kopia przesyłanych piosenek.'
                   '\n\n'
                   'Możesz także pobrać plik z piosenkami i przesłać go na adres:',
-              style: AppTextStyle(color: hintEnab_(context), fontSize: Dimen.TEXT_SIZE_NORMAL),
+              style: AppTextStyle(color: hintEnab_(context), fontSize: Dimen.textSizeNormal),
             ),
 
             Row(
@@ -182,7 +182,7 @@ class SendSongWidgetState extends State<SendSongWidget>{
 
                 Expanded(child: Container()),
                 SimpleButton(
-                    padding: EdgeInsets.all(Dimen.ICON_MARG),
+                    padding: EdgeInsets.all(Dimen.iconMarg),
                     child: Row(
                       children: [
                         Text(
@@ -192,7 +192,7 @@ class SendSongWidgetState extends State<SendSongWidget>{
                             color: sendable?iconEnab_(context):iconDisab_(context)
                           ),
                         ),
-                        SizedBox(width: Dimen.ICON_MARG),
+                        SizedBox(width: Dimen.iconMarg),
                         Icon(
                             MdiIcons.send,
                             color: sendable?iconEnab_(context):iconDisab_(context)

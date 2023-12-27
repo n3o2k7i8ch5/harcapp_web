@@ -26,7 +26,7 @@ class SongEditorNoSongWidget extends StatelessWidget{
         child: GridView.builder(
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: Dimen.ICON_FOOTPRINT,
+              maxCrossAxisExtent: Dimen.iconFootprint,
               childAspectRatio: 1,
               mainAxisSpacing: 24.0,
               crossAxisSpacing: 24.0
@@ -74,7 +74,7 @@ class SongEditorNoSongWidget extends StatelessWidget{
                             color: textDisab_(context),
                             size: 24.0
                         ),
-                        SizedBox(width: Dimen.ICON_MARG),
+                        SizedBox(width: Dimen.iconMarg),
                         Text(
                           workspaceAlwaysVisible?'Zerknij tam!':'Kliknij',
                           style: AppTextStyle(

@@ -6,9 +6,9 @@ import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/dimen.dart';
-import 'package:harcapp_core_own_song/providers.dart';
-import 'package:harcapp_core_own_song/song_raw.dart';
-import 'package:harcapp_core_tags/tag_layout.dart';
+import 'package:harcapp_core/song_book/song_editor/providers.dart';
+import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
+import 'package:harcapp_core/song_book/song_tags.dart';
 import 'package:harcapp_web/songs/utils/generate_file_name.dart';
 import 'package:harcapp_web/songs/old/parse_old_code.dart';
 import 'package:harcapp_web/songs/providers.dart';
@@ -79,7 +79,7 @@ class CodeEditorDialog extends StatelessWidget{
                                     }
                                   }
 
-                                  TagsProvider.of(context).set(Tag.ALL_TAG_NAMES, song.tags);
+                                  TagsProvider.of(context).set(SongTag.ALL, song.tags);
 
                                   this.song.set(song);
                                   AllSongsProvider.of(context).set(this.song, this.song.isConfid);

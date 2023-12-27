@@ -109,7 +109,7 @@ class TopNavigationBarState extends State<TopNavigationBar>{
               //         )
               //       ),
               //
-              //       Text(version??'x.x.x', style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_NORMAL, fontWeight: weight.halfBold)),
+              //       Text(version??'x.x.x', style: AppTextStyle(fontSize: Dimen.textSizeNormal, fontWeight: weight.halfBold)),
               //     ],
               //   ),
               // ),

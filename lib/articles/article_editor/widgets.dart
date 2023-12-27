@@ -48,7 +48,7 @@ abstract class ArticleElementWidget<T extends ArticleElement> extends StatelessW
 
           Handle(
             child: Padding(
-              padding: EdgeInsets.all(Dimen.ICON_MARG),
+              padding: EdgeInsets.all(Dimen.iconMarg),
               child: Icon(
                 Icons.list,
                 color: Colors.grey,

@@ -4,17 +4,17 @@ import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/dimen.dart';
-import 'package:harcapp_core_own_song/page_widgets/add_buttons_widget.dart';
-import 'package:harcapp_core_own_song/page_widgets/add_pers_list_widget.dart';
-import 'package:harcapp_core_own_song/page_widgets/refren_template.dart';
-import 'package:harcapp_core_own_song/page_widgets/scroll_to_bottom.dart';
-import 'package:harcapp_core_own_song/page_widgets/song_parts_list_widget.dart';
-import 'package:harcapp_core_own_song/page_widgets/tags_widget.dart';
-import 'package:harcapp_core_own_song/page_widgets/top_cards.dart';
-import 'package:harcapp_core_own_song/providers.dart';
-import 'package:harcapp_core_own_song/song_raw.dart';
-import 'package:harcapp_core_song_widget/add_pers_resolver.dart';
-import 'package:harcapp_core_song_widget/song_widget_template.dart';
+import 'package:harcapp_core/song_book/add_person_resolver.dart';
+import 'package:harcapp_core/song_book/song_editor/providers.dart';
+import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
+import 'package:harcapp_core/song_book/song_editor/widgets/add_buttons_widget.dart';
+import 'package:harcapp_core/song_book/song_editor/widgets/add_pers_list_widget.dart';
+import 'package:harcapp_core/song_book/song_editor/widgets/refren_template.dart';
+import 'package:harcapp_core/song_book/song_editor/widgets/scroll_to_bottom.dart';
+import 'package:harcapp_core/song_book/song_editor/widgets/song_parts_list_widget.dart';
+import 'package:harcapp_core/song_book/song_editor/widgets/tags_widget.dart';
+import 'package:harcapp_core/song_book/song_editor/widgets/top_cards.dart';
+import 'package:harcapp_core/song_book/widgets/song_widget_template.dart';
 import 'package:harcapp_web/articles/article_editor/common.dart';
 import 'package:harcapp_web/songs/utils/generate_file_name.dart';
 import 'package:harcapp_web/songs/providers.dart';
@@ -115,7 +115,7 @@ class SongEditorPanelState extends State<SongEditorPanel>{
                     children: [
 
                       Padding(
-                        padding: EdgeInsets.only(left: Dimen.ICON_MARG, top: Dimen.ICON_MARG),
+                        padding: EdgeInsets.only(left: Dimen.iconMarg, top: Dimen.iconMarg),
                         child: TitleShortcutRowWidget(
                           title: 'Info. ogólne',
                           textAlign: TextAlign.start,
@@ -129,7 +129,7 @@ class SongEditorPanelState extends State<SongEditorPanel>{
                               clipBehavior: Clip.hardEdge,
                               borderRadius: BorderRadius.circular(AppCard.bigRadius),
                               child: SwitchListTile(
-                                contentPadding: EdgeInsets.only(left: Dimen.ICON_MARG),
+                                contentPadding: EdgeInsets.only(left: Dimen.iconMarg),
                                 value: prov.bindTitle,
                                 onChanged: (value){
                                   prov.bindTitle = value;
@@ -153,10 +153,10 @@ class SongEditorPanelState extends State<SongEditorPanel>{
                                       'Powiąż identyfikator piosenki z tytułem',
                                       style: AppTextStyle(
                                           color: prov.bindTitle?textEnab_(context):textDisab_(context),
-                                          fontSize: Dimen.TEXT_SIZE_BIG
+                                          fontSize: Dimen.textSizeBig
                                       ),
                                     ),
-                                    SizedBox(width: Dimen.ICON_MARG),
+                                    SizedBox(width: Dimen.iconMarg),
 
                                   ],
                                 ),
@@ -173,7 +173,7 @@ class SongEditorPanelState extends State<SongEditorPanel>{
                               clipBehavior: Clip.hardEdge,
                               borderRadius: BorderRadius.circular(AppCard.bigRadius),
                               child: SwitchListTile(
-                                contentPadding: EdgeInsets.only(left: Dimen.ICON_MARG),
+                                contentPadding: EdgeInsets.only(left: Dimen.iconMarg),
                                 value: prov.bindPerformer,
                                 onChanged: (value) {
                                   prov.bindPerformer = value;
@@ -197,10 +197,10 @@ class SongEditorPanelState extends State<SongEditorPanel>{
                                       'Powiąż identyfikator piosenki z wykonawcą',
                                       style: AppTextStyle(
                                           color: prov.bindPerformer?textEnab_(context):textDisab_(context),
-                                          fontSize: Dimen.TEXT_SIZE_BIG
+                                          fontSize: Dimen.textSizeBig
                                       ),
                                     ),
-                                    SizedBox(width: Dimen.ICON_MARG),
+                                    SizedBox(width: Dimen.iconMarg),
 
                                   ],
                                 ),
@@ -248,7 +248,7 @@ class SongEditorPanelState extends State<SongEditorPanel>{
 
                       const SizedBox(height: Dimen.defMarg),
 
-                      TagsWidget(
+                      SongTagsWidget(
                         linear: false,
                         onChanged: (List<String> tags){
                           currItemProv.setTags(tags, notify: false);
@@ -305,7 +305,7 @@ class SongEditorPanelState extends State<SongEditorPanel>{
                       SizedBox(height: SEPARATOR_HEIGHT),
 
                       Padding(
-                        padding: EdgeInsets.only(left: Dimen.ICON_MARG),
+                        padding: EdgeInsets.only(left: Dimen.iconMarg),
                         child: TitleShortcutRowWidget(
                           title: 'Struktura piosenki',
                           textAlign: TextAlign.start,
@@ -340,43 +340,43 @@ class SimilarSongWidget extends StatelessWidget{
           Row(
             children: [
               Padding(
-                padding: EdgeInsets.all(Dimen.ICON_MARG),
+                padding: EdgeInsets.all(Dimen.iconMarg),
                 child: Icon(MdiIcons.timerSand, color: hintEnab_(context)),
               ),
               Expanded(child: Text(
                 'Ładowanie listy weryfikacyjnej piosenek...',
-                style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_BIG, fontWeight: weight.halfBold, color: hintEnab_(context)),
+                style: AppTextStyle(fontSize: Dimen.textSizeBig, fontWeight: weight.halfBold, color: hintEnab_(context)),
                 textAlign: TextAlign.center,
               )),
-              SizedBox(width: Dimen.ICON_FOOTPRINT)
+              SizedBox(width: Dimen.iconFootprint)
             ],
           ):(
               prov.similarSong!.length==0?
               Row(
                 children: [
                   Padding(
-                      padding: EdgeInsets.all(Dimen.ICON_MARG),
+                      padding: EdgeInsets.all(Dimen.iconMarg),
                       child: Icon(MdiIcons.check, color: accent_(context))
                   ),
 
                   Expanded(child: Text(
                     'Sądząc po tytule, tego jeszcze nie ma w śpiewniku!',
-                    style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_BIG, fontWeight: weight.halfBold, color: accent_(context)),
+                    style: AppTextStyle(fontSize: Dimen.textSizeBig, fontWeight: weight.halfBold, color: accent_(context)),
                     textAlign: TextAlign.center,
                   )),
-                  SizedBox(width: Dimen.ICON_FOOTPRINT)
+                  SizedBox(width: Dimen.iconFootprint)
                 ],
               ):
               Row(
                 children: [
                   Padding(
-                    padding: EdgeInsets.all(Dimen.ICON_MARG),
+                    padding: EdgeInsets.all(Dimen.iconMarg),
                     child: Icon(MdiIcons.alertCircleOutline, color: Colors.red),
                   ),
 
                   Expanded(child: Text(
                     'Ostrożnie! Piosenka o takim tytule już jest!',
-                    style: AppTextStyle(color: Colors.red, fontWeight: weight.halfBold, fontSize: Dimen.TEXT_SIZE_BIG),
+                    style: AppTextStyle(color: Colors.red, fontWeight: weight.halfBold, fontSize: Dimen.textSizeBig),
                     textAlign: TextAlign.center,
                   )),
                   IconButton(icon: Icon(MdiIcons.eye), onPressed: () => showDialog(
@@ -388,11 +388,10 @@ class SimilarSongWidget extends StatelessWidget{
                           radius: AppCard.bigRadius,
                           child: SizedBox(
                             width: 400,
-                            child: SongWidgetTemplate<SongRaw, AddPersSimpleResolver>(
+                            child: SongWidgetTemplate<SongRaw, AddPersonSimpleResolver>(
                                 prov.similarSong![0],
                                 SongBaseSettings(),
-                                screenWidth: 372,
-                                addPersResolver: AddPersSimpleResolver(),
+                                addPersonResolver: AddPersonSimpleResolver(),
                                 scrollController: ScrollController(),
                                 key: UniqueKey()//ValueKey(currItemProv.song)
                             ),
@@ -435,6 +434,7 @@ class SimilarSongProvider extends ChangeNotifier{
   }
 
   bool hasSimilarSong(String title){
+    if(allSongs == null) return false;
     String _title = remSpecChars(remPolChars(title.toLowerCase()));
     List<SongRaw> songs = allSongs![_title]??[];
 

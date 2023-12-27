@@ -1,8 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/dimen.dart';
-import 'package:harcapp_core_own_song/page_widgets/error_widget.dart';
-import 'package:harcapp_core_own_song/page_widgets/song_part_editor_template/song_part_editor_template.dart';
+import 'package:harcapp_core/song_book/song_editor/widgets/error_widget.dart';
+import 'package:harcapp_core/song_book/song_editor/widgets/song_part_editor_template/song_part_editor_template.dart';
 
 
 const double TEXT_FIELD_TOP_PADD = Dimen.TEXT_FIELD_PADD - 7;

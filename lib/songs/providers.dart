@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/common.dart';
-import 'package:harcapp_core_own_song/song_raw.dart';
+import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_web/common/sha_pref.dart';
 import 'package:harcapp_web/songs/utils/song_loader.dart';
 import 'package:provider/provider.dart';
@@ -236,14 +236,14 @@ class SongFileNameDupErrProvider extends ChangeNotifier{
 
 class SongPreviewProvider extends ChangeNotifier{
 
-  bool? _code;
+  late bool _code;
 
   SongPreviewProvider(){
     _code = false;
   }
 
-  bool? get code => _code;
-  set code(bool? value){
+  bool get code => _code;
+  set code(bool value){
     _code = value;
     notifyListeners();
   }

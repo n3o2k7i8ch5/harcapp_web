@@ -5,10 +5,10 @@ import 'package:dio/browser.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:harcapp_core/comm_classes/color_pack_provider.dart';
-import 'package:harcapp_core_own_song/providers.dart';
-import 'package:harcapp_core_own_song/song_raw.dart';
-import 'package:harcapp_core_song_widget/providers.dart';
-import 'package:harcapp_core_tags/tag_layout.dart';
+import 'package:harcapp_core/song_book/providers.dart';
+import 'package:harcapp_core/song_book/song_editor/providers.dart';
+import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
+import 'package:harcapp_core/song_book/song_tags.dart';
 import 'package:harcapp_web/common/sha_pref.dart';
 import 'package:harcapp_web/router.dart';
 import 'package:harcapp_web/songs/providers.dart';
@@ -86,7 +86,6 @@ class MyAppState extends State<MyApp>{
     providers: [
       ChangeNotifierProvider(create: (context) => ShowSongProvider(false)),
       ChangeNotifierProvider(create: (context) => ColorPackProvider(
-          colorPackDark: ColorPackGraphite(),
           initColorPack: ColorPackGraphite(),
           isDark: () => false
       )),
@@ -110,7 +109,7 @@ class MyAppState extends State<MyApp>{
 
       ChangeNotifierProvider(create: (context) => RefrenEnabProvider(true)),
       ChangeNotifierProvider(create: (context) => RefrenPartProvider()),
-      ChangeNotifierProvider(create: (context) => TagsProvider(Tag.ALL_TAG_NAMES, [])),
+      ChangeNotifierProvider(create: (context) => TagsProvider(SongTag.ALL, [])),
 
       ChangeNotifierProvider(create: (context){
         bindTitleFileNameProv = BindTitleFileNameProvider();
