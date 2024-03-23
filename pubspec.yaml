@@ -77,6 +77,7 @@ flutter:
     - assets/
     - assets/images/
     - assets/images/screenshots/
+
     - assets/songs/
 
   fonts:

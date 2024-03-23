@@ -163,14 +163,12 @@ class AllSongsProvider extends ChangeNotifier{
     Map offSongMap = {};
     Map confSongMap = {};
 
-    _songs.sort(
-            (a, b) => compareText(a.title, b.title)
-    );
+    _songs.sort((a, b) => compareText(a.title, b.title));
 
     int iterOff = 0;
     int iterConf = 0;
-    for(SongRaw? song in songs){
-      Map map = song!.toMap(withLclId: false);
+    for(SongRaw song in _songs){
+      Map map = song.toMap(withLclId: false);
       if(isConf(song)!)
         confSongMap[song.lclId] = {
           'song': map,
