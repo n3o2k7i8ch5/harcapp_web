@@ -16,6 +16,7 @@ import 'package:harcapp_core/song_book/song_editor/widgets/tags_widget.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/top_cards.dart';
 import 'package:harcapp_core/song_book/widgets/song_widget_template.dart';
 import 'package:harcapp_web/articles/article_editor/common.dart';
+import 'package:harcapp_web/main.dart';
 import 'package:harcapp_web/songs/utils/generate_file_name.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/song_editor_no_song_widget.dart';
@@ -38,7 +39,6 @@ class SongEditorPanel extends StatefulWidget{
 
 class SongEditorPanelState extends State<SongEditorPanel>{
 
-  static const double SONG_PART_EDITOR_WIDTH = 500;
   static const double SEPARATOR_HEIGHT = 42;
 
   late ScrollController scrollController;
@@ -82,7 +82,7 @@ class SongEditorPanelState extends State<SongEditorPanel>{
 
                     await showDialog(context: context, builder: (_) => Center(
                       child: SizedBox(
-                        width: SONG_PART_EDITOR_WIDTH,
+                        width: dialogWidth,
                         child: SongPartEditor(
                           initText: _text,
                           initChords: _chords,
@@ -270,7 +270,7 @@ class SongEditorPanelState extends State<SongEditorPanel>{
                                 context: context,
                                 builder: (context) => Center(
                                   child: SizedBox(
-                                    width: SONG_PART_EDITOR_WIDTH,
+                                    width: dialogWidth,
                                     child: SongPartEditor(
                                       initText: _text,
                                       initChords: _chords,

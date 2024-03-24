@@ -36,7 +36,7 @@ GoRouter router = GoRouter(
       ],
       builder: (context, state, child) => Scaffold(
         appBar: PreferredSize(
-            preferredSize: Size(double.infinity, 92),
+            preferredSize: Size(double.infinity, PageNavItem.height),
             child: TopNavigationBar()
         ),
         body: child,

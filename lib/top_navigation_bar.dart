@@ -5,6 +5,7 @@ import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/harc_app.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
+import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_web/router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -13,14 +14,14 @@ import 'main.dart';
 
 class TopNavigationBar extends StatefulWidget{
 
+  static const denseMaxWidth = 1040;
+
   @override
   State<StatefulWidget> createState() => TopNavigationBarState();
 
 }
 
 class TopNavigationBarState extends State<TopNavigationBar>{
-
-  static const denseMaxWidth = 640;
 
   Widget? body;
   String? version;
@@ -37,102 +38,68 @@ class TopNavigationBarState extends State<TopNavigationBar>{
 
   @override
   Widget build(BuildContext context) => Material(
+    elevation: AppCard.bigElevation,
       color: cardEnab_(context),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 12.0),
-        child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) => Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) => Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
 
-              if(constraints.maxWidth >= denseMaxWidth)
-                SizedBox(width: 24.0),
+            if(constraints.maxWidth >= TopNavigationBar.denseMaxWidth)
+              SizedBox(width: 24.0),
 
-              if(constraints.maxWidth >= denseMaxWidth)
-                HarcApp(size: 24.0),
+            if(constraints.maxWidth >= TopNavigationBar.denseMaxWidth)
+              HarcApp(size: 24.0),
 
-              if(constraints.maxWidth >= denseMaxWidth)
-                SizedBox(width: 24.0),
+            if(constraints.maxWidth >= TopNavigationBar.denseMaxWidth)
+              SizedBox(width: 24.0),
 
-              Expanded(child: Container()),
+            Expanded(child: Container()),
 
-              PageNavItem(
-                icon: MdiIcons.dominoMask,
-                title: 'Polityka prywatności',
-                subtitle: 'Czyli nic interesującego',
-                path: pathPrivacyPolicy,
-                dense: constraints.maxWidth < denseMaxWidth,
-              ),
+            PageNavItem(
+              icon: MdiIcons.dominoMask,
+              title: 'Polityka prywatności',
+              subtitle: 'Czyli nic interesującego',
+              path: pathPrivacyPolicy,
+              dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
+            ),
 
-              SizedBox(width: 12.0),
+            PageNavItem(
+              icon: MdiIcons.notebookOutline,
+              title: 'Konspekty',
+              subtitle: 'Inspiracje na pracę harcerską!',
+              path: pathKonspekty,
+              dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
+            ),
 
-              PageNavItem(
-                icon: MdiIcons.notebookOutline,
-                title: 'Konspekty',
-                subtitle: 'Inspiracje na pracę harcerską!',
-                path: pathKonspekty,
-                dense: constraints.maxWidth < denseMaxWidth,
-              ),
+            PageNavItem(
+              icon: MdiIcons.music,
+              title: 'Warsztat piosenki',
+              subtitle: 'Twórz i dodawaj!',
+              path: pathSong,
+              dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
+            ),
 
-              SizedBox(width: 12.0),
+            PageNavItem(
+              icon: MdiIcons.trayArrowDown,
+              title: 'Pobierz HarcAppkę',
+              subtitle: MyAppState.availableAppVersion,
+              path: pathDownload,
+              dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
+            ),
 
-              PageNavItem(
-                icon: MdiIcons.music,
-                title: 'Warsztat piosenki',
-                subtitle: 'Twórz i dodawaj!',
-                path: pathSong,
-                dense: constraints.maxWidth < denseMaxWidth,
-              ),
+            SizedBox(width: 12.0),
 
-              SizedBox(width: 12.0),
-              
-              PageNavItem(
-                icon: MdiIcons.trayArrowDown,
-                title: 'Pobierz HarcAppkę',
-                subtitle: MyAppState.availableAppVersion,
-                path: pathDownload,
-                dense: constraints.maxWidth < denseMaxWidth,
-              ),
-
-              SizedBox(width: 12.0),
-
-              /*
-              PageNavItem(
-                icon: MdiIcons.feather,
-                title: 'Warsztat artykułów',
-                onTap: () => setState(() => body = ArticlePage()),
-              )
-               */
-
-              // Expanded(
-              //   child: Row(
-              //     crossAxisAlignment: CrossAxisAlignment.end,
-              //     mainAxisAlignment: MainAxisAlignment.center,
-              //     children: [
-              //       HarcApp(size: 28.0),
-              //       Text(
-              //         ' platforma twórców',
-              //         style: AppTextStyle(
-              //             fontSize: 28.0,
-              //             fontWeight: weight.bold,
-              //             color: hintEnab_(context)
-              //         )
-              //       ),
-              //
-              //       Text(version??'x.x.x', style: AppTextStyle(fontSize: Dimen.textSizeNormal, fontWeight: weight.halfBold)),
-              //     ],
-              //   ),
-              // ),
-
-            ],
-          ),
-        )
+          ],
+        ),
       )
   );
 
 }
 
 class PageNavItem extends StatelessWidget{
+
+  static const double height = 58;
 
   final IconData icon;
   final String title;
@@ -152,17 +119,17 @@ class PageNavItem extends StatelessWidget{
   Widget build(BuildContext context) =>
   dense?
   SimpleButton.from(
+    padding: EdgeInsets.all((height - Dimen.iconSize)/2),
+    margin: EdgeInsets.zero,
     textColor: textEnab_(context),
+    radius: 0,
     icon: icon,
     color: GoRouterState.of(context).uri.toString() == path?backgroundIcon_(context):null,
     onTap: () => context.go(path),
   ):
   IntrinsicWidth(
       child: ListTile(
-        shape: RoundedRectangleBorder(
-          side: BorderSide(color: backgroundIcon_(context), width: 4.0),
-          borderRadius: BorderRadius.circular(AppCard.bigRadius),
-        ),
+        dense: true,
         tileColor: GoRouterState.of(context).uri.toString() == path?backgroundIcon_(context):null,
         selectedColor: backgroundIcon_(context),
         onTap: () => context.go(path),
