@@ -159,7 +159,7 @@ class SongsPageState extends State<SongsPage>{
                     child: AppCard(
                       elevation: AppCard.bigElevation,
                       padding: EdgeInsets.all(Dimen.iconMarg),
-                      child: Text('Ładowanie...', style: AppTextStyle(fontSize: Dimen.TEXT_SIZE_APPBAR)),
+                      child: Text('Ładowanie...', style: AppTextStyle(fontSize: Dimen.textSizeAppBar)),
                     ),
                     builder: (context, prov, child) => AnimatedOpacity(
                       opacity: prov.loading!?1:0,

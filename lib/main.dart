@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:dio/browser.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:harcapp_core/color_pack_app.dart';
 import 'package:harcapp_core/comm_classes/color_pack_provider.dart';
 import 'package:harcapp_core/song_book/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
@@ -82,66 +83,66 @@ class MyAppState extends State<MyApp>{
   }
 
   @override
-  Widget build(BuildContext context) => MultiProvider(
-    providers: [
-      ChangeNotifierProvider(create: (context) => ShowSongProvider(false)),
-      ChangeNotifierProvider(create: (context) => ColorPackProvider(
-          initColorPack: ColorPackGraphite(),
-          isDark: () => false
-      )),
+  Widget build(BuildContext context) => ColorPackApp(
+      initColorPack: ColorPackGraphite(),
+      isDark: () => false,
+      child: MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (context) => ShowSongProvider(false)),
 
-      ChangeNotifierProvider(create: (context){
-        allSongsProv = AllSongsProvider(MyApp.lastLoadedSongs);
-        return allSongsProv;
-      }),
+            ChangeNotifierProvider(create: (context){
+              allSongsProv = AllSongsProvider(MyApp.lastLoadedSongs);
+              return allSongsProv;
+            }),
 
-      ChangeNotifierProvider(create: (context) => LoadingProvider()),
-      ChangeNotifierProvider(create: (context){
-        currItemProv = CurrentItemProvider(song: SongRaw.empty());
-        return currItemProv;
-      }),
+            ChangeNotifierProvider(create: (context) => LoadingProvider()),
+            ChangeNotifierProvider(create: (context){
+              currItemProv = CurrentItemProvider(song: SongRaw.empty());
+              return currItemProv;
+            }),
 
-      ChangeNotifierProvider(create: (context){
-        SimilarSongProvider prov = SimilarSongProvider();
-        prov.init();
-        return prov;
-      }),
+            ChangeNotifierProvider(create: (context){
+              SimilarSongProvider prov = SimilarSongProvider();
+              prov.init();
+              return prov;
+            }),
 
-      ChangeNotifierProvider(create: (context) => RefrenEnabProvider(true)),
-      ChangeNotifierProvider(create: (context) => RefrenPartProvider()),
-      ChangeNotifierProvider(create: (context) => TagsProvider(SongTag.ALL, [])),
+            ChangeNotifierProvider(create: (context) => RefrenEnabProvider(true)),
+            ChangeNotifierProvider(create: (context) => RefrenPartProvider()),
+            ChangeNotifierProvider(create: (context) => TagsProvider(SongTag.ALL, [])),
 
-      ChangeNotifierProvider(create: (context){
-        bindTitleFileNameProv = BindTitleFileNameProvider();
-        return bindTitleFileNameProv;
-      }),
+            ChangeNotifierProvider(create: (context){
+              bindTitleFileNameProv = BindTitleFileNameProvider();
+              return bindTitleFileNameProv;
+            }),
 
-      ChangeNotifierProvider(create: (context){
-        songFileNameDupErrProv = SongFileNameDupErrProvider();
-        return songFileNameDupErrProv;
-      }),
+            ChangeNotifierProvider(create: (context){
+              songFileNameDupErrProv = SongFileNameDupErrProvider();
+              return songFileNameDupErrProv;
+            }),
 
-      ChangeNotifierProvider(create: (context) => SongPreviewProvider()),
+            ChangeNotifierProvider(create: (context) => SongPreviewProvider()),
 
-      ChangeNotifierProvider(create: (context) => SongEditorPanelProvider()),
-    ],
-    builder: (context, child) =>
-    loadedDownloadMetadata?
-    Consumer<ColorPackProvider>(
-        builder: (context, prov, child) => MaterialApp.router(
-          routerConfig: router,
-          title: 'HarcApp',
-          theme: prov.colorPack.themeData,
-          builder: (context, child) => child!,
-          localizationsDelegates: const [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate, // ONLY if it's a RTL language
+            ChangeNotifierProvider(create: (context) => SongEditorPanelProvider()),
           ],
-          supportedLocales: const [
-            Locale('pl', 'PL'), // include country code too
-          ],
-        )
-    ):
-    Container()
+          builder: (context, child) =>
+          loadedDownloadMetadata?
+          Consumer<ColorPackProvider>(
+              builder: (context, prov, child) => MaterialApp.router(
+                routerConfig: router,
+                title: 'HarcApp',
+                theme: prov.colorPack.themeData,
+                builder: (context, child) => child!,
+                localizationsDelegates: const [
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate, // ONLY if it's a RTL language
+                ],
+                supportedLocales: const [
+                  Locale('pl', 'PL'), // include country code too
+                ],
+              )
+          ):
+          Container()
+      )
   );
 }

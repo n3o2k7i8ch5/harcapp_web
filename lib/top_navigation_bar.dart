@@ -60,7 +60,17 @@ class TopNavigationBarState extends State<TopNavigationBar>{
                 icon: MdiIcons.dominoMask,
                 title: 'Polityka prywatności',
                 subtitle: 'Czyli nic interesującego',
-                path: pathPrivacyPolicy, //setState(() => body = SongsPage()),
+                path: pathPrivacyPolicy,
+                dense: constraints.maxWidth < denseMaxWidth,
+              ),
+
+              SizedBox(width: 12.0),
+
+              PageNavItem(
+                icon: MdiIcons.notebookOutline,
+                title: 'Konspekty',
+                subtitle: 'Inspiracje na pracę harcerską!',
+                path: pathKonspekty,
                 dense: constraints.maxWidth < denseMaxWidth,
               ),
 
@@ -70,7 +80,7 @@ class TopNavigationBarState extends State<TopNavigationBar>{
                 icon: MdiIcons.music,
                 title: 'Warsztat piosenki',
                 subtitle: 'Twórz i dodawaj!',
-                path: pathSong, //setState(() => body = SongsPage()),
+                path: pathSong,
                 dense: constraints.maxWidth < denseMaxWidth,
               ),
 

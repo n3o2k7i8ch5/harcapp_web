@@ -143,7 +143,7 @@ class SendSongWidgetState extends State<SendSongWidget>{
 
             Text(
               'Prześlij piosenki do weryfikacji',
-              style: AppTextStyle(fontWeight: weight.halfBold, fontSize: Dimen.TEXT_SIZE_APPBAR),
+              style: AppTextStyle(fontWeight: weight.halfBold, fontSize: Dimen.textSizeAppBar),
             ),
 
             SizedBox(height: 20),
