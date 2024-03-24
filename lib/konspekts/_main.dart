@@ -65,43 +65,37 @@ class KonspektsPageState extends State<KonspektsPage>{
                 ),
 
               Expanded(
-                  child: Padding(
-                    padding: !workspaceAlwaysVisible?
-                    EdgeInsets.only(top: WorkspaceTitleWidget.height + Dimen.defMarg):
-                    EdgeInsets.zero,
-                    child:
-                    selectedKonspekt == null?
-                    Center(child: Text('Wybierz konspekt, który chcesz przejrzeć')):
-                    BaseKonspektWidget(
-                      selectedKonspekt!,
-                      withAppBar: false,
-                      onDuchLevelInfoTap: () => null,
-                      onDuchMechanismInfoTap: () => null,
-                      maxRelatedDialogWidth: dialogWidth,
-                      leading: Padding(
-                        padding: EdgeInsets.only(top: KonspektsPage.defPaddingVal),
-                        child: Material(
-                          borderRadius: BorderRadius.circular(AppCard.bigRadius),
-                          clipBehavior: Clip.hardEdge,
-                          child: Image.asset(selectedKonspekt!.coverPath),
+                  child: Center(
+                    child: Container(
+                      constraints: BoxConstraints(maxWidth: 1000),
+                      padding: !workspaceAlwaysVisible?
+                      EdgeInsets.only(top: WorkspaceTitleWidget.height + Dimen.defMarg):
+                      EdgeInsets.zero,
+                      child:
+                      selectedKonspekt == null?
+                      Center(child: Text('Wybierz konspekt, który chcesz przejrzeć')):
+                      BaseKonspektWidget(
+                            selectedKonspekt!,
+                            withAppBar: false,
+                            onDuchLevelInfoTap: () => null,
+                            onDuchMechanismInfoTap: () => null,
+                            maxRelatedDialogWidth: dialogWidth,
+                            leading: Padding(
+                              padding: EdgeInsets.only(top: KonspektsPage.defPaddingVal),
+                              child: Material(
+                                borderRadius: BorderRadius.circular(AppCard.bigRadius),
+                                clipBehavior: Clip.hardEdge,
+                                child: Image.asset(
+                                  selectedKonspekt!.coverPath,
+                                  fit: BoxFit.cover,
+                                  height: 500,
+                                ),
+                              ),
+                            )
                         ),
-                      )
                     ),
                   ),
               ),
-
-              if(constraints.maxWidth>1280)
-                SizedBox(
-                  width: 400,
-                  child: Padding(
-                      padding: EdgeInsets.only(
-                          bottom: KonspektsPage.defPaddingVal,
-                          right: KonspektsPage.defPaddingVal
-                      ),
-                      child:
-                      SongPreviewWidget()
-                  ),
-                )
             ],
           ),
         );
