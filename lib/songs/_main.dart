@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
-import 'package:harcapp_core/comm_widgets/app_card.dart';
-import 'package:harcapp_core/comm_widgets/simple_button.dart';
-import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_web/common/alert_dialog.dart';
+import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/main.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/song_editor_panel.dart';
 import 'package:harcapp_web/songs/song_preview_widget.dart';
-import 'package:harcapp_web/songs/workspace/workspace_part.dart';
-import 'package:harcapp_web/songs/workspace/workspace_title_widget.dart';
-import 'package:provider/provider.dart';
+
+import 'left_panel/left_panel.dart';
 
 class SongsPage extends StatefulWidget{
 
@@ -73,107 +69,50 @@ class SongsPageState extends State<SongsPage>{
 
         bool workspaceAlwaysVisible = constraints.maxWidth>920;
 
-        return Scaffold(
+        return BaseScaffold(
           backgroundColor: background_(context),
           drawer: workspaceAlwaysVisible?
           null:
           Drawer(
             backgroundColor: background_(context),
-            child: WorkspacePart(
+            child: LeftPanel(
               onItemTap: (index) => Navigator.pop(context),
             ),
-            width: 450,
+            width: drawerWidth,
           ),
-          body: Builder(
-              builder: (context) => Stack(
-                children: [
+          body: Row(
+            children: [
 
-                  Row(
-                    children: [
+              if(workspaceAlwaysVisible)
+                SizedBox(
+                    width: drawerWidth,
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 32, right: 32, bottom: 32),
+                      child: LeftPanel(),
+                    )
+                ),
 
-                      if(workspaceAlwaysVisible)
-                        SizedBox(
-                            width: 450,
-                            child: Padding(
-                              padding: EdgeInsets.only(left: 32, right: 32, bottom: 32),
-                              child: WorkspacePart(),
-                            )
-                        ),
+              Expanded(
+                  child: Padding(
+                      padding: workspaceAlwaysVisible?
+                      EdgeInsets.only(right: 32, bottom: 32):
+                      EdgeInsets.zero,
 
-                      Expanded(
-                          child: Padding(
-                              padding: workspaceAlwaysVisible?
-                              EdgeInsets.only(right: 32, bottom: 32):
-                              EdgeInsets.zero,
+                      child: SongEditorPanel(workspaceAlwaysVisible: workspaceAlwaysVisible)
+                  )
+              ),
 
-                              child: Stack(
-                                children: [
-
-                                  Padding(
-                                    padding: !workspaceAlwaysVisible?
-                                    EdgeInsets.only(top: WorkspaceTitleWidget.height + Dimen.defMarg):
-                                    EdgeInsets.zero,
-                                    child: SongEditorPanel(workspaceAlwaysVisible: workspaceAlwaysVisible),
-                                  ),
-
-                                  if(!workspaceAlwaysVisible)
-                                    Positioned(
-                                      top: 0,
-                                      left: 0,
-                                      right: 0,
-                                      child: SimpleButton(
-                                        onTap: () => Scaffold.of(context).openDrawer(),
-                                        color: cardEnab_(context),
-                                        radius: AppCard.bigRadius,
-                                        child: IgnorePointer(child: Padding(
-                                          padding: EdgeInsets.only(left: Dimen.sideMarg),
-                                          child: WorkspaceTitleWidget(textAlign: TextAlign.center, showDuplicated: false),
-                                        )),
-                                        margin: EdgeInsets.only(
-                                          top: Dimen.defMarg,
-                                          left: Dimen.defMarg,
-                                          right: Dimen.defMarg,
-                                        ),
-                                        elevation: 6.0,
-                                      ),
-                                    ),
-
-                                ],
-                              )
-                          )
-                      ),
-
-                      if(constraints.maxWidth>1280)
-                        SizedBox(
-                          width: 400,
-                          child: Padding(
-                              padding: EdgeInsets.only(bottom: 32, right: 32),
-                              child:
-                              SongPreviewWidget()
-                          ),
-                        )
-                    ],
+              if(constraints.maxWidth>1280)
+                SizedBox(
+                  width: 400,
+                  child: Padding(
+                      padding: EdgeInsets.only(bottom: 32, right: 32),
+                      child:
+                      SongPreviewWidget()
                   ),
-
-                  Consumer<LoadingProvider>(
-                    child: AppCard(
-                      elevation: AppCard.bigElevation,
-                      padding: EdgeInsets.all(Dimen.iconMarg),
-                      child: Text('Ładowanie...', style: AppTextStyle(fontSize: Dimen.textSizeAppBar)),
-                    ),
-                    builder: (context, prov, child) => AnimatedOpacity(
-                      opacity: prov.loading!?1:0,
-                      duration: Duration(milliseconds: 0),
-                      child: AbsorbPointer(
-                        absorbing: prov.loading!,
-                        child: Center(child: child),
-                      ),
-                    ),
-                  ),
-
-                ],
-              )
-          ),
+                )
+            ],
+          )
         );
       }
   );

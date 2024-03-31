@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_web/common/base_scaffold.dart';
 
 import '../consts.dart';
 
@@ -9,9 +10,8 @@ class PrivacyPolicyPage extends StatelessWidget{
   const PrivacyPolicyPage();
 
   @override
-  Widget build(BuildContext context) => Container(
-    color: background_(context),
-    child: Align(
+  Widget build(BuildContext context) => BaseScaffold(
+    body: Align(
       alignment: Alignment.topCenter,
       child: Container(
         constraints: BoxConstraints(maxWidth: defPageWidth),
@@ -77,7 +77,6 @@ class PrivacyPolicyPage extends StatelessWidget{
                   ),
                   textAlign: TextAlign.justify,
               ),
-
 
               SizedBox(height: 36.0),
 

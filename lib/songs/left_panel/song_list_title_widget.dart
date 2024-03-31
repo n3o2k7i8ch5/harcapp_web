@@ -7,14 +7,14 @@ import 'package:harcapp_web/songs/providers.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
-class WorkspaceTitleWidget extends StatelessWidget{
+class SongListTileWidget extends StatelessWidget{
 
   static const double height = Dimen.iconFootprint;
 
   final TextAlign textAlign;
   final bool showDuplicated;
 
-  const WorkspaceTitleWidget({this.textAlign = TextAlign.start, this.showDuplicated = true, Key? key}):super(key: key);
+  const SongListTileWidget({this.textAlign = TextAlign.start, this.showDuplicated = true, Key? key}):super(key: key);
 
   @override
   Widget build(BuildContext context) => Consumer<AllSongsProvider>(

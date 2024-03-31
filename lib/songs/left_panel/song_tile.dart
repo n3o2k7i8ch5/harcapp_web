@@ -8,7 +8,7 @@ import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
-import 'package:harcapp_web/songs/workspace/workspace_widget.dart';
+import 'package:harcapp_web/songs/left_panel/song_list_view.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -17,7 +17,7 @@ import 'code_editor_dialog.dart';
 import '../providers.dart';
 import 'file_name_editor_dialog.dart';
 
-class WorkspaceTile extends StatefulWidget{
+class SongTile extends StatefulWidget{
 
   final SongRaw song;
   final ScrollController controller;
@@ -25,13 +25,13 @@ class WorkspaceTile extends StatefulWidget{
   final void Function(BuildContext context)? onShowMoreButt;
   final void Function()? onTap;
 
-  const WorkspaceTile(this.song, this.controller, this.index, {this.onShowMoreButt, this.onTap, Key? key}):super(key: key);
+  const SongTile(this.song, this.controller, this.index, {this.onShowMoreButt, this.onTap, Key? key}):super(key: key);
 
   @override
-  State<StatefulWidget> createState() => WorkspaceTileState();
+  State<StatefulWidget> createState() => SongTileState();
 }
 
-class WorkspaceTileState extends State<WorkspaceTile>{
+class SongTileState extends State<SongTile>{
 
   SongRaw get song => widget.song;
 

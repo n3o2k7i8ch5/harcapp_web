@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
+import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -34,65 +35,9 @@ class SongEditorNoSongWidget extends StatelessWidget{
             itemBuilder: (context, index) => SlidingMusicIcon()
         ),
       ),
-      
-      Center(
-        child: Material(
-          color: cardEnab_(context),
-          borderRadius: BorderRadius.circular(AppCard.bigRadius),
-          clipBehavior: Clip.hardEdge,
-          child: Padding(
-            padding: const EdgeInsets.all(Dimen.defMarg),
-            child: Material(
-              color: background_(context),
-              borderRadius: BorderRadius.circular(AppCard.bigRadius - 4),
-              clipBehavior: Clip.hardEdge,
-              child: Padding(
-                padding: EdgeInsets.all(40.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
 
-                    Text(
-                      'Chcesz dodać lub edytować piosenkę'
-                      '\ndo śpiewnika HarcAppki?',
-                      style: AppTextStyle(
-                          fontSize: 20.0,
-                          color: textDisab_(context),
-                          fontWeight: weight.halfBold
-                      ),
-                    ),
+      ClickHereWidget(workspaceAlwaysVisible),
 
-                    SizedBox(height: 20.0),
-
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                            workspaceAlwaysVisible?MdiIcons.arrowLeft:MdiIcons.gestureTap,
-                            color: textDisab_(context),
-                            size: 24.0
-                        ),
-                        SizedBox(width: Dimen.iconMarg),
-                        Text(
-                          workspaceAlwaysVisible?'Zerknij tam!':'Kliknij',
-                          style: AppTextStyle(
-                              fontSize: 20.0,
-                              color: textDisab_(context),
-                              fontWeight: weight.halfBold
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      )
-      
     ],
   );
 
@@ -193,5 +138,78 @@ class SlidingMusicIconState extends State<SlidingMusicIcon>{
       child: Icon(icon, color: hintEnab_(context), size: 32.0,),
     );
   }
+
+}
+
+class ClickHereWidget extends StatelessWidget {
+
+  final bool workspaceAlwaysVisible;
+
+  const ClickHereWidget(this.workspaceAlwaysVisible);
+
+  @override
+  Widget build(BuildContext context) =>
+      Center(
+        child: Material(
+          color: cardEnab_(context),
+          borderRadius: BorderRadius.circular(AppCard.bigRadius),
+          clipBehavior: Clip.hardEdge,
+          child: Padding(
+            padding: const EdgeInsets.all(Dimen.defMarg),
+            child: SimpleButton(
+              color: background_(context),
+              borderRadius: BorderRadius.circular(AppCard.bigRadius - 4),
+              clipBehavior: Clip.hardEdge,
+              onTap: workspaceAlwaysVisible ?
+              null :
+                  () => Scaffold.of(context).openDrawer(),
+              child: Padding(
+                padding: EdgeInsets.all(40.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+
+                    Text(
+                      'Chcesz dodać lub edytować piosenkę'
+                          '\ndo śpiewnika HarcAppki?',
+                      style: AppTextStyle(
+                          fontSize: 20.0,
+                          color: textDisab_(context),
+                          fontWeight: weight.halfBold
+                      ),
+                    ),
+
+                    SizedBox(height: 20.0),
+
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                            workspaceAlwaysVisible
+                                ? MdiIcons.arrowLeft
+                                : MdiIcons.gestureTap,
+                            color: textDisab_(context),
+                            size: 24.0
+                        ),
+                        SizedBox(width: Dimen.iconMarg),
+                        Text(
+                          workspaceAlwaysVisible ? 'Zerknij tam!' : 'Kliknij',
+                          style: AppTextStyle(
+                              fontSize: 20.0,
+                              color: textDisab_(context),
+                              fontWeight: weight.halfBold
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
 
 }

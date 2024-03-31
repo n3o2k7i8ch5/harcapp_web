@@ -21,6 +21,7 @@ import 'package:url_strategy/url_strategy.dart';
 import 'color_pack.dart';
 
 double dialogWidth = 500;
+double drawerWidth = 450;
 
 void main() async {
   // When changing this, delete the `web` folder.

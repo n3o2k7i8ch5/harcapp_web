@@ -7,6 +7,7 @@ import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_text.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/main.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -17,9 +18,8 @@ class DownloadHarcAppPage extends StatelessWidget{
   const DownloadHarcAppPage();
 
   @override
-  Widget build(BuildContext context) => Container(
-    color: background_(context),
-    child: ListView(
+  Widget build(BuildContext context) => BaseScaffold(
+    body: ListView(
       children: [
 
         SizedBox(

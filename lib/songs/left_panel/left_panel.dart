@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_web/songs/left_panel/song_list_view.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/save_send_widget.dart';
-import 'package:harcapp_web/songs/workspace/workspace_widget.dart';
 import 'package:provider/provider.dart';
 
-import 'workspace_title_widget.dart';
+import 'song_list_title_widget.dart';
 
-class WorkspacePart extends StatelessWidget{
+class LeftPanel extends StatelessWidget{
 
   final void Function(int)? onItemTap;
 
-  const WorkspacePart({this.onItemTap, Key? key}):super(key: key);
+  const LeftPanel({this.onItemTap, Key? key}):super(key: key);
 
   @override
   Widget build(BuildContext context) => Column(
@@ -21,7 +21,7 @@ class WorkspacePart extends StatelessWidget{
 
       Padding(
         padding: EdgeInsets.only(left: Dimen.iconMarg, top: Dimen.iconMarg),
-        child: WorkspaceTitleWidget()
+        child: SongListTileWidget()
       ),
 
       Consumer<AllSongsProvider>(
@@ -38,7 +38,7 @@ class WorkspacePart extends StatelessWidget{
         child: Material(
           color: cardEnab_(context),
           borderRadius: BorderRadius.circular(AppCard.bigRadius),
-          child: WorkspaceWidget(onItemTap: onItemTap),
+          child: SongListView(onItemTap: onItemTap),
         ),
       ),
 

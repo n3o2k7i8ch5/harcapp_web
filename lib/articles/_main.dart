@@ -40,70 +40,67 @@ class ArticlePageState extends State<ArticlePage>{
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Center(
+    child: Container(
+      constraints: BoxConstraints(maxWidth: 1000),
+      child: Card(
+        elevation: 6.0,
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.black,
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                HarcApp(size: 18, color: Colors.white54,),
+                Text(
+                  'Edytor ${lastSetPage==0?'artykułu':'autora'}',
+                  style: AppTextStyle(fontSize: 14, color: Colors.white54),
+                )
+              ],
+            ),
+            actions: [
 
-    return Center(
-      child: Container(
-        constraints: BoxConstraints(maxWidth: 1000),
-        child: Card(
-          elevation: 6.0,
-          child: Scaffold(
-              appBar: AppBar(
-                backgroundColor: Colors.black,
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    HarcApp(size: 18, color: Colors.white54,),
-                    Text(
-                      'Edytor ${lastSetPage==0?'artykułu':'autora'}',
-                      style: AppTextStyle(fontSize: 14, color: Colors.white54),
-                    )
-                  ],
+              TopButton(
+                title: 'Stwórz artykuł',
+                icon: Icons.view_headline,
+                onTap: () => controller!.animateToPage(
+                    0,
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.easeOutQuad
                 ),
-                actions: [
-
-                  TopButton(
-                    title: 'Stwórz artykuł',
-                    icon: Icons.view_headline,
-                    onTap: () => controller!.animateToPage(
-                        0,
-                        duration: Duration(milliseconds: 300),
-                        curve: Curves.easeOutQuad
-                    ),
-                    isSelected: lastSetPage == 0,
-                  ),
-
-                  SizedBox(width: Dimen.iconMarg),
-
-                  TopButton(
-                      title: 'Stwórz autora',
-                      icon: Icons.account_circle,
-                      onTap: () => controller!.animateToPage(
-                          1,
-                          duration: Duration(milliseconds: 300),
-                          curve: Curves.easeOutQuad
-                      ),
-                      isSelected: lastSetPage == 1
-                  ),
-                  SizedBox(width: Dimen.iconMarg),
-
-
-                ],
+                isSelected: lastSetPage == 0,
               ),
-              body: PageView(
-                controller: controller,
-                physics: NeverScrollableScrollPhysics(),
-                children: [
-                  ArticleEditorPage(),
-                  AuthorEditorPage()
-                ],
+
+              SizedBox(width: Dimen.iconMarg),
+
+              TopButton(
+                  title: 'Stwórz autora',
+                  icon: Icons.account_circle,
+                  onTap: () => controller!.animateToPage(
+                      1,
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.easeOutQuad
+                  ),
+                  isSelected: lastSetPage == 1
               ),
-              //floatingActionButton:
+              SizedBox(width: Dimen.iconMarg),
+
+
+            ],
           ),
+          body: PageView(
+            controller: controller,
+            physics: NeverScrollableScrollPhysics(),
+            children: [
+              ArticleEditorPage(),
+              AuthorEditorPage()
+            ],
+          ),
+          //floatingActionButton:
         ),
       ),
-    );
-  }
+    ),
+  );
 
 
 }

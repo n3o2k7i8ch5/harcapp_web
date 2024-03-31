@@ -12,16 +12,25 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 
 import 'main.dart';
 
-class TopNavigationBar extends StatefulWidget{
+class TopNavigationBar extends StatefulWidget implements PreferredSizeWidget{
 
   static const denseMaxWidth = 1040;
+
+  final bool withMenuIcon;
+
+  const TopNavigationBar({this.withMenuIcon = true});
 
   @override
   State<StatefulWidget> createState() => TopNavigationBarState();
 
+  @override
+  Size get preferredSize => Size(double.infinity, PageNavItem.height);
+
 }
 
 class TopNavigationBarState extends State<TopNavigationBar>{
+
+  bool get withMenuIcon => widget.withMenuIcon;
 
   Widget? body;
   String? version;
@@ -45,14 +54,20 @@ class TopNavigationBarState extends State<TopNavigationBar>{
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
 
-            if(constraints.maxWidth >= TopNavigationBar.denseMaxWidth)
-              SizedBox(width: 24.0),
-
-            if(constraints.maxWidth >= TopNavigationBar.denseMaxWidth)
-              HarcApp(size: 24.0),
-
-            if(constraints.maxWidth >= TopNavigationBar.denseMaxWidth)
-              SizedBox(width: 24.0),
+            if(withMenuIcon && constraints.maxWidth < TopNavigationBar.denseMaxWidth)
+              SimpleButton.from(
+                padding: EdgeInsets.all((PageNavItem.height - Dimen.iconSize)/2),
+                margin: EdgeInsets.zero,
+                textColor: textEnab_(context),
+                radius: 0,
+                icon: MdiIcons.menu,
+                onTap: () => Scaffold.of(context).openDrawer(),
+              )
+            else
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.0),
+                child: HarcApp(size: 24.0),
+              ),
 
             Expanded(child: Container()),
 
@@ -88,8 +103,6 @@ class TopNavigationBarState extends State<TopNavigationBar>{
               dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
             ),
 
-            SizedBox(width: 12.0),
-
           ],
         ),
       )
@@ -99,7 +112,7 @@ class TopNavigationBarState extends State<TopNavigationBar>{
 
 class PageNavItem extends StatelessWidget{
 
-  static const double height = 58;
+  static const double height = 56;
 
   final IconData icon;
   final String title;
