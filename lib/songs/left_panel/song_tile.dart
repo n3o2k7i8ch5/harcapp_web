@@ -55,10 +55,7 @@ class SongTileState extends State<SongTile>{
       return SimpleButton(
         radius: AppCard.bigRadius - 4,
         onTap: () {
-          LoadingProvider loadingProv = Provider.of<LoadingProvider>(context, listen: false);
-          loadingProv.loading = true;
           displaySong(context, song);
-          loadingProv.loading = false;
           widget.onTap?.call();
         },
         child: ListTile(
@@ -87,7 +84,7 @@ class SongTileState extends State<SongTile>{
                           fontSize: Dimen.textSizeBig
                       ),
                       maxLines: 1,
-                      overflow: TextOverflow.clip
+                      overflow: TextOverflow.ellipsis
                   )
               )
 
@@ -95,8 +92,8 @@ class SongTileState extends State<SongTile>{
           ),
           subtitle: Text(
               lclId,
-              maxLines: 1,
-              overflow: TextOverflow.clip,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: AppTextStyle(
                   color:
                   lclId==HINT_FILE_NAME || songFileNameDupErrProv.hasDup(song)?

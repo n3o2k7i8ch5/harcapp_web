@@ -37,6 +37,7 @@ class LeftPanel extends StatelessWidget{
       Expanded(
         child: Material(
           color: cardEnab_(context),
+          clipBehavior: Clip.hardEdge,
           borderRadius: BorderRadius.circular(AppCard.bigRadius),
           child: SongListView(onItemTap: onItemTap),
         ),

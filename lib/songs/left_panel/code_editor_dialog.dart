@@ -10,7 +10,6 @@ import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/song_book/song_tags.dart';
 import 'package:harcapp_web/songs/left_panel/song_list_view.dart';
-import 'package:harcapp_web/songs/utils/generate_file_name.dart';
 import 'package:harcapp_web/songs/old/parse_old_code.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -64,8 +63,7 @@ class CodeEditorDialog extends StatelessWidget{
 
                                   try{
                                     song = parseOldCode('_nowa_piosenka', controller.text);
-                                    String lclId = generateFileName(context: context, song: song);
-                                    song.lclId = lclId;
+                                    song.lclId = song.generateFileName(withPerformer: BindTitleFileNameProvider.of(context).bindPerformer);
                                   } catch(e){
 
                                     try {

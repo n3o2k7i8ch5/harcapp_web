@@ -141,32 +141,27 @@ class SongListViewState extends State<SongListView>{
       ))
     ],
     builder: (context, child) => Consumer<AllSongsProvider>(
-        builder: (context, allSongsProv, child){
+        builder: (context, allSongsProv, child) => Column(
+          children: [
 
-          if(allSongsProv.length==0)
-            return LoadWidget();
-
-          return Column(
-            children: [
-
-              Padding(
-                padding: EdgeInsets.only(
+            Padding(
+              padding: EdgeInsets.only(
                   top: Dimen.defMarg,
                   left: Dimen.defMarg,
                   right: Dimen.defMarg
-                ),
-                child: Material(
-                  elevation: AppCard.bigElevation,
-                  borderRadius: BorderRadius.circular(AppCard.bigRadius - 4),
-                  color: background_(context),
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.all(Dimen.iconMarg),
-                        child: Icon(MdiIcons.magnify, color: hintEnab_(context)),
-                      ),
-                      Expanded(
-                        child: TextField(
+              ),
+              child: Material(
+                elevation: AppCard.bigElevation,
+                borderRadius: BorderRadius.circular(AppCard.bigRadius - 4),
+                color: background_(context),
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(Dimen.iconMarg),
+                      child: Icon(MdiIcons.magnify, color: hintEnab_(context)),
+                    ),
+                    Expanded(
+                      child: TextField(
                           style: AppTextStyle(color: AppColors.text_def_enab),
                           decoration: InputDecoration(
                               hintText: 'Szukaj',
@@ -174,92 +169,87 @@ class SongListViewState extends State<SongListView>{
                               border: InputBorder.none
                           ),
                           onChanged: (text) => SearchListProvider.of(context).changeSearchPhrase(text)
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-
-              Expanded(
-                child: Consumer3<AllSongsProvider, CurrentItemProvider, SearchListProvider>(
-                    builder: (context, allSongsProv, currItemProv, searchListProv, child) => ListView.separated(
-                      padding: EdgeInsets.symmetric(horizontal: Dimen.defMarg),
-                      controller: controller,
-                      itemCount: searchListProv.length,
-                      physics: BouncingScrollPhysics(),
-                      itemBuilder: (context, index) => SongTile(
-                        searchListProv.get(index)!,
-                        controller,
-                        index,
-                        onShowMoreButt: (BuildContext context) =>
-                        this.itemContext = context,
-                        onTap: () => widget.onItemTap?.call(index),
                       ),
-                      separatorBuilder: (context, index) => SizedBox(height: Dimen.defMarg),
                     )
+                  ],
                 ),
               ),
+            ),
 
-              Padding(
-                padding: EdgeInsets.all(Dimen.defMarg),
-                child: Material(
-                  borderRadius: BorderRadius.circular(AppCard.bigRadius - 4),
-                  clipBehavior: Clip.hardEdge,
-                  color: backgroundIcon_(context),
-                  child: SizedBox(
-                    height: Dimen.iconFootprint,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-
-                        Expanded(
-                          child: Consumer<SimilarSongProvider>(
-                              builder: (context, prov, child) => Tooltip(
-                                message: 'Przykład piosenki',
-                                child: SimpleButton(
-                                    radius: 0,
-                                    child: Icon(
-                                      MdiIcons.musicBoxOutline,
-                                      color: prov.allSongs == null?iconDisab_(context):iconEnab_(context),
-                                    ),
-                                    onTap: prov.allSongs == null?null:() => handleExampleSongTap(context)
-                                ),
-                              )
-                          ),
-                        ),
-
-                        Expanded(
-                            child: Tooltip(
-                              message: 'Importuj piosenki',
-                              child: SimpleButton(
-                                  radius: 0,
-                                  child: Icon(MdiIcons.fileUploadOutline),
-                                  onTap: () => handleImportSongTap(context)
-                              ),
-                            )
-                        ),
-
-                        Expanded(
-                            child: Tooltip(
-                              message: 'Nowa piosenka',
-                              child: SimpleButton(
-                                  radius: 0,
-                                  child: Icon(MdiIcons.musicNotePlus),
-                                  onTap: () => handleNewSongTap(context)
-                              ),
-                            )
-                        ),
-
-                      ],
+            Expanded(
+              child: Consumer3<AllSongsProvider, CurrentItemProvider, SearchListProvider>(
+                  builder: (context, allSongsProv, currItemProv, searchListProv, child) => ListView.separated(
+                    padding: EdgeInsets.symmetric(horizontal: Dimen.defMarg),
+                    controller: controller,
+                    itemCount: searchListProv.length,
+                    physics: BouncingScrollPhysics(),
+                    itemBuilder: (context, index) => SongTile(
+                      searchListProv.get(index)!,
+                      controller,
+                      index,
+                      onShowMoreButt: (BuildContext context) =>
+                      this.itemContext = context,
+                      onTap: () => widget.onItemTap?.call(index),
                     ),
-                  ),
-                ),
-              )
-            ],
-          );
+                    separatorBuilder: (context, index) => SizedBox(height: Dimen.defMarg),
+                  )
+              ),
+            ),
 
-        })
+            Material(
+              clipBehavior: Clip.hardEdge,
+              color: backgroundIcon_(context),
+              child: SizedBox(
+                height: Dimen.iconFootprint,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+
+                    Expanded(
+                      child: Consumer<SimilarSongProvider>(
+                          builder: (context, prov, child) => Tooltip(
+                            message: 'Przykład piosenki',
+                            child: SimpleButton(
+                                radius: 0,
+                                child: Icon(
+                                  MdiIcons.musicBoxOutline,
+                                  color: prov.allSongs == null?iconDisab_(context):iconEnab_(context),
+                                ),
+                                onTap: prov.allSongs == null?null:() => handleExampleSongTap(context)
+                            ),
+                          )
+                      ),
+                    ),
+
+                    Expanded(
+                        child: Tooltip(
+                          message: 'Importuj piosenki',
+                          child: SimpleButton(
+                              radius: 0,
+                              child: Icon(MdiIcons.fileUploadOutline),
+                              onTap: () => handleImportSongTap(context)
+                          ),
+                        )
+                    ),
+
+                    Expanded(
+                        child: Tooltip(
+                          message: 'Nowa piosenka',
+                          child: SimpleButton(
+                              radius: 0,
+                              child: Icon(MdiIcons.musicNotePlus),
+                              onTap: () => handleNewSongTap(context)
+                          ),
+                        )
+                    ),
+
+                  ],
+                ),
+              ),
+            )
+          ],
+        )
+    )
   );
 
 }
@@ -320,7 +310,7 @@ void handleExampleSongTap(BuildContext context){
 }
 
 void displaySong(BuildContext context, SongRaw song){
-  Provider.of<ShowSongProvider>(context, listen: false).showSong = true;
+  ShowSongProvider.of(context).showSong = true;
   CurrentItemProvider.of(context).song = song;
 
   BindTitleFileNameProvider.of(context).setSetBasedOnSong(song);
@@ -336,7 +326,7 @@ class SearchListProvider extends ChangeNotifier{
 
   late bool anySearchPhrase;
 
-  late List<SongRaw?> currSongList;
+  late List<SongRaw> currSongList;
 
   late String searchPhrase;
 

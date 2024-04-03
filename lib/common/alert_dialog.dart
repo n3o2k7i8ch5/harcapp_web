@@ -105,6 +105,6 @@ Future<void> showAlertDialog(
     actionsPadding: const EdgeInsets.only(bottom: Dimen.iconMarg, right: Dimen.iconMarg),
     backgroundColor: cardEnab_(context),
     contentTextStyle: TextStyle(color: textEnab_(context)),
-    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(Dimen.sideMarg))),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Dimen.sideMarg)),
   ),
 );

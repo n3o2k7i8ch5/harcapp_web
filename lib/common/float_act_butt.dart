@@ -20,7 +20,7 @@ class FloatingButton extends StatelessWidget{
     return RawMaterialButton(
         fillColor: color,
         padding: EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(100))),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
         elevation: 6.0,
         child: Row(
           mainAxisSize: MainAxisSize.min,

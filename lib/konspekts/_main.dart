@@ -119,7 +119,8 @@ class ClickHereWidget extends StatelessWidget{
           clipBehavior: Clip.hardEdge,
           onTap: workspaceAlwaysVisible?
           null:
-              () => Scaffold.of(context).openDrawer(),
+          () => Scaffold.of(context).openDrawer(),
+
           child: Padding(
             padding: EdgeInsets.all(40.0),
             child: Column(

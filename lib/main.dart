@@ -98,7 +98,6 @@ class MyAppState extends State<MyApp>{
               return allSongsProv;
             }),
 
-            ChangeNotifierProvider(create: (context) => LoadingProvider()),
             ChangeNotifierProvider(create: (context){
               currItemProv = CurrentItemProvider(song: SongRaw.empty());
               return currItemProv;

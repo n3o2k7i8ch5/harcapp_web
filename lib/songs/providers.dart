@@ -7,8 +7,6 @@ import 'package:harcapp_web/common/sha_pref.dart';
 import 'package:harcapp_web/songs/utils/song_loader.dart';
 import 'package:provider/provider.dart';
 
-import 'utils/generate_file_name.dart';
-
 class ShowSongProvider extends ChangeNotifier{
 
   static ShowSongProvider of(BuildContext context) => Provider.of<ShowSongProvider>(context, listen: false);
@@ -21,22 +19,6 @@ class ShowSongProvider extends ChangeNotifier{
   set showSong(bool value){
     if(_showSong == value) return;
     _showSong = value;
-    notifyListeners();
-  }
-
-}
-
-class LoadingProvider extends ChangeNotifier{
-
-  bool? _loading;
-
-  LoadingProvider(){
-    _loading = false;
-  }
-
-  bool? get loading => _loading;
-  set loading(bool? value){
-    _loading = value;
     notifyListeners();
   }
 
@@ -69,11 +51,10 @@ class BindTitleFileNameProvider extends ChangeNotifier{
   }
 
   void setSetBasedOnSong(SongRaw song){
-    bindTitle =
-      song.lclId == generateFileName(prov: this, song: song);
+    bindTitle = song.lclId.split('@')[0] == (song.isConfid?'oc!_':'o!_') + song.generateFileName(withPerformer: false);
 
-    bindPerformer =
-      (song.lclId.contains('@') && bindTitle) || song.lclId == 'o!_' || song.lclId == 'oc!_';
+    bindPerformer = song.lclId == (song.isConfid?'oc!_':'o!_') + song.generateFileName(withPerformer: true);
+      // (song.lclId.contains('@') && bindTitle) || song.lclId == 'o!_' || song.lclId == 'oc!_';
     notifyListeners();
   }
 
@@ -127,9 +108,7 @@ class AllSongsProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  bool? isConf(SongRaw song){
-    return _confMap[song];
-  }
+  bool? isConf(SongRaw song) => _confMap[song];
 
   void set(SongRaw song, bool isConf){
     _confMap[song] = isConf;
@@ -137,9 +116,8 @@ class AllSongsProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  void _cacheSongs(){
+  void _cacheSongs() =>
     ShaPref.setString(ShaPref.SHA_PREF_LAST_EDITED_SONGS, convertAllToCode());
-  }
 
   static Future<List<SongRaw>> loadCachedSongs() async {
     String? code = ShaPref.getStringOrNull(ShaPref.SHA_PREF_LAST_EDITED_SONGS);
@@ -154,9 +132,8 @@ class AllSongsProvider extends ChangeNotifier{
     return result;
   }
 
-  static void clearCachedSongs(){
+  static void clearCachedSongs() =>
     ShaPref.remove(ShaPref.SHA_PREF_LAST_EDITED_SONGS);
-  }
   
   String convertAllToCode(){
 
