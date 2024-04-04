@@ -200,8 +200,10 @@ class SongEditorPanelState extends State<SongEditorPanel>{
                         SimilarSongProvider.of(context).title = text;
 
                         BindTitleFileNameProvider bindTitleFileNameProv = BindTitleFileNameProvider.of(context);
-                        if(bindTitleFileNameProv.bindTitle)
+                        if(bindTitleFileNameProv.bindTitle){
                           CurrentItemProvider.of(context).setLclIdFromTitleAndPerformer(withPerformer: bindTitleFileNameProv.bindPerformer);
+                          SongFileNameDupErrProvider.of(context).checkAllDups(context);
+                        }
 
                       },
                       onChangedHiddenTitles: (List<String> texts) => currItemProv.setHidTitles(texts, notify: false),
@@ -216,8 +218,10 @@ class SongEditorPanelState extends State<SongEditorPanel>{
                         currItemProv.setPerformers(texts, notify: notify);
 
                         BindTitleFileNameProvider bindTitleFileNameProv = BindTitleFileNameProvider.of(context);
-                        if(bindTitleFileNameProv.bindTitle)
+                        if(bindTitleFileNameProv.bindTitle){
                           CurrentItemProvider.of(context).setLclIdFromTitleAndPerformer(withPerformer: bindTitleFileNameProv.bindPerformer);
+                          SongFileNameDupErrProvider.of(context).checkAllDups(context);
+                        }
                       },
                       onChangedYT: (String? text) => currItemProv.setYoutubeLink(text, notify: false),
                     ),
