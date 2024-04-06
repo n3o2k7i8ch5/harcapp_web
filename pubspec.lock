@@ -29,10 +29,10 @@ packages:
     dependency: transitive
     description:
       name: audio_session
-      sha256: "6fdf255ed3af86535c96452c33ecff1245990bb25a605bfb1958661ccc3d467f"
+      sha256: a49af9981eec5d7cd73b37bacb6ee73f8143a6a9f9bd5b6021e6c346b9b6cf4e
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.18"
+    version: "0.1.19"
   auto_size_text:
     dependency: transitive
     description:
@@ -394,7 +394,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "5b66b4ef42304ed19c20bfda14870e30ca452251"
+      resolved-ref: c2ad944ce304d4288298d7edc48190a9a4c3fd6a
       url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"
@@ -730,10 +730,10 @@ packages:
     dependency: transitive
     description:
       name: pointycastle
-      sha256: "43ac87de6e10afabc85c445745a7b799e04de84cebaa4fd7bf55a5e1e9604d29"
+      sha256: "70fe966348fe08c34bf929582f1d8247d9d9408130723206472b4687227e4333"
       url: "https://pub.dev"
     source: hosted
-    version: "3.7.4"
+    version: "3.8.0"
   pretty_json:
     dependency: "direct main"
     description:
@@ -1023,10 +1023,10 @@ packages:
     dependency: transitive
     description:
       name: video_player
-      sha256: "822e68b62403bebea846b012988ee1e77262e7b786345594a444c59338096ddf"
+      sha256: efa2e24042166906ddf836dd131258d0371d0009cdf0476f6a83fd992a17f5d0
       url: "https://pub.dev"
     source: hosted
-    version: "2.8.4"
+    version: "2.8.5"
   video_player_android:
     dependency: transitive
     description:

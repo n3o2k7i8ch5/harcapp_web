@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
+import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_core/song_book/add_person_resolver.dart';
@@ -15,11 +16,9 @@ import 'package:harcapp_core/song_book/song_editor/widgets/song_parts_list_widge
 import 'package:harcapp_core/song_book/song_editor/widgets/tags_widget.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/top_cards.dart';
 import 'package:harcapp_core/song_book/widgets/song_widget_template.dart';
-import 'package:harcapp_web/articles/article_editor/common.dart';
 import 'package:harcapp_web/main.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/song_editor_no_song_widget.dart';
-import 'package:harcapp_web/songs/utils/song_loader.dart';
 import 'package:harcapp_web/songs/song_part_editor.dart';
 import 'package:harcapp_web/songs/song_preview_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -51,7 +50,7 @@ class SongEditorPanelState extends State<SongEditorPanel>{
 
 
   @override
-  Widget build(BuildContext context) => Consumer2<SongEditorPanelProvider, ShowSongProvider>(
+  Widget build(BuildContext context) => Consumer2<SongEditorPanelProvider, SongPreviewProvider>(
     builder: (context, prov, showSongProv, child){
 
       CurrentItemProvider currItemProv = CurrentItemProvider.of(context);
@@ -302,7 +301,12 @@ class SongEditorPanelState extends State<SongEditorPanel>{
             )
           ),
 
-          AddButtonsWidget(onPressed: () => scrollToBottom(scrollController))
+          Material(
+            elevation: AppCard.bigElevation,
+            borderRadius: BorderRadius.circular(AppCard.bigRadius),
+            color: cardEnab_(context),
+            child: AddButtonsWidget(onPressed: () => scrollToBottom(scrollController)),
+          )
 
         ],
       );
@@ -313,6 +317,8 @@ class SongEditorPanelState extends State<SongEditorPanel>{
 }
 
 class SimilarSongWidget extends StatelessWidget{
+
+  static IconData icon = MdiIcons.musicBoxMultiple;
 
   @override
   Widget build(BuildContext context) => Consumer<SimilarSongProvider>(
@@ -355,79 +361,46 @@ class SimilarSongWidget extends StatelessWidget{
                 children: [
                   Padding(
                     padding: EdgeInsets.all(Dimen.iconMarg),
-                    child: Icon(MdiIcons.alertCircleOutline, color: Colors.red),
+                    child: Icon(icon, color: Colors.red),
                   ),
 
                   Expanded(child: Text(
-                    'Ostrożnie! Piosenka o takim tytule już jest!',
+                    'Piosenka o takim tytule już jest!',
                     style: AppTextStyle(color: Colors.red, fontWeight: weight.halfBold, fontSize: Dimen.textSizeBig),
                     textAlign: TextAlign.center,
                   )),
-                  IconButton(icon: Icon(MdiIcons.eye), onPressed: () => showDialog(
-                    context: context,
-                    builder: (context) => Center(
-                        child: AppCard(
-                          padding: EdgeInsets.zero,
-                          color: Colors.white,
-                          radius: AppCard.bigRadius,
-                          child: SizedBox(
-                            width: 400,
-                            child: SongWidgetTemplate<SongRaw, AddPersonSimpleResolver>(
-                                prov.similarSong![0],
-                                SongBaseSettings(),
-                                addPersonResolver: AddPersonSimpleResolver(),
-                                scrollController: ScrollController(),
-                                key: UniqueKey()//ValueKey(currItemProv.song)
-                            ),
-                          ),
-                        )
-                    ),
-                  )),
+
+                  SimpleButton.from(
+                      context: context,
+                      icon: MdiIcons.eye,
+                      iconLeading: false,
+                      text: 'Podgląd',
+                      onTap: () => showDialog(
+                        context: context,
+                        builder: (context) => Center(
+                            child: Material(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(AppCard.bigRadius),
+                              child: SizedBox(
+                                width: 400,
+                                child: SongWidgetTemplate<SongRaw, AddPersonSimpleResolver>(
+                                    prov.similarSong![0],
+                                    SongBaseSettings(),
+                                    addPersonResolver: AddPersonSimpleResolver(),
+                                    scrollController: ScrollController(),
+                                    key: UniqueKey()//ValueKey(currItemProv.song)
+                                ),
+                              ),
+                            )
+                        ),
+                      )
+                  ),
+
                 ],
               )
           )
 
       )
   );
-
-}
-
-class SimilarSongProvider extends ChangeNotifier{
-
-  static SimilarSongProvider of(BuildContext context) => Provider.of<SimilarSongProvider>(context, listen: false);
-
-  Map<String, List<SongRaw>>? allSongs;
-
-  late String _title;
-  String get title => _title;
-  set title(String value){
-    _title = value;
-    notifyListeners();
-  }
-
-  List<SongRaw>? get similarSong{
-    if(allSongs == null) return null;
-
-    String _title = remSpecChars(remPolChars(this._title.toLowerCase()));
-    List<SongRaw> songs = allSongs![_title]??[];
-    return songs;
-  }
-
-  SimilarSongProvider(){
-    _title = '';
-  }
-
-  bool hasSimilarSong(String title){
-    if(allSongs == null) return false;
-    String _title = remSpecChars(remPolChars(title.toLowerCase()));
-    List<SongRaw> songs = allSongs![_title]??[];
-
-    return songs.isNotEmpty;
-  }
-
-  void init() async {
-    allSongs = await loadSongs();
-    notifyListeners();
-  }
 
 }

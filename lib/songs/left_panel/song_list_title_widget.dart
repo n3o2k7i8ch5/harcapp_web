@@ -52,6 +52,7 @@ class SongListTileWidget extends StatelessWidget{
               if(allSongsProv.length>0)
                 SimpleButton.from(
                     context: context,
+                    margin: EdgeInsets.symmetric(vertical: Dimen.defMarg),
                     onTap: () => AppScaffold.showMessage(context,
                       'Przytrzymaj, by usunąć wszystkie piosenki',
                     ),

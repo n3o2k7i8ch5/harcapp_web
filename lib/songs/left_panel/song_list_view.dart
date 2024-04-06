@@ -1,113 +1,53 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
+import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
+import 'package:harcapp_core/comm_widgets/floating_container.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/song_book/song_tags.dart';
-import 'package:harcapp_web/articles/article_editor/common.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
+import 'package:harcapp_web/songs/left_panel/provider.dart';
 import 'package:harcapp_web/songs/left_panel/song_tile.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
-import '../song_editor_panel.dart';
+import 'code_editor_dialog.dart';
 
-void importSongsFromCode(String code, {required Function(List<SongRaw> offSongs, List<SongRaw> confSongs) onFinished}){
-
-  Map<String, dynamic> map = jsonDecode(code);
-
-  Map<String, dynamic>? offSongsMap = map['official'];
-  List<SongRaw?> offSongs;
-  if(offSongsMap == null) offSongs = [];
-  else {
-    offSongs = List.filled(offSongsMap.keys.length, null, growable: true);
-
-    for(String fileName in offSongsMap.keys){
-      Map<String, dynamic> songPackMap = offSongsMap[fileName];
-      Map<String, dynamic> songMap = songPackMap['song'];
-      int index = songPackMap['index'];
-      SongRaw song = SongRaw.fromRespMap(fileName, songMap);
-
-      if(!song.isOfficial) song.lclId = 'o!_' + song.lclId;
-
-      offSongs[index] = song;
-
+enum NewSongType{
+  importSongs,
+  newSong,
+  newSongExample,
+  newSongFromCode,
+  newSongEmpty;
+  
+  IconData get icon{
+    switch(this){
+      case NewSongType.importSongs: return MdiIcons.trayArrowUp;
+      case NewSongType.newSong: return MdiIcons.musicNotePlus;
+      case NewSongType.newSongExample: return MdiIcons.musicCircleOutline;
+      case NewSongType.newSongFromCode: return MdiIcons.codeBraces;
+      case NewSongType.newSongEmpty: return MdiIcons.squareRoundedOutline;
     }
   }
-
-  Map<String, dynamic>? confSongsMap = map['conf'];
-  List<SongRaw?> confSongs;
-  if(confSongsMap == null) confSongs = [];
-  else{
-    confSongs = List.filled(confSongsMap.keys.length, null, growable: true);
-
-    for(String fileName in confSongsMap.keys){
-      Map<String, dynamic> songPackMap = confSongsMap[fileName];
-      Map<String, dynamic> songMap = songPackMap['song'];
-      int index = songPackMap['index'];
-
-      SongRaw song = SongRaw.fromRespMap(fileName, songMap);
-      if(!song.isConfid) song.lclId = 'oc!_' + song.lclId;
-
-      confSongs[index] = song;
-
+  
+  String get displayName{
+    switch(this){
+      case NewSongType.importSongs: return 'Importuj piosenki';
+      case NewSongType.newSong: return 'Nowa piosenka';
+      case NewSongType.newSongExample: return 'Przykładowa piosenka';
+      case NewSongType.newSongFromCode: return 'Piosenka z kodu';
+      case NewSongType.newSongEmpty: return 'Pusta piosenka';
     }
   }
-
-  onFinished(offSongs.cast<SongRaw>(), confSongs.cast<SongRaw>());
-}
-
-class LoadWidget extends StatelessWidget{
-
-  const LoadWidget();
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    mainAxisSize: MainAxisSize.max,
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-
-      Consumer<SimilarSongProvider>(
-          builder: (context, prov, child) => SimpleButton.from(
-              icon: MdiIcons.musicBoxOutline,
-              textColor: prov.allSongs == null?iconDisab_(context):iconEnab_(context),
-              text: 'Przykład piosenki',
-              onTap: prov.allSongs == null?null:() => handleExampleSongTap(context)
-          )
-      ),
-
-      SizedBox(height: Dimen.sideMarg),
-
-      Icon(MdiIcons.circleMedium, color: hintEnab_(context)),
-
-      SizedBox(height: Dimen.sideMarg),
-
-      SimpleButton.from(
-          context: context,
-          icon: MdiIcons.fileUploadOutline,
-          text: 'Importuj piosenki',
-          onTap: () => handleImportSongTap(context)
-      ),
-
-      SimpleButton.from(
-          context: context,
-          icon: MdiIcons.musicNotePlus,
-          text: 'Nowa piosenka',
-          onTap: () => handleNewSongTap(context)
-      ),
-
-    ],
-  );
-
 }
 
 class SongListView extends StatefulWidget{
@@ -122,7 +62,7 @@ class SongListView extends StatefulWidget{
 }
 
 class SongListViewState extends State<SongListView>{
-
+  
   late ScrollController controller;
 
   late BuildContext itemContext;
@@ -141,57 +81,40 @@ class SongListViewState extends State<SongListView>{
       ))
     ],
     builder: (context, child) => Consumer<AllSongsProvider>(
-        builder: (context, allSongsProv, child) => Column(
+        builder: (context, allSongsProv, child) =>
+        allSongsProv.length==0?
+        NoSongsWidget():
+        Column(
           children: [
-
-            Padding(
-              padding: EdgeInsets.only(
-                  top: Dimen.defMarg,
-                  left: Dimen.defMarg,
-                  right: Dimen.defMarg
-              ),
-              child: Material(
-                elevation: AppCard.bigElevation,
-                borderRadius: BorderRadius.circular(AppCard.bigRadius - 4),
-                color: background_(context),
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.all(Dimen.iconMarg),
-                      child: Icon(MdiIcons.magnify, color: hintEnab_(context)),
-                    ),
-                    Expanded(
-                      child: TextField(
-                          style: AppTextStyle(color: AppColors.text_def_enab),
-                          decoration: InputDecoration(
-                              hintText: 'Szukaj',
-                              hintStyle: AppTextStyle(color: AppColors.text_hint_enab),
-                              border: InputBorder.none
-                          ),
-                          onChanged: (text) => SearchListProvider.of(context).changeSearchPhrase(text)
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
 
             Expanded(
               child: Consumer3<AllSongsProvider, CurrentItemProvider, SearchListProvider>(
-                  builder: (context, allSongsProv, currItemProv, searchListProv, child) => ListView.separated(
-                    padding: EdgeInsets.symmetric(horizontal: Dimen.defMarg),
+                  builder: (context, allSongsProv, currItemProv, searchListProv, child) =>
+                  CustomScrollView(
                     controller: controller,
-                    itemCount: searchListProv.length,
                     physics: BouncingScrollPhysics(),
-                    itemBuilder: (context, index) => SongTile(
-                      searchListProv.get(index)!,
-                      controller,
-                      index,
-                      onShowMoreButt: (BuildContext context) =>
-                      this.itemContext = context,
-                      onTap: () => widget.onItemTap?.call(index),
-                    ),
-                    separatorBuilder: (context, index) => SizedBox(height: Dimen.defMarg),
+                    slivers: [
+
+                      FloatingContainer.child(
+                          child: Padding(
+                            padding: EdgeInsets.all(Dimen.defMarg),
+                            child: SearchField(),
+                          ),
+                          height: Dimen.iconFootprint + 2*Dimen.defMarg
+                      ),
+
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) => SongTile(
+                            searchListProv.get(index)!,
+                            controller,
+                            onTap: () => widget.onItemTap?.call(index),
+                          ),
+                          childCount: searchListProv.length
+                        ),
+                      )
+
+                    ],
                   )
               ),
             ),
@@ -206,47 +129,98 @@ class SongListViewState extends State<SongListView>{
                   children: [
 
                     Expanded(
-                      child: Consumer<SimilarSongProvider>(
-                          builder: (context, prov, child) => Tooltip(
-                            message: 'Przykład piosenki',
-                            child: SimpleButton(
-                                radius: 0,
-                                child: Icon(
-                                  MdiIcons.musicBoxOutline,
-                                  color: prov.allSongs == null?iconDisab_(context):iconEnab_(context),
-                                ),
-                                onTap: prov.allSongs == null?null:() => handleExampleSongTap(context)
-                            ),
-                          )
-                      ),
-                    ),
-
-                    Expanded(
                         child: Tooltip(
                           message: 'Importuj piosenki',
                           child: SimpleButton(
                               radius: 0,
-                              child: Icon(MdiIcons.fileUploadOutline),
-                              onTap: () => handleImportSongTap(context)
+                              child: Icon(NewSongType.importSongs.icon),
+                              onTap: () => handleImportSongsTap(context)
                           ),
                         )
                     ),
 
                     Expanded(
-                        child: Tooltip(
-                          message: 'Nowa piosenka',
-                          child: SimpleButton(
-                              radius: 0,
-                              child: Icon(MdiIcons.musicNotePlus),
-                              onTap: () => handleNewSongTap(context)
-                          ),
-                        )
-                    ),
+                      child: Tooltip(
+                        message: 'Nowa piosenka',
+                        child: DropdownButtonHideUnderline(
+                            child: DropdownButton2<NewSongType>(
+                              dropdownStyleData: DropdownStyleData(
+                                padding: EdgeInsets.zero,
+                                offset: Offset(0, 3*Dimen.iconFootprint),
+                                width: 240,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(AppCard.bigRadius),
+                                ),
+                              ),
+                              customButton: SimpleButton.from(
+                                context: context,
+                                margin: EdgeInsets.zero,
+                                radius: null,
+                                icon: NewSongType.newSong.icon,
+                                onTap: null
+                              ),
+                              value: null,
+                              onChanged: (value){
+                                switch(value){
+                                  case NewSongType.newSongExample:
+                                    handleExampleSongTap(context);
+                                    break;
+                                  case NewSongType.newSongFromCode:
+                                    handleNewSongFromCode(context);
+                                    break;
+                                  case NewSongType.newSongEmpty:
+                                    handleNewSongEmptyTap(context);
+                                    break;
+                                  default:
+                                    break;
+                                }
+                              },
+                              items: [
+
+                                DropdownMenuItem<NewSongType>(
+                                    value: NewSongType.newSongExample,
+                                    child: Row(
+                                      children: [
+                                        Icon(NewSongType.newSongExample.icon),
+                                        SizedBox(width: Dimen.iconMarg),
+                                        Text(NewSongType.newSongExample.displayName, style: AppTextStyle(fontSize: Dimen.textSizeBig)),
+                                      ],
+                                    )
+                                ),
+
+                                DropdownMenuItem<NewSongType>(
+                                  value: NewSongType.newSongFromCode,
+                                  child: Row(
+                                    children: [
+                                      Icon(NewSongType.newSongFromCode.icon),
+                                      SizedBox(width: Dimen.iconMarg),
+                                      Text(NewSongType.newSongFromCode.displayName, style: AppTextStyle(fontSize: Dimen.textSizeBig)),
+                                    ],
+                                  ),
+                                ),
+
+                                DropdownMenuItem<NewSongType>(
+                                    value: NewSongType.newSongEmpty,
+                                    child: Row(
+                                      children: [
+                                        Icon(NewSongType.newSongEmpty.icon),
+                                        SizedBox(width: Dimen.iconMarg),
+                                        Text(NewSongType.newSongEmpty.displayName, style: AppTextStyle(fontSize: Dimen.textSizeBig)),
+                                      ],
+                                    )
+                                ),
+
+                              ],
+                            )
+                        ),
+                      ),
+                    )
 
                   ],
                 ),
               ),
             )
+
           ],
         )
     )
@@ -254,7 +228,104 @@ class SongListViewState extends State<SongListView>{
 
 }
 
-void handleImportSongTap(BuildContext context) async {
+class SearchField extends StatelessWidget{
+
+  @override
+  Widget build(BuildContext context) => Material(
+    elevation: AppCard.bigElevation,
+    borderRadius: BorderRadius.circular(AppCard.bigRadius - 4),
+    color: background_(context),
+    child: Row(
+      children: [
+        Padding(
+          padding: EdgeInsets.all(Dimen.iconMarg),
+          child: Icon(MdiIcons.magnify, color: hintEnab_(context)),
+        ),
+        Expanded(
+          child: TextField(
+              style: AppTextStyle(color: AppColors.text_def_enab),
+              decoration: InputDecoration(
+                  hintText: 'Szukaj',
+                  hintStyle: AppTextStyle(color: AppColors.text_hint_enab),
+                  border: InputBorder.none
+              ),
+              onChanged: (text) => SearchListProvider.of(context).changeSearchPhrase(text)
+          ),
+        )
+      ],
+    ),
+  );
+
+}
+
+class NoSongsWidget extends StatelessWidget{
+
+  const NoSongsWidget();
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.all(32.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+
+        SimpleButton.from(
+            context: context,
+            color: backgroundIcon_(context),
+            icon: NewSongType.importSongs.icon,
+            iconSize: 32.0,
+            text: NewSongType.importSongs.displayName,
+            direction: Axis.vertical,
+            onTap: () => handleImportSongsTap(context)
+        ),
+
+        SizedBox(height: Dimen.sideMarg),
+
+        Icon(MdiIcons.circleMedium, color: hintEnab_(context)),
+
+        SizedBox(height: Dimen.sideMarg),
+
+        Consumer<SimilarSongProvider>(
+            builder: (context, prov, child) => SimpleButton.from(
+                textColor: prov.allSongs == null?iconDisab_(context):iconEnab_(context),
+                color: backgroundIcon_(context),
+                icon: NewSongType.newSongExample.icon,
+                iconSize: 32.0,
+                text: NewSongType.newSongExample.displayName,
+                direction: Axis.vertical,
+                onTap: prov.allSongs == null?null:() => handleExampleSongTap(context)
+            )
+        ),
+
+        SimpleButton.from(
+            context: context,
+            color: backgroundIcon_(context),
+            icon: NewSongType.newSongEmpty.icon,
+            iconSize: 32.0,
+            text: NewSongType.newSongEmpty.displayName,
+            direction: Axis.vertical,
+            onTap: () => handleNewSongEmptyTap(context)
+        ),
+
+        SimpleButton.from(
+            context: context,
+            color: backgroundIcon_(context),
+            icon: NewSongType.newSongFromCode.icon,
+            iconSize: 32.0,
+            text: NewSongType.newSongFromCode.displayName,
+            direction: Axis.vertical,
+            onTap: () => handleNewSongFromCode(context)
+        ),
+
+      ],
+    ),
+  );
+
+}
+
+void handleImportSongsTap(BuildContext context) async {
 
   FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -264,28 +335,81 @@ void handleImportSongTap(BuildContext context) async {
   if(result==null)
     return;
 
-  Uint8List uint8List = result.files.single.bytes!;
-  String code = utf8.decode(uint8List);
+  String code = utf8.decode(result.files.single.bytes!);
 
   AllSongsProvider allSongsProv = AllSongsProvider.of(context);
 
-  importSongsFromCode(
-      code,
-      onFinished: (List<SongRaw> offSongs, List<SongRaw> confSongs){
-        List<SongRaw> songs = confSongs + offSongs;
-        if(songs.isEmpty) return;
-        Map<SongRaw, bool> map = {};
-        for(SongRaw song in songs) map[song] = confSongs.contains(song);
-        allSongsProv.addAll(songs, map);
-        displaySong(context, songs.first);
-      });
+  Map<String, dynamic> songMap = jsonDecode(code);
+
+  Map<String, dynamic>? offSongsMap = songMap['official'];
+  List<SongRaw?> offSongs;
+  if(offSongsMap == null) offSongs = [];
+  else {
+    offSongs = List.filled(offSongsMap.keys.length, null, growable: true);
+
+    for(String fileName in offSongsMap.keys){
+      Map<String, dynamic> songPackMap = offSongsMap[fileName];
+      SongRaw song = SongRaw.fromRespMap(fileName, songPackMap['song']);
+
+      if(!song.isOfficial) song.lclId = 'o!_' + song.lclId;
+      offSongs[songPackMap['index']] = song;
+    }
+  }
+
+  Map<String, dynamic>? confSongsMap = songMap['conf'];
+  List<SongRaw?> confSongs;
+  if(confSongsMap == null) confSongs = [];
+  else{
+    confSongs = List.filled(confSongsMap.keys.length, null, growable: true);
+
+    for(String fileName in confSongsMap.keys){
+      Map<String, dynamic> songPackMap = confSongsMap[fileName];
+      SongRaw song = SongRaw.fromRespMap(fileName, songPackMap['song']);
+
+      if(!song.isConfid) song.lclId = 'oc!_' + song.lclId;
+      confSongs[songPackMap['index']] = song;
+    }
+  }
+
+  List<SongRaw> songs = confSongs.cast<SongRaw>() + offSongs.cast<SongRaw>();
+  if(songs.isEmpty) return;
+  Map<SongRaw, bool> map = {};
+  for(SongRaw song in songs) map[song] = confSongs.contains(song);
+  allSongsProv.addAll(songs, map);
+  displaySong(context, songs.first);
 
   SongFileNameDupErrProvider songFileNameDupErrProv = SongFileNameDupErrProvider.of(context);
   songFileNameDupErrProv.checkAllDups(context);
 
 }
 
-void handleNewSongTap(BuildContext context){
+void handleExampleSongTap(BuildContext context){
+
+  Map<String, List<SongRaw>>? allSongs = SimilarSongProvider.of(context).allSongs;
+
+  if(allSongs == null) {
+    AppScaffold.showMessage(context, 'Ładowanie piosenek. Spróbuj za chwilę');
+    return;
+  }
+
+  SongRaw song = allSongs.values.firstWhere((songs) => songs.first.lclId == 'o!_addio_pomidory@kabaret_starszych_panow').first.copy(withLclId: true);
+
+  AllSongsProvider.of(context).addOff(song);
+  displaySong(context, song);
+
+  SongFileNameDupErrProvider.of(context).checkAllDups(context);
+
+}
+
+void handleNewSongFromCode(BuildContext context){
+  SongRaw song = handleNewSongEmptyTap(context);
+  showDialog(
+      context: context,
+      builder: (context) => CodeEditorDialog(song, showInitCode: false)
+  );
+}
+
+SongRaw handleNewSongEmptyTap(BuildContext context){
 
   SongRaw song = SongRaw.empty();
   song.lclId = 'o!_';
@@ -296,21 +420,11 @@ void handleNewSongTap(BuildContext context){
 
   displaySong(context, song);
 
-}
-
-void handleExampleSongTap(BuildContext context){
-
-  SongRaw song = SimilarSongProvider.of(context).allSongs!.values.firstWhere((songs) => songs.first.lclId == 'o!_addio_pomidory@kabaret_starszych_panow').first.copy(withLclId: true);
-
-  AllSongsProvider.of(context).addOff(song);
-  displaySong(context, song);
-
-  SongFileNameDupErrProvider.of(context).checkAllDups(context);
-
+  return song;
 }
 
 void displaySong(BuildContext context, SongRaw song){
-  ShowSongProvider.of(context).showSong = true;
+  SongPreviewProvider.of(context).showSong = true;
   CurrentItemProvider.of(context).song = song;
 
   BindTitleFileNameProvider.of(context).setSetBasedOnSong(song);
@@ -318,56 +432,4 @@ void displaySong(BuildContext context, SongRaw song){
   TagsProvider.of(context).set(SongTag.ALL, song.tags);
 
   SimilarSongProvider.of(context).title = song.title;
-}
-
-class SearchListProvider extends ChangeNotifier{
-
-  static SearchListProvider of(BuildContext context) => Provider.of<SearchListProvider>(context, listen: false);
-
-  late bool anySearchPhrase;
-
-  late List<SongRaw> currSongList;
-
-  late String searchPhrase;
-
-  List<SongRaw> _allSongs;
-
-  List<SongRaw> get allSongs => _allSongs;
-
-  SearchListProvider(this._allSongs){
-    searchPhrase = '';
-    anySearchPhrase = false;
-    currSongList = [];
-  }
-
-  void changeSearchPhrase(String text){
-    searchPhrase = text;
-    anySearchPhrase = text.length!=0;
-    currSongList = [];
-
-    for(SongRaw? song in allSongs){
-      if(remPolChars(song!.title).contains(remPolChars(text)))
-        currSongList.add(song);
-    }
-
-    notifyListeners();
-
-  }
-
-  void research() => changeSearchPhrase(searchPhrase);
-
-  int get length{
-    if(anySearchPhrase)
-      return currSongList.length;
-    else
-      return allSongs.length;
-  }
-
-  SongRaw? get(int index){
-    if(anySearchPhrase)
-      return currSongList[index];
-    else
-      return allSongs[index];
-  }
-
 }

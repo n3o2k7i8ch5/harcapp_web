@@ -7,22 +7,6 @@ import 'package:harcapp_web/common/sha_pref.dart';
 import 'package:harcapp_web/songs/utils/song_loader.dart';
 import 'package:provider/provider.dart';
 
-class ShowSongProvider extends ChangeNotifier{
-
-  static ShowSongProvider of(BuildContext context) => Provider.of<ShowSongProvider>(context, listen: false);
-
-  bool _showSong;
-
-  ShowSongProvider(this._showSong);
-
-  bool get showSong => _showSong;
-  set showSong(bool value){
-    if(_showSong == value) return;
-    _showSong = value;
-    notifyListeners();
-  }
-
-}
 
 class BindTitleFileNameProvider extends ChangeNotifier{
 
@@ -211,15 +195,26 @@ class SongFileNameDupErrProvider extends ChangeNotifier{
 
 class SongPreviewProvider extends ChangeNotifier{
 
+  static SongPreviewProvider of(BuildContext context) => Provider.of<SongPreviewProvider>(context, listen: false);
+
   late bool _code;
+  late bool _showSong;
 
   SongPreviewProvider(){
     _code = false;
+    _showSong = false;
   }
 
   bool get code => _code;
   set code(bool value){
     _code = value;
+    notifyListeners();
+  }
+
+  bool get showSong => _showSong;
+  set showSong(bool value){
+    if(_showSong == value) return;
+    _showSong = value;
     notifyListeners();
   }
 
@@ -231,5 +226,45 @@ class SongEditorPanelProvider extends ChangeNotifier{
   static void notify_(BuildContext context) => of(context).notify();
 
   void notify() => notifyListeners();
+
+}
+
+class SimilarSongProvider extends ChangeNotifier{
+
+  static SimilarSongProvider of(BuildContext context) => Provider.of<SimilarSongProvider>(context, listen: false);
+
+  Map<String, List<SongRaw>>? allSongs;
+
+  late String _title;
+  String get title => _title;
+  set title(String value){
+    _title = value;
+    notifyListeners();
+  }
+
+  List<SongRaw>? get similarSong{
+    if(allSongs == null) return null;
+
+    String _title = remSpecChars(remPolChars(this._title.toLowerCase()));
+    List<SongRaw> songs = allSongs![_title]??[];
+    return songs;
+  }
+
+  SimilarSongProvider(){
+    _title = '';
+  }
+
+  bool hasSimilarSong(String title){
+    if(allSongs == null) return false;
+    String _title = remSpecChars(remPolChars(title.toLowerCase()));
+    List<SongRaw> songs = allSongs![_title]??[];
+
+    return songs.isNotEmpty;
+  }
+
+  void init() async {
+    allSongs = await loadSongs();
+    notifyListeners();
+  }
 
 }

@@ -13,7 +13,6 @@ import 'package:harcapp_core/song_book/song_tags.dart';
 import 'package:harcapp_web/common/sha_pref.dart';
 import 'package:harcapp_web/router.dart';
 import 'package:harcapp_web/songs/providers.dart';
-import 'package:harcapp_web/songs/song_editor_panel.dart';
 import 'package:harcapp_web/songs/song_preview_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:url_strategy/url_strategy.dart';
@@ -69,7 +68,7 @@ class MyAppState extends State<MyApp>{
       Map dataMap = jsonDecode(dataStr);
       availableAppVersion = dataMap['versionName'];
       availableAppApkSource = dataMap['apkSource'];
-    }catch(e){
+    } catch(e) {
       availableAppVersion = '?.?.?';
       availableAppApkSource = 'https://gitlab.com/n3o2k7i8ch5/harcapp_data/-/raw/master/unofficial_apk_version/harcapp.apk';
     }
@@ -91,7 +90,6 @@ class MyAppState extends State<MyApp>{
       isDark: () => false,
       child: MultiProvider(
           providers: [
-            ChangeNotifierProvider(create: (context) => ShowSongProvider(false)),
 
             ChangeNotifierProvider(create: (context){
               allSongsProv = AllSongsProvider(MyApp.lastLoadedSongs);

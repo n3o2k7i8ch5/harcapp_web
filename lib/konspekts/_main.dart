@@ -86,7 +86,8 @@ class KonspektsPageState extends State<KonspektsPage>{
                                 height: 500,
                               ),
                             ),
-                          )
+                          ),
+                        oneLineSummary: false,
                       ),
                     ),
                   ),

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_widgets/app_bar.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/dimen.dart';
@@ -18,13 +19,14 @@ import 'package:pretty_json/pretty_json.dart';
 class CodeEditorDialog extends StatelessWidget{
 
   final SongRaw song;
-  const CodeEditorDialog(this.song, {super.key});
+  final bool showInitCode;
+  const CodeEditorDialog(this.song, {this.showInitCode = true, super.key});
 
   @override
   Widget build(BuildContext context){
 
         TextEditingController controller = TextEditingController(
-            text: prettyJson(jsonDecode(song.toCode()), indent: 4)
+            text: showInitCode?prettyJson(jsonDecode(song.toCode()), indent: 4):''
         );
 
         return Center(
@@ -32,19 +34,16 @@ class CodeEditorDialog extends StatelessWidget{
               padding: EdgeInsets.all(32),
               child: Container(
                   width: 500,
-                  child: AppCard(
-                    radius: AppCard.bigRadius,
-                    padding: EdgeInsets.zero,
-                    margin: AppCard.normMargin,
+                  child: Material(
+                    clipBehavior: Clip.hardEdge,
+                    borderRadius: BorderRadius.circular(AppCard.bigRadius),
                     child: Column(
                       children: [
 
-                        AppBar(
-                          title: Text(
-                            'Edytor kodu',
-                            style: AppTextStyle(color: textEnab_(context)),
-                          ),
-                          centerTitle: true,
+                        AppBarX(
+                          title: 'Edytor kodu',
+                          elevation: 6.0,
+                          titleTextStyle: AppTextStyle(color: Colors.black, fontSize: Dimen.textSizeAppBar),
                           actions: [
 
                             IconButton(
@@ -102,7 +101,7 @@ class CodeEditorDialog extends StatelessWidget{
                                 controller: controller,
                                 style: TextStyle(color: textEnab_(context)),
                                 decoration: InputDecoration(
-                                    hintText: 'Wpisz kod piosenki',
+                                    hintText: 'Wpisz lub wklej kod piosenki',
                                     hintStyle: TextStyle(color: hintEnab_(context)),
                                     border: InputBorder.none
                                 ),

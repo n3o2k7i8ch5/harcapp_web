@@ -6,6 +6,7 @@ import 'package:harcapp_web/main.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/song_editor_panel.dart';
 import 'package:harcapp_web/songs/song_preview_widget.dart';
+import 'package:provider/provider.dart';
 
 import 'left_panel/left_panel.dart';
 
@@ -80,38 +81,40 @@ class SongsPageState extends State<SongsPage>{
             ),
             width: drawerWidth,
           ),
-          body: Row(
-            children: [
+          body: Consumer<SongPreviewProvider>(
+            builder: (context, songPreviewProv, child) => Row(
+              children: [
 
-              if(workspaceAlwaysVisible)
-                SizedBox(
-                    width: drawerWidth,
+                if(workspaceAlwaysVisible)
+                  SizedBox(
+                      width: drawerWidth,
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 32, right: 32, bottom: 32),
+                        child: LeftPanel(),
+                      )
+                  ),
+
+                Expanded(
                     child: Padding(
-                      padding: EdgeInsets.only(left: 32, right: 32, bottom: 32),
-                      child: LeftPanel(),
+                        padding: workspaceAlwaysVisible?
+                        EdgeInsets.only(right: 32, bottom: 32):
+                        EdgeInsets.zero,
+
+                        child: SongEditorPanel(workspaceAlwaysVisible: workspaceAlwaysVisible)
                     )
                 ),
 
-              Expanded(
-                  child: Padding(
-                      padding: workspaceAlwaysVisible?
-                      EdgeInsets.only(right: 32, bottom: 32):
-                      EdgeInsets.zero,
-
-                      child: SongEditorPanel(workspaceAlwaysVisible: workspaceAlwaysVisible)
+                if(constraints.maxWidth>1280 && songPreviewProv.showSong)
+                  SizedBox(
+                    width: 400,
+                    child: Padding(
+                        padding: EdgeInsets.only(bottom: 32, right: 32),
+                        child:
+                        SongPreviewWidget()
+                    ),
                   )
-              ),
-
-              if(constraints.maxWidth>1280)
-                SizedBox(
-                  width: 400,
-                  child: Padding(
-                      padding: EdgeInsets.only(bottom: 32, right: 32),
-                      child:
-                      SongPreviewWidget()
-                  ),
-                )
-            ],
+              ],
+            ),
           )
         );
       }

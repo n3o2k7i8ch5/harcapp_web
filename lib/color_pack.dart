@@ -13,12 +13,6 @@ class ColorPackGraphite extends ColorPack{
   Color get appBarTextEnabled => Colors.white;
 
   @override
-  Color get textDrawer => Colors.white70;
-
-  @override
-  Color get hintDrawer => Colors.white30;
-
-  @override
   Color get accent => Colors.indigo;
 
   @override
