@@ -4,9 +4,9 @@ import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
-import 'package:harcapp_core/konspekts/base_konspekt_widget.dart';
-import 'package:harcapp_core/konspekts/data.dart';
-import 'package:harcapp_core/konspekts/konspekt.dart';
+import 'package:harcapp_core/harcthought/konspekts/base_konspekt_widget.dart';
+import 'package:harcapp_core/harcthought/konspekts/data.dart';
+import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/konspekts/table_of_content_widget.dart';
 import 'package:harcapp_web/main.dart';
@@ -53,12 +53,21 @@ class KonspektsPageState extends State<KonspektsPage>{
             children: [
 
               if(workspaceAlwaysVisible)
-                SizedBox(
-                  width: drawerWidth,
-                  child: TableOfContentWidget(
-                    selectedKonspekt: selectedKonspekt,
-                    padding: EdgeInsets.all(Dimen.defMarg),
-                    onItemTap: (index) => setState(() => selectedKonspekt = allKonspekts[index]),
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: KonspektsPage.defPaddingVal,
+                    left: KonspektsPage.defPaddingVal
+                  ),
+                  child: SizedBox(
+                    width: drawerWidth,
+                    child: TableOfContentWidget(
+                      selectedKonspekt: selectedKonspekt,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: Dimen.defMarg,
+                        vertical: KonspektsPage.defPaddingVal
+                      ),
+                      onItemTap: (index) => setState(() => selectedKonspekt = allKonspekts[index]),
+                    ),
                   ),
                 ),
 
@@ -78,7 +87,7 @@ class KonspektsPageState extends State<KonspektsPage>{
                         leading: Padding(
                             padding: EdgeInsets.only(top: KonspektsPage.defPaddingVal),
                             child: Material(
-                              borderRadius: BorderRadius.circular(AppCard.bigRadius),
+                              borderRadius: BorderRadius.circular(AppCard.defRadius),
                               clipBehavior: Clip.hardEdge,
                               child: Image.asset(
                                 selectedKonspekt!.coverPath,

@@ -8,9 +8,9 @@ import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/floating_container.dart';
 import 'package:harcapp_core/comm_widgets/sliver_child_builder_separated_delegate.dart';
 import 'package:harcapp_core/dimen.dart';
-import 'package:harcapp_core/konspekts/data.dart';
-import 'package:harcapp_core/konspekts/konspekt.dart';
-import 'package:harcapp_core/konspekts/konspekt_thumbnail_widget.dart';
+import 'package:harcapp_core/harcthought/konspekts/data.dart';
+import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
+import 'package:harcapp_core/harcthought/konspekts/konspekt_thumbnail_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class TableOfContentWidget extends StatefulWidget{
@@ -80,61 +80,59 @@ class TableOfContentWidgetState extends State<TableOfContentWidget>{
   }
 
   @override
-  Widget build(BuildContext context) => CustomScrollView(
-    physics: BouncingScrollPhysics(),
-    slivers: [
+  Widget build(BuildContext context) => Stack(
+    children: [
 
-      FloatingContainer.child(
-          child: Padding(
-            padding: const EdgeInsets.all(Dimen.defMarg),
-            child: Material(
-              elevation: AppCard.bigElevation,
-              borderRadius: BorderRadius.circular(AppCard.bigRadius - 4),
-              color: cardEnab_(context),
-              child: Row(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(Dimen.iconMarg),
-                    child: Icon(MdiIcons.magnify, color: hintEnab_(context)),
-                  ),
-                  Expanded(
-                    child: TextField(
-                      style: AppTextStyle(color: AppColors.text_def_enab),
-                      controller: controller,
-                      decoration: InputDecoration(
-                          hintText: 'Szukaj',
-                          hintStyle: AppTextStyle(color: AppColors.text_hint_enab),
-                          border: InputBorder.none
-                      ),
-                      onChanged: (_) => runSearch(),
-                    ),
-                  )
-                ],
-              ),
+      Padding(
+        padding: EdgeInsets.only(top: Dimen.iconFootprint/2),
+        child: ListView.separated(
+          padding: (padding??EdgeInsets.zero).add(EdgeInsets.only(top: Dimen.iconFootprint/2)),
+          itemBuilder: (context, index) => SizedBox(
+            height: 140,
+            child: KonspektThumbnailWidget(
+              searchedKonspekts[index],
+              radius: AppCard.defRadius,
+              background: searchedKonspekts[index] == selectedKonspekt?Colors.grey[300]!:Colors.grey[100]!,
+              elevation: searchedKonspekts[index] == selectedKonspekt?AppCard.bigElevation:0,
+              onTap: () => onItemTap?.call(index),
             ),
           ),
-          height: Dimen.iconFootprint + 2*Dimen.defMarg
+          separatorBuilder: (context, index) => SizedBox(height: Dimen.defMarg),
+          itemCount: searchedKonspekts.length,
+        ),
       ),
 
-      SliverPadding(
-        padding: padding??EdgeInsets.zero,
-        sliver: SliverList(
-          delegate: SliverChildSeparatedBuilderDelegate(
-            (BuildContext context, int index) => SizedBox(
-                height: 140,
-                child: KonspektThumbnailWidget(
-                  searchedKonspekts[index],
-                  elevation: searchedKonspekts[index] == selectedKonspekt?AppCard.bigElevation:0,
-                  onTap: () => onItemTap?.call(index),
-                )
-            ),
-            separatorBuilder: (BuildContext context, int index) => SizedBox(height: Dimen.defMarg),
-            count: searchedKonspekts.length,
+      Positioned(
+        top: 0,
+        right: 0,
+        left: 0,
+        child: Material(
+          elevation: AppCard.bigElevation,
+          borderRadius: BorderRadius.circular(AppCard.bigRadius - 4),
+          color: cardEnab_(context),
+          child: Row(
+            children: [
+              Padding(
+                padding: EdgeInsets.all(Dimen.iconMarg),
+                child: Icon(MdiIcons.magnify, color: hintEnab_(context)),
+              ),
+              Expanded(
+                child: TextField(
+                  style: AppTextStyle(color: AppColors.text_def_enab),
+                  controller: controller,
+                  decoration: InputDecoration(
+                      hintText: 'Szukaj',
+                      hintStyle: AppTextStyle(color: AppColors.text_hint_enab),
+                      border: InputBorder.none
+                  ),
+                  onChanged: (_) => runSearch(),
+                ),
+              )
+            ],
           ),
         ),
       ),
 
     ],
   );
-
 }

@@ -35,13 +35,13 @@ dependencies:
   image_picker_web: ^3.0.0+1
   implicitly_animated_reorderable_list_2: ^0.5.1
   material_design_icons_flutter: ^7.0.7296
-  package_info_plus: ^6.0.0
+  package_info_plus: ^7.0.0
   path_provider: ^2.0.2
   pretty_json: ^2.0.0
   provider: ^6.0.0
   shared_preferences: ^2.1.2
   url_strategy: 0.2.0
-  worker_manager: ^6.0.3
+  worker_manager: ^7.0.1
 
   harcapp_core:
     git:
