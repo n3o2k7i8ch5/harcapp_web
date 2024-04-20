@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
@@ -7,10 +9,13 @@ import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_core/harcthought/konspekts/base_konspekt_widget.dart';
 import 'package:harcapp_core/harcthought/konspekts/data.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
+import 'package:harcapp_core/harcthought/konspekts/konspekt_to_pdf/konspekt_to_pdf.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/konspekts/table_of_content_widget.dart';
 import 'package:harcapp_web/main.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+
+import '../common/download_file.dart';
 
 class KonspektsPage extends StatefulWidget{
 
@@ -86,15 +91,43 @@ class KonspektsPageState extends State<KonspektsPage>{
                         maxRelatedDialogWidth: dialogWidth,
                         leading: Padding(
                             padding: EdgeInsets.only(top: KonspektsPage.defPaddingVal),
-                            child: Material(
-                              borderRadius: BorderRadius.circular(AppCard.defRadius),
-                              clipBehavior: Clip.hardEdge,
-                              child: Image.asset(
-                                selectedKonspekt!.coverPath,
-                                fit: BoxFit.cover,
-                                height: 500,
-                              ),
-                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+
+                                Material(
+                                  borderRadius: BorderRadius.circular(AppCard.defRadius),
+                                  clipBehavior: Clip.hardEdge,
+                                  child: Image.asset(
+                                    selectedKonspekt!.coverPath,
+                                    fit: BoxFit.cover,
+                                    height: 500,
+                                  ),
+                                ),
+                                
+                                SizedBox(height: KonspektsPage.defPaddingVal),
+                                
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: SimpleButton.from(
+                                      context: context,
+                                      color: cardEnab_(context),
+                                      radius: AppCard.defRadius,
+                                      margin: EdgeInsets.zero,
+                                      icon: MdiIcons.filePdfBox,
+                                      text: 'Pobierz jako PDF',
+                                      onTap: () async {
+                                        Uint8List bytes = await konspektToPdf(selectedKonspekt!);
+                                        downloadFileFromBytes(
+                                            fileName: 'Konspekt - ${selectedKonspekt!.title}.pdf',
+                                            bytes: bytes
+                                        );
+                                      }
+                                  ),
+                                )
+
+                              ],
+                            )
                           ),
                         oneLineSummary: false,
                       ),

@@ -2,11 +2,18 @@ import 'dart:convert';
 import 'dart:html';
 import 'package:flutter/foundation.dart';
 
-void downloadFile({
+void downloadFileFromString({
   required String fileName,
   required String content,
 }){
   final Uint8List bytes = utf8.encode(content);
+  downloadFileFromBytes(fileName: fileName, bytes: bytes);
+}
+
+void downloadFileFromBytes({
+  required String fileName,
+  required Uint8List bytes,
+}){
   final Blob blob = Blob([bytes]);
   final String url = Url.createObjectUrlFromBlob(blob);
   final AnchorElement anchor = document.createElement('a') as AnchorElement
