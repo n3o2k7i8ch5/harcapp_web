@@ -121,102 +121,105 @@ class SongListViewState extends State<SongListView>{
 
             Material(
               clipBehavior: Clip.hardEdge,
-              color: backgroundIcon_(context),
-              child: SizedBox(
-                height: Dimen.iconFootprint,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
+              color: cardEnab_(context),
+              child: Container(
+                color: backgroundIcon_(context),
+                child: SizedBox(
+                  height: Dimen.iconFootprint,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
 
-                    Expanded(
+                      Expanded(
+                          child: Tooltip(
+                            message: 'Importuj piosenki',
+                            child: SimpleButton(
+                                radius: 0,
+                                child: Icon(NewSongType.importSongs.icon),
+                                onTap: () => handleImportSongsTap(context)
+                            ),
+                          )
+                      ),
+
+                      Expanded(
                         child: Tooltip(
-                          message: 'Importuj piosenki',
-                          child: SimpleButton(
-                              radius: 0,
-                              child: Icon(NewSongType.importSongs.icon),
-                              onTap: () => handleImportSongsTap(context)
-                          ),
-                        )
-                    ),
-
-                    Expanded(
-                      child: Tooltip(
-                        message: 'Nowa piosenka',
-                        child: DropdownButtonHideUnderline(
-                            child: DropdownButton2<NewSongType>(
-                              dropdownStyleData: DropdownStyleData(
-                                padding: EdgeInsets.zero,
-                                offset: Offset(0, 3*Dimen.iconFootprint),
-                                width: 240,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(AppCard.bigRadius),
-                                ),
-                              ),
-                              customButton: SimpleButton.from(
-                                context: context,
-                                margin: EdgeInsets.zero,
-                                radius: null,
-                                icon: NewSongType.newSong.icon,
-                                onTap: null
-                              ),
-                              value: null,
-                              onChanged: (value){
-                                switch(value){
-                                  case NewSongType.newSongExample:
-                                    handleExampleSongTap(context);
-                                    break;
-                                  case NewSongType.newSongFromCode:
-                                    handleNewSongFromCode(context);
-                                    break;
-                                  case NewSongType.newSongEmpty:
-                                    handleNewSongEmptyTap(context);
-                                    break;
-                                  default:
-                                    break;
-                                }
-                              },
-                              items: [
-
-                                DropdownMenuItem<NewSongType>(
-                                    value: NewSongType.newSongExample,
-                                    child: Row(
-                                      children: [
-                                        Icon(NewSongType.newSongExample.icon),
-                                        SizedBox(width: Dimen.iconMarg),
-                                        Text(NewSongType.newSongExample.displayName, style: AppTextStyle(fontSize: Dimen.textSizeBig)),
-                                      ],
-                                    )
-                                ),
-
-                                DropdownMenuItem<NewSongType>(
-                                  value: NewSongType.newSongFromCode,
-                                  child: Row(
-                                    children: [
-                                      Icon(NewSongType.newSongFromCode.icon),
-                                      SizedBox(width: Dimen.iconMarg),
-                                      Text(NewSongType.newSongFromCode.displayName, style: AppTextStyle(fontSize: Dimen.textSizeBig)),
-                                    ],
+                          message: 'Nowa piosenka',
+                          child: DropdownButtonHideUnderline(
+                              child: DropdownButton2<NewSongType>(
+                                dropdownStyleData: DropdownStyleData(
+                                  padding: EdgeInsets.zero,
+                                  offset: Offset(0, 3*Dimen.iconFootprint),
+                                  width: 240,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(AppCard.bigRadius),
                                   ),
                                 ),
+                                customButton: SimpleButton.from(
+                                    context: context,
+                                    margin: EdgeInsets.zero,
+                                    radius: null,
+                                    icon: NewSongType.newSong.icon,
+                                    onTap: null
+                                ),
+                                value: null,
+                                onChanged: (value){
+                                  switch(value){
+                                    case NewSongType.newSongExample:
+                                      handleExampleSongTap(context);
+                                      break;
+                                    case NewSongType.newSongFromCode:
+                                      handleNewSongFromCode(context);
+                                      break;
+                                    case NewSongType.newSongEmpty:
+                                      handleNewSongEmptyTap(context);
+                                      break;
+                                    default:
+                                      break;
+                                  }
+                                },
+                                items: [
 
-                                DropdownMenuItem<NewSongType>(
-                                    value: NewSongType.newSongEmpty,
+                                  DropdownMenuItem<NewSongType>(
+                                      value: NewSongType.newSongExample,
+                                      child: Row(
+                                        children: [
+                                          Icon(NewSongType.newSongExample.icon),
+                                          SizedBox(width: Dimen.iconMarg),
+                                          Text(NewSongType.newSongExample.displayName, style: AppTextStyle(fontSize: Dimen.textSizeBig)),
+                                        ],
+                                      )
+                                  ),
+
+                                  DropdownMenuItem<NewSongType>(
+                                    value: NewSongType.newSongFromCode,
                                     child: Row(
                                       children: [
-                                        Icon(NewSongType.newSongEmpty.icon),
+                                        Icon(NewSongType.newSongFromCode.icon),
                                         SizedBox(width: Dimen.iconMarg),
-                                        Text(NewSongType.newSongEmpty.displayName, style: AppTextStyle(fontSize: Dimen.textSizeBig)),
+                                        Text(NewSongType.newSongFromCode.displayName, style: AppTextStyle(fontSize: Dimen.textSizeBig)),
                                       ],
-                                    )
-                                ),
+                                    ),
+                                  ),
 
-                              ],
-                            )
+                                  DropdownMenuItem<NewSongType>(
+                                      value: NewSongType.newSongEmpty,
+                                      child: Row(
+                                        children: [
+                                          Icon(NewSongType.newSongEmpty.icon),
+                                          SizedBox(width: Dimen.iconMarg),
+                                          Text(NewSongType.newSongEmpty.displayName, style: AppTextStyle(fontSize: Dimen.textSizeBig)),
+                                        ],
+                                      )
+                                  ),
+
+                                ],
+                              )
+                          ),
                         ),
-                      ),
-                    )
+                      )
 
-                  ],
+                    ],
+                  ),
                 ),
               ),
             )

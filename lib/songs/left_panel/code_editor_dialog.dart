@@ -79,7 +79,7 @@ class CodeEditorDialog extends StatelessWidget{
                                       try{
                                         Map map = jsonDecode(controller.text);
                                         String title = map['title'];
-                                        song = SongRaw.fromRespMap(SongCore.filenameFromTitle(title), map);
+                                        song = SongRaw.fromRespMap("o!_${SongCore.filenameFromTitle(title)}", map);
 
                                       }catch(e){
                                         AppScaffold.showMessage(context, 'Błędny kod piosneki.');
