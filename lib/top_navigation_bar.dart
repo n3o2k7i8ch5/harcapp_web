@@ -66,7 +66,14 @@ class TopNavigationBarState extends State<TopNavigationBar>{
             else
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24.0),
-                child: HarcApp(size: 24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('', style: AppTextStyle(fontSize: Dimen.textSizeNormal)),
+                    HarcApp(size: 24.0),
+                    Text(version??'', style: AppTextStyle(fontSize: Dimen.textSizeNormal)),
+                  ],
+                ),
               ),
 
             Expanded(child: Container()),

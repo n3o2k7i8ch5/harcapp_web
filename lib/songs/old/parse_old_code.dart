@@ -22,7 +22,7 @@ SongRaw parseOldCode(String lclId, String code, {bool official = true}){
       hasRefren = true;
       refrenElementOld = SongElementOld.decodeOld(parts[1]);
 
-      refrenElement = SongElement.from(refrenElementOld.getText(), refrenElementOld.getChords(), true);
+      refrenElement = SongElement(refrenElementOld.getText(), refrenElementOld.getChords(), true);
 
     }else
       hasRefren = false;
@@ -48,7 +48,7 @@ SongRaw parseOldCode(String lclId, String code, {bool official = true}){
 
       SongElementOld songElementOld = SongElementOld.decodeOld(parts[i], firstElementChords: firstElementChords);
       songElementOldList.add(songElementOld);
-      songElements.add(SongElement.from(songElementOld.getText(), songElementOld.getChords(), false));
+      songElements.add(SongElement(songElementOld.getText(), songElementOld.getChords(), false));
 
     }
 

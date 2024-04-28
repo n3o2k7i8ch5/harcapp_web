@@ -118,8 +118,8 @@ class SaveSendWidget extends StatelessWidget{
                       String code = allSongsProv.convertAllToCode();
 
                       int songCount = AllSongsProvider.of(context).length;
-                      if(songCount <= 4)
-                        AppScaffold.showMessage(context, 'Rozpoczęto pobieranie $songCount piosenki', duration: Duration(seconds: 5));
+                      if(songCount == 1)
+                        AppScaffold.showMessage(context, 'Rozpoczęto pobieranie 1 piosenki', duration: Duration(seconds: 5));
                       else
                         AppScaffold.showMessage(context, 'Rozpoczęto pobieranie $songCount piosenek', duration: Duration(seconds: 5));
 

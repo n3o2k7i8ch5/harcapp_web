@@ -7,6 +7,7 @@ import 'package:harcapp_core/comm_widgets/app_bar.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_core/song_book/song_core.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/song_book/song_tags.dart';
@@ -61,18 +62,29 @@ class CodeEditorDialog extends StatelessWidget{
                                   SongRaw song;
 
                                   try{
+                                    // Try parsing the old song code
                                     song = parseOldCode('_nowa_piosenka', controller.text);
                                     song.lclId = song.generateFileName(withPerformer: BindTitleFileNameProvider.of(context).bindPerformer);
                                   } catch(e){
 
                                     try {
+                                      // Try parsing the entire song code
                                       Map map = jsonDecode(controller.text);
                                       String fileName = map.keys.toList()[0];
                                       song = SongRaw.fromRespMap(fileName, map[fileName]);
 
                                     } catch(e){
-                                      AppScaffold.showMessage(context, 'Błędny kod piosneki.');
-                                      return;
+
+                                      // Try parsing the song code without the filename level
+                                      try{
+                                        Map map = jsonDecode(controller.text);
+                                        String title = map['title'];
+                                        song = SongRaw.fromRespMap(SongCore.filenameFromTitle(title), map);
+
+                                      }catch(e){
+                                        AppScaffold.showMessage(context, 'Błędny kod piosneki.');
+                                        return;
+                                      }
                                     }
                                   }
 
