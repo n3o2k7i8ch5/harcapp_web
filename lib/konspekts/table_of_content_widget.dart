@@ -5,21 +5,24 @@ import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_classes/common.dart';
 import 'package:harcapp_core/comm_classes/meto.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
-import 'package:harcapp_core/comm_widgets/floating_container.dart';
-import 'package:harcapp_core/comm_widgets/sliver_child_builder_separated_delegate.dart';
 import 'package:harcapp_core/dimen.dart';
-import 'package:harcapp_core/harcthought/konspekts/data.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt_thumbnail_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class TableOfContentWidget extends StatefulWidget{
 
+  final List<Konspekt> allKonspekts;
   final Konspekt? selectedKonspekt;
   final EdgeInsets? padding;
-  final void Function(int)? onItemTap;
+  final void Function(Konspekt)? onItemTap;
 
-  const TableOfContentWidget({required this.selectedKonspekt, this.padding, this.onItemTap});
+  const TableOfContentWidget({
+    required this.allKonspekts,
+    required this.selectedKonspekt,
+    this.padding,
+    this.onItemTap
+  });
 
   @override
   State<StatefulWidget> createState() => TableOfContentWidgetState();
@@ -28,9 +31,10 @@ class TableOfContentWidget extends StatefulWidget{
 
 class TableOfContentWidgetState extends State<TableOfContentWidget>{
 
+  List<Konspekt> get allKonspekts => widget.allKonspekts;
   Konspekt? get selectedKonspekt => widget.selectedKonspekt;
   EdgeInsets? get padding => widget.padding;
-  void Function(int)? get onItemTap => widget.onItemTap;
+  void Function(Konspekt)? get onItemTap => widget.onItemTap;
 
   late List<Konspekt> searchedKonspekts;
 
@@ -94,7 +98,7 @@ class TableOfContentWidgetState extends State<TableOfContentWidget>{
               radius: AppCard.defRadius,
               background: searchedKonspekts[index] == selectedKonspekt?Colors.grey[300]!:Colors.grey[100]!,
               elevation: searchedKonspekts[index] == selectedKonspekt?AppCard.bigElevation:0,
-              onTap: () => onItemTap?.call(index),
+              onTap: () => onItemTap?.call(searchedKonspekts[index]),
             ),
           ),
           separatorBuilder: (context, index) => SizedBox(height: Dimen.defMarg),

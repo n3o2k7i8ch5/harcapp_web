@@ -62,6 +62,14 @@ class TopNavigationBarState extends State<TopNavigationBar>{
                 radius: 0,
                 icon: MdiIcons.menu,
                 onTap: () => Scaffold.of(context).openDrawer(),
+              ),
+
+            if(withMenuIcon && constraints.maxWidth < TopNavigationBar.denseMaxWidth)
+              InkWell(
+                child: HarcApp(size: 24.0),
+                hoverColor: Colors.transparent,
+                splashColor: Colors.transparent,
+                onTap: () => context.go(pathHome),
               )
             else
               Padding(
@@ -69,30 +77,19 @@ class TopNavigationBarState extends State<TopNavigationBar>{
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('', style: AppTextStyle(fontSize: Dimen.textSizeNormal)),
-                    HarcApp(size: 24.0),
-                    Text(version??'', style: AppTextStyle(fontSize: Dimen.textSizeNormal)),
+                    Text('', style: AppTextStyle(fontSize: Dimen.textSizeSmall)),
+                    InkWell(
+                      child: HarcApp(size: 24.0),
+                      hoverColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      onTap: () => context.go(pathHome),
+                    ),
+                    Text(version??'', style: AppTextStyle(fontSize: Dimen.textSizeSmall)),
                   ],
                 ),
               ),
 
             Expanded(child: Container()),
-
-            PageNavItem(
-              icon: MdiIcons.dominoMask,
-              title: 'Polityka prywatności',
-              subtitle: 'Czyli nic interesującego',
-              path: pathPrivacyPolicy,
-              dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
-            ),
-
-            PageNavItem(
-              icon: MdiIcons.notebookOutline,
-              title: 'Konspekty',
-              subtitle: 'Inspiracje na pracę harcerską!',
-              path: pathKonspekty,
-              dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
-            ),
 
             PageNavItem(
               icon: MdiIcons.music,
@@ -103,10 +100,18 @@ class TopNavigationBarState extends State<TopNavigationBar>{
             ),
 
             PageNavItem(
-              icon: MdiIcons.trayArrowDown,
-              title: 'Pobierz HarcAppkę',
-              subtitle: MyAppState.availableAppVersion,
-              path: pathDownload,
+              icon: MdiIcons.notebookOutline,
+              title: 'Konspekty - dla harcerzy',
+              subtitle: 'Inspiracje na pracę harcerską!',
+              path: pathKonspektyHarcerskie,
+              dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
+            ),
+
+            PageNavItem(
+              icon: MdiIcons.notebook,
+              title: 'Konspekty - kształceniowe',
+              subtitle: 'Inspiracje na kształcenie kadry!',
+              path: pathKonspektyKsztalcenie,
               dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
             ),
 
@@ -147,24 +152,26 @@ class PageNavItem extends StatelessWidget{
     color: GoRouterState.of(context).uri.toString() == path?backgroundIcon_(context):null,
     onTap: () => context.go(path),
   ):
-  IntrinsicWidth(
+  Padding(
+    padding: EdgeInsets.symmetric(horizontal: 1),
+    child: IntrinsicWidth(
       child: ListTile(
         dense: true,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppCard.defRadius)),
         tileColor: GoRouterState.of(context).uri.toString() == path?backgroundIcon_(context):null,
         selectedColor: backgroundIcon_(context),
         onTap: () => context.go(path),
-        leading: Icon(icon),
+        leading: Icon(icon, color: iconEnab_(context)),
         title: Text(
-          '$title   ',
-          style: AppTextStyle(),
-          maxLines: 1,
-        ),
-        subtitle: subtitle==null?null:Text(
-          subtitle!,
-          style: AppTextStyle(),
+          title,
+          style: AppTextStyle(
+              fontSize: Dimen.textSizeBig,
+              color: iconEnab_(context)
+          ),
           maxLines: 1,
         ),
       ),
+    ),
   );
 
 }

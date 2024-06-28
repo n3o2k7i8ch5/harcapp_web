@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../consts.dart';
 
@@ -24,13 +27,28 @@ class PrivacyPolicyPage extends StatelessWidget{
 
               SizedBox(height: 24.0),
 
-              Text(
-                  'Polityka prywatności',
-                  style: TextStyle(
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.w700,
-                    color: iconEnab_(context),
-                  )
+              Row(
+                children: [
+
+                  SimpleButton.from(
+                    context: context,
+                    margin: EdgeInsets.zero,
+                    padding: EdgeInsets.all(24.0),
+                    icon: MdiIcons.arrowLeft,
+                    onTap: () => context.pop()
+                  ),
+
+                  SizedBox(width: 12.0),
+
+                  Text(
+                      'Polityka prywatności',
+                      style: TextStyle(
+                        fontSize: 24.0,
+                        fontWeight: FontWeight.w700,
+                        color: iconEnab_(context),
+                      )
+                  ),
+                ],
               ),
 
               SizedBox(height: 36.0),

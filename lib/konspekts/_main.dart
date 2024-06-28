@@ -1,13 +1,13 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_core/harcthought/konspekts/base_konspekt_widget.dart';
-import 'package:harcapp_core/harcthought/konspekts/data.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt_to_pdf/konspekt_to_pdf.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
@@ -21,7 +21,11 @@ class KonspektsPage extends StatefulWidget{
 
   static const double defPaddingVal = 32.0;
 
-  const KonspektsPage();
+  final String itemPathTemplate;
+  final List<Konspekt> allKonspekts;
+  final Konspekt? selectedKonspekt;
+
+  const KonspektsPage(this.itemPathTemplate, this.allKonspekts, {this.selectedKonspekt, Key? key}): super(key: key);
 
   @override
   State<StatefulWidget> createState() => KonspektsPageState();
@@ -30,8 +34,12 @@ class KonspektsPage extends StatefulWidget{
 
 class KonspektsPageState extends State<KonspektsPage>{
 
-  Konspekt? selectedKonspekt;
-  
+  String get itemPathTemplate => widget.itemPathTemplate;
+  List<Konspekt> get allKonspekts => widget.allKonspekts;
+  Konspekt? get selectedKonspekt => widget.selectedKonspekt;
+
+  void selectKonspekt(Konspekt konspekt) => context.go(itemPathTemplate.replaceAll(":name", konspekt.name));
+
   @override
   Widget build(BuildContext context) => LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints){
@@ -45,10 +53,11 @@ class KonspektsPageState extends State<KonspektsPage>{
           Drawer(
             backgroundColor: background_(context),
             child: TableOfContentWidget(
+              allKonspekts: allKonspekts,
               selectedKonspekt: selectedKonspekt,
               padding: const EdgeInsets.all(Dimen.defMarg),
-              onItemTap: (index){
-                setState(() => selectedKonspekt = allKonspekts[index]);
+              onItemTap: (konspekt){
+                selectKonspekt(konspekt);
                 Navigator.pop(context);
               },
             ),
@@ -66,12 +75,13 @@ class KonspektsPageState extends State<KonspektsPage>{
                   child: SizedBox(
                     width: drawerWidth,
                     child: TableOfContentWidget(
+                      allKonspekts: allKonspekts,
                       selectedKonspekt: selectedKonspekt,
                       padding: EdgeInsets.symmetric(
                         horizontal: Dimen.defMarg,
                         vertical: KonspektsPage.defPaddingVal
                       ),
-                      onItemTap: (index) => setState(() => selectedKonspekt = allKonspekts[index]),
+                      onItemTap: (konspekt) => selectKonspekt(konspekt)
                     ),
                   ),
                 ),
