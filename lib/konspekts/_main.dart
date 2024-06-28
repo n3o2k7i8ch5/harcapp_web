@@ -99,6 +99,7 @@ class KonspektsPageState extends State<KonspektsPage>{
                         onDuchLevelInfoTap: () => null,
                         onDuchMechanismInfoTap: () => null,
                         maxRelatedDialogWidth: dialogWidth,
+                        oneLineMultiDuration: true,
                         leading: Padding(
                             padding: EdgeInsets.only(top: KonspektsPage.defPaddingVal),
                             child: Column(
