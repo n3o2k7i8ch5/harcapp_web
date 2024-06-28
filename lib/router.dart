@@ -51,6 +51,7 @@ GoRouter router = GoRouter(
                         );
                     }
                 ),
+
                 GoRoute(
                     path: pathKonspektyKsztalcenie,
                     pageBuilder: (context, state) => NoTransitionPage(
@@ -59,7 +60,7 @@ GoRouter router = GoRouter(
                     )
                 ),
                 GoRoute(
-                    path: pathKonspektyHarcerskieItem,
+                    path: pathKonspektyKsztalcenieItem,
                     pageBuilder: (context, state){
                         final name = state.pathParameters['name'];
 
