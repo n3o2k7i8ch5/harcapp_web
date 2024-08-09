@@ -4,6 +4,7 @@ import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
+import 'package:harcapp_web/router.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../consts.dart';
@@ -35,7 +36,7 @@ class PrivacyPolicyPage extends StatelessWidget{
                     margin: EdgeInsets.zero,
                     padding: EdgeInsets.all(24.0),
                     icon: MdiIcons.arrowLeft,
-                    onTap: () => context.pop()
+                    onTap: () => context.go(pathHome)
                   ),
 
                   SizedBox(width: 12.0),
