@@ -9,8 +9,11 @@ import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_core/harcthought/konspekts/base_konspekt_widget.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
+import 'package:harcapp_core/harcthought/konspekts/konspekt_sphere_duch_levels_info_dialog.dart';
+import 'package:harcapp_core/harcthought/konspekts/konspekt_sphere_duch_mechanisms_info_dialog.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt_to_pdf/konspekt_to_pdf.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
+import 'package:harcapp_web/consts.dart';
 import 'package:harcapp_web/konspekts/table_of_content_widget.dart';
 import 'package:harcapp_web/main.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -96,8 +99,8 @@ class KonspektsPageState extends State<KonspektsPage>{
                       BaseKonspektWidget(
                         selectedKonspekt!,
                         withAppBar: false,
-                        onDuchLevelInfoTap: () => null,
-                        onDuchMechanismInfoTap: () => null,
+                        onDuchLevelInfoTap: () => openKonspektSphereDuchLevelsInfoDialog(context, maxWidth: defPageWidth),
+                        onDuchMechanismInfoTap: () => openKonspektSphereDuchMechanismsInfoDialog(context, maxWidth: defPageWidth),
                         maxRelatedDialogWidth: dialogWidth,
                         oneLineMultiDuration: true,
                         leading: Padding(
