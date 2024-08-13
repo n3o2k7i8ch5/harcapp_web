@@ -426,7 +426,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "9d2b598a5e23b7a30236fdd1de86ba834cca109c"
+      resolved-ref: a4f3ac00af126307402840682b6dacabcce91a96
       url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"
@@ -651,10 +651,10 @@ packages:
     dependency: transitive
     description:
       name: open_filex
-      sha256: "74e2280754cf8161e860746c3181db2c996d6c1909c7057b738ede4a469816b8"
+      sha256: ba425ea49affd0a98a234aa9344b9ea5d4c4f7625a1377961eae9fe194c3d523
       url: "https://pub.dev"
     source: hosted
-    version: "4.4.0"
+    version: "4.5.0"
   package_info_plus:
     dependency: "direct main"
     description:
@@ -699,10 +699,10 @@ packages:
     dependency: transitive
     description:
       name: path_provider_android
-      sha256: "490539678396d4c3c0b06efdaab75ae60675c3e0c66f72bc04c2e2c1e0e2abeb"
+      sha256: "6f01f8e37ec30b07bc424b4deabac37cacb1bc7e2e515ad74486039918a37eb7"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.9"
+    version: "2.2.10"
   path_provider_foundation:
     dependency: transitive
     description:
@@ -835,10 +835,10 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences_foundation
-      sha256: "776786cff96324851b656777648f36ac772d88bc4c669acff97b7fce5de3c849"
+      sha256: c4b35f6cb8f63c147312c054ce7c2254c8066745125264f0c88739c417fc9d9f
       url: "https://pub.dev"
     source: hosted
-    version: "2.5.1"
+    version: "2.5.2"
   shared_preferences_linux:
     dependency: transitive
     description:
@@ -1128,10 +1128,10 @@ packages:
     dependency: transitive
     description:
       name: wakelock_plus
-      sha256: "4fa83a128b4127619e385f686b4f080a5d2de46cff8e8c94eccac5fcf76550e5"
+      sha256: bf4ee6f17a2fa373ed3753ad0e602b7603f8c75af006d5b9bdade263928c0484
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.7"
+    version: "1.2.8"
   wakelock_plus_platform_interface:
     dependency: transitive
     description:
