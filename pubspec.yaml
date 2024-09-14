@@ -18,7 +18,7 @@ publish_to: 'https://harcapp.web.app' # Remove this line if you wish to publish 
 version: 1.0.14+14
 
 environment:
-  sdk: '>=3.3.3 <4.0.0'
+  sdk: ^3.5.0
 
 dependencies:
 
