@@ -10,8 +10,6 @@ import 'package:harcapp_web/router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import 'main.dart';
-
 class TopNavigationBar extends StatefulWidget implements PreferredSizeWidget{
 
   static const denseMaxWidth = 1040;

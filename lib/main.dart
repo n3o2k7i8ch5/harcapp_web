@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:harcapp_core/color_pack_app.dart';
 import 'package:harcapp_core/comm_classes/color_pack_provider.dart';
+import 'package:harcapp_core/comm_classes/common.dart';
 import 'package:harcapp_core/song_book/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
@@ -57,10 +58,10 @@ class MyAppState extends State<MyApp>{
 
     String metadataUrl = 'https://gitlab.com/n3o2k7i8ch5/harcapp_data/-/raw/master/unofficial_apk_version/version';
 
-    Dio dio = Dio();
-    dio.httpClientAdapter = BrowserHttpClientAdapter();
-
     try {
+      Dio dio = Dio();
+      dio.httpClientAdapter = BrowserHttpClientAdapter();
+
       Response response = await dio.get(
           'https://cors-anywhere.herokuapp.com/$metadataUrl'
       );
@@ -73,7 +74,7 @@ class MyAppState extends State<MyApp>{
       availableAppApkSource = 'https://gitlab.com/n3o2k7i8ch5/harcapp_data/-/raw/master/unofficial_apk_version/harcapp.apk';
     }
 
-    setState(() => loadedDownloadMetadata = true);
+    post(() => setState(() => loadedDownloadMetadata = true));
   }
 
   @override
