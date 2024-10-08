@@ -434,5 +434,5 @@ void displaySong(BuildContext context, SongRaw song){
   SongEditorPanelProvider.notify_(context);
   TagsProvider.of(context).set(SongTag.ALL, song.tags);
 
-  SimilarSongProvider.of(context).title = song.title;
+  // SimilarSongProvider.of(context).title = song.title;
 }

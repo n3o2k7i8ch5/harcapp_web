@@ -16,11 +16,11 @@ Map<String, List<SongRaw>> decodeSongs(String allSongsCode) {
     try {
       Map songMap = allSongsJSONMap['official'][fileName]['song'];
       SongRaw song = SongRaw.fromRespMap(fileName, songMap);
-      String title = remSpecChars(remPolChars(song.title.toLowerCase())).trim();
+      String title = remSpecChars(remPolChars(song.title)).trim();
       if(!songsMap.containsKey(title)) songsMap[title] = [];
       songsMap[title]!.add(song);
       for(String hidTitle in song.hidTitles){
-        hidTitle = remSpecChars(remPolChars(hidTitle.toLowerCase())).trim();
+        hidTitle = remSpecChars(remPolChars(hidTitle)).trim();
         if(!songsMap.containsKey(hidTitle))
           songsMap[hidTitle] = [];
         songsMap[hidTitle]!.add(song);
@@ -32,11 +32,11 @@ Map<String, List<SongRaw>> decodeSongs(String allSongsCode) {
     try {
       Map songMap = allSongsJSONMap['conf'][fileName]['song'];
       SongRaw song = SongRaw.fromRespMap(fileName, songMap);
-      String title = remSpecChars(remPolChars(song.title.toLowerCase())).trim();
+      String title = remSpecChars(remPolChars(song.title)).trim();
       if(!songsMap.containsKey(title)) songsMap[title] = [];
       songsMap[title]!.add(song);
       for(String hidTitle in song.hidTitles){
-        hidTitle = remSpecChars(remPolChars(hidTitle.toLowerCase())).trim();
+        hidTitle = remSpecChars(remPolChars(hidTitle)).trim();
         if(!songsMap.containsKey(hidTitle))
           songsMap[hidTitle] = [];
         songsMap[hidTitle]!.add(song);

@@ -3,6 +3,7 @@ import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/song_book/song_element.dart';
 import 'package:harcapp_web/songs/old/song_basic_data.dart';
 import 'package:harcapp_web/songs/old/song_element_old.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 SongRaw parseOldCode(String lclId, String code, {bool official = true}){
   bool hasRefren;
@@ -62,7 +63,9 @@ SongRaw parseOldCode(String lclId, String code, {bool official = true}){
       composers: [],
       performers: [basicData.performer],
       addPers: [AddPerson(name: basicData.moderator, emailRef: null, userKeyRef: null)],
-      youtubeLink: basicData.youtubeLink,
+      youtubeVideoId: basicData.youtubeLink==null?
+        null:
+        YoutubePlayer.convertUrlToId(basicData.youtubeLink!),
 
       tags: basicData.tags,
 

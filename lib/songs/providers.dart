@@ -164,6 +164,7 @@ class SongFileNameDupErrProvider extends ChangeNotifier{
   }
 
   get lclIds => _map.keys.toList();
+  get dupLclIds => lclIds.where((lclId) => _map[lclId]!.length > 1).toList();
 
   List<SongRaw> get(SongRaw song) => _map[song.lclId]??[];
 
@@ -233,33 +234,20 @@ class SimilarSongProvider extends ChangeNotifier{
 
   static SimilarSongProvider of(BuildContext context) => Provider.of<SimilarSongProvider>(context, listen: false);
 
+  // A dict containing simplified song titles and hidden titles as keys and
+  // lists of similar songs with that title or hidden title as values.
   Map<String, List<SongRaw>>? allSongs;
 
-  late String _title;
-  String get title => _title;
-  set title(String value){
-    _title = value;
-    notifyListeners();
-  }
-
-  List<SongRaw>? get similarSong{
+  List<SongRaw>? getSimilarSongs(String title){
     if(allSongs == null) return null;
-
-    String _title = remSpecChars(remPolChars(this._title.toLowerCase()));
-    List<SongRaw> songs = allSongs![_title]??[];
-    return songs;
-  }
-
-  SimilarSongProvider(){
-    _title = '';
+    return allSongs![remSpecChars(remPolChars(title))]??[];
   }
 
   bool hasSimilarSong(String title){
-    if(allSongs == null) return false;
-    String _title = remSpecChars(remPolChars(title.toLowerCase()));
-    List<SongRaw> songs = allSongs![_title]??[];
+    List<SongRaw>? similarSongs = getSimilarSongs(title);
+    if(similarSongs == null) return false;
 
-    return songs.isNotEmpty;
+    return similarSongs.isNotEmpty;
   }
 
   void init() async {

@@ -41,7 +41,7 @@ class SongListTileWidget extends StatelessWidget{
                           onTap: prov.count==0?null:() => AppScaffold.showMessage(
                             context,
                             'Liczba piosenek o takiej samej nazwie: ${prov.count}.'
-                                '\nMowa o: ${prov.lclIds.map((s) => '<b>$s</b>').join(', ')}',
+                                '\nMowa o: ${prov.dupLclIds.map((s) => '<b>$s</b>').join(', ')}',
                           )
                       ),
                     )

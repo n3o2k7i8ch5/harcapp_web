@@ -10,11 +10,11 @@ import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/add_buttons_widget.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/add_pers_list_widget.dart';
+import 'package:harcapp_core/song_book/song_editor/widgets/basic_data_widget.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/refren_template.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/scroll_to_bottom.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/song_parts_list_widget.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/tags_widget.dart';
-import 'package:harcapp_core/song_book/song_editor/widgets/top_cards.dart';
 import 'package:harcapp_core/song_book/widgets/song_widget_template.dart';
 import 'package:harcapp_web/main.dart';
 import 'package:harcapp_web/songs/providers.dart';
@@ -193,11 +193,8 @@ class SongEditorPanelState extends State<SongEditorPanel>{
 
                     SizedBox(height: Dimen.defMarg),
 
-                    TopCards(
+                    BasicDataWidget(
                       onChangedTitle: (String text){
-                        currItemProv.setTitle(text, notify: false);
-                        SimilarSongProvider.of(context).title = text;
-
                         BindTitleFileNameProvider bindTitleFileNameProv = BindTitleFileNameProvider.of(context);
                         if(bindTitleFileNameProv.bindTitle){
                           CurrentItemProvider.of(context).setLclIdFromTitleAndPerformer(withPerformer: bindTitleFileNameProv.bindPerformer);
@@ -205,16 +202,12 @@ class SongEditorPanelState extends State<SongEditorPanel>{
                         }
 
                       },
-                      onChangedHiddenTitles: (List<String> texts) => currItemProv.setHidTitles(texts, notify: false),
-                      onChangedAuthor: (List<String> texts) => currItemProv.setAuthors(texts, notify: false),
-                      onChangedComposer: (List<String> texts) => currItemProv.setComposers(texts, notify: false),
+                      onChangedHiddenTitles: (List<String> texts) => currItemProv.notify(),
+                      onChangedAuthor: (List<String> texts) => currItemProv.notify(),
+                      onChangedComposer: (List<String> texts) => currItemProv.notify(),
                       onChangedPerformer: (List<String> texts){
-                        bool isTextEmpty = texts.isEmpty || (texts.length == 1 && texts.first.isEmpty);
-                        bool notify =
-                            (currItemProv.performersController.isEmpty && !isTextEmpty) ||
-                            (currItemProv.performersController.isNotEmpty && isTextEmpty);
 
-                        currItemProv.setPerformers(texts, notify: notify);
+                        currItemProv.notify();
 
                         BindTitleFileNameProvider bindTitleFileNameProv = BindTitleFileNameProvider.of(context);
                         if(bindTitleFileNameProv.bindTitle){
@@ -222,7 +215,7 @@ class SongEditorPanelState extends State<SongEditorPanel>{
                           SongFileNameDupErrProvider.of(context).checkAllDups(context);
                         }
                       },
-                      onChangedYT: (String? text) => currItemProv.setYoutubeLink(text, notify: false),
+                      onChangedYT: (String? text) => currItemProv.notify(),
                     ),
 
                     const SizedBox(height: Dimen.defMarg),
@@ -321,12 +314,12 @@ class SimilarSongWidget extends StatelessWidget{
   static IconData icon = MdiIcons.musicBoxMultiple;
 
   @override
-  Widget build(BuildContext context) => Consumer<SimilarSongProvider>(
-      builder: (context, prov, child) => Material(
+  Widget build(BuildContext context) => Consumer2<SimilarSongProvider, CurrentItemProvider>(
+      builder: (context, similarSongProv, currItemProv, child) => Material(
           borderRadius: BorderRadius.circular(AppCard.bigRadius),
           clipBehavior: Clip.hardEdge,
           child:
-          prov.similarSong == null?
+          similarSongProv.allSongs == null?
           Row(
             children: [
               Padding(
@@ -334,73 +327,92 @@ class SimilarSongWidget extends StatelessWidget{
                 child: Icon(MdiIcons.timerSand, color: hintEnab_(context)),
               ),
               Expanded(child: Text(
-                'Ładowanie listy weryfikacyjnej piosenek...',
+                'Ładowanie listy istniejących piosenek...',
                 style: AppTextStyle(fontSize: Dimen.textSizeBig, fontWeight: weight.halfBold, color: hintEnab_(context)),
                 textAlign: TextAlign.center,
               )),
               SizedBox(width: Dimen.iconFootprint)
             ],
           ):(
-              prov.similarSong!.length==0?
-              Row(
-                children: [
-                  Padding(
-                      padding: EdgeInsets.all(Dimen.iconMarg),
-                      child: Icon(MdiIcons.check, color: accent_(context))
-                  ),
-
-                  Expanded(child: Text(
-                    'Sądząc po tytule, tego jeszcze nie ma w śpiewniku!',
-                    style: AppTextStyle(fontSize: Dimen.textSizeBig, fontWeight: weight.halfBold, color: accent_(context)),
-                    textAlign: TextAlign.center,
-                  )),
-                  SizedBox(width: Dimen.iconFootprint)
-                ],
-              ):
-              Row(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(Dimen.iconMarg),
-                    child: Icon(icon, color: Colors.red),
-                  ),
-
-                  Expanded(child: Text(
-                    'Piosenka o takim tytule już jest!',
-                    style: AppTextStyle(color: Colors.red, fontWeight: weight.halfBold, fontSize: Dimen.textSizeBig),
-                    textAlign: TextAlign.center,
-                  )),
-
-                  SimpleButton.from(
-                      context: context,
-                      icon: MdiIcons.eye,
-                      iconLeading: false,
-                      text: 'Podgląd',
-                      onTap: () => showDialog(
-                        context: context,
-                        builder: (context) => Center(
-                            child: Material(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(AppCard.bigRadius),
-                              child: SizedBox(
-                                width: 400,
-                                child: SongWidgetTemplate<SongRaw, AddPersonSimpleResolver>(
-                                    prov.similarSong![0],
-                                    SongBaseSettings(),
-                                    addPersonResolver: AddPersonSimpleResolver(),
-                                    scrollController: ScrollController(),
-                                    key: UniqueKey()//ValueKey(currItemProv.song)
-                                ),
-                              ),
-                            )
-                        ),
-                      )
-                  ),
-
-                ],
-              )
+              !similarSongProv.hasSimilarSong(currItemProv.titleController.text)?
+              _NoSimilarSongsWidget():
+              _FoundSimilarSongWidget()
           )
 
       )
   );
+
+}
+
+class _NoSimilarSongsWidget extends StatelessWidget{
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      Padding(
+          padding: EdgeInsets.all(Dimen.iconMarg),
+          child: Icon(MdiIcons.check, color: accent_(context))
+      ),
+
+      Expanded(child: Text(
+        'Sądząc po tytule, tego jeszcze nie ma w śpiewniku!',
+        style: AppTextStyle(fontSize: Dimen.textSizeBig, fontWeight: weight.halfBold, color: accent_(context)),
+        textAlign: TextAlign.center,
+      )),
+      SizedBox(width: Dimen.iconFootprint)
+    ],
+  );
+
+}
+
+class _FoundSimilarSongWidget extends StatelessWidget{
+
+  @override
+  Widget build(BuildContext context) => Consumer2<SimilarSongProvider, CurrentItemProvider>(
+      builder: (context, similarSongProv, currItemProv, child) => Row(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(Dimen.iconMarg),
+            child: Icon(SimilarSongWidget.icon, color: Colors.red),
+          ),
+
+          Expanded(child: Text(
+            'Piosenka o takim tytule już jest!',
+            style: AppTextStyle(color: Colors.red, fontWeight: weight.halfBold, fontSize: Dimen.textSizeBig),
+            textAlign: TextAlign.center,
+          )),
+
+          SimpleButton.from(
+              context: context,
+              icon: MdiIcons.eye,
+              margin: EdgeInsets.zero,
+              iconLeading: false,
+              text: 'Podgląd',
+              onTap: () => showDialog(
+                context: context,
+                builder: (context) => Center(
+                    child: Material(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(AppCard.bigRadius),
+                      child: SizedBox(
+                        width: 400,
+                        child: SongWidgetTemplate<SongRaw, AddPersonSimpleResolver>(
+                            similarSongProv.getSimilarSongs(currItemProv.titleController.text)![0],
+                            SongBaseSettings(),
+                            addPersonResolver: AddPersonSimpleResolver(),
+                            scrollController: ScrollController(),
+                            key: UniqueKey()//ValueKey(currItemProv.song)
+                        ),
+                      ),
+                    )
+                ),
+              )
+          ),
+
+        ],
+      )
+  );
+
+
 
 }

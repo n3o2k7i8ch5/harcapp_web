@@ -68,7 +68,7 @@ class SaveSendWidget extends StatelessWidget{
                         if (song.title.isEmpty)
                           songsWithouTitle.add(song);
 
-                        if (song.youtubeLink == null || song.youtubeLink!.isEmpty)
+                        if (song.youtubeVideoId == null || song.youtubeVideoId!.isEmpty)
                           songsWithoutYT.add(song);
 
                         if (!song.hasChords)
