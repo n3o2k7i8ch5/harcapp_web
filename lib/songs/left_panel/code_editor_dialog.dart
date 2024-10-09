@@ -50,8 +50,13 @@ class CodeEditorDialog extends StatelessWidget{
                             IconButton(
                               icon: Icon(MdiIcons.formatIndentIncrease),
                               onPressed: (){
-                                String prettyText = prettyJson(jsonDecode(controller.text));
-                                controller.text = prettyText;
+                                try {
+                                  String prettyText = prettyJson(
+                                      jsonDecode(controller.text));
+                                  controller.text = prettyText;
+                                } catch(e){
+                                  AppScaffold.showMessage(context, 'Błędny kod piosenki.');
+                                }
                               },
                             ),
 

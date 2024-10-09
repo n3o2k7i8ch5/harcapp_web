@@ -51,8 +51,8 @@ class MyAppState extends State<MyApp>{
   late SongFileNameDupErrProvider songFileNameDupErrProv;
 
   late bool loadedDownloadMetadata;
-  static String? availableAppVersion;
-  static String? availableAppApkSource;
+  static String availableAppVersion = '?.?.?';
+  static String availableAppApkSource = 'https://gitlab.com/n3o2k7i8ch5/harcapp_data/-/raw/master/unofficial_apk_version/harcapp.apk';
 
   Future<void> getMetaData() async {
 
@@ -127,7 +127,7 @@ class MyAppState extends State<MyApp>{
             ChangeNotifierProvider(create: (context) => SongEditorPanelProvider()),
           ],
           builder: (context, child) =>
-          loadedDownloadMetadata?
+          loadedDownloadMetadata || true?  // TODO: remove this metadata stuff.
           Consumer<ColorPackProvider>(
               builder: (context, prov, child) => MaterialApp.router(
                 routerConfig: router,

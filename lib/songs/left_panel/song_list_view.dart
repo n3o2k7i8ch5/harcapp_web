@@ -338,24 +338,48 @@ void handleImportSongsTap(BuildContext context) async {
   if(result==null)
     return;
 
-  String code = utf8.decode(result.files.single.bytes!);
+  String code;
+  try {
+    code = utf8.decode(result.files.single.bytes!);
+  } catch(e){
+    AppScaffold.showMessage(context, 'Błąd odczytu pliku (błąd kodowania binarnego)');
+    return;
+  }
 
   AllSongsProvider allSongsProv = AllSongsProvider.of(context);
 
-  Map<String, dynamic> songMap = jsonDecode(code);
+  Map<String, dynamic> songMap;
+  try{
+    songMap = jsonDecode(code);
+  } catch(e){
+    AppScaffold.showMessage(context, 'Błąd odczytu pliku (błąd dekodowania JSON)');
+    return;
+  }
 
-  Map<String, dynamic>? offSongsMap = songMap['official'];
+  Map<String, dynamic>? offSongsMap;
+  try {
+    offSongsMap = songMap['official'];
+  } catch(e){
+    AppScaffold.showMessage(context, 'Błąd odczytu pliku (brak sekcji "official")');
+    return;
+  }
+
   List<SongRaw?> offSongs;
   if(offSongsMap == null) offSongs = [];
   else {
     offSongs = List.filled(offSongsMap.keys.length, null, growable: true);
 
     for(String fileName in offSongsMap.keys){
-      Map<String, dynamic> songPackMap = offSongsMap[fileName];
-      SongRaw song = SongRaw.fromRespMap(fileName, songPackMap['song']);
+      try {
+        Map<String, dynamic> songPackMap = offSongsMap[fileName];
+        SongRaw song = SongRaw.fromRespMap(fileName, songPackMap['song']);
 
-      if(!song.isOfficial) song.lclId = 'o!_' + song.lclId;
-      offSongs[songPackMap['index']] = song;
+        if (!song.isOfficial) song.lclId = 'o!_' + song.lclId;
+        offSongs[songPackMap['index']] = song;
+      } catch(e){
+        AppScaffold.showMessage(context, 'Błąd odczytu pliku (błąd dekodowania piosenki ${fileName})');
+        return;
+      }
     }
   }
 
@@ -366,11 +390,16 @@ void handleImportSongsTap(BuildContext context) async {
     confSongs = List.filled(confSongsMap.keys.length, null, growable: true);
 
     for(String fileName in confSongsMap.keys){
-      Map<String, dynamic> songPackMap = confSongsMap[fileName];
-      SongRaw song = SongRaw.fromRespMap(fileName, songPackMap['song']);
+      try {
+        Map<String, dynamic> songPackMap = confSongsMap[fileName];
+        SongRaw song = SongRaw.fromRespMap(fileName, songPackMap['song']);
 
-      if(!song.isConfid) song.lclId = 'oc!_' + song.lclId;
-      confSongs[songPackMap['index']] = song;
+        if (!song.isConfid) song.lclId = 'oc!_' + song.lclId;
+        confSongs[songPackMap['index']] = song;
+      } catch(e){
+        AppScaffold.showMessage(context, 'Błąd odczytu pliku (błąd dekodowania piosenki ${fileName})');
+        return;
+      }
     }
   }
 
@@ -416,7 +445,7 @@ SongRaw handleNewSongEmptyTap(BuildContext context){
 
   SongRaw song = SongRaw.empty();
   song.lclId = 'o!_';
-  Provider.of<AllSongsProvider>(context, listen: false).addOff(song);
+  AllSongsProvider.of(context).addOff(song);
 
   SongFileNameDupErrProvider songFileNameDupErrProv = SongFileNameDupErrProvider.of(context);
   songFileNameDupErrProv.checkAllDups(context);
