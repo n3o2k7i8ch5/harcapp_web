@@ -490,7 +490,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "234cdfb6ffd090c35169979ce2dde492cee98c89"
+      resolved-ref: "701c3a52d8e75f661c08dc902d2c77efb9cea55d"
       url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"
@@ -507,7 +507,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: c0412921a0d49eb3bd0d44ae1d891d60c6a4fb9d
+      resolved-ref: e63915e134352e10ca9d1dff69e5df251f0a3c2d
       url: "https://github.com/n3o2k7i8ch5/htmltopdfwidgets"
     source: git
     version: "1.0.3"
@@ -1176,10 +1176,10 @@ packages:
     dependency: transitive
     description:
       name: video_player_android
-      sha256: b176e047ead64968d07bc36e7a60bcd471455f2bcba3997814e4c2a8596b5fc8
+      sha256: "340b29bc38b2c341ed3afa08148f3d9f351220403cdd2b3a9eb38b71a4be1a9d"
       url: "https://pub.dev"
     source: hosted
-    version: "2.7.11"
+    version: "2.7.12"
   video_player_avfoundation:
     dependency: transitive
     description:
@@ -1272,18 +1272,18 @@ packages:
     dependency: transitive
     description:
       name: win32
-      sha256: "4d45dc9069dba4619dc0ebd93c7cec5e66d8482cb625a370ac806dcc8165f2ec"
+      sha256: e5c39a90447e7c81cfec14b041cdbd0d0916bd9ebbc7fe02ab69568be703b9bd
       url: "https://pub.dev"
     source: hosted
-    version: "5.5.5"
+    version: "5.6.0"
   worker_manager:
     dependency: "direct main"
     description:
       name: worker_manager
-      sha256: "334262e1b43dfb2097290098bbe8d868540b9dee484e4f0b5372b0d31d99efa1"
+      sha256: "0c6c4e7d246bcbe7221273ef955732dafb097347d536ebe6acd6547d0398c49c"
       url: "https://pub.dev"
     source: hosted
-    version: "7.2.1"
+    version: "7.2.2"
   xdg_directories:
     dependency: transitive
     description:

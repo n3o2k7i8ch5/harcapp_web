@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
+import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_core/harcthought/konspekts/base_konspekt_widget.dart';
@@ -131,6 +132,7 @@ class KonspektsPageState extends State<KonspektsPage>{
                                       icon: MdiIcons.filePdfBox,
                                       text: 'Pobierz jako PDF',
                                       onTap: () async {
+                                        AppScaffold.showMessage(context, 'Przygotowywanie pliku PDF...');
                                         Uint8List bytes = await konspektToPdf(selectedKonspekt!);
                                         downloadFileFromBytes(
                                             fileName: 'Konspekt - ${selectedKonspekt!.title}.pdf',

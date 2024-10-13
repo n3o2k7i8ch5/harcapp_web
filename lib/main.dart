@@ -137,6 +137,7 @@ class MyAppState extends State<MyApp>{
                 localizationsDelegates: const [
                   GlobalMaterialLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate, // ONLY if it's a RTL language
+                  GlobalCupertinoLocalizations.delegate,
                 ],
                 supportedLocales: const [
                   Locale('pl', 'PL'), // include country code too
