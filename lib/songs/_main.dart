@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_classes/common.dart';
 import 'package:harcapp_web/common/alert_dialog.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/main.dart';
@@ -8,11 +9,14 @@ import 'package:harcapp_web/songs/song_editor_panel.dart';
 import 'package:harcapp_web/songs/song_preview_widget.dart';
 import 'package:provider/provider.dart';
 
+import '../consts.dart';
 import 'left_panel/left_panel.dart';
 
 class SongsPage extends StatefulWidget{
 
-  const SongsPage();
+  final bool openDrawerIfCollapsed;
+
+  const SongsPage({this.openDrawerIfCollapsed = true});
 
   @override
   State<StatefulWidget> createState() => SongsPageState();
@@ -20,6 +24,21 @@ class SongsPage extends StatefulWidget{
 }
 
 class SongsPageState extends State<SongsPage>{
+
+  static const double collapseWidth = 920;
+
+  bool get openDrawerIfCollapsed => widget.openDrawerIfCollapsed;
+
+  late GlobalKey<ScaffoldState> scaffoldKey;
+
+  Future<void> tryOpenDrawerIfCollapsed() async {
+    if(!openDrawerIfCollapsed || MediaQuery.of(context).size.width>collapseWidth)
+      return;
+
+    await Future.delayed(Duration.zero);
+
+    scaffoldKey.currentState?.openDrawer();
+  }
 
   Future<void> tryClearCachedSongs() async {
     if(MyApp.lastLoadedSongs.isEmpty) return;
@@ -58,6 +77,10 @@ class SongsPageState extends State<SongsPage>{
 
   @override
   void initState() {
+
+    scaffoldKey = GlobalKey();
+    post(tryOpenDrawerIfCollapsed);
+
     tryClearCachedSongs();
     if(MyApp.lastLoadedSongs.isNotEmpty)
       SongFileNameDupErrProvider.of(context).checkAllDups(context);
@@ -71,6 +94,7 @@ class SongsPageState extends State<SongsPage>{
         bool workspaceAlwaysVisible = constraints.maxWidth>920;
 
         return BaseScaffold(
+          scaffoldKey: scaffoldKey,
           backgroundColor: background_(context),
           drawer: workspaceAlwaysVisible?
           null:
@@ -78,6 +102,7 @@ class SongsPageState extends State<SongsPage>{
             backgroundColor: background_(context),
             child: LeftPanel(
               onItemTap: (index) => Navigator.pop(context),
+              withBackButton: true,
             ),
             width: drawerWidth,
           ),

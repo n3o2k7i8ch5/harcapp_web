@@ -1,9 +1,11 @@
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_classes/common.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
@@ -16,7 +18,6 @@ import 'package:harcapp_core/harcthought/konspekts/konspekt_to_pdf/konspekt_to_p
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/consts.dart';
 import 'package:harcapp_web/konspekts/table_of_content_widget.dart';
-import 'package:harcapp_web/main.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../common/download_file.dart';
@@ -28,8 +29,9 @@ class KonspektsPage extends StatefulWidget{
   final String itemPathTemplate;
   final List<Konspekt> allKonspekts;
   final Konspekt? selectedKonspekt;
+  final bool openDrawerIfCollapsed;
 
-  const KonspektsPage(this.itemPathTemplate, this.allKonspekts, {this.selectedKonspekt, Key? key}): super(key: key);
+  const KonspektsPage(this.itemPathTemplate, this.allKonspekts, {this.selectedKonspekt, this.openDrawerIfCollapsed = true, Key? key}): super(key: key);
 
   @override
   State<StatefulWidget> createState() => KonspektsPageState();
@@ -38,19 +40,56 @@ class KonspektsPage extends StatefulWidget{
 
 class KonspektsPageState extends State<KonspektsPage>{
 
+  static const double collapseWidth = 920;
+
   String get itemPathTemplate => widget.itemPathTemplate;
   List<Konspekt> get allKonspekts => widget.allKonspekts;
   Konspekt? get selectedKonspekt => widget.selectedKonspekt;
+  bool get openDrawerIfCollapsed => widget.openDrawerIfCollapsed;
+
+  late GlobalKey<ScaffoldState> scaffoldKey;
+  late ScrollController scrollController;
+  late ValueNotifier<double> notifier;
 
   void selectKonspekt(Konspekt konspekt) => context.go(itemPathTemplate.replaceAll(":name", konspekt.name));
+
+  Future<void> tryOpenDrawerIfCollapsed() async {
+    if(!openDrawerIfCollapsed || MediaQuery.of(context).size.width>collapseWidth)
+      return;
+
+    await Future.delayed(Duration.zero);
+
+    scaffoldKey.currentState?.openDrawer();
+  }
+
+  @override
+  void initState() {
+    scaffoldKey = GlobalKey();
+    scrollController = ScrollController();
+    notifier = ValueNotifier(0);
+
+    scrollController.addListener(() => notifier.value = scrollController.offset);
+
+    post(tryOpenDrawerIfCollapsed);
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    notifier.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints){
 
-        bool workspaceAlwaysVisible = constraints.maxWidth>920;
+        bool workspaceAlwaysVisible = constraints.maxWidth>collapseWidth;
 
         return BaseScaffold(
+          scaffoldKey: scaffoldKey,
           backgroundColor: background_(context),
           drawer: workspaceAlwaysVisible?
           null:
@@ -60,10 +99,11 @@ class KonspektsPageState extends State<KonspektsPage>{
               allKonspekts: allKonspekts,
               selectedKonspekt: selectedKonspekt,
               padding: const EdgeInsets.all(Dimen.defMarg),
-              onItemTap: (konspekt){
+              onItemTap: (Konspekt konspekt){
                 selectKonspekt(konspekt);
                 Navigator.pop(context);
               },
+              withBackButton: true,
             ),
             width: drawerWidth,
           ),
@@ -85,7 +125,7 @@ class KonspektsPageState extends State<KonspektsPage>{
                         horizontal: Dimen.defMarg,
                         vertical: KonspektsPage.defPaddingVal
                       ),
-                      onItemTap: (konspekt) => selectKonspekt(konspekt)
+                      onItemTap: (Konspekt konspekt) => selectKonspekt(konspekt)
                     ),
                   ),
                 ),
@@ -93,7 +133,7 @@ class KonspektsPageState extends State<KonspektsPage>{
               Expanded(
                   child: Center(
                     child: Container(
-                      constraints: BoxConstraints(maxWidth: 1000),
+                      constraints: BoxConstraints(maxWidth: defPageWidth),
                       child:
                       selectedKonspekt == null?
                       ClickHereWidget(workspaceAlwaysVisible):
@@ -102,26 +142,56 @@ class KonspektsPageState extends State<KonspektsPage>{
                         withAppBar: false,
                         onDuchLevelInfoTap: () => openKonspektSphereDuchLevelsInfoDialog(context, maxWidth: defPageWidth),
                         onDuchMechanismInfoTap: () => openKonspektSphereDuchMechanismsInfoDialog(context, maxWidth: defPageWidth),
-                        maxRelatedDialogWidth: dialogWidth,
+                        maxDialogWidth: defPageWidth,
                         oneLineMultiDuration: true,
+                        controller: scrollController,
                         leading: Padding(
                             padding: EdgeInsets.only(top: KonspektsPage.defPaddingVal),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
 
-                                Material(
-                                  borderRadius: BorderRadius.circular(AppCard.defRadius),
-                                  clipBehavior: Clip.hardEdge,
-                                  child: Image.asset(
-                                    selectedKonspekt!.coverPath,
-                                    fit: BoxFit.cover,
-                                    height: 500,
+                                LayoutBuilder(
+                                  builder: (BuildContext context, BoxConstraints constraints) => AspectRatio(
+                                      aspectRatio: 1000/450,
+                                      child: Material(
+                                          elevation: AppCard.defElevation,
+                                          borderRadius: BorderRadius.circular(AppCard.defRadius),
+                                          clipBehavior: Clip.hardEdge,
+                                          child: AnimatedBuilder(
+                                              animation: notifier,
+                                              child: Stack(
+                                                fit: StackFit.expand,
+                                                clipBehavior: Clip.none,
+                                                children: [
+
+                                                  Positioned(
+                                                      top: 0,
+                                                      left: 0,
+                                                      right: 0,
+                                                      child: AspectRatio(
+                                                          aspectRatio: 1000/667,
+                                                          child: Image.asset(
+                                                            selectedKonspekt!.coverPath,
+                                                            fit: BoxFit.cover,
+                                                            alignment: Alignment.topCenter,
+                                                          )
+                                                      )
+                                                  )
+
+                                                ],
+                                              ),
+                                              builder: (BuildContext context, Widget? child) => Transform.translate(
+                                                offset: Offset(0, -min(notifier.value/1.3, constraints.maxWidth/1000*(667-450))),
+                                                child: child,
+                                              )
+                                          )
+                                      )
                                   ),
                                 ),
-                                
+
                                 SizedBox(height: KonspektsPage.defPaddingVal),
-                                
+
                                 Align(
                                   alignment: Alignment.centerRight,
                                   child: SimpleButton.from(
@@ -144,9 +214,9 @@ class KonspektsPageState extends State<KonspektsPage>{
 
                               ],
                             )
-                          ),
+                        ),
                         oneLineSummary: false,
-                      ),
+                      )
                     ),
                   ),
               ),

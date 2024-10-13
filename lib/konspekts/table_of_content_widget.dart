@@ -16,12 +16,14 @@ class TableOfContentWidget extends StatefulWidget{
   final Konspekt? selectedKonspekt;
   final EdgeInsets? padding;
   final void Function(Konspekt)? onItemTap;
+  final bool withBackButton;
 
   const TableOfContentWidget({
     required this.allKonspekts,
     required this.selectedKonspekt,
     this.padding,
-    this.onItemTap
+    this.onItemTap,
+    this.withBackButton = false,
   });
 
   @override
@@ -35,6 +37,7 @@ class TableOfContentWidgetState extends State<TableOfContentWidget>{
   Konspekt? get selectedKonspekt => widget.selectedKonspekt;
   EdgeInsets? get padding => widget.padding;
   void Function(Konspekt)? get onItemTap => widget.onItemTap;
+  bool get withBackButton => widget.withBackButton;
 
   late List<Konspekt> searchedKonspekts;
 
@@ -116,10 +119,16 @@ class TableOfContentWidgetState extends State<TableOfContentWidget>{
           color: cardEnab_(context),
           child: Row(
             children: [
-              Padding(
-                padding: EdgeInsets.all(Dimen.iconMarg),
-                child: Icon(MdiIcons.magnify, color: hintEnab_(context)),
-              ),
+              if(withBackButton)
+                IconButton(
+                  icon: Icon(MdiIcons.arrowLeft),
+                  onPressed: () => Navigator.pop(context),
+                )
+              else
+                Padding(
+                  padding: EdgeInsets.all(Dimen.iconMarg),
+                  child: Icon(MdiIcons.magnify, color: hintEnab_(context)),
+                ),
               Expanded(
                 child: TextField(
                   style: AppTextStyle(color: AppColors.text_def_enab),

@@ -12,8 +12,9 @@ import 'song_list_title_widget.dart';
 class LeftPanel extends StatelessWidget{
 
   final void Function(int)? onItemTap;
+  final bool withBackButton;
 
-  const LeftPanel({this.onItemTap, Key? key}):super(key: key);
+  const LeftPanel({this.onItemTap, this.withBackButton = false, Key? key}):super(key: key);
 
   @override
   Widget build(BuildContext context) => Column(
@@ -21,7 +22,7 @@ class LeftPanel extends StatelessWidget{
 
       Padding(
         padding: EdgeInsets.only(left: Dimen.iconMarg, top: Dimen.iconMarg),
-        child: SongListTileWidget()
+        child: SongListTileWidget(withBackButton: withBackButton),
       ),
 
       Consumer<AllSongsProvider>(

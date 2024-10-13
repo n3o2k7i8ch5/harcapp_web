@@ -20,8 +20,6 @@ import 'package:url_strategy/url_strategy.dart';
 
 import 'color_pack.dart';
 
-double dialogWidth = 500;
-double drawerWidth = 450;
 
 void main() async {
   // When changing this, delete the `web` folder.
@@ -49,41 +47,6 @@ class MyAppState extends State<MyApp>{
   late CurrentItemProvider currItemProv;
   late BindTitleFileNameProvider bindTitleFileNameProv;
   late SongFileNameDupErrProvider songFileNameDupErrProv;
-
-  late bool loadedDownloadMetadata;
-  static String availableAppVersion = '?.?.?';
-  static String availableAppApkSource = 'https://gitlab.com/n3o2k7i8ch5/harcapp_data/-/raw/master/unofficial_apk_version/harcapp.apk';
-
-  Future<void> getMetaData() async {
-
-    String metadataUrl = 'https://gitlab.com/n3o2k7i8ch5/harcapp_data/-/raw/master/unofficial_apk_version/version';
-
-    try {
-      Dio dio = Dio();
-      dio.httpClientAdapter = BrowserHttpClientAdapter();
-
-      Response response = await dio.get(
-          'https://cors-anywhere.herokuapp.com/$metadataUrl'
-      );
-      String dataStr = response.data;
-      Map dataMap = jsonDecode(dataStr);
-      availableAppVersion = dataMap['versionName'];
-      availableAppApkSource = dataMap['apkSource'];
-    } catch(e) {
-      availableAppVersion = '?.?.?';
-      availableAppApkSource = 'https://gitlab.com/n3o2k7i8ch5/harcapp_data/-/raw/master/unofficial_apk_version/harcapp.apk';
-    }
-
-    post(() => setState(() => loadedDownloadMetadata = true));
-  }
-
-  @override
-  void initState() {
-    loadedDownloadMetadata = false;
-
-    getMetaData();
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) => ColorPackApp(
@@ -126,9 +89,7 @@ class MyAppState extends State<MyApp>{
 
             ChangeNotifierProvider(create: (context) => SongEditorPanelProvider()),
           ],
-          builder: (context, child) =>
-          loadedDownloadMetadata || true?  // TODO: remove this metadata stuff.
-          Consumer<ColorPackProvider>(
+          builder: (context, child) => Consumer<ColorPackProvider>(
               builder: (context, prov, child) => MaterialApp.router(
                 routerConfig: router,
                 title: 'HarcApp',
@@ -143,8 +104,7 @@ class MyAppState extends State<MyApp>{
                   Locale('pl', 'PL'), // include country code too
                 ],
               )
-          ):
-          Container()
+          )
       )
   );
 }

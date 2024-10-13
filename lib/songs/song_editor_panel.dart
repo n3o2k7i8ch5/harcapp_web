@@ -24,6 +24,8 @@ import 'package:harcapp_web/songs/song_preview_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../consts.dart';
+
 class SongEditorPanel extends StatefulWidget{
 
   final bool workspaceAlwaysVisible;
@@ -82,7 +84,7 @@ class SongEditorPanelState extends State<SongEditorPanel>{
 
                   await showDialog(context: context, builder: (_) => Center(
                     child: SizedBox(
-                      width: dialogWidth,
+                      width: songDialogWidth,
                       child: SongPartEditor(
                         initText: _text,
                         initChords: _chords,
@@ -246,7 +248,7 @@ class SongEditorPanelState extends State<SongEditorPanel>{
                               context: context,
                               builder: (context) => Center(
                                 child: SizedBox(
-                                  width: dialogWidth,
+                                  width: songDialogWidth,
                                   child: SongPartEditor(
                                     initText: _text,
                                     initChords: _chords,

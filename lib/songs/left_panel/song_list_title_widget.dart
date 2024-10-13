@@ -13,14 +13,21 @@ class SongListTileWidget extends StatelessWidget{
 
   final TextAlign textAlign;
   final bool showDuplicated;
+  final bool withBackButton;
 
-  const SongListTileWidget({this.textAlign = TextAlign.start, this.showDuplicated = true, Key? key}):super(key: key);
+  const SongListTileWidget({this.textAlign = TextAlign.start, this.showDuplicated = true, this.withBackButton = false, Key? key}):super(key: key);
 
   @override
   Widget build(BuildContext context) => Consumer<AllSongsProvider>(
       builder: (context, allSongsProv, child) =>
           Row(
             children: [
+
+              if(withBackButton)
+                IconButton(
+                    icon: Icon(MdiIcons.arrowLeft),
+                    onPressed: () => Navigator.pop(context)
+                ),
 
               IntrinsicWidth(
                 child: TitleShortcutRowWidget(
