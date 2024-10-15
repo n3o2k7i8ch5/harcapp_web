@@ -74,6 +74,12 @@ class SongListViewState extends State<SongListView>{
   }
 
   @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) => MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => SearchListProvider(

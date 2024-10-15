@@ -91,6 +91,12 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
   }
 
   @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     super.build(context);
 

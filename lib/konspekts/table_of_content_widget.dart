@@ -2,88 +2,109 @@ import 'package:flutter/material.dart';
 import 'package:harcapp_core/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
-import 'package:harcapp_core/comm_classes/common.dart';
-import 'package:harcapp_core/comm_classes/meto.dart';
+import 'package:harcapp_core/comm_widgets/app_bar.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_core/harcthought/konspekts/filter/konspekt_filters.dart';
+import 'package:harcapp_core/harcthought/konspekts/filter/konspekt_filters_widget.dart';
+import 'package:harcapp_core/harcthought/konspekts/filter/search_field_bottom_filters_indicators.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt_thumbnail_widget.dart';
+import 'package:harcapp_web/consts.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:provider/provider.dart';
 
-class TableOfContentWidget extends StatefulWidget{
+class KonspektSearchProvider<T extends KonspektFilters> extends ChangeNotifier {
 
-  final List<Konspekt> allKonspekts;
+  static of<T extends KonspektFilters>(BuildContext context) => Provider.of<KonspektSearchProvider<T>>(context, listen: false);
+  static runSearch_<T extends KonspektFilters>(BuildContext context, T filters) => of<T>(context).runSearch(filters);
+
+  List<Konspekt> _konspekts = [];
+  final List<Konspekt> Function(T) search;
+
+  List<Konspekt> get konspekts => _konspekts;
+
+  KonspektSearchProvider({List<Konspekt>? konspekts, required this.search}): _konspekts = List.of(konspekts??[]);
+  
+  set konspekts(List<Konspekt> konspekts) {
+    _konspekts = konspekts;
+    notifyListeners();
+  }
+
+  void runSearch(T filters){
+    _konspekts.clear();
+    _konspekts.addAll(search(filters));
+    notifyListeners();
+  }
+  
+}
+
+class KonspektSearchWrapper<T extends KonspektFilters> extends StatelessWidget {
+
+  final List<Konspekt> initKonspekts;
+  final List<Konspekt> Function(T) runSearch;
+  final Widget Function(BuildContext) builder;
+
+  const KonspektSearchWrapper({super.key, required this.initKonspekts, required this.runSearch, required this.builder});
+
+  @override
+  Widget build(BuildContext context) => ChangeNotifierProvider(
+    create: (context) => KonspektSearchProvider<T>(konspekts: initKonspekts, search: runSearch),
+    builder: (context, _) => builder(context),
+  );
+
+}
+
+class TableOfContentWidget<T extends KonspektFilters> extends StatefulWidget{
+
   final Konspekt? selectedKonspekt;
+  final T filters;
+   // final void Function(T) onFiltersChanged;
+  final KonspektFiltersWidget Function(KonspektSearchProvider<T>) filtersWidgetBuilder;
+  final SearchFieldBottomFilterIndicatorsWidget searchFieldBottomFilterIndicatorsWidget;
   final EdgeInsets? padding;
   final void Function(Konspekt)? onItemTap;
   final bool withBackButton;
 
   const TableOfContentWidget({
-    required this.allKonspekts,
     required this.selectedKonspekt,
+    required this.filters,
+    // required this.onFiltersChanged,
+    required this.filtersWidgetBuilder,
+    required this.searchFieldBottomFilterIndicatorsWidget,
     this.padding,
     this.onItemTap,
     this.withBackButton = false,
   });
 
   @override
-  State<StatefulWidget> createState() => TableOfContentWidgetState();
+  State<StatefulWidget> createState() => TableOfContentWidgetState<T>();
 
 }
 
-class TableOfContentWidgetState extends State<TableOfContentWidget>{
+class TableOfContentWidgetState<T extends KonspektFilters> extends State<TableOfContentWidget<T>>{
 
-  List<Konspekt> get allKonspekts => widget.allKonspekts;
   Konspekt? get selectedKonspekt => widget.selectedKonspekt;
+  T get filters => widget.filters;
+  // void Function(T) get onFiltersChanged => widget.onFiltersChanged;
+  KonspektFiltersWidget Function(KonspektSearchProvider<T>) get filtersWidgetBuilder => widget.filtersWidgetBuilder;
+  SearchFieldBottomFilterIndicatorsWidget get searchFieldBottomFilterIndicatorsWidget => widget.searchFieldBottomFilterIndicatorsWidget;
   EdgeInsets? get padding => widget.padding;
   void Function(Konspekt)? get onItemTap => widget.onItemTap;
   bool get withBackButton => widget.withBackButton;
-
-  late List<Konspekt> searchedKonspekts;
-
-  late Set<Meto> selectedMetos;
-  late Set<KonspektSphere> selectedSpheres;
 
   late TextEditingController controller;
 
   @override
   void initState() {
-    searchedKonspekts = List.of(allKonspekts);
-
     controller = TextEditingController();
-
-    selectedMetos = {};
-    selectedSpheres = {};
-
     super.initState();
   }
 
-  void runSearch(){
-
-    String phrase = controller.text;
-    searchedKonspekts.clear();
-
-    if(phrase.isEmpty && selectedMetos.isEmpty && selectedSpheres.isEmpty) {
-      searchedKonspekts.addAll(allKonspekts);
-      setState(() {});
-      return;
-    }
-
-    for(Konspekt konspekt in allKonspekts) {
-      if(!remPolChars(konspekt.title).contains(remPolChars(phrase)))
-        continue;
-
-      if(!konspekt.containsMetos(selectedMetos))
-        continue;
-
-      if(!konspekt.containsSpheres(selectedSpheres))
-        continue;
-
-      searchedKonspekts.add(konspekt);
-    }
-
-    setState(() {});
-
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -91,22 +112,24 @@ class TableOfContentWidgetState extends State<TableOfContentWidget>{
     children: [
 
       Padding(
-        padding: EdgeInsets.only(top: Dimen.iconFootprint/2),
-        child: ListView.separated(
-          padding: (padding??EdgeInsets.zero).add(EdgeInsets.only(top: Dimen.iconFootprint/2)),
-          itemBuilder: (context, index) => SizedBox(
-            height: 140,
-            child: KonspektThumbnailWidget(
-              searchedKonspekts[index],
-              radius: AppCard.defRadius,
-              background: searchedKonspekts[index] == selectedKonspekt?Colors.grey[300]!:Colors.grey[100]!,
-              elevation: searchedKonspekts[index] == selectedKonspekt?AppCard.bigElevation:0,
-              onTap: () => onItemTap?.call(searchedKonspekts[index]),
+        padding: EdgeInsets.only(top: Dimen.iconFootprint/2 + (filters.hideSearchFieldBottom?0:35.0)),
+        child: Consumer<KonspektSearchProvider<T>>(
+          builder: (context, prov, _) => ListView.separated(
+            padding: (padding??EdgeInsets.zero).add(EdgeInsets.only(top: Dimen.iconFootprint/2)),
+            itemBuilder: (context, index) => SizedBox(
+              height: 140,
+              child: KonspektThumbnailWidget(
+                prov.konspekts[index],
+                radius: AppCard.defRadius,
+                background: prov.konspekts[index] == selectedKonspekt?Colors.grey[300]!:Colors.grey[100]!,
+                elevation: prov.konspekts[index] == selectedKonspekt?AppCard.bigElevation:0,
+                onTap: () => onItemTap?.call(prov.konspekts[index]),
+              ),
             ),
+            separatorBuilder: (context, index) => SizedBox(height: Dimen.defMarg),
+            itemCount: prov.konspekts.length,
           ),
-          separatorBuilder: (context, index) => SizedBox(height: Dimen.defMarg),
-          itemCount: searchedKonspekts.length,
-        ),
+        )
       ),
 
       Positioned(
@@ -117,35 +140,139 @@ class TableOfContentWidgetState extends State<TableOfContentWidget>{
           elevation: AppCard.bigElevation,
           borderRadius: BorderRadius.circular(AppCard.bigRadius - 4),
           color: cardEnab_(context),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if(withBackButton)
-                IconButton(
-                  icon: Icon(MdiIcons.arrowLeft),
-                  onPressed: () => Navigator.pop(context),
-                )
-              else
-                Padding(
-                  padding: EdgeInsets.all(Dimen.iconMarg),
-                  child: Icon(MdiIcons.magnify, color: hintEnab_(context)),
-                ),
-              Expanded(
-                child: TextField(
-                  style: AppTextStyle(color: AppColors.text_def_enab),
-                  controller: controller,
-                  decoration: InputDecoration(
-                      hintText: 'Szukaj',
-                      hintStyle: AppTextStyle(color: AppColors.text_hint_enab),
-                      border: InputBorder.none
+
+              Row(
+                children: [
+
+                  if(filters.isNotEmpty)
+                    IconButton(
+                      icon: Icon(MdiIcons.close),
+                      onPressed: (){
+                        filters.clear();
+                        controller.clear();
+                        KonspektSearchProvider.runSearch_(context, filters);
+                        setState(() {});
+                      },
+                    )
+                  else if(withBackButton)
+                    IconButton(
+                      icon: Icon(MdiIcons.arrowLeft),
+                      onPressed: () => Navigator.pop(context),
+                    )
+                  else
+                    Padding(
+                      padding: EdgeInsets.all(Dimen.iconMarg),
+                      child: Icon(MdiIcons.magnify, color: hintEnab_(context)),
+                    ),
+
+                  Expanded(
+                    child: TextField(
+                      style: AppTextStyle(color: AppColors.text_def_enab),
+                      controller: controller,
+                      decoration: InputDecoration(
+                          hintText: 'Szukaj',
+                          hintStyle: AppTextStyle(color: AppColors.text_hint_enab),
+                          border: InputBorder.none
+                      ),
+                      onChanged: (text){
+                        filters.phrase = text;
+                        KonspektSearchProvider.runSearch_(context, filters);
+                        setState(() {});
+                      },
+                    ),
                   ),
-                  onChanged: (_) => runSearch(),
-                ),
-              )
+
+                  IconButton(
+                    icon: Icon(MdiIcons.cogOutline),
+                    onPressed: () async {
+                      KonspektSearchProvider<T> provider = KonspektSearchProvider.of<T>(context);
+                      await showDialog(
+                        context: context,
+                        builder: (context) => FiltersDialog<T>(
+                          filters: filters,
+                          filtersWidget: filtersWidgetBuilder(provider),
+                          // onChanged: (Set<Meto> selectedMetos, Set<KonspektSphere> selectedSpheres){
+                          //   this.selectedMetos = selectedMetos;
+                          //   this.selectedSpheres = selectedSpheres;
+                          //   setState(() {});
+                          //   _runSearch();
+                          // },
+                          maxWidth: songDialogWidth,
+                        )
+                      );
+                    },
+                  )
+
+                ],
+              ),
+
+              if(!filters.hideSearchFieldBottom)
+                searchFieldBottomFilterIndicatorsWidget,
+
             ],
-          ),
+          )
         ),
       ),
 
     ],
   );
+}
+
+class FiltersDialog<T extends KonspektFilters> extends StatelessWidget{
+
+  final T filters;
+  final KonspektFiltersWidget filtersWidget;
+  final double? maxWidth;
+
+  const FiltersDialog({
+    required this.filters,
+    required this.filtersWidget,
+    this.maxWidth
+  });
+
+  @override
+  Widget build(BuildContext context){
+
+    Widget child = Padding(
+      padding: EdgeInsets.all(Dimen.defMarg),
+      child: Material(
+          borderRadius: BorderRadius.circular(AppCard.bigRadius),
+          clipBehavior: Clip.hardEdge,
+          color: background_(context),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+
+              AppBarX(
+                titleWidget: Text(
+                  'Filtry',
+                  style: AppTextStyle(color: iconEnab_(context)),
+                ),
+                iconTheme: IconThemeData(color: iconEnab_(context)),
+              ),
+
+              Padding(
+                padding: EdgeInsets.all(Dimen.sideMarg),
+                child: filtersWidget,
+              ),
+
+            ],
+          )
+      ),
+    );
+
+    if(maxWidth != null)
+      child = ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxWidth!),
+        child: child,
+      );
+
+    return Center(child: child);
+
+  }
+
 }

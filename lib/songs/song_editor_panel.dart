@@ -49,7 +49,11 @@ class SongEditorPanelState extends State<SongEditorPanel>{
     super.initState();
   }
 
-
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => Consumer2<SongEditorPanelProvider, SongPreviewProvider>(

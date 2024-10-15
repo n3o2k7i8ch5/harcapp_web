@@ -17,7 +17,6 @@ import 'package:harcapp_core/harcthought/konspekts/konspekt_sphere_duch_mechanis
 import 'package:harcapp_core/harcthought/konspekts/konspekt_to_pdf/konspekt_to_pdf.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/consts.dart';
-import 'package:harcapp_web/konspekts/table_of_content_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../common/download_file.dart';
@@ -29,9 +28,10 @@ class KonspektsPage extends StatefulWidget{
   final String itemPathTemplate;
   final List<Konspekt> allKonspekts;
   final Konspekt? selectedKonspekt;
+  final Widget Function(bool isDrawer, Konspekt? selectedKonspekt) tableOfContentBuilder;
   final bool openDrawerIfCollapsed;
 
-  const KonspektsPage(this.itemPathTemplate, this.allKonspekts, {this.selectedKonspekt, this.openDrawerIfCollapsed = true, Key? key}): super(key: key);
+  const KonspektsPage(this.itemPathTemplate, this.allKonspekts, {this.selectedKonspekt, required this.tableOfContentBuilder, this.openDrawerIfCollapsed = true, Key? key}): super(key: key);
 
   @override
   State<StatefulWidget> createState() => KonspektsPageState();
@@ -45,6 +45,7 @@ class KonspektsPageState extends State<KonspektsPage>{
   String get itemPathTemplate => widget.itemPathTemplate;
   List<Konspekt> get allKonspekts => widget.allKonspekts;
   Konspekt? get selectedKonspekt => widget.selectedKonspekt;
+  Widget Function(bool isDrawer, Konspekt? selectedKonspekt) get tableOfContentBuilder => widget.tableOfContentBuilder;
   bool get openDrawerIfCollapsed => widget.openDrawerIfCollapsed;
 
   late GlobalKey<ScaffoldState> scaffoldKey;
@@ -95,16 +96,7 @@ class KonspektsPageState extends State<KonspektsPage>{
           null:
           Drawer(
             backgroundColor: background_(context),
-            child: TableOfContentWidget(
-              allKonspekts: allKonspekts,
-              selectedKonspekt: selectedKonspekt,
-              padding: const EdgeInsets.all(Dimen.defMarg),
-              onItemTap: (Konspekt konspekt){
-                selectKonspekt(konspekt);
-                Navigator.pop(context);
-              },
-              withBackButton: true,
-            ),
+            child: tableOfContentBuilder(true, selectedKonspekt),
             width: drawerWidth,
           ),
           body: Row(
@@ -118,15 +110,7 @@ class KonspektsPageState extends State<KonspektsPage>{
                   ),
                   child: SizedBox(
                     width: drawerWidth,
-                    child: TableOfContentWidget(
-                      allKonspekts: allKonspekts,
-                      selectedKonspekt: selectedKonspekt,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: Dimen.defMarg,
-                        vertical: KonspektsPage.defPaddingVal
-                      ),
-                      onItemTap: (Konspekt konspekt) => selectKonspekt(konspekt)
-                    ),
+                    child: tableOfContentBuilder(false, selectedKonspekt),
                   ),
                 ),
 
@@ -182,7 +166,7 @@ class KonspektsPageState extends State<KonspektsPage>{
                                                 ],
                                               ),
                                               builder: (BuildContext context, Widget? child) => Transform.translate(
-                                                offset: Offset(0, -min(notifier.value/1.3, constraints.maxWidth/1000*(667-450))),
+                                                offset: Offset(0, -max(0.0, min(notifier.value/1.3, constraints.maxWidth/1000*(667-450)))),
                                                 child: child,
                                               )
                                           )
