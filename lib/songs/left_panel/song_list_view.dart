@@ -244,25 +244,34 @@ class SearchField extends StatelessWidget{
     elevation: AppCard.bigElevation,
     borderRadius: BorderRadius.circular(AppCard.bigRadius - 4),
     color: background_(context),
-    child: Row(
-      children: [
-        Padding(
-          padding: EdgeInsets.all(Dimen.iconMarg),
-          child: Icon(MdiIcons.magnify, color: hintEnab_(context)),
-        ),
-        Expanded(
-          child: TextField(
-              style: AppTextStyle(color: AppColors.text_def_enab),
-              decoration: InputDecoration(
-                  hintText: 'Szukaj',
-                  hintStyle: AppTextStyle(color: AppColors.text_hint_enab),
-                  border: InputBorder.none
-              ),
-              onChanged: (text) => SearchListProvider.of(context).changeSearchPhrase(text)
+    child: Consumer<SearchListProvider>(
+      builder: (context, prov, child) => Row(
+        children: [
+          IconButton(
+            icon:
+            prov.searchPhrase.isEmpty?
+            Icon(MdiIcons.magnify, color: hintEnab_(context)):
+            Icon(MdiIcons.close),
+
+            onPressed:
+            prov.searchPhrase.isEmpty?
+            null:
+                () => prov.changeSearchPhrase(''),
           ),
-        )
-      ],
-    ),
+          Expanded(
+            child: TextField(
+                style: AppTextStyle(color: AppColors.text_def_enab),
+                decoration: InputDecoration(
+                    hintText: 'Szukaj',
+                    hintStyle: AppTextStyle(color: AppColors.text_hint_enab),
+                    border: InputBorder.none
+                ),
+                onChanged: (text) => prov.changeSearchPhrase(text)
+            ),
+          )
+        ],
+      ),
+    )
   );
 
 }
