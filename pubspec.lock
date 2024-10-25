@@ -498,7 +498,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: b1d1d6f405990052de6bc469b8e9a8439e7bf795
+      resolved-ref: a631ac454d99719a59cd471fb951ef63aa0d7708
       url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"
@@ -1087,10 +1087,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_android
-      sha256: "8fc3bae0b68c02c47c5c86fa8bfa74471d42687b0eded01b78de87872db745e2"
+      sha256: "0dea215895a4d254401730ca0ba8204b29109a34a99fb06ae559a2b60988d2de"
       url: "https://pub.dev"
     source: hosted
-    version: "6.3.12"
+    version: "6.3.13"
   url_launcher_ios:
     dependency: transitive
     description:
@@ -1199,10 +1199,10 @@ packages:
     dependency: transitive
     description:
       name: video_player_android
-      sha256: "2800d68d6d5b4c22da62453568ed68e63c35bea524d4fa42062e53d6bb591433"
+      sha256: "641fc7221cfb3f25dd761d30cbe733046a3a4932fee09962adb80fd7d11fc663"
       url: "https://pub.dev"
     source: hosted
-    version: "2.7.13"
+    version: "2.7.15"
   video_player_avfoundation:
     dependency: transitive
     description:
@@ -1295,10 +1295,10 @@ packages:
     dependency: transitive
     description:
       name: win32
-      sha256: "2735daae5150e8b1dfeb3eb0544b4d3af0061e9e82cef063adcd583bdae4306a"
+      sha256: e1d0cc62e65dc2561f5071fcbccecf58ff20c344f8f3dc7d4922df372a11df1f
       url: "https://pub.dev"
     source: hosted
-    version: "5.7.0"
+    version: "5.7.1"
   worker_manager:
     dependency: "direct main"
     description:

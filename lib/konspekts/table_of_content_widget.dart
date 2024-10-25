@@ -194,12 +194,6 @@ class TableOfContentWidgetState<T extends KonspektFilters> extends State<TableOf
                         builder: (context) => FiltersDialog<T>(
                           filters: filters,
                           filtersWidget: filtersWidgetBuilder(provider),
-                          // onChanged: (Set<Meto> selectedMetos, Set<KonspektSphere> selectedSpheres){
-                          //   this.selectedMetos = selectedMetos;
-                          //   this.selectedSpheres = selectedSpheres;
-                          //   setState(() {});
-                          //   _runSearch();
-                          // },
                           maxWidth: songDialogWidth,
                         )
                       );
