@@ -2,10 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/dimen.dart';
-import 'package:harcapp_core/harcthought/konspekts/data/harcerskie/harcerskie.dart';
+import 'package:harcapp_core/harcthought/konspekts/data/harcerskie/all.dart';
 import 'package:harcapp_core/harcthought/konspekts/data/ksztalcenie/all.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
+import 'package:harcapp_core/harcthought/poradnik/data.dart';
+import 'package:harcapp_core/harcthought/poradnik/poradnik.dart';
 import 'package:harcapp_web/konspekts/_main.dart';
+import 'package:harcapp_web/poradniks/_main.dart';
+import 'package:harcapp_web/poradniks/table_of_content_poradnik_widget.dart';
 import 'package:harcapp_web/privacy_policy/_main.dart';
 import 'package:harcapp_web/songs/_main.dart';
 
@@ -18,6 +22,8 @@ String pathKonspektyHarcerskie = '/konspekty/harcerskie';
 String pathKonspektyHarcerskieItem = '/konspekty/harcerskie/:name';
 String pathKonspektyKsztalcenie = '/konspekty/ksztalcenie';
 String pathKonspektyKsztalcenieItem = '/konspekty/ksztalcenie/:name';
+String pathPoradnik = '/poradnik';
+String pathPoradnikItem = '/poradnik/:name';
 String pathSong = '/song';
 String pathPrivacyPolicy = '/privacy_policy';
 
@@ -39,6 +45,16 @@ TableOfContentKsztalcenieWidget tableOfContentKsztalcenieWidget(BuildContext con
     if(isDrawer) Navigator.pop(context);
   },
   withBackButton: isDrawer,
+);
+
+TableOfContentPoradnikWidget tableOfContentPoradnikWidget(BuildContext context, bool isDrawer, Poradnik? selectedPoradnik) => TableOfContentPoradnikWidget(
+    selectedPoradnik: selectedPoradnik,
+    padding: const EdgeInsets.all(Dimen.defMarg),
+    onItemTap: (Poradnik poradnik){
+        context.go(pathPoradnikItem.replaceAll(":name", poradnik.name));
+        if(isDrawer) Navigator.pop(context);
+    },
+    withBackButton: isDrawer,
 );
 
 GoRouter router = GoRouter(
@@ -129,6 +145,47 @@ GoRouter router = GoRouter(
                         );
                     }
                 ),
+
+                GoRoute(
+                    path: pathPoradnik,
+                    pageBuilder: (context, state) => NoTransitionPage(
+                        child: PoradniksPage(
+                            pathPoradnikItem,
+                            allPoradniks,
+                            tableOfContentBuilder: (bool isDrawer, Poradnik? selectedPoradnik) => tableOfContentPoradnikWidget(
+                                context,
+                                isDrawer,
+                                selectedPoradnik
+                            ),
+                            key: ValueKey('poradnik')
+                        )
+                    )
+                ),
+                GoRoute(
+                  path: pathPoradnikItem,
+                  pageBuilder: (context, state){
+                    final name = state.pathParameters['name'];
+
+                    Poradnik? selectedPoradnik = null;
+                    try {
+                      selectedPoradnik = allPoradniks.firstWhere((poradnik) => poradnik.name == name);
+                    } on StateError {}
+                    return NoTransitionPage(
+                        child: PoradniksPage(
+                            pathKonspektyKsztalcenieItem,
+                            allPoradniks,
+                            selectedPoradnik: selectedPoradnik,
+                            tableOfContentBuilder: (bool isDrawer, Poradnik? selectedPoradnik) => tableOfContentPoradnikWidget(
+                                context,
+                                isDrawer,
+                                selectedPoradnik
+                            ),
+                            key: ValueKey('poradnik')
+                        )
+                    );
+                  }
+              ),
+
                 GoRoute(
                     path: pathSong,
                     pageBuilder: (context, state) => NoTransitionPage(child: SongsPage())

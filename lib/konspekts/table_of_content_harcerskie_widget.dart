@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:harcapp_core/harcthought/konspekts/data/harcerskie/harcerskie.dart';
+import 'package:harcapp_core/harcthought/konspekts/data/harcerskie/all.dart';
 import 'package:harcapp_core/harcthought/konspekts/filter/konspekt_filters.dart';
 import 'package:harcapp_core/harcthought/konspekts/filter/konspekt_filters_widget.dart';
 import 'package:harcapp_core/harcthought/konspekts/filter/run_search.dart';

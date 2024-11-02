@@ -213,6 +213,7 @@ class TableOfContentWidgetState<T extends KonspektFilters> extends State<TableOf
 
     ],
   );
+
 }
 
 class FiltersDialog<T extends KonspektFilters> extends StatelessWidget{

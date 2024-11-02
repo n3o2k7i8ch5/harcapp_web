@@ -113,6 +113,14 @@ class TopNavigationBarState extends State<TopNavigationBar>{
               dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
             ),
 
+            PageNavItem(
+              icon: MdiIcons.school,
+              title: 'Poradniki',
+              subtitle: 'Dobre rady harcerskie!',
+              path: pathPoradnik,
+              dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
+            ),
+
           ],
         ),
       )
