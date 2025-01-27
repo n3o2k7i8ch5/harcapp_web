@@ -60,7 +60,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
   ValueNotifier? topNotifier;
   late ScrollController scrollController;
 
-  List<ArticleElement?>? articleElements;
+  List<ArticleElement>? articleElements;
 
   bool saving = false;
 

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/harc_app.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_web/common/base_scaffold.dart';
 
 import 'article_editor/article_editor.dart';
 import 'author_editor.dart';
@@ -17,20 +19,20 @@ class ArticlePage extends StatefulWidget{
 
 class ArticlePageState extends State<ArticlePage>{
 
-  PageController? controller;
-  int? lastSetPage;
+  late PageController controller;
+  late int lastSetPage;
 
   @override
   void initState() {
     controller = PageController();
     lastSetPage = 0;
 
-    controller!.addListener(() {
+    controller.addListener(() {
 
-      if(controller!.page != lastSetPage &&
-          controller!.page==0 || controller!.page==1
+      if(controller.page != lastSetPage &&
+          controller.page==0 || controller.page==1
       ) {
-        lastSetPage = controller!.page!.toInt();
+        lastSetPage = controller.page!.toInt();
         setState(() {});
       }
 
@@ -40,66 +42,68 @@ class ArticlePageState extends State<ArticlePage>{
   }
 
   @override
-  Widget build(BuildContext context) => Center(
-    child: Container(
-      constraints: BoxConstraints(maxWidth: 1000),
-      child: Card(
-        elevation: 6.0,
-        child: Scaffold(
-          appBar: AppBar(
-            backgroundColor: Colors.black,
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                HarcApp(size: 18, color: Colors.white54,),
-                Text(
-                  'Edytor ${lastSetPage==0?'artykułu':'autora'}',
-                  style: AppTextStyle(fontSize: 14, color: Colors.white54),
-                )
-              ],
-            ),
-            actions: [
-
-              TopButton(
-                title: 'Stwórz artykuł',
-                icon: Icons.view_headline,
-                onTap: () => controller!.animateToPage(
-                    0,
-                    duration: Duration(milliseconds: 300),
-                    curve: Curves.easeOutQuad
+  Widget build(BuildContext context) => BaseScaffold(
+      backgroundColor: background_(context),
+      body: Center(
+        child: Container(
+          constraints: BoxConstraints(maxWidth: 1000),
+          child: Card(
+            elevation: 6.0,
+            child: Scaffold(
+              appBar: AppBar(
+                backgroundColor: Colors.black,
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    HarcApp(size: 18, color: Colors.white54),
+                    Text(
+                      'Edytor ${lastSetPage==0?'artykułu':'autora'}',
+                      style: AppTextStyle(fontSize: 14, color: Colors.white54),
+                    )
+                  ],
                 ),
-                isSelected: lastSetPage == 0,
-              ),
+                actions: [
 
-              SizedBox(width: Dimen.iconMarg),
-
-              TopButton(
-                  title: 'Stwórz autora',
-                  icon: Icons.account_circle,
-                  onTap: () => controller!.animateToPage(
-                      1,
-                      duration: Duration(milliseconds: 300),
-                      curve: Curves.easeOutQuad
+                  TopButton(
+                    title: 'Stwórz artykuł',
+                    icon: Icons.view_headline,
+                    onTap: () => controller.animateToPage(
+                        0,
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.easeOutQuad
+                    ),
+                    isSelected: lastSetPage == 0,
                   ),
-                  isSelected: lastSetPage == 1
+
+                  SizedBox(width: Dimen.iconMarg),
+
+                  TopButton(
+                      title: 'Stwórz autora',
+                      icon: Icons.account_circle,
+                      onTap: () => controller.animateToPage(
+                          1,
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.easeOutQuad
+                      ),
+                      isSelected: lastSetPage == 1
+                  ),
+                  SizedBox(width: Dimen.iconMarg),
+
+                ],
               ),
-              SizedBox(width: Dimen.iconMarg),
-
-
-            ],
+              body: PageView(
+                controller: controller,
+                physics: NeverScrollableScrollPhysics(),
+                children: [
+                  ArticleEditorPage(),
+                  AuthorEditorPage()
+                ],
+              ),
+              //floatingActionButton:
+            ),
           ),
-          body: PageView(
-            controller: controller,
-            physics: NeverScrollableScrollPhysics(),
-            children: [
-              ArticleEditorPage(),
-              AuthorEditorPage()
-            ],
-          ),
-          //floatingActionButton:
         ),
-      ),
-    ),
+      )
   );
 
 

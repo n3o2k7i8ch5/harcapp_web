@@ -3,10 +3,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
-import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_web/songs/left_panel/song_list_view.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+
+import '../consts.dart';
+import 'new_song_buttons.dart';
 
 class SongEditorNoSongWidget extends StatelessWidget{
 
@@ -143,70 +146,100 @@ class SlidingMusicIconState extends State<SlidingMusicIcon>{
 
 class ClickHereWidget extends StatelessWidget {
 
-  final bool workspaceAlwaysVisible;
+  static const width = drawerWidth - 2*NoSongsWidget.paddingVal;
 
-  const ClickHereWidget(this.workspaceAlwaysVisible);
+  final bool leftPanelAlwaysVisible;
+
+  const ClickHereWidget(this.leftPanelAlwaysVisible);
 
   @override
   Widget build(BuildContext context) =>
       Center(
-        child: Material(
-          color: cardEnab_(context),
-          borderRadius: BorderRadius.circular(AppCard.bigRadius),
-          clipBehavior: Clip.hardEdge,
+        child: SizedBox(
+          width: width,
           child: Padding(
-            padding: const EdgeInsets.all(Dimen.defMarg),
-            child: SimpleButton(
-              color: background_(context),
-              borderRadius: BorderRadius.circular(AppCard.bigRadius - 4),
-              clipBehavior: Clip.hardEdge,
-              onTap: workspaceAlwaysVisible ?
-              null :
-                  () => Scaffold.of(context).openDrawer(),
-              child: Padding(
-                padding: EdgeInsets.all(40.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+            padding: EdgeInsets.all(NoSongsWidget.paddingVal),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
 
-                    Text(
-                      'Chcesz dodać lub edytować piosenkę'
+                Align(
+                    alignment: Alignment.topCenter,
+                    child: Text(
+                      'Pierwszy raz dodajesz piosenkę'
                           '\ndo śpiewnika HarcAppki?',
+                      textAlign: TextAlign.center,
                       style: AppTextStyle(
                           fontSize: 20.0,
                           color: textDisab_(context),
                           fontWeight: weight.halfBold
                       ),
-                    ),
-
-                    SizedBox(height: 20.0),
-
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                            workspaceAlwaysVisible
-                                ? MdiIcons.arrowLeft
-                                : MdiIcons.gestureTap,
-                            color: textDisab_(context),
-                            size: 24.0
-                        ),
-                        SizedBox(width: Dimen.iconMarg),
-                        Text(
-                          workspaceAlwaysVisible ? 'Zerknij tam!' : 'Kliknij',
-                          style: AppTextStyle(
-                              fontSize: 20.0,
-                              color: textDisab_(context),
-                              fontWeight: weight.halfBold
-                          ),
-                        ),
-                      ],
                     )
-                  ],
                 ),
-              ),
+
+                SizedBox(height: NoSongsWidget.paddingVal),
+
+                Text(
+                  'Jeśli chcesz dodać nową piosenkę "od zera":',
+                  style: AppTextStyle(
+                      fontSize: 14.0,
+                      color: textDisab_(context),
+                      fontWeight: weight.halfBold
+                  ),
+                ),
+                SizedBox(height: 6.0),
+                NewEmptySongButton(),
+
+                SizedBox(height: 20.0),
+
+                Text(
+                  'Jeśli chcesz zobaczyć przykładową piosenkę:',
+                  style: AppTextStyle(
+                      fontSize: 14.0,
+                      color: textDisab_(context),
+                      fontWeight: weight.halfBold
+                  ),
+                ),
+                SizedBox(height: 6.0),
+                NewExampleSongButton(),
+
+                SizedBox(height: 20.0),
+                Icon(MdiIcons.circleMedium, color: textDisab_(context)),
+                SizedBox(height: 20.0),
+
+                if(leftPanelAlwaysVisible)
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(width: 7.0),
+                      Icon(MdiIcons.arrowLeft, color: textDisab_(context)),
+                      SizedBox(width: 7.0),
+
+                      Text(
+                        'Po wszystkie dostępne opcje, zerknij tam',
+                        style: AppTextStyle(
+                            fontSize: 14.0,
+                            color: textDisab_(context),
+                            fontWeight: weight.halfBold
+                        ),
+                      ),
+                    ],
+                  )
+
+                else
+                  SimpleButton.from(
+                    context: context,
+                    onTap: () => Scaffold.of(context).openDrawer(),
+                    text: 'Kliknij, po więcej opcji',
+                    color: backgroundIcon_(context),
+                    icon: MdiIcons.menu,
+                    iconSize: 32.0,
+                    direction: Axis.vertical,
+                  )
+
+              ],
             ),
           ),
         ),

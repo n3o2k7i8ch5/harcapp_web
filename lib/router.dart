@@ -7,6 +7,7 @@ import 'package:harcapp_core/harcthought/konspekts/data/ksztalcenie/all.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/harcthought/poradnik/data.dart';
 import 'package:harcapp_core/harcthought/poradnik/poradnik.dart';
+import 'package:harcapp_web/articles/_main.dart';
 import 'package:harcapp_web/konspekts/_main.dart';
 import 'package:harcapp_web/poradniks/_main.dart';
 import 'package:harcapp_web/poradniks/table_of_content_poradnik_widget.dart';
@@ -24,6 +25,7 @@ String pathKonspektyKsztalcenie = '/konspekty/ksztalcenie';
 String pathKonspektyKsztalcenieItem = '/konspekty/ksztalcenie/:name';
 String pathPoradnik = '/poradnik';
 String pathPoradnikItem = '/poradnik/:name';
+String pathArticles = '/articles';
 String pathSong = '/song';
 String pathPrivacyPolicy = '/privacy_policy';
 
@@ -184,7 +186,12 @@ GoRouter router = GoRouter(
                         )
                     );
                   }
-              ),
+                ),
+
+                GoRoute(
+                    path: pathArticles,
+                    pageBuilder: (context, state) => NoTransitionPage(child: ArticlePage())
+                ),
 
                 GoRoute(
                     path: pathSong,

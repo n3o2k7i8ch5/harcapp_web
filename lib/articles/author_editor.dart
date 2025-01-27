@@ -35,11 +35,11 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
   bool? saving;
   Uint8List? imageBytes;
 
-  TextEditingController? nameController;
-  String get name => nameController!.text;
+  late TextEditingController nameController;
+  String get name => nameController.text;
 
-  TextEditingController? descController;
-  String get desc => descController!.text;
+  late TextEditingController descController;
+  String get desc => descController.text;
 
 
   @override
@@ -322,8 +322,8 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
               Author author = Author.fromJson(code);
 
               imageBytes = author.imageBytes;
-              nameController!.text = author.name!;
-              descController!.text = author.desc!;
+              nameController.text = author.name!;
+              descController.text = author.desc!;
 
               setState(() {});
 

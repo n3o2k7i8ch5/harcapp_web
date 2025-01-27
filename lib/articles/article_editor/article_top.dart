@@ -32,11 +32,8 @@ class ArticleTop extends StatelessWidget{
         IconButton(
           icon: Icon(Icons.image, color: HEADER_TEXT_COLOR),
           onPressed: () async {
-
             Uint8List? imageBytes = await ImagePickerWeb.getImageAsBytes();
-
             page.setImage(imageBytes);
-
           },
         ),
 
@@ -46,9 +43,9 @@ class ArticleTop extends StatelessWidget{
               decoration: InputDecoration(
                 hintText: 'Tytuł...',
                 hintStyle: ArticleTextStyle(
-                    fontSize: 38,
-                    fontWeight: weight.bold,
-                    color: HEADER_TEXT_COLOR.withAlpha(160)
+                  fontSize: 38,
+                  fontWeight: weight.bold,
+                  color: HEADER_TEXT_COLOR.withAlpha(160)
                 ),
                 border: InputBorder.none,
               ),
@@ -56,21 +53,20 @@ class ArticleTop extends StatelessWidget{
               maxLines: null,
               textAlign: TextAlign.center,
               style: ArticleTextStyle(
-                  fontSize: 38,
-                  color: HEADER_TEXT_COLOR,
-                  fontWeight: weight.bold
+                fontSize: 38,
+                color: HEADER_TEXT_COLOR,
+                fontWeight: weight.bold
               ),
               onChanged: (text) => page.title = text,
             ),
           ),
         ),
 
-
         Row(
           children: [
 
             Expanded(child: Padding(
-              padding: EdgeInsets.all(Dimen.defMarg),
+              padding: EdgeInsets.only(left: Dimen.sideMarg, bottom: Dimen.defMarg),
               child: TextField(
                 controller: TextEditingController(text: page.imageSource??''),
                 decoration: InputDecoration(
@@ -114,6 +110,7 @@ class ArticleTop extends StatelessWidget{
                 ),
               ),
             ),
+            SizedBox(width: Dimen.sideMarg)
           ],
         ),
 
@@ -121,14 +118,14 @@ class ArticleTop extends StatelessWidget{
     );
 
     return AspectRatio(
-      aspectRatio: 1.3,
+      aspectRatio: 1.5,
       child: AnimatedContainer(
         duration: Duration(milliseconds: 400),
         child: Stack(
           children: [
 
             AspectRatio(
-              aspectRatio: 1.3,
+              aspectRatio: 1.5,
               child: Image(
                 image: page.imageBytes==null?
                 AssetImage('assets/images/def_bg.webp'):
@@ -140,7 +137,7 @@ class ArticleTop extends StatelessWidget{
             AnimatedBuilder(
               child: Container(
                 width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.width/1.3,
+                height: MediaQuery.of(context).size.width/1.5,
                 color: Colors.black38,
               ),
               animation: topNotifier!,
@@ -151,7 +148,7 @@ class ArticleTop extends StatelessWidget{
             ),
 
             Container(
-              height: MediaQuery.of(context).size.width/1.3,
+              height: MediaQuery.of(context).size.width/1.5,
               width: double.infinity,
               decoration: BoxDecoration(
                 gradient: LinearGradient(

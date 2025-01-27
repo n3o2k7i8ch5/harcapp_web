@@ -91,32 +91,48 @@ class TopNavigationBarState extends State<TopNavigationBar>{
 
             PageNavItem(
               icon: MdiIcons.music,
-              title: 'Warsztat piosenki',
-              subtitle: 'Twórz i dodawaj!',
+              title: 'Warsztat\npiosenki',
+              contextInfo: 'Twórz i dodawaj piosenki do HarcAppki!',
               path: pathSong,
               dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
             ),
 
             PageNavItem(
+              icon: MdiIcons.textBoxEditOutline,
+              title: 'Warsztat\nartykułów',
+              contextInfo: 'Twórz i dodawaj artykuły do HarcAppki!',
+              path: pathArticles,
+              dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
+            ),
+
+            PageNavItem(
+              icon: MdiIcons.textBoxMultiple,
+              title: 'Artykuły\nharcerskie',
+              contextInfo: 'Bądź na bieżąco z harcerską myślą!',
+              path: pathArticles,
+              dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
+            ),
+
+            PageNavItem(
               icon: MdiIcons.notebookOutline,
-              title: 'Konspekty - dla harcerzy',
-              subtitle: 'Inspiracje na pracę harcerską!',
+              title: 'Konspekty\ndla harcerzy',
+              contextInfo: 'Inspiracje na pracę harcerską',
               path: pathKonspektyHarcerskie,
               dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
             ),
 
             PageNavItem(
               icon: MdiIcons.notebook,
-              title: 'Konspekty - kształceniowe',
-              subtitle: 'Inspiracje na kształcenie kadry!',
+              title: 'Konspekty\nkształceniowe',
+              contextInfo: 'Inspiracje na kształcenie kadry',
               path: pathKonspektyKsztalcenie,
               dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
             ),
 
             PageNavItem(
               icon: MdiIcons.school,
-              title: 'Poradniki',
-              subtitle: 'Dobre rady harcerskie!',
+              title: 'Poradniki\ninstruktorskie',
+              contextInfo: 'Dobre rady harcerskie!',
               path: pathPoradnik,
               dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
             ),
@@ -135,6 +151,7 @@ class PageNavItem extends StatelessWidget{
   final IconData icon;
   final String title;
   final String? subtitle;
+  final String? contextInfo;
   final String path;
   final bool dense;
 
@@ -142,6 +159,7 @@ class PageNavItem extends StatelessWidget{
     required this.icon,
     required this.title,
     this.subtitle,
+    this.contextInfo,
     required this.path,
     required this.dense,
   });
@@ -161,20 +179,23 @@ class PageNavItem extends StatelessWidget{
   Padding(
     padding: EdgeInsets.symmetric(horizontal: 1),
     child: IntrinsicWidth(
-      child: ListTile(
-        dense: true,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppCard.defRadius)),
-        tileColor: GoRouterState.of(context).uri.toString() == path?backgroundIcon_(context):null,
-        selectedColor: backgroundIcon_(context),
-        onTap: () => context.go(path),
-        leading: Icon(icon, color: iconEnab_(context)),
-        title: Text(
-          title,
-          style: AppTextStyle(
-              fontSize: Dimen.textSizeBig,
-              color: iconEnab_(context)
+      child: Tooltip(
+        message: contextInfo,
+        child: ListTile(
+          dense: true,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppCard.defRadius)),
+          tileColor: GoRouterState.of(context).uri.toString() == path?backgroundIcon_(context):null,
+          selectedColor: backgroundIcon_(context),
+          onTap: () => context.go(path),
+          leading: Icon(icon, color: iconEnab_(context)),
+          title: Text(
+            title,
+            style: AppTextStyle(
+              fontSize: Dimen.textSizeNormal,
+              color: iconEnab_(context),
+              height: 1.2
+            ),
           ),
-          maxLines: 1,
         ),
       ),
     ),

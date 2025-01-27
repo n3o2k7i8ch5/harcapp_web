@@ -8,7 +8,7 @@ class Article{
   final DateTime? date;
   final String? title;
   final String? intro;
-  final List<ArticleElement?>? items;
+  final List<ArticleElement>? items;
   final List<String> otherArts;
 
   const Article(this.imageBytes, this.imageSource, this.authCode, this.date, this.title, this.intro, this.items, this.otherArts);
@@ -30,9 +30,9 @@ class Article{
     String? imageCode = imageBytes==null?
     null: base64Encode(imageBytes!.toList());
 
-    List<ArticleElement?> notEmptyItems = [];
-    for(ArticleElement? item in items!)
-      if(!item!.isEmpty)
+    List<ArticleElement> notEmptyItems = [];
+    for(ArticleElement item in items!)
+      if(!item.isEmpty)
         notEmptyItems.add(item);
 
 
@@ -43,7 +43,7 @@ class Article{
       PARAM_DATE: date!.toIso8601String(),
       PARAM_TITLE: title,
       PARAM_INTRO: intro,
-      PARAM_ITEMS: notEmptyItems.map((item) => item!.toJson()).toList(),
+      PARAM_ITEMS: notEmptyItems.map((item) => item.toJson()).toList(),
       PARAM_OTHER_ART_NAMES: otherArts
     };
 
@@ -63,7 +63,7 @@ class Article{
     final List<dynamic> _items = (map[PARAM_ITEMS] as List<dynamic>?)??[];
     final List<dynamic> /*String*/ _otherArts = (map[PARAM_OTHER_ART_NAMES] as List<dynamic>?)??[];
 
-    List<ArticleElement?> articleElements = _items.map((dynamic item) => ArticleElement.decode(item)).toList();
+    List<ArticleElement> articleElements = _items.map((dynamic item) => ArticleElement.decode(item)).toList();
 
     List<String> otherArts = _otherArts.cast<String>();
 
@@ -79,11 +79,10 @@ class Article{
 abstract class ArticleElement{
   static int ID = 0;
 
-  int? _id;
+  int _id;
 
-  ArticleElement(){
+  ArticleElement():
     _id = ID++;
-  }
 
   Object toJson();
 
@@ -95,14 +94,14 @@ abstract class ArticleElement{
   @override
   bool operator == (other) => other is ArticleElement && other._id == _id;
 
-  static ArticleElement? decode(Object object){
-    List<String> parts = (object as List<dynamic>).cast<String>().toList();
+  static ArticleElement decode(Object object){
+    List<String> parts = (object as List).cast<String>().toList();
     if(parts[0] == Paragraph.JSON_NAME)
       return Paragraph(text: parts[1]);
-    if(parts[0] == Header.JSON_NAME)
+    else if(parts[0] == Header.JSON_NAME)
       return Header(text: parts[1]);
     else
-      return null;
+      return Paragraph(text: object.toString());
   }
 
 }

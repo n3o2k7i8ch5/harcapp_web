@@ -21,6 +21,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:provider/provider.dart';
 
 import 'code_editor_dialog.dart';
+import '../new_song_buttons.dart';
 
 enum NewSongType{
   importSongs,
@@ -278,26 +279,20 @@ class SearchField extends StatelessWidget{
 
 class NoSongsWidget extends StatelessWidget{
 
+  static const double paddingVal = 32.0;
+
   const NoSongsWidget();
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.all(32.0),
+    padding: const EdgeInsets.all(paddingVal),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
 
-        SimpleButton.from(
-            context: context,
-            color: backgroundIcon_(context),
-            icon: NewSongType.importSongs.icon,
-            iconSize: 32.0,
-            text: NewSongType.importSongs.displayName,
-            direction: Axis.vertical,
-            onTap: () => handleImportSongsTap(context)
-        ),
+        ImportSongsButton(),
 
         SizedBox(height: Dimen.sideMarg),
 
@@ -305,37 +300,11 @@ class NoSongsWidget extends StatelessWidget{
 
         SizedBox(height: Dimen.sideMarg),
 
-        Consumer<SimilarSongProvider>(
-            builder: (context, prov, child) => SimpleButton.from(
-                textColor: prov.allSongs == null?iconDisab_(context):iconEnab_(context),
-                color: backgroundIcon_(context),
-                icon: NewSongType.newSongExample.icon,
-                iconSize: 32.0,
-                text: NewSongType.newSongExample.displayName,
-                direction: Axis.vertical,
-                onTap: prov.allSongs == null?null:() => handleExampleSongTap(context)
-            )
-        ),
+        NewExampleSongButton(),
 
-        SimpleButton.from(
-            context: context,
-            color: backgroundIcon_(context),
-            icon: NewSongType.newSongEmpty.icon,
-            iconSize: 32.0,
-            text: NewSongType.newSongEmpty.displayName,
-            direction: Axis.vertical,
-            onTap: () => handleNewSongEmptyTap(context)
-        ),
+        NewEmptySongButton(),
 
-        SimpleButton.from(
-            context: context,
-            color: backgroundIcon_(context),
-            icon: NewSongType.newSongFromCode.icon,
-            iconSize: 32.0,
-            text: NewSongType.newSongFromCode.displayName,
-            direction: Axis.vertical,
-            onTap: () => handleNewSongFromCode(context)
-        ),
+        NewSongFromCodeButton(),
 
       ],
     ),
