@@ -1,7 +1,6 @@
-
 import 'package:flutter/material.dart';
+import 'package:harcapp_core/comm_classes/common.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
-import 'package:harcapp_web/articles/article_editor/common.dart';
 import 'package:provider/provider.dart';
 
 

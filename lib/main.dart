@@ -1,32 +1,55 @@
-import 'dart:convert';
-
-import 'package:dio/dio.dart';
-import 'package:dio/browser.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/color_pack_app.dart';
 import 'package:harcapp_core/comm_classes/color_pack_provider.dart';
-import 'package:harcapp_core/comm_classes/common.dart';
+import 'package:harcapp_core/comm_classes/sha_pref.dart';
 import 'package:harcapp_core/song_book/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/song_book/song_tags.dart';
-import 'package:harcapp_web/common/sha_pref.dart';
+import 'package:harcapp_web/articles/article_loader.dart';
 import 'package:harcapp_web/router.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/song_preview_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:url_strategy/url_strategy.dart';
 
+import 'articles/models/azymut.dart';
+import 'articles/models/harcapp.dart';
+import 'articles/models/pojutrze.dart';
 import 'color_pack.dart';
+import 'idb.dart';
+import 'logger.dart';
+
+Future<void> initArticles() async {
+  var (harcAppArticles, _) = await articleHarcAppLoader.getAllCached();
+  var (azymutArticles, _) = await articleAzymutLoader.getAllCached();
+  var (pojutrzeArticles, _) = await articlePojutrzeLoader.getAllCached();
+
+  logger.d(
+      "Found:"
+      "\n- ${harcAppArticles.length} cached HarcApp articles,"
+      "\n- ${azymutArticles.length} cached Azymut articles,"
+      "\n- ${pojutrzeArticles.length} cached Pojutrze articles."
+  );
+
+  ArticleHarcApp.all = harcAppArticles.map((e) => ArticleHarcApp.fromData(e)).toList();
+  ArticleAzymut.all = azymutArticles.map((e) => ArticleAzymut.fromData(e)).toList();
+  ArticlePojutrze.all = pojutrzeArticles.map((e) => ArticlePojutrze.fromData(e)).toList();
+}
 
 
 void main() async {
   // When changing this, delete the `web` folder.
   setPathUrlStrategy();
+  await IDB.init();
+  await initArticles();
   await ShaPref.init();
   List<SongRaw> loadedSongs = await AllSongsProvider.loadCachedSongs();
   MyApp.lastLoadedSongs = loadedSongs;
+  // Make context.push() change url.
+  GoRouter.optionURLReflectsImperativeAPIs = true;
   runApp(HarcAppSongBook(MyApp(), SongBaseSettings()));
 }
 

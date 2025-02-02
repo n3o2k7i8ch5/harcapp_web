@@ -1,42 +1,74 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
-import 'package:harcapp_core/comm_widgets/harc_app.dart';
+import 'package:harcapp_core/comm_classes/common.dart';
+import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_core/harcthought/articles/article_loader.dart';
+import 'package:harcapp_core/harcthought/articles/model/article.dart';
+import 'package:harcapp_core/harcthought/articles/model/article_source.dart';
+import 'package:harcapp_core/harcthought/articles/thumbnail/article_card_widget.dart';
+import 'package:harcapp_web/articles/article_loader.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
+import 'package:harcapp_web/router.dart';
 
-import 'article_editor/article_editor.dart';
-import 'author_editor.dart';
+import 'models/azymut.dart';
+import 'models/harcapp.dart';
+import 'models/pojutrze.dart';
 
 
-class ArticlePage extends StatefulWidget{
+class ArticlesPage extends StatefulWidget{
+
+  final ArticleSource? source;
+
+  const ArticlesPage({this.source});
 
   @override
   State<StatefulWidget> createState() => ArticlePageState();
 
 }
 
-class ArticlePageState extends State<ArticlePage>{
+class ArticlePageState extends State<ArticlesPage>{
 
-  late PageController controller;
-  late int lastSetPage;
+  void runDownload() async {
+    post(() => setState(() => runDownloadStarted = true));
+    await downloadAllArticles();
+    print("ArticleHarcApp downloaded: ${ArticleHarcApp.all?.length}");
+    print("ArticleAzymut downloaded: ${ArticleAzymut.all?.length}");
+    print("ArticlePojutrze downloaded: ${ArticlePojutrze.all?.length}");
+
+    setState(() => runDownloadFinished = true);
+  }
+
+  static late bool runDownloadStarted = false;
+  static late bool runDownloadFinished = false;
+
+  List<CoreArticle>? get displayedArticles{
+    switch(widget.source){
+      case ArticleSource.harcApp: return ArticleHarcApp.all;
+      case ArticleSource.azymut: return ArticleAzymut.all;
+      case ArticleSource.pojutrze: return ArticlePojutrze.all;
+      default:
+        bool allNull = ArticleHarcApp.all == null && ArticleAzymut.all == null && ArticlePojutrze.all == null;
+        if(allNull)
+          return null;
+
+        List<CoreArticle> all = [];
+        if(ArticleHarcApp.all != null) all.addAll(ArticleHarcApp.all!);
+        if(ArticleAzymut.all != null) all.addAll(ArticleAzymut.all!);
+        if(ArticlePojutrze.all != null) all.addAll(ArticlePojutrze.all!);
+
+        BaseArticleLoader.sortByDate(all);
+        return all;
+    }
+  }
 
   @override
   void initState() {
-    controller = PageController();
-    lastSetPage = 0;
-
-    controller.addListener(() {
-
-      if(controller.page != lastSetPage &&
-          controller.page==0 || controller.page==1
-      ) {
-        lastSetPage = controller.page!.toInt();
-        setState(() {});
-      }
-
-    });
+    if(!runDownloadStarted)
+      runDownload();
 
     super.initState();
   }
@@ -44,106 +76,165 @@ class ArticlePageState extends State<ArticlePage>{
   @override
   Widget build(BuildContext context) => BaseScaffold(
       backgroundColor: background_(context),
-      body: Center(
+      body: Align(
+        alignment: Alignment.topCenter,
         child: Container(
-          constraints: BoxConstraints(maxWidth: 1000),
-          child: Card(
-            elevation: 6.0,
-            child: Scaffold(
-              appBar: AppBar(
-                backgroundColor: Colors.black,
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    HarcApp(size: 18, color: Colors.white54),
-                    Text(
-                      'Edytor ${lastSetPage==0?'artykułu':'autora'}',
-                      style: AppTextStyle(fontSize: 14, color: Colors.white54),
-                    )
-                  ],
-                ),
-                actions: [
-
-                  TopButton(
-                    title: 'Stwórz artykuł',
-                    icon: Icons.view_headline,
-                    onTap: () => controller.animateToPage(
-                        0,
-                        duration: Duration(milliseconds: 300),
-                        curve: Curves.easeOutQuad
-                    ),
-                    isSelected: lastSetPage == 0,
-                  ),
-
-                  SizedBox(width: Dimen.iconMarg),
-
-                  TopButton(
-                      title: 'Stwórz autora',
-                      icon: Icons.account_circle,
-                      onTap: () => controller.animateToPage(
-                          1,
-                          duration: Duration(milliseconds: 300),
-                          curve: Curves.easeOutQuad
+            constraints: BoxConstraints(maxWidth: 1000),
+            child: Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(top: Dimen.defMarg),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: HeaderWidget(
+                          selected: widget.source,
+                          onTap: (ArticleSource? source){
+                            if(source == null) context.go(pathArticles);
+                            else context.go(pathArticlesSource.replaceAll(":source", source.name));
+                          }
+                        ),
                       ),
-                      isSelected: lastSetPage == 1
+                      if(runDownloadStarted && !runDownloadFinished)
+                        Padding(
+                          padding: EdgeInsets.only(right: Dimen.sideMarg),
+                          child: Text(
+                            'Ładowanie...',
+                            style: AppTextStyle(fontWeight: weight.halfBold, fontSize: Dimen.textSizeBig),
+                          ),
+                        )
+                    ],
                   ),
-                  SizedBox(width: Dimen.iconMarg),
+                ),
+                Expanded(
+                  child: ArticleGrid(articles: displayedArticles!),
+                )
 
-                ],
-              ),
-              body: PageView(
-                controller: controller,
-                physics: NeverScrollableScrollPhysics(),
-                children: [
-                  ArticleEditorPage(),
-                  AuthorEditorPage()
-                ],
-              ),
-              //floatingActionButton:
-            ),
-          ),
+              ],
+            )
         ),
-      )
+      ),
   );
 
 
 }
 
-class TopButton extends StatelessWidget{
+class HeaderWidget extends StatelessWidget{
 
-  final String title;
-  final IconData icon;
-  final Function onTap;
-  final bool isSelected;
+  final ArticleSource? selected;
+  final Function(ArticleSource?) onTap;
 
-  const TopButton({
-    required this.title,
-    required this.icon,
-    required this.onTap,
-    this.isSelected = false});
+  HeaderWidget({required this.selected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    height: Dimen.iconFootprint,
+    child: ListView(
+      scrollDirection: Axis.horizontal,
+      children: [
+        SimpleButton.from(
+            context: context,
+            radius: AppCard.defRadius,
+            text: 'Wszystkie',
+            color: selected == null?backgroundIcon_(context):null,
+            onTap: () => onTap.call(null)
+        ),
+
+        SimpleButton.from(
+            context: context,
+            radius: AppCard.defRadius,
+            text: ArticleSource.harcApp.displayName,
+            color: selected == ArticleSource.harcApp?backgroundIcon_(context):null,
+            onTap: () => onTap.call(ArticleSource.harcApp)
+        ),
+
+        SimpleButton.from(
+            context: context,
+            radius: AppCard.defRadius,
+            text: ArticleSource.azymut.displayName,
+            color: selected == ArticleSource.azymut?backgroundIcon_(context):null,
+            onTap: () => onTap.call(ArticleSource.azymut)
+        ),
+
+        SimpleButton.from(
+            context: context,
+            radius: AppCard.defRadius,
+            text: ArticleSource.pojutrze.displayName,
+            color: selected == ArticleSource.pojutrze?backgroundIcon_(context):null,
+            onTap: () => onTap.call(ArticleSource.pojutrze)
+        ),
+
+      ],
+    ),
+  );
+
+}
+
+class ArticleGrid extends StatelessWidget {
+  final List<CoreArticle> articles; // Replace with your Article model
+  final double sideMarg = 8.0; // Example margin value
+
+  const ArticleGrid({required this.articles});
+
+  static Map<int, int> countMap = {
+    6: 4,
+    4: 3,
+    3: 8,
+    8: 6
+  };
+
+  List<List<CoreArticle>> _chunkArticles(List<CoreArticle> articles) {
+    int chunkSize = 6;
+    List<List<CoreArticle>> chunks = [];
+    for (var i = 0; i < articles.length; i += chunkSize) {
+      chunks.add(
+        articles.sublist(
+          i,
+          i + chunkSize > articles.length ? articles.length : i + chunkSize,
+        ),
+      );
+      chunkSize = countMap[chunkSize]!;
+    }
+    return chunks;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SimpleButton(
-      child: Row(
-        children: [
+    List<List<CoreArticle>> groupedArticles = _chunkArticles(articles);
 
-          Padding(
-            padding: EdgeInsets.only(left: Dimen.iconMarg, right: Dimen.iconMarg),
-            child: Icon(icon, color: Colors.white,),
-          ),
+    return ListView.builder(
+      padding: EdgeInsets.all(sideMarg),
+      itemCount: groupedArticles.length,
+      itemBuilder: (context, groupIndex) {
+        // Determine crossAxisCount: even groups have 3, odd groups have 2
+        int crossAxisCount = groupIndex.isEven ? 3 : 2;
 
-          Text(
-            title,
-            style: AppTextStyle(
-              fontSize: FONT_SIZE_NORM,
-              color: Colors.white,
-              fontWeight: isSelected?weight.bold:weight.halfBold,
+        // Calculate the number of rows based on the group size and crossAxisCount
+        int groupSize = groupedArticles[groupIndex].length;
+        double childAspectRatio = 1.5; // Adjust as needed
+
+        return Padding(
+          padding: EdgeInsets.only(bottom: sideMarg),
+          child: GridView.builder(
+            shrinkWrap: true, // Important to wrap GridView inside ListView
+            physics: NeverScrollableScrollPhysics(), // Disable GridView scrolling
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              crossAxisSpacing: sideMarg,
+              mainAxisSpacing: sideMarg,
+              childAspectRatio: childAspectRatio,
             ),
+            itemCount: groupSize,
+            itemBuilder: (context, index) {
+              return ArticleCardWidget(
+                groupedArticles[groupIndex][index],
+                onTap: (context, article) =>
+                  context.push(pathArticlesSourceItem.replaceAll(":source", article.source.name).replaceAll(":localId", article.localId))
+              );
+            },
           ),
-        ],
-      ),
-      onTap: isSelected?null:onTap as void Function()?,
+        );
+      },
     );
   }
 }

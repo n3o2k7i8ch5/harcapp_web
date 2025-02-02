@@ -101,7 +101,7 @@ class TopNavigationBarState extends State<TopNavigationBar>{
               icon: MdiIcons.textBoxEditOutline,
               title: 'Warsztat\nartykułów',
               contextInfo: 'Twórz i dodawaj artykuły do HarcAppki!',
-              path: pathArticles,
+              path: pathArticlesWorkspace,
               dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
             ),
 

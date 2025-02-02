@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/common.dart';
+import 'package:harcapp_core/comm_classes/sha_pref.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_web/common/sha_pref.dart';
 import 'package:harcapp_web/songs/utils/song_loader.dart';
@@ -101,10 +102,10 @@ class AllSongsProvider extends ChangeNotifier{
   }
 
   void _cacheSongs() =>
-    ShaPref.setString(ShaPref.SHA_PREF_LAST_EDITED_SONGS, convertAllToCode());
+    ShaPref.setString(SHA_PREF_LAST_EDITED_SONGS, convertAllToCode());
 
   static Future<List<SongRaw>> loadCachedSongs() async {
-    String? code = ShaPref.getStringOrNull(ShaPref.SHA_PREF_LAST_EDITED_SONGS);
+    String? code = ShaPref.getStringOrNull(SHA_PREF_LAST_EDITED_SONGS);
     if(code == null) return [];
 
     Map<String, List<SongRaw>> decodedSongs = decodeSongs(code);
@@ -117,7 +118,7 @@ class AllSongsProvider extends ChangeNotifier{
   }
 
   static void clearCachedSongs() =>
-    ShaPref.remove(ShaPref.SHA_PREF_LAST_EDITED_SONGS);
+      ShaPref.remove(SHA_PREF_LAST_EDITED_SONGS);
   
   String convertAllToCode(){
 
