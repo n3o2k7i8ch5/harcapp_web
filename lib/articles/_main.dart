@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
-import 'package:harcapp_core/comm_classes/common.dart';
+import 'package:harcapp_core/comm_classes/single_computer/single_computer_listener.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
-import 'package:harcapp_core/harcthought/articles/article_loader.dart';
 import 'package:harcapp_core/harcthought/articles/model/article.dart';
 import 'package:harcapp_core/harcthought/articles/model/article_source.dart';
+import 'package:harcapp_core/harcthought/articles/source_article_loader.dart';
 import 'package:harcapp_core/harcthought/articles/thumbnail/article_card_widget.dart';
-import 'package:harcapp_web/articles/article_loader.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/router.dart';
 
+import 'article_loader.dart';
 import 'models/azymut.dart';
 import 'models/harcapp.dart';
 import 'models/pojutrze.dart';
@@ -32,18 +32,7 @@ class ArticlesPage extends StatefulWidget{
 
 class ArticlePageState extends State<ArticlesPage>{
 
-  void runDownload() async {
-    post(() => setState(() => runDownloadStarted = true));
-    await downloadAllArticles();
-    print("ArticleHarcApp downloaded: ${ArticleHarcApp.all?.length}");
-    print("ArticleAzymut downloaded: ${ArticleAzymut.all?.length}");
-    print("ArticlePojutrze downloaded: ${ArticlePojutrze.all?.length}");
-
-    setState(() => runDownloadFinished = true);
-  }
-
-  static late bool runDownloadStarted = false;
-  static late bool runDownloadFinished = false;
+  late SingleComputerListener<String> listener;
 
   List<CoreArticle>? get displayedArticles{
     switch(widget.source){
@@ -60,15 +49,24 @@ class ArticlePageState extends State<ArticlesPage>{
         if(ArticleAzymut.all != null) all.addAll(ArticleAzymut.all!);
         if(ArticlePojutrze.all != null) all.addAll(ArticlePojutrze.all!);
 
-        BaseArticleLoader.sortByDate(all);
+        BaseSourceArticleLoader.sortByDate(all);
         return all;
     }
   }
 
+  bool get allArticlesNull => ArticleHarcApp.all == null && ArticleAzymut.all == null && ArticlePojutrze.all == null;
+
   @override
   void initState() {
-    if(!runDownloadStarted)
-      runDownload();
+
+    listener = SingleComputerListener<String>(
+      onEnd: (_, __, ___) => setState((){})
+    );
+
+    articleLoader.addListener(listener);
+
+    if(!ArticleLoader.allLoaded && !articleLoader.running)
+      articleLoader.run();
 
     super.initState();
   }
@@ -95,7 +93,7 @@ class ArticlePageState extends State<ArticlesPage>{
                           }
                         ),
                       ),
-                      if(runDownloadStarted && !runDownloadFinished)
+                      if(articleLoader.running)
                         Padding(
                           padding: EdgeInsets.only(right: Dimen.sideMarg),
                           child: Text(
@@ -176,7 +174,8 @@ class ArticleGrid extends StatelessWidget {
 
   const ArticleGrid({required this.articles});
 
-  static Map<int, int> countMap = {
+  static Map<int?, int> countMap = {
+    null: 6,
     6: 4,
     4: 3,
     3: 8,
@@ -184,16 +183,16 @@ class ArticleGrid extends StatelessWidget {
   };
 
   List<List<CoreArticle>> _chunkArticles(List<CoreArticle> articles) {
-    int chunkSize = 6;
+    int? chunkSize = null;
     List<List<CoreArticle>> chunks = [];
     for (var i = 0; i < articles.length; i += chunkSize) {
+      chunkSize = countMap[chunkSize]!;
       chunks.add(
         articles.sublist(
           i,
           i + chunkSize > articles.length ? articles.length : i + chunkSize,
         ),
       );
-      chunkSize = countMap[chunkSize]!;
     }
     return chunks;
   }

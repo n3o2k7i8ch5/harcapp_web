@@ -1,13 +1,41 @@
+import 'dart:collection';
+
 import 'package:harcapp_core/harcthought/articles/model/article_data.dart';
 import 'package:harcapp_core/harcthought/articles/model/article_source.dart';
 import 'package:harcapp_core/harcthought/articles/model/harcapp.dart';
 import 'package:harcapp_core/harcthought/articles/model/article.dart';
+import 'package:harcapp_core/harcthought/articles/source_article_loader.dart';
 
+import '../source_article_loader.dart';
 import 'cache_cover_mixin.dart';
 
 class ArticleHarcApp extends CoreArticle with ArticleHarcAppMixin, CacheCoverMixin{
 
   static List<ArticleHarcApp>? all;
+  static SplayTreeMap<String, ArticleHarcApp>? allMap;
+
+  static Future<void> init() async {
+    all = [];
+    allMap = SplayTreeMap.of({});
+    var (articleData, _) = await articleHarcAppLoader.getAllCached();
+    addAll(articleData.map((e) => fromData(e)));
+    BaseSourceArticleLoader.sortByDate(all!);
+  }
+
+  static bool add(ArticleHarcApp article){
+    all ??= [];
+    allMap ??= SplayTreeMap.of({});
+
+    if(allMap!.containsKey(article.uniqName)) return false;
+    all!.add(article);
+    allMap![article.uniqName] = article;
+    return true;
+  }
+
+  static void addAll(Iterable<ArticleHarcApp> articles){
+    for(ArticleHarcApp article in articles)
+      add(article);
+  }
 
   ArticleHarcApp(
       String localId,

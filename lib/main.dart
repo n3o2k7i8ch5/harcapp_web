@@ -8,7 +8,6 @@ import 'package:harcapp_core/song_book/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/song_book/song_tags.dart';
-import 'package:harcapp_web/articles/article_loader.dart';
 import 'package:harcapp_web/router.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/song_preview_widget.dart';
@@ -20,25 +19,12 @@ import 'articles/models/harcapp.dart';
 import 'articles/models/pojutrze.dart';
 import 'color_pack.dart';
 import 'idb.dart';
-import 'logger.dart';
 
 Future<void> initArticles() async {
-  var (harcAppArticles, _) = await articleHarcAppLoader.getAllCached();
-  var (azymutArticles, _) = await articleAzymutLoader.getAllCached();
-  var (pojutrzeArticles, _) = await articlePojutrzeLoader.getAllCached();
-
-  logger.d(
-      "Found:"
-      "\n- ${harcAppArticles.length} cached HarcApp articles,"
-      "\n- ${azymutArticles.length} cached Azymut articles,"
-      "\n- ${pojutrzeArticles.length} cached Pojutrze articles."
-  );
-
-  ArticleHarcApp.all = harcAppArticles.map((e) => ArticleHarcApp.fromData(e)).toList();
-  ArticleAzymut.all = azymutArticles.map((e) => ArticleAzymut.fromData(e)).toList();
-  ArticlePojutrze.all = pojutrzeArticles.map((e) => ArticlePojutrze.fromData(e)).toList();
+  await ArticleHarcApp.init();
+  await ArticleAzymut.init();
+  await ArticlePojutrze.init();
 }
-
 
 void main() async {
   // When changing this, delete the `web` folder.
