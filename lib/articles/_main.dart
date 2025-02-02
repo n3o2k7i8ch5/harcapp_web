@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
@@ -60,7 +62,7 @@ class ArticlePageState extends State<ArticlesPage>{
   void initState() {
 
     listener = SingleComputerListener<String>(
-      onEnd: (_, __, ___) => setState((){})
+        onEnd: (_, __, ___) => setState((){})
     );
 
     articleLoader.addListener(listener);
@@ -71,47 +73,64 @@ class ArticlePageState extends State<ArticlesPage>{
     super.initState();
   }
 
+  bool get showLoading{
+    if(widget.source == null)
+      return articleLoader.running && allArticlesNull;
+
+    bool anyArticles;
+    switch(widget.source){
+      case ArticleSource.harcApp: anyArticles = ArticleHarcApp.all != null; break;
+      case ArticleSource.azymut: anyArticles = ArticleAzymut.all != null; break;
+      case ArticleSource.pojutrze: anyArticles = ArticlePojutrze.all != null; break;
+      default: anyArticles = !allArticlesNull;
+    }
+
+    return !anyArticles && articleLoader.isSourceRunning(widget.source!);
+  }
+
   @override
   Widget build(BuildContext context) => BaseScaffold(
-      backgroundColor: background_(context),
-      body: Align(
-        alignment: Alignment.topCenter,
-        child: Container(
-            constraints: BoxConstraints(maxWidth: 1000),
-            child: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(top: Dimen.defMarg),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: HeaderWidget(
+    backgroundColor: background_(context),
+    body: Align(
+      alignment: Alignment.topCenter,
+      child: Container(
+          constraints: BoxConstraints(maxWidth: 1000),
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(top: Dimen.defMarg),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: HeaderWidget(
                           selected: widget.source,
                           onTap: (ArticleSource? source){
                             if(source == null) context.go(pathArticles);
                             else context.go(pathArticlesSource.replaceAll(":source", source.name));
                           }
-                        ),
                       ),
-                      if(articleLoader.running)
-                        Padding(
-                          padding: EdgeInsets.only(right: Dimen.sideMarg),
-                          child: Text(
-                            'Ładowanie...',
-                            style: AppTextStyle(fontWeight: weight.halfBold, fontSize: Dimen.textSizeBig),
-                          ),
-                        )
-                    ],
-                  ),
+                    ),
+                    if(articleLoader.running)
+                      Padding(
+                        padding: EdgeInsets.only(right: Dimen.sideMarg),
+                        child: Text(
+                          'Ładowanie...',
+                          style: AppTextStyle(fontWeight: weight.halfBold, fontSize: Dimen.textSizeBig),
+                        ),
+                      )
+                  ],
                 ),
-                Expanded(
-                  child: ArticleGrid(articles: displayedArticles!),
-                )
+              ),
+              Expanded(
+                child: showLoading?
+                LoadingGrid(count: 12):
+                ArticleGrid(articles: displayedArticles!),
+              )
 
-              ],
-            )
-        ),
+            ],
+          )
       ),
+    ),
   );
 
 
@@ -168,11 +187,20 @@ class HeaderWidget extends StatelessWidget{
 
 }
 
-class ArticleGrid extends StatelessWidget {
-  final List<CoreArticle> articles; // Replace with your Article model
-  final double sideMarg = 8.0; // Example margin value
 
-  const ArticleGrid({required this.articles});
+class BaseGrid<T> extends StatefulWidget {
+  final Widget Function(BuildContext, T) itemBuilder;
+  final List<T> items;
+
+  const BaseGrid({super.key, required this.itemBuilder, required this.items});
+
+  @override
+  State<StatefulWidget> createState() => BaseState<T>();
+}
+
+class BaseState<T> extends State<BaseGrid<T>> {
+
+  static const double sideMarg = 8.0;
 
   static Map<int?, int> countMap = {
     null: 6,
@@ -182,58 +210,147 @@ class ArticleGrid extends StatelessWidget {
     8: 6
   };
 
-  List<List<CoreArticle>> _chunkArticles(List<CoreArticle> articles) {
+  Widget Function(BuildContext, T) get itemBuilder => widget.itemBuilder;
+  List<T> get items => widget.items;
+
+  List<List<T>> _groupItems() {
     int? chunkSize = null;
-    List<List<CoreArticle>> chunks = [];
-    for (var i = 0; i < articles.length; i += chunkSize) {
+    List<List<T>> chunks = [];
+    for (var i = 0; i < items.length; i += chunkSize) {
       chunkSize = countMap[chunkSize]!;
       chunks.add(
-        articles.sublist(
+        items.sublist(
           i,
-          i + chunkSize > articles.length ? articles.length : i + chunkSize,
+          i + chunkSize > items.length ? items.length : i + chunkSize,
         ),
       );
     }
     return chunks;
   }
 
+  late List<List<T>> groupedItems;
+
   @override
-  Widget build(BuildContext context) {
-    List<List<CoreArticle>> groupedArticles = _chunkArticles(articles);
+  void initState() {
 
-    return ListView.builder(
-      padding: EdgeInsets.all(sideMarg),
-      itemCount: groupedArticles.length,
-      itemBuilder: (context, groupIndex) {
-        // Determine crossAxisCount: even groups have 3, odd groups have 2
-        int crossAxisCount = groupIndex.isEven ? 3 : 2;
-
-        // Calculate the number of rows based on the group size and crossAxisCount
-        int groupSize = groupedArticles[groupIndex].length;
-        double childAspectRatio = 1.5; // Adjust as needed
-
-        return Padding(
-          padding: EdgeInsets.only(bottom: sideMarg),
-          child: GridView.builder(
-            shrinkWrap: true, // Important to wrap GridView inside ListView
-            physics: NeverScrollableScrollPhysics(), // Disable GridView scrolling
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: crossAxisCount,
-              crossAxisSpacing: sideMarg,
-              mainAxisSpacing: sideMarg,
-              childAspectRatio: childAspectRatio,
-            ),
-            itemCount: groupSize,
-            itemBuilder: (context, index) {
-              return ArticleCardWidget(
-                groupedArticles[groupIndex][index],
-                onTap: (context, article) =>
-                  context.push(pathArticlesSourceItem.replaceAll(":source", article.source.name).replaceAll(":localId", article.localId))
-              );
-            },
-          ),
-        );
-      },
-    );
+    groupedItems = _groupItems();
+    super.initState();
   }
+
+  @override
+  Widget build(BuildContext context) => ListView.builder(
+    padding: EdgeInsets.all(sideMarg),
+    itemCount: groupedItems.length,
+    itemBuilder: (context, groupIndex) {
+      // Determine crossAxisCount: even groups have 3, odd groups have 2
+      int crossAxisCount = groupIndex.isEven ? 3 : 2;
+
+      // Calculate the number of rows based on the group size and crossAxisCount
+      int groupSize = groupedItems[groupIndex].length;
+      double childAspectRatio = 1.5; // Adjust as needed
+
+      return Padding(
+        padding: EdgeInsets.only(bottom: sideMarg),
+        child: GridView.builder(
+          shrinkWrap: true, // Important to wrap GridView inside ListView
+          physics: NeverScrollableScrollPhysics(), // Disable GridView scrolling
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: sideMarg,
+            mainAxisSpacing: sideMarg,
+            childAspectRatio: childAspectRatio,
+          ),
+          itemCount: groupSize,
+          itemBuilder: (context, index) => itemBuilder(context, groupedItems[groupIndex][index]),
+        ),
+      );
+    },
+  );
+}
+
+class ArticleGrid extends StatelessWidget{
+
+  final List<CoreArticle> articles;
+
+  const ArticleGrid({required this.articles});
+
+  @override
+  Widget build(BuildContext context) => BaseGrid<CoreArticle>(
+      key: ValueKey((articles.hashCode, articles.length)),
+      items: articles,
+      itemBuilder: (context, article) => ArticleCardWidget(
+          article,
+          onTap: (context, article) =>
+              context.push(pathArticlesSourceItem.replaceAll(":source", article.source.name).replaceAll(":localId", article.localId))
+      )
+  );
+}
+
+class PulsingContainer extends StatefulWidget{
+
+  final Widget child;
+  final Duration duration;
+
+  const PulsingContainer({required this.child, this.duration = const Duration(milliseconds: 1000)});
+
+  @override
+  State<StatefulWidget> createState() => PulsingContainerState();
+}
+
+class PulsingContainerState extends State<PulsingContainer> with SingleTickerProviderStateMixin{
+
+  late AnimationController controller;
+  late Animation<double> animation;
+
+  @override
+  void initState() {
+
+    Duration duration = widget.duration + Duration(milliseconds: Random().nextInt(1000));
+
+    controller = AnimationController(vsync: this, duration: duration);
+    animation = Tween<double>(begin: .2, end: .7).animate(controller)
+      ..addListener(() => setState((){}))
+      ..addStatusListener((status) {
+        if(status == AnimationStatus.completed)
+          controller.reverse();
+        else if(status == AnimationStatus.dismissed)
+          controller.forward();
+      });
+
+    controller.forward();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) => Opacity(
+    opacity: 1 - animation.value,
+    child: widget.child,
+  );
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+}
+
+class LoadingGrid extends StatelessWidget{
+
+  final int count;
+
+  const LoadingGrid({this.count = 12});
+
+  @override
+  Widget build(BuildContext context) => BaseGrid(
+      items: List.generate(count, (index) => index),
+      itemBuilder: (context, _) => PulsingContainer(
+          child: PulsingContainer(child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey,
+                borderRadius: BorderRadius.circular(AppCard.defRadius),
+              )
+          ))
+      )
+  );
+
 }

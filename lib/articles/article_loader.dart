@@ -29,6 +29,8 @@ class ArticleLoader extends SingleComputer<String, SingleComputerListener<String
 
   static List<ArticleSource> get unloadedArticleSources => ArticleSource.values.where((source) => !newLoaded[source]!).toList();
 
+  bool isSourceRunning(ArticleSource source) => running && articleLoader.restrictToSources.contains(source);
+
   @override
   String get computerName => 'ArticleLoader';
 
