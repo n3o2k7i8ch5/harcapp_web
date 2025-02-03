@@ -11,6 +11,14 @@ import 'package:harcapp_web/articles/models/harcapp.dart';
 import 'package:harcapp_web/articles/models/pojutrze.dart';
 import 'package:harcapp_web/articles/source_article_loader.dart';
 
+// TODO:
+// Make this common also for the harcapp repo.
+
+// There is an issue currently. If someone calls `ArticleLoader` with only one
+// source, and while it's running, calls it again with another source, the first
+// source will finish and the second will be ignored.
+// Solve this by creating multuple instances of `ArticleLoader` for each source (and one for all sources).
+
 ArticleLoader articleLoader = ArticleLoader();
 
 class ArticleLoader extends SingleComputer<String, SingleComputerListener<String>>{

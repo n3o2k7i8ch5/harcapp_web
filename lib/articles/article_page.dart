@@ -46,7 +46,6 @@ class ArticlePageState extends State<ArticlePage>{
 
   @override
   void initState(){
-
     article = getArticle();
 
     listener = SingleComputerListener<String>(
@@ -97,13 +96,9 @@ class ArticlePageState extends State<ArticlePage>{
             child: Builder(builder: (context){
 
               if(article == null && articleLoader.running)
-                return Center(
-                  child: Text('Ładowanie...'),
-                );
+                return Center(child: Text('Ładowanie...'));
               else if(article == null)
-                return Center(
-                  child: Text('Brak artykułu'),
-                );
+                return Center(child: Text('Brak artykułu'));
 
               return ListView(
                 padding: EdgeInsets.all(Dimen.sideMarg),
@@ -133,7 +128,7 @@ class ArticlePageState extends State<ArticlePage>{
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(AppCard.defRadius),
                     ),
-                    child: ArticleCoverWidget(article!),
+                    child: ArticleCoverWidget(article!, big: true),
                   ),
 
                   const SizedBox(height: Dimen.sideMarg),

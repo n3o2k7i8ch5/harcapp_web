@@ -56,7 +56,10 @@ class ArticlePageState extends State<ArticlesPage>{
     }
   }
 
-  bool get allArticlesNull => ArticleHarcApp.all == null && ArticleAzymut.all == null && ArticlePojutrze.all == null;
+  bool get allArticlesNullOrEmpty =>
+        (ArticleHarcApp.all == null || ArticleHarcApp.all!.length == 0) &&
+        (ArticleAzymut.all == null || ArticleAzymut.all!.length == 0) &&
+        (ArticlePojutrze.all == null || ArticlePojutrze.all!.length == 0);
 
   @override
   void initState() {
@@ -75,14 +78,14 @@ class ArticlePageState extends State<ArticlesPage>{
 
   bool get showLoading{
     if(widget.source == null)
-      return articleLoader.running && allArticlesNull;
+      return articleLoader.running && allArticlesNullOrEmpty;
 
     bool anyArticles;
     switch(widget.source){
-      case ArticleSource.harcApp: anyArticles = ArticleHarcApp.all != null; break;
-      case ArticleSource.azymut: anyArticles = ArticleAzymut.all != null; break;
-      case ArticleSource.pojutrze: anyArticles = ArticlePojutrze.all != null; break;
-      default: anyArticles = !allArticlesNull;
+      case ArticleSource.harcApp: anyArticles = (ArticleHarcApp.all != null && ArticleHarcApp.all!.length>0); break;
+      case ArticleSource.azymut: anyArticles = (ArticleAzymut.all != null && ArticleAzymut.all!.length>0); break;
+      case ArticleSource.pojutrze: anyArticles = (ArticlePojutrze.all != null && ArticlePojutrze.all!.length>0); break;
+      default: anyArticles = !allArticlesNullOrEmpty;
     }
 
     return !anyArticles && articleLoader.isSourceRunning(widget.source!);
@@ -114,7 +117,7 @@ class ArticlePageState extends State<ArticlesPage>{
                       Padding(
                         padding: EdgeInsets.only(right: Dimen.sideMarg),
                         child: Text(
-                          'Ładowanie...',
+                          'Pobieranie nowych...',
                           style: AppTextStyle(fontWeight: weight.halfBold, fontSize: Dimen.textSizeBig),
                         ),
                       )
@@ -143,6 +146,13 @@ class HeaderWidget extends StatelessWidget{
 
   HeaderWidget({required this.selected, required this.onTap});
 
+  String get allCount => ArticleHarcApp.all == null && ArticleAzymut.all == null && ArticlePojutrze.all == null?
+    '...':
+    ((ArticleHarcApp.all?.length??0) + (ArticleAzymut.all?.length??0) + (ArticlePojutrze.all?.length??0)).toString();
+  String get harcAppCount => ArticleHarcApp.all == null?'...':ArticleHarcApp.all!.length.toString();
+  String get azymutCount => ArticleAzymut.all == null?'...':ArticleAzymut.all!.length.toString();
+  String get pojutrzeCount => ArticlePojutrze.all == null?'...':ArticlePojutrze.all!.length.toString();
+
   @override
   Widget build(BuildContext context) => SizedBox(
     height: Dimen.iconFootprint,
@@ -152,7 +162,7 @@ class HeaderWidget extends StatelessWidget{
         SimpleButton.from(
             context: context,
             radius: AppCard.defRadius,
-            text: 'Wszystkie',
+            text: 'Wszystkie ($allCount)',
             color: selected == null?backgroundIcon_(context):null,
             onTap: () => onTap.call(null)
         ),
@@ -160,7 +170,7 @@ class HeaderWidget extends StatelessWidget{
         SimpleButton.from(
             context: context,
             radius: AppCard.defRadius,
-            text: ArticleSource.harcApp.displayName,
+            text: '${ArticleSource.harcApp.displayName} ($harcAppCount)',
             color: selected == ArticleSource.harcApp?backgroundIcon_(context):null,
             onTap: () => onTap.call(ArticleSource.harcApp)
         ),
@@ -168,7 +178,7 @@ class HeaderWidget extends StatelessWidget{
         SimpleButton.from(
             context: context,
             radius: AppCard.defRadius,
-            text: ArticleSource.azymut.displayName,
+            text: '${ArticleSource.azymut.displayName} ($azymutCount)',
             color: selected == ArticleSource.azymut?backgroundIcon_(context):null,
             onTap: () => onTap.call(ArticleSource.azymut)
         ),
@@ -176,7 +186,7 @@ class HeaderWidget extends StatelessWidget{
         SimpleButton.from(
             context: context,
             radius: AppCard.defRadius,
-            text: ArticleSource.pojutrze.displayName,
+            text: '${ArticleSource.pojutrze.displayName} ($pojutrzeCount)',
             color: selected == ArticleSource.pojutrze?backgroundIcon_(context):null,
             onTap: () => onTap.call(ArticleSource.pojutrze)
         ),
