@@ -12,7 +12,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 
 class TopNavigationBar extends StatefulWidget implements PreferredSizeWidget{
 
-  static const denseMaxWidth = 1040;
+  static const denseMaxWidth = 1074;
 
   final bool withMenuIcon;
 

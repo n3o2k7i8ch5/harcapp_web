@@ -34,17 +34,17 @@ class IDB{
 
   }
 
-  static Future<void> _put((String storeName, String key, dynamic value) args) async {
+  static Future<Object> _put((String storeName, String key, dynamic value) args) async {
     var (storeName, key, value) = args;
     Transaction txn = database.transaction(storeName, "readwrite");
     ObjectStore store = txn.objectStore(storeName);
-    await store.put(value, key);
+    Object result = await store.put(value, key);
     await txn.completed;
+    return result;
   }
 
-  static Future<void> put(String storeName, String key, dynamic value) async {
-    await compute(_put, (storeName, key, value));
-  }
+  static Future<Object> put(String storeName, String key, dynamic value) =>
+    compute(_put, (storeName, key, value));
 
   static Future<dynamic> _get((String storeName, String key) args) async {
     var (storeName, key) = args;
@@ -73,21 +73,21 @@ class IDB{
 
   // ---
 
-  static Future<void> putContent(ArticleSource source, String key, dynamic value) => put(storeNameContent(source), key, value);
+  static Future<Object> putContent(ArticleSource source, String key, dynamic value) => put(storeNameContent(source), key, value);
   static Future<dynamic> getContent(ArticleSource source, String key) => get(storeNameContent(source), key);
   static Future<List<String>> getAllContentKeys(ArticleSource source) async => (await getAllKeys(storeNameContent(source))).cast<String>();
 
-  static Future<void> putBigCover(ArticleSource source, String key, Uint8List value) => put(storeNameBigCover(source), key, value);
+  static Future<Object> putBigCover(ArticleSource source, String key, Uint8List value) => put(storeNameBigCover(source), key, value);
   static Future<Uint8List?> getBigCover(ArticleSource source, String key) async => (await get(storeNameBigCover(source), key)) as Uint8List?;
 
-  static Future<void> putSmallCover(ArticleSource source, String key, Uint8List value) => put(storeNameSmallCover(source), key, value);
+  static Future<Object> putSmallCover(ArticleSource source, String key, Uint8List value) => put(storeNameSmallCover(source), key, value);
   static Future<Uint8List?> getSmallCover(ArticleSource source, String key) async => (await get(storeNameSmallCover(source), key)) as Uint8List?;
 
-  static Future<void> putCover(ArticleSource source, String key, Uint8List value, bool big) =>
+  static Future<Object> putCover(ArticleSource source, String key, Uint8List value, bool big) =>
       big ? putBigCover(source, key, value) : putSmallCover(source, key, value);
   static Future<Uint8List?> getCover(ArticleSource source, String key, bool big) async =>
       big ? getBigCover(source, key) : getSmallCover(source, key);
 
-  static Future<void> putNewestSeenLocalId(ArticleSource source, String value) => put(storeNameNewestSeenLocalId(source), newestSeenLocalIdKey, value);
+  static Future<Object> putNewestSeenLocalId(ArticleSource source, String value) => put(storeNameNewestSeenLocalId(source), newestSeenLocalIdKey, value);
   static Future<String?> getNewestSeenLocalId(ArticleSource source) async => (await get(storeNameNewestSeenLocalId(source), newestSeenLocalIdKey)) as String?;
 }

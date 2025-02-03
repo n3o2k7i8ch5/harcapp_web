@@ -1,10 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
-import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
-import 'package:harcapp_core/comm_classes/single_computer/single_computer_listener.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
@@ -34,7 +33,7 @@ class ArticlesPage extends StatefulWidget{
 
 class ArticlePageState extends State<ArticlesPage>{
 
-  late SingleComputerListener<String> listener;
+  late ArticleLoaderListener listener;
 
   List<CoreArticle>? get displayedArticles{
     switch(widget.source){
@@ -64,7 +63,8 @@ class ArticlePageState extends State<ArticlesPage>{
   @override
   void initState() {
 
-    listener = SingleComputerListener<String>(
+    listener = ArticleLoaderListener(
+        onArticleData: (articleData) => setState((){}),
         onEnd: (_, __, ___) => setState((){})
     );
 
@@ -116,9 +116,9 @@ class ArticlePageState extends State<ArticlesPage>{
                     if(articleLoader.running)
                       Padding(
                         padding: EdgeInsets.only(right: Dimen.sideMarg),
-                        child: Text(
-                          'Pobieranie nowych...',
-                          style: AppTextStyle(fontWeight: weight.halfBold, fontSize: Dimen.textSizeBig),
+                        child: SpinKitChasingDots(
+                          color: Colors.grey,
+                          size: 20.0,
                         ),
                       )
                   ],
@@ -141,6 +141,8 @@ class ArticlePageState extends State<ArticlesPage>{
 
 class HeaderWidget extends StatelessWidget{
 
+  static const double showCountWidth = 620;
+
   final ArticleSource? selected;
   final Function(ArticleSource?) onTap;
 
@@ -154,44 +156,63 @@ class HeaderWidget extends StatelessWidget{
   String get pojutrzeCount => ArticlePojutrze.all == null?'...':ArticlePojutrze.all!.length.toString();
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-    height: Dimen.iconFootprint,
-    child: ListView(
-      scrollDirection: Axis.horizontal,
-      children: [
-        SimpleButton.from(
-            context: context,
-            radius: AppCard.defRadius,
-            text: 'Wszystkie ($allCount)',
-            color: selected == null?backgroundIcon_(context):null,
-            onTap: () => onTap.call(null)
-        ),
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (BuildContext context, BoxConstraints constraints) => SizedBox(
+      height: Dimen.iconFootprint,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          SimpleButton.from(
+              context: context,
+              radius: AppCard.defRadius,
 
-        SimpleButton.from(
-            context: context,
-            radius: AppCard.defRadius,
-            text: '${ArticleSource.harcApp.displayName} ($harcAppCount)',
-            color: selected == ArticleSource.harcApp?backgroundIcon_(context):null,
-            onTap: () => onTap.call(ArticleSource.harcApp)
-        ),
+              text:
+              constraints.maxWidth>=showCountWidth?
+              'Wszystkie ($allCount)':
+              'Wszystkie',
 
-        SimpleButton.from(
-            context: context,
-            radius: AppCard.defRadius,
-            text: '${ArticleSource.azymut.displayName} ($azymutCount)',
-            color: selected == ArticleSource.azymut?backgroundIcon_(context):null,
-            onTap: () => onTap.call(ArticleSource.azymut)
-        ),
+              color: selected == null?backgroundIcon_(context):null,
+              onTap: () => onTap.call(null)
+          ),
 
-        SimpleButton.from(
-            context: context,
-            radius: AppCard.defRadius,
-            text: '${ArticleSource.pojutrze.displayName} ($pojutrzeCount)',
-            color: selected == ArticleSource.pojutrze?backgroundIcon_(context):null,
-            onTap: () => onTap.call(ArticleSource.pojutrze)
-        ),
+          SimpleButton.from(
+              context: context,
+              radius: AppCard.defRadius,
 
-      ],
+              text:
+              constraints.maxWidth>=showCountWidth?
+              '${ArticleSource.harcApp.displayName} ($harcAppCount)':
+              ArticleSource.harcApp.displayName,
+
+              color: selected == ArticleSource.harcApp?backgroundIcon_(context):null,
+              onTap: () => onTap.call(ArticleSource.harcApp)
+          ),
+
+          SimpleButton.from(
+              context: context,
+              radius: AppCard.defRadius,
+
+              text: constraints.maxWidth>=showCountWidth?
+              '${ArticleSource.azymut.displayName} ($azymutCount)':
+              ArticleSource.azymut.displayName,
+
+              color: selected == ArticleSource.azymut?backgroundIcon_(context):null,
+              onTap: () => onTap.call(ArticleSource.azymut)
+          ),
+
+          SimpleButton.from(
+              context: context,
+              radius: AppCard.defRadius,
+              text:
+              constraints.maxWidth>=showCountWidth?
+              '${ArticleSource.pojutrze.displayName} ($pojutrzeCount)':
+              ArticleSource.pojutrze.displayName,
+              color: selected == ArticleSource.pojutrze?backgroundIcon_(context):null,
+              onTap: () => onTap.call(ArticleSource.pojutrze)
+          ),
+
+        ],
+      ),
     ),
   );
 
@@ -212,7 +233,7 @@ class BaseState<T> extends State<BaseGrid<T>> {
 
   static const double sideMarg = 8.0;
 
-  static Map<int?, int> countMap = {
+  static Map<int?, int> count3Map = {
     null: 6,
     6: 4,
     4: 3,
@@ -220,10 +241,32 @@ class BaseState<T> extends State<BaseGrid<T>> {
     8: 6
   };
 
-  Widget Function(BuildContext, T) get itemBuilder => widget.itemBuilder;
-  List<T> get items => widget.items;
+  static Map<int?, int> count2Map = {
+    null: 6,
+    6: 4,
+    4: 1,
+    1: 8,
+    8: 6
+  };
 
-  List<List<T>> _groupItems() {
+  static Map<int?, int> count1Map = {
+    null: 1,
+    1: 1
+  };
+
+  (int, int) _getCrossAxisCount(double screenWidth){
+    if(screenWidth < 600) return (1, 1);
+    if(screenWidth < 950) return (2, 1);
+    return (3, 2);
+  }
+
+  Map<int?, int> _getCountMap(maxCrossAxisCount){
+    if(maxCrossAxisCount >= 3) return count3Map;
+    if(maxCrossAxisCount == 2) return count2Map;
+    return count1Map;
+  }
+
+  List<List<T>> _groupItems(Map<int?, int> countMap) {
     int? chunkSize = null;
     List<List<T>> chunks = [];
     for (var i = 0; i < items.length; i += chunkSize) {
@@ -238,42 +281,67 @@ class BaseState<T> extends State<BaseGrid<T>> {
     return chunks;
   }
 
+  void groupItems(double screenWidth){
+    var (groupDenseCrossCount, groupLooseCrossCount) = _getCrossAxisCount(screenWidth);
+    if (groupDenseCrossCount == this.groupDenseCrossCount) return;
+    this.groupDenseCrossCount = groupDenseCrossCount;
+    this.groupLooseCrossCount = groupLooseCrossCount;
+
+    countMap = _getCountMap(groupDenseCrossCount);
+    groupedItems = _groupItems(countMap);
+  }
+
+  Widget Function(BuildContext, T) get itemBuilder => widget.itemBuilder;
+  List<T> get items => widget.items;
+
   late List<List<T>> groupedItems;
+  late Map<int?, int> countMap;
+  late int groupDenseCrossCount;
+  late int groupLooseCrossCount;
 
   @override
   void initState() {
+    groupedItems = [];
+    countMap = {};
+    groupDenseCrossCount = 0;
+    groupLooseCrossCount = 0;
 
-    groupedItems = _groupItems();
     super.initState();
   }
 
   @override
-  Widget build(BuildContext context) => ListView.builder(
-    padding: EdgeInsets.all(sideMarg),
-    itemCount: groupedItems.length,
-    itemBuilder: (context, groupIndex) {
-      // Determine crossAxisCount: even groups have 3, odd groups have 2
-      int crossAxisCount = groupIndex.isEven ? 3 : 2;
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (BuildContext context, BoxConstraints constraints) {
+      groupItems(constraints.maxWidth);
+      return ListView.builder(
+        padding: EdgeInsets.all(sideMarg),
+        itemCount: groupedItems.length,
+        itemBuilder: (context, groupIndex) {
 
-      // Calculate the number of rows based on the group size and crossAxisCount
-      int groupSize = groupedItems[groupIndex].length;
-      double childAspectRatio = 1.5; // Adjust as needed
+          int crossAxisCount = groupIndex.isEven ? groupDenseCrossCount : groupLooseCrossCount;
 
-      return Padding(
-        padding: EdgeInsets.only(bottom: sideMarg),
-        child: GridView.builder(
-          shrinkWrap: true, // Important to wrap GridView inside ListView
-          physics: NeverScrollableScrollPhysics(), // Disable GridView scrolling
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: sideMarg,
-            mainAxisSpacing: sideMarg,
-            childAspectRatio: childAspectRatio,
-          ),
-          itemCount: groupSize,
-          itemBuilder: (context, index) => itemBuilder(context, groupedItems[groupIndex][index]),
-        ),
+          // Calculate the number of rows based on the group size and crossAxisCount
+          int groupSize = groupedItems[groupIndex].length;
+          double childAspectRatio = 1.5; // Adjust as needed
+
+          return Padding(
+            padding: EdgeInsets.only(bottom: sideMarg),
+            child: GridView.builder(
+              shrinkWrap: true, // Important to wrap GridView inside ListView
+              physics: NeverScrollableScrollPhysics(), // Disable GridView scrolling
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: sideMarg,
+                mainAxisSpacing: sideMarg,
+                childAspectRatio: childAspectRatio,
+              ),
+              itemCount: groupSize,
+              itemBuilder: (context, index) => itemBuilder(context, groupedItems[groupIndex][index]),
+            ),
+          );
+        },
       );
+
     },
   );
 }

@@ -28,7 +28,10 @@ mixin _CacheMixin on BaseSourceArticleLoader{
   }
 
   @override
-  Future<void> saveNewestLocalIdSeen(String localId) => IDB.putNewestSeenLocalId(source, localId);
+  Future<void> saveNewestLocalIdSeen(String localId) async {
+    await IDB.putNewestSeenLocalId(source, localId);
+    logger.d("Newest seen local id for ${source.name} saved: $localId");
+  }
 
   @override
   Future<String?> getNewestLocalIdSeen() => IDB.getNewestSeenLocalId(source);

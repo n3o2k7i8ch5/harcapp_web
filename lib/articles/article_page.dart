@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
-import 'package:harcapp_core/comm_classes/single_computer/single_computer_listener.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
@@ -40,7 +39,7 @@ class ArticlePageState extends State<ArticlePage>{
 
   static String paraFontFamily = 'Lato';
 
-  late SingleComputerListener<String> listener;
+  late ArticleLoaderListener listener;
 
   CoreArticle? article;
 
@@ -48,8 +47,11 @@ class ArticlePageState extends State<ArticlePage>{
   void initState(){
     article = getArticle();
 
-    listener = SingleComputerListener<String>(
-        onEnd: (_, __, ___) => setState(() => article = getArticle())
+    listener = ArticleLoaderListener(
+        onArticleData: (articleData){
+          if(articleData.localId == localId)
+            setState(() => article = getArticle());
+        }
     );
 
     articleLoader.addListener(listener);
@@ -128,7 +130,7 @@ class ArticlePageState extends State<ArticlePage>{
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(AppCard.defRadius),
                     ),
-                    child: ArticleCoverWidget(article!, big: true),
+                    child: ArticleCoverWidget(article!, bigResolution: true),
                   ),
 
                   const SizedBox(height: Dimen.sideMarg),

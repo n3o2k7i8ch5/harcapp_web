@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:harcapp_core/comm_classes/single_computer/single_computer.dart';
@@ -17,11 +18,24 @@ import 'package:harcapp_web/articles/source_article_loader.dart';
 // There is an issue currently. If someone calls `ArticleLoader` with only one
 // source, and while it's running, calls it again with another source, the first
 // source will finish and the second will be ignored.
-// Solve this by creating multuple instances of `ArticleLoader` for each source (and one for all sources).
+// Solve this by creating multiple instances of `ArticleLoader` for each source (and one for all sources).
 
 ArticleLoader articleLoader = ArticleLoader();
 
-class ArticleLoader extends SingleComputer<String, SingleComputerListener<String>>{
+class ArticleLoaderListener extends SingleComputerListener<String>{
+
+  final FutureOr<void> Function(ArticleData articleData)? onArticleData;
+
+  ArticleLoaderListener({
+    super.onStart,
+    super.onError,
+    super.onEnd,
+    this.onArticleData
+  });
+
+}
+
+class ArticleLoader extends SingleComputer<String, ArticleLoaderListener>{
 
   static _initNewLoaded(){
     Map<ArticleSource, bool> newLoaded = {};
@@ -42,12 +56,8 @@ class ArticleLoader extends SingleComputer<String, SingleComputerListener<String
   @override
   String get computerName => 'ArticleLoader';
 
-  Future<Map<ArticleSource, String?>> get newestLocalIdsSeen async{
-    Map<ArticleSource, String?> newestLocalIdsSeen = {};
-    for(ArticleSource source in ArticleSource.values)
-      newestLocalIdsSeen[source] = await sourceArticleLoaders[source]!.getNewestLocalIdSeen();
-
-    return newestLocalIdsSeen;
+  static Future<String?> newestLocalIdsSeen(ArticleSource source) async{
+    return await sourceArticleLoaders[source]!.getNewestLocalIdSeen();
   }
 
   static Map<ArticleSource, BaseSourceArticleLoader> sourceArticleLoaders = {
@@ -56,7 +66,7 @@ class ArticleLoader extends SingleComputer<String, SingleComputerListener<String
     ArticleSource.pojutrze: articlePojutrzeLoader,
   };
 
-  static addAllArticlesAndCache(ArticleSource source, List<ArticleData> articleDataList){
+  static Future<void> addAllArticlesAndCache(ArticleSource source, List<ArticleData> articleDataList) async {
     switch(source){
       case ArticleSource.harcApp:
         List<ArticleHarcApp> articles = articleDataList.map((articleData) => ArticleHarcApp.fromData(articleData)).toList().cast<ArticleHarcApp>();
@@ -71,27 +81,57 @@ class ArticleLoader extends SingleComputer<String, SingleComputerListener<String
         ArticlePojutrze.addAll(articles);
         break;
     }
-    sourceArticleLoaders[source]!.cacheAll(articleDataList);
+    await sourceArticleLoaders[source]!.cacheAll(articleDataList);
     newLoaded[source] = true;
   }
 
-  static Future<Map<ArticleSource, (List<ArticleData>?, String?)>> _download(
-    (List<ArticleSource>, Map<ArticleSource, String?>) args
-  ) async {
-    List<ArticleSource> sources = args.$1;
-    Map<ArticleSource, String?> newestLocalIdsSeen = args.$2;
+  static Future<void> _downloadFromStream((dynamic port, ArticleSource source, String? newestLocalIdsSeen) args) async {
+    dynamic sendPort = args.$1;
+    ArticleSource source = args.$2;
+    String? newestLocalIdsSeen = args.$3;
 
-    List<Future> futures = [];
-    for(ArticleSource source in sources)
-      futures.add(sourceArticleLoaders[source]!.download(newestLocalIdsSeen[source]));
+    BaseSourceArticleLoader loader = sourceArticleLoaders[source]!;
+    await loader.download(newestLocalIdsSeen).forEach(kIsWeb ? sendPort.add : sendPort.send);
+  }
 
-    List downloadedArticleData = await Future.wait(futures);
+  static Future<String?> _downloadSource(ArticleSource source, onArticleData(ArticleData articleData)) async {
 
-    Map<ArticleSource, (List<ArticleData>?, String?)> result = {};
-    for(int i=0; i<sources.length; i++)
-      result[sources[i]] = downloadedArticleData[i];
+    String? updatedNewestLocalIdsSeen = null;
+    void onDataReceived(dynamic data) async {
+      if(!(data is (ArticleData, String?)))
+        return;
 
-    return result;
+      await onArticleData(data.$1);
+      if(data.$2 != null)
+        updatedNewestLocalIdsSeen = data.$2!;
+    }
+
+    late StreamController<dynamic> webMockPort;
+    late ReceivePort receivePort;
+
+    if(kIsWeb){
+      webMockPort = StreamController<dynamic>();
+      webMockPort.stream.listen(onDataReceived);
+    } else{
+      receivePort = ReceivePort();
+      receivePort.listen(onDataReceived);
+    }
+
+    var args = (
+      kIsWeb ? webMockPort : receivePort.sendPort,
+      source,
+      await newestLocalIdsSeen(source)
+    );
+
+    await compute(_downloadFromStream, args);
+
+    return updatedNewestLocalIdsSeen;
+
+  }
+
+  FutureOr<void> _callOnArticleListeners(ArticleData articleData) async {
+    for(ArticleLoaderListener listener in listeners)
+        await listener.onArticleData?.call(articleData);
   }
 
   late bool all;
@@ -111,38 +151,26 @@ class ArticleLoader extends SingleComputer<String, SingleComputerListener<String
   @override
   Future<void> perform() async {
 
-    List<ArticleSource> sources = Set.from(unloadedArticleSources).intersection(Set.from(restrictToSources)).toList().cast();
+    List<ArticleSource> sourcesToLoad = Set.from(unloadedArticleSources).intersection(Set.from(restrictToSources)).toList().cast();
 
-    Map<ArticleSource, (List<ArticleData>?, String?)> newArticleData = await compute(
-        _download,
-        (sources, await newestLocalIdsSeen)
-    );
+    List<Future> futures = [];
+    for(ArticleSource source in sourcesToLoad)
+      futures.add(
+          _downloadSource(
+              source,
+              (ArticleData articleData) async {
+                await addAllArticlesAndCache(source, [articleData]);
+                await _callOnArticleListeners(articleData);
+              }
+          )
+      );
 
-    for(ArticleSource source in newArticleData.keys){
-      List<ArticleData>? articleData = newArticleData[source]!.$1;
-      String? updatedNewestLocalIdSeen = newArticleData[source]!.$2;
-
-      if(articleData == null) continue;
-
-      switch(source){
-        case ArticleSource.harcApp:
-          List<ArticleHarcApp> articles = articleData.map((data) => ArticleHarcApp.fromData(data)).toList().cast<ArticleHarcApp>();
-          ArticleHarcApp.addAll(articles);
-          break;
-        case ArticleSource.azymut:
-          List<ArticleAzymut> articles = articleData.map((data) => ArticleAzymut.fromData(data)).toList().cast<ArticleAzymut>();
-          ArticleAzymut.addAll(articles);
-          break;
-        case ArticleSource.pojutrze:
-          List<ArticlePojutrze> articles = articleData.map((data) => ArticlePojutrze.fromData(data)).toList().cast<ArticlePojutrze>();
-          ArticlePojutrze.addAll(articles);
-          break;
-      }
-      sourceArticleLoaders[source]!.cacheAll(articleData);
-      if(updatedNewestLocalIdSeen != null)
-        sourceArticleLoaders[source]!.saveNewestLocalIdSeen(updatedNewestLocalIdSeen);
+    List updatedNewestLocalIdsSeen = await Future.wait(futures);
+    for(int i=0; i<sourcesToLoad.length; i++) {
+      ArticleSource source = sourcesToLoad[i];
+      if(updatedNewestLocalIdsSeen[i] == null) continue;
+      sourceArticleLoaders[source]!.saveNewestLocalIdSeen(updatedNewestLocalIdsSeen[i]);
       newLoaded[source] = true;
-
     }
 
   }
