@@ -32,6 +32,7 @@ class IDB{
             db.createObjectStore(storeNameSmallCover(source), autoIncrement: true);
             db.createObjectStore(storeNameNewestSeenLocalId(source), autoIncrement: true);
             db.createObjectStore(storeNameOldestSeenLocalId(source), autoIncrement: true);
+            db.createObjectStore(storeNameIsAllHistoryLoaded(source), autoIncrement: true);
           }
         }
     );
@@ -112,5 +113,5 @@ class IDB{
   static Future<String?> getOldestSeenLocalId(ArticleSource source) async => (await get(storeNameOldestSeenLocalId(source), oldestSeenLocalIdKey)) as String?;
 
   static Future<Object> saveIsAllHistoryLoaded(ArticleSource source, bool value) => put(storeNameIsAllHistoryLoaded(source), isAllHistoryLoadedKey, value);
-  static Future<bool> getIsAllHistoryLoaded(ArticleSource source) async => (await get(storeNameIsAllHistoryLoaded(source), isAllHistoryLoadedKey)) as bool;
+  static Future<bool> getIsAllHistoryLoaded(ArticleSource source) async => (await get(storeNameIsAllHistoryLoaded(source), isAllHistoryLoadedKey)) as bool? ?? false;
 }

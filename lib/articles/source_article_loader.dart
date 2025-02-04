@@ -32,8 +32,6 @@ mixin _CacheMixin on BaseSourceArticleLoader{
     Map<String, dynamic> _data = Map.fromEntries(data.map((d) => MapEntry(d.localId, d.toJson())));
     await IDB.putAllContent(source, _data);
     logger.d("Articles ${source.name} ${data.map((d) => d.localId).toList()} cached.");
-    print("AAAAAAAAAAAAAAaaaa: ${await getAllCachedIds()}");
-
   }
 
   @override
@@ -55,7 +53,10 @@ mixin _CacheMixin on BaseSourceArticleLoader{
   Future<String?> getOldestLocalIdSeen() => IDB.getOldestSeenLocalId(source);
 
   @override
-  FutureOr<void> saveIsAllHistoryLoaded(bool value) => IDB.saveIsAllHistoryLoaded(source, value);
+  FutureOr<void> saveIsAllHistoryLoaded(bool value) async {
+    await IDB.saveIsAllHistoryLoaded(source, value);
+    logger.d("Is all history loaded for ${source.name} saved: $value");
+  }
 
   @override
   FutureOr<bool> getIsAllHistoryLoaded() => IDB.getIsAllHistoryLoaded(source);

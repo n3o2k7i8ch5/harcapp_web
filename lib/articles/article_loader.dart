@@ -114,20 +114,28 @@ class ArticleLoader extends SingleComputer<String, ArticleLoaderListener>{
     ).forEach(kIsWeb ? sendPort.add : sendPort.send);
   }
 
-  static Future<String?> _downloadSource(
+  static Future<(String?, String?, bool?)> _downloadSource(
       ArticleSource source,
       {FutureOr Function(ArticleDataOrList articleData)? onArticleData}
-      ) async {
+  ) async {
 
     String? updatedNewestLocalIdsSeen = null;
+    String? updatedOldestLocalIdsSeen = null;
+    bool? updatedIsAllHistoryLoaded = null;
     void onDataReceived(dynamic data) async {
 
-      if(!(data is (ArticleDataOrList, String?)))
+      if(!(data is (ArticleDataOrList, String?, String?, bool?)))
         return;
 
       await onArticleData?.call(data.$1);
       if(data.$2 != null)
         updatedNewestLocalIdsSeen = data.$2!;
+
+      if(data.$3 != null)
+        updatedOldestLocalIdsSeen = data.$3!;
+
+      if(data.$4 != null)
+        updatedIsAllHistoryLoaded = data.$4!;
     }
 
     late StreamController<dynamic> webMockPort;
@@ -151,7 +159,7 @@ class ArticleLoader extends SingleComputer<String, ArticleLoaderListener>{
 
     await compute(_downloadFromStream, args);
 
-    return updatedNewestLocalIdsSeen;
+    return (updatedNewestLocalIdsSeen, updatedOldestLocalIdsSeen, updatedIsAllHistoryLoaded);
 
   }
 
@@ -191,11 +199,24 @@ class ArticleLoader extends SingleComputer<String, ArticleLoaderListener>{
           )
       );
 
-    List updatedNewestLocalIdsSeen = await Future.wait(futures);
+    List results = await Future.wait(futures);
     for(int i=0; i<sourcesToLoad.length; i++) {
+
+      String? updatedNewestLocalIdsSeen = results[i].$1;
+      String? updatedOldestLocalIdsSeen = results[i].$2;
+      bool? updatedIsAllHistoryLoaded = results[i].$3;
+
       ArticleSource source = sourcesToLoad[i];
-      if(updatedNewestLocalIdsSeen[i] == null) continue;
-      sourceArticleLoaders[source]!.saveNewestLocalIdSeen(updatedNewestLocalIdsSeen[i]);
+
+      if(updatedNewestLocalIdsSeen != null)
+        await sourceArticleLoaders[source]!.saveNewestLocalIdSeen(updatedNewestLocalIdsSeen);
+
+      if(updatedOldestLocalIdsSeen != null)
+        await sourceArticleLoaders[source]!.saveOldestLocalIdSeen(updatedOldestLocalIdsSeen);
+
+      if(updatedIsAllHistoryLoaded != null)
+        await sourceArticleLoaders[source]!.saveIsAllHistoryLoaded(updatedIsAllHistoryLoaded);
+
       newLoaded[source] = true;
     }
 

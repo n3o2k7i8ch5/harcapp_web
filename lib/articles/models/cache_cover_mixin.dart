@@ -7,6 +7,7 @@ import 'package:image/image.dart' as img;
 import 'dart:typed_data';
 
 import 'package:harcapp_web/idb.dart';
+import 'package:semaphore_plus/semaphore_plus.dart';
 
 mixin CacheCoverMixin on CoreArticle{
 
@@ -16,6 +17,8 @@ mixin CacheCoverMixin on CoreArticle{
     IDB.putSmallCover(source, localId, img.encodePng(smallImage!));
   }
 
+  static LocalSemaphore loadCoverSemaphore = LocalSemaphore(3);
+
   @override
   Future<Uint8List?> loadCover(bool big) async {
     Uint8List? cachedCoverImage = await IDB.getCover(source, localId, big);
@@ -24,7 +27,13 @@ mixin CacheCoverMixin on CoreArticle{
       return cachedCoverImage;
     }
 
-    Uint8List? coverImage = await super.loadCover(big);
+    Uint8List? coverImage;
+    loadCoverSemaphore.acquire();
+    try {
+      coverImage = await super.loadCover(big);
+    } finally{
+      loadCoverSemaphore.release();
+    }
     if (coverImage == null) return null;
 
     await IDB.putCover(source, localId, coverImage, big);

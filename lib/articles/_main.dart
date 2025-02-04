@@ -63,7 +63,6 @@ class ArticlePageState extends State<ArticlesPage>{
 
   @override
   void initState() {
-
     listener = ArticleLoaderListener(
         onArticleData: (articleData) => setState((){}),
         onEnd: (_, __, ___) => setState((){})
@@ -148,6 +147,7 @@ class ArticlePageState extends State<ArticlesPage>{
                   ],
                 )
               ),
+
               Expanded(
                 child: showLoading?
                 LoadingGrid(count: 12):
@@ -377,7 +377,6 @@ class ArticleGrid extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) => BaseGrid<CoreArticle>(
-      key: ValueKey((articles.hashCode, articles.length)),
       items: articles,
       itemBuilder: (context, article) => ArticleCardWidget(
           key: ValueKey(article.uniqName),

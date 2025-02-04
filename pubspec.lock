@@ -498,7 +498,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "79fd731448c4670ad9028b731c5c2a367ad37403"
+      resolved-ref: b7873f8e909b00763640e9c24d770ebbba461458
       url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"
@@ -927,7 +927,7 @@ packages:
     source: hosted
     version: "0.27.7"
   semaphore_plus:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: semaphore_plus
       sha256: "2e05324ace8f4db9aa7ac9a9fa77e97082da4b0caff692e90a2c6f780658878f"
