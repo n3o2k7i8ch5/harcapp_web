@@ -1,7 +1,6 @@
-import 'dart:typed_data';
-
 import 'package:flutter/foundation.dart';
 import 'package:harcapp_core/harcthought/articles/model/article_source.dart';
+import 'package:idb_shim/idb.dart';
 import 'package:idb_shim/idb_browser.dart';
 
 class IDB{
@@ -11,7 +10,11 @@ class IDB{
   static String storeNameBigCover(ArticleSource source) => "cover_big_${source.name}";
   static String storeNameSmallCover(ArticleSource source) => "cover_small_${source.name}";
   static String storeNameNewestSeenLocalId(ArticleSource source) => "newestLocalId_${source.name}";
+  static String storeNameOldestSeenLocalId(ArticleSource source) => "oldestLocalId_${source.name}";
+  static String storeNameIsAllHistoryLoaded(ArticleSource source) => "isAllHistoryLoaded_${source.name}";
   static const String newestSeenLocalIdKey = 'newestSeenLocalId';
+  static const String oldestSeenLocalIdKey = 'oldestSeenLocalId';
+  static const String isAllHistoryLoadedKey = 'isAllHistoryLoaded';
 
   static late Database database;
 
@@ -28,6 +31,7 @@ class IDB{
             db.createObjectStore(storeNameBigCover(source), autoIncrement: true);
             db.createObjectStore(storeNameSmallCover(source), autoIncrement: true);
             db.createObjectStore(storeNameNewestSeenLocalId(source), autoIncrement: true);
+            db.createObjectStore(storeNameOldestSeenLocalId(source), autoIncrement: true);
           }
         }
     );
@@ -44,7 +48,19 @@ class IDB{
   }
 
   static Future<Object> put(String storeName, String key, dynamic value) =>
-    compute(_put, (storeName, key, value));
+      compute(_put, (storeName, key, value));
+
+  static Future<void> _putAll((String storeName, Map<String, dynamic> data) args) async {
+    var (storeName, data) = args;
+    Transaction txn = database.transaction(storeName, "readwrite");
+    ObjectStore store = txn.objectStore(storeName);
+    for(String key in data.keys)
+      await store.put(data[key], key);
+    await txn.completed;
+  }
+
+  static Future<void> putAll(String storeName, Map<String, dynamic> data) =>
+    compute(_putAll, (storeName, data));
 
   static Future<dynamic> _get((String storeName, String key) args) async {
     var (storeName, key) = args;
@@ -55,9 +71,8 @@ class IDB{
     return value;
   }
 
-  static Future<dynamic> get(String storeName, String key) async {
-    return await compute(_get, (storeName, key));
-  }
+  static Future<dynamic> get(String storeName, String key) =>
+    compute(_get, (storeName, key));
 
   static Future<List<dynamic>> _getAllKeys(String storeName) async {
     Transaction txn = database.transaction(storeName, "readonly");
@@ -73,7 +88,9 @@ class IDB{
 
   // ---
 
-  static Future<Object> putContent(ArticleSource source, String key, dynamic value) => put(storeNameContent(source), key, value);
+  static Future<void> putAllContent(ArticleSource source, Map<String, dynamic> data) => putAll(storeNameContent(source), data);
+
+  static Future<void> putContent(ArticleSource source, String key, dynamic value) => put(storeNameContent(source), key, value);
   static Future<dynamic> getContent(ArticleSource source, String key) => get(storeNameContent(source), key);
   static Future<List<String>> getAllContentKeys(ArticleSource source) async => (await getAllKeys(storeNameContent(source))).cast<String>();
 
@@ -90,4 +107,10 @@ class IDB{
 
   static Future<Object> putNewestSeenLocalId(ArticleSource source, String value) => put(storeNameNewestSeenLocalId(source), newestSeenLocalIdKey, value);
   static Future<String?> getNewestSeenLocalId(ArticleSource source) async => (await get(storeNameNewestSeenLocalId(source), newestSeenLocalIdKey)) as String?;
+
+  static Future<Object> putOldestSeenLocalId(ArticleSource source, String value) => put(storeNameOldestSeenLocalId(source), oldestSeenLocalIdKey, value);
+  static Future<String?> getOldestSeenLocalId(ArticleSource source) async => (await get(storeNameOldestSeenLocalId(source), oldestSeenLocalIdKey)) as String?;
+
+  static Future<Object> saveIsAllHistoryLoaded(ArticleSource source, bool value) => put(storeNameIsAllHistoryLoaded(source), isAllHistoryLoadedKey, value);
+  static Future<bool> getIsAllHistoryLoaded(ArticleSource source) async => (await get(storeNameIsAllHistoryLoaded(source), isAllHistoryLoadedKey)) as bool;
 }

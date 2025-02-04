@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:harcapp_core/harcthought/articles/source_article_loader.dart';
 import 'package:harcapp_core/harcthought/articles/model/article_data.dart';
+import 'package:harcapp_core/logger.dart';
 import 'package:harcapp_web/idb.dart';
-import 'package:harcapp_web/logger.dart';
 
 mixin _CacheMixin on BaseSourceArticleLoader{
 
@@ -28,6 +28,15 @@ mixin _CacheMixin on BaseSourceArticleLoader{
   }
 
   @override
+  Future<void> cacheAll(List<ArticleData> data) async {
+    Map<String, dynamic> _data = Map.fromEntries(data.map((d) => MapEntry(d.localId, d.toJson())));
+    await IDB.putAllContent(source, _data);
+    logger.d("Articles ${source.name} ${data.map((d) => d.localId).toList()} cached.");
+    print("AAAAAAAAAAAAAAaaaa: ${await getAllCachedIds()}");
+
+  }
+
+  @override
   Future<void> saveNewestLocalIdSeen(String localId) async {
     await IDB.putNewestSeenLocalId(source, localId);
     logger.d("Newest seen local id for ${source.name} saved: $localId");
@@ -36,6 +45,20 @@ mixin _CacheMixin on BaseSourceArticleLoader{
   @override
   Future<String?> getNewestLocalIdSeen() => IDB.getNewestSeenLocalId(source);
 
+  @override
+  Future<void> saveOldestLocalIdSeen(String localId) async {
+    await IDB.putOldestSeenLocalId(source, localId);
+    logger.d("Oldest seen local id for ${source.name} saved: $localId");
+  }
+
+  @override
+  Future<String?> getOldestLocalIdSeen() => IDB.getOldestSeenLocalId(source);
+
+  @override
+  FutureOr<void> saveIsAllHistoryLoaded(bool value) => IDB.saveIsAllHistoryLoaded(source, value);
+
+  @override
+  FutureOr<bool> getIsAllHistoryLoaded() => IDB.getIsAllHistoryLoaded(source);
 }
 
 class ArticleHarcAppLoader extends BaseArticleHarcAppLoader with _CacheMixin{}

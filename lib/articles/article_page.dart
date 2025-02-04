@@ -6,8 +6,10 @@ import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_core/harcthought/articles/model/article.dart';
+import 'package:harcapp_core/harcthought/articles/model/article_data.dart';
 import 'package:harcapp_core/harcthought/articles/model/article_source.dart';
 import 'package:harcapp_core/harcthought/articles/model/common.dart';
+import 'package:harcapp_core/harcthought/articles/source_article_loader.dart';
 import 'package:harcapp_core/harcthought/articles/thumbnail/article_cover_widget.dart';
 import 'package:harcapp_core/harcthought/articles/thumbnail/article_info_widget.dart';
 import 'package:harcapp_core/harcthought/articles/widgets.dart';
@@ -48,9 +50,16 @@ class ArticlePageState extends State<ArticlePage>{
     article = getArticle();
 
     listener = ArticleLoaderListener(
-        onArticleData: (articleData){
-          if(articleData.localId == localId)
+        onArticleData: (ArticleDataOrList dataOtList){
+          if(dataOtList.isSingle && dataOtList.articleData.localId == localId)
             setState(() => article = getArticle());
+          else if(dataOtList.isList){
+            for(ArticleData articleData in dataOtList.list)
+              if(articleData.localId == localId){
+                setState(() => article = getArticle());
+                break;
+              }
+          }
         }
     );
 

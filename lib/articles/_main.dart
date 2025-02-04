@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
+import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
@@ -102,27 +103,50 @@ class ArticlePageState extends State<ArticlesPage>{
             children: [
               Padding(
                 padding: EdgeInsets.only(top: Dimen.defMarg),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(
-                      child: HeaderWidget(
-                          selected: widget.source,
-                          onTap: (ArticleSource? source){
-                            if(source == null) context.go(pathArticles);
-                            else context.go(pathArticlesSource.replaceAll(":source", source.name));
-                          }
-                      ),
-                    ),
-                    if(articleLoader.running)
-                      Padding(
-                        padding: EdgeInsets.only(right: Dimen.sideMarg),
-                        child: SpinKitChasingDots(
-                          color: Colors.grey,
-                          size: 20.0,
-                        ),
+
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: Dimen.defMarg),
+                      child: Material(
+                        elevation: 5.0,
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(AppCard.defRadius),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: Dimen.defMarg),
+                          child: Text(
+                            'Wersja testowa. Strona będzie się zacinać.',
+                            style: AppTextStyle(color: Colors.white, fontSize: 18.0, fontWeight: weight.halfBold),
+                            textAlign: TextAlign.center,
+                          ),
+                        )
                       )
+                    ),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: HeaderWidget(
+                              selected: widget.source,
+                              onTap: (ArticleSource? source){
+                                if(source == null) context.go(pathArticles);
+                                else context.go(pathArticlesSource.replaceAll(":source", source.name));
+                              }
+                          ),
+                        ),
+                        if(articleLoader.running)
+                          Padding(
+                            padding: EdgeInsets.only(right: Dimen.sideMarg),
+                            child: SpinKitChasingDots(
+                              color: Colors.grey,
+                              size: 20.0,
+                            ),
+                          )
+                      ],
+                    ),
                   ],
-                ),
+                )
               ),
               Expanded(
                 child: showLoading?
@@ -324,20 +348,19 @@ class BaseState<T> extends State<BaseGrid<T>> {
           int groupSize = groupedItems[groupIndex].length;
           double childAspectRatio = 1.5; // Adjust as needed
 
-          return Padding(
+          return GridView.builder(
             padding: EdgeInsets.only(bottom: sideMarg),
-            child: GridView.builder(
-              shrinkWrap: true, // Important to wrap GridView inside ListView
-              physics: NeverScrollableScrollPhysics(), // Disable GridView scrolling
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: crossAxisCount,
-                crossAxisSpacing: sideMarg,
-                mainAxisSpacing: sideMarg,
-                childAspectRatio: childAspectRatio,
-              ),
-              itemCount: groupSize,
-              itemBuilder: (context, index) => itemBuilder(context, groupedItems[groupIndex][index]),
+            key: ValueKey(groupedItems),
+            shrinkWrap: true, // Important to wrap GridView inside ListView
+            physics: NeverScrollableScrollPhysics(), // Disable GridView scrolling
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              crossAxisSpacing: sideMarg,
+              mainAxisSpacing: sideMarg,
+              childAspectRatio: childAspectRatio,
             ),
+            itemCount: groupSize,
+            itemBuilder: (context, index) => itemBuilder(context, groupedItems[groupIndex][index]),
           );
         },
       );
@@ -357,6 +380,7 @@ class ArticleGrid extends StatelessWidget{
       key: ValueKey((articles.hashCode, articles.length)),
       items: articles,
       itemBuilder: (context, article) => ArticleCardWidget(
+          key: ValueKey(article.uniqName),
           article,
           onTap: (context, article) =>
               context.push(pathArticlesSourceItem.replaceAll(":source", article.source.name).replaceAll(":localId", article.localId))

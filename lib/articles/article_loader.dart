@@ -24,7 +24,7 @@ ArticleLoader articleLoader = ArticleLoader();
 
 class ArticleLoaderListener extends SingleComputerListener<String>{
 
-  final FutureOr<void> Function(ArticleData articleData)? onArticleData;
+  final FutureOr<void> Function(ArticleDataOrList articleData)? onArticleData;
 
   ArticleLoaderListener({
     super.onStart,
@@ -60,6 +60,14 @@ class ArticleLoader extends SingleComputer<String, ArticleLoaderListener>{
     return await sourceArticleLoaders[source]!.getNewestLocalIdSeen();
   }
 
+  static Future<String?> oldestLocalIdsSeen(ArticleSource source) async{
+    return await sourceArticleLoaders[source]!.getOldestLocalIdSeen();
+  }
+
+  static Future<bool> isAllHistoryLoaded(ArticleSource source) async{
+    return await sourceArticleLoaders[source]!.getIsAllHistoryLoaded();
+  }
+
   static Map<ArticleSource, BaseSourceArticleLoader> sourceArticleLoaders = {
     ArticleSource.harcApp: articleHarcAppLoader,
     ArticleSource.azymut: articleAzymutLoader,
@@ -82,26 +90,42 @@ class ArticleLoader extends SingleComputer<String, ArticleLoaderListener>{
         break;
     }
     await sourceArticleLoaders[source]!.cacheAll(articleDataList);
-    newLoaded[source] = true;
   }
 
-  static Future<void> _downloadFromStream((dynamic port, ArticleSource source, String? newestLocalIdsSeen) args) async {
+  static Future<void> _downloadFromStream(
+      ( dynamic port,
+        ArticleSource source,
+        String? newestLocalIdsSeen,
+        String? oldestLocalIdSeen,
+        bool isAllHistoryLoaded
+      ) args
+  ) async {
     dynamic sendPort = args.$1;
     ArticleSource source = args.$2;
     String? newestLocalIdsSeen = args.$3;
+    String? oldestLocalIdSeen = args.$4;
+    bool isAllHistoryLoaded = args.$5;
 
     BaseSourceArticleLoader loader = sourceArticleLoaders[source]!;
-    await loader.download(newestLocalIdsSeen).forEach(kIsWeb ? sendPort.add : sendPort.send);
+    await loader.download(
+        newestLocalIdsSeen,
+        oldestLocalIdSeen,
+        isAllHistoryLoaded
+    ).forEach(kIsWeb ? sendPort.add : sendPort.send);
   }
 
-  static Future<String?> _downloadSource(ArticleSource source, onArticleData(ArticleData articleData)) async {
+  static Future<String?> _downloadSource(
+      ArticleSource source,
+      {FutureOr Function(ArticleDataOrList articleData)? onArticleData}
+      ) async {
 
     String? updatedNewestLocalIdsSeen = null;
     void onDataReceived(dynamic data) async {
-      if(!(data is (ArticleData, String?)))
+
+      if(!(data is (ArticleDataOrList, String?)))
         return;
 
-      await onArticleData(data.$1);
+      await onArticleData?.call(data.$1);
       if(data.$2 != null)
         updatedNewestLocalIdsSeen = data.$2!;
     }
@@ -120,7 +144,9 @@ class ArticleLoader extends SingleComputer<String, ArticleLoaderListener>{
     var args = (
       kIsWeb ? webMockPort : receivePort.sendPort,
       source,
-      await newestLocalIdsSeen(source)
+      await newestLocalIdsSeen(source),
+      await oldestLocalIdsSeen(source),
+      await isAllHistoryLoaded(source)
     );
 
     await compute(_downloadFromStream, args);
@@ -129,7 +155,7 @@ class ArticleLoader extends SingleComputer<String, ArticleLoaderListener>{
 
   }
 
-  FutureOr<void> _callOnArticleListeners(ArticleData articleData) async {
+  FutureOr<void> _callOnArticleListeners(ArticleDataOrList articleData) async {
     for(ArticleLoaderListener listener in listeners)
         await listener.onArticleData?.call(articleData);
   }
@@ -158,9 +184,9 @@ class ArticleLoader extends SingleComputer<String, ArticleLoaderListener>{
       futures.add(
           _downloadSource(
               source,
-              (ArticleData articleData) async {
-                await addAllArticlesAndCache(source, [articleData]);
-                await _callOnArticleListeners(articleData);
+              onArticleData: (ArticleDataOrList dataOrList) async {
+                await addAllArticlesAndCache(source, dataOrList.toList());
+                await _callOnArticleListeners(dataOrList);
               }
           )
       );

@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:harcapp_core/harcthought/articles/model/article.dart';
+import 'package:harcapp_core/logger.dart';
 import 'package:image/image.dart' as img;
 import 'dart:typed_data';
 
 import 'package:harcapp_web/idb.dart';
-import 'package:harcapp_web/logger.dart';
 
 mixin CacheCoverMixin on CoreArticle{
 
