@@ -113,7 +113,7 @@ class ArticlePageState extends State<ArticlesPage>{
                         color: Colors.red,
                         borderRadius: BorderRadius.circular(AppCard.defRadius),
                         child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: Dimen.defMarg),
+                          padding: EdgeInsets.all(Dimen.defMarg),
                           child: Text(
                             'Wersja testowa. Strona będzie się zacinać.',
                             style: AppTextStyle(color: Colors.white, fontSize: 18.0, fontWeight: weight.halfBold),
@@ -338,6 +338,7 @@ class BaseState<T> extends State<BaseGrid<T>> {
     builder: (BuildContext context, BoxConstraints constraints) {
       groupItems(constraints.maxWidth);
       return ListView.builder(
+        key: ValueKey(("Article Groups ListView", groupedItems.length)),
         padding: EdgeInsets.all(sideMarg),
         itemCount: groupedItems.length,
         itemBuilder: (context, groupIndex) {
@@ -349,8 +350,8 @@ class BaseState<T> extends State<BaseGrid<T>> {
           double childAspectRatio = 1.5; // Adjust as needed
 
           return GridView.builder(
+            key: ValueKey(("Article Group GridView", groupIndex)),
             padding: EdgeInsets.only(bottom: sideMarg),
-            key: ValueKey(groupedItems),
             shrinkWrap: true, // Important to wrap GridView inside ListView
             physics: NeverScrollableScrollPhysics(), // Disable GridView scrolling
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -377,9 +378,10 @@ class ArticleGrid extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) => BaseGrid<CoreArticle>(
+      key: ValueKey(("Article BaseGrid", articles.length)),
       items: articles,
       itemBuilder: (context, article) => ArticleCardWidget(
-          key: ValueKey(article.uniqName),
+          fallbackCoverKey: ValueKey(("Article Cover Fallback", article.uniqName)),
           article,
           onTap: (context, article) =>
               context.push(pathArticlesSourceItem.replaceAll(":source", article.source.name).replaceAll(":localId", article.localId))

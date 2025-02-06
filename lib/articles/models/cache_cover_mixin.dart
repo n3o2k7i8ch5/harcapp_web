@@ -17,7 +17,7 @@ mixin CacheCoverMixin on CoreArticle{
     IDB.putSmallCover(source, localId, img.encodePng(smallImage!));
   }
 
-  static LocalSemaphore loadCoverSemaphore = LocalSemaphore(3);
+  static LocalSemaphore loadCoverSemaphore = LocalSemaphore(1);
 
   @override
   Future<Uint8List?> loadCover(bool big) async {
@@ -28,10 +28,12 @@ mixin CacheCoverMixin on CoreArticle{
     }
 
     Uint8List? coverImage;
-    loadCoverSemaphore.acquire();
+    await loadCoverSemaphore.acquire();
+    logger.d("Semaphore acquired for ${source.name} $localId.");
     try {
       coverImage = await super.loadCover(big);
     } finally{
+      logger.d("Semaphore released for ${source.name} $localId.");
       loadCoverSemaphore.release();
     }
     if (coverImage == null) return null;
