@@ -65,8 +65,8 @@ class ArticlePageState extends State<ArticlesPage>{
   @override
   void initState() {
     listener = ArticleLoaderListener(
-        onArticleData: (articleData) => setState((){}),
-        onEnd: (_, __, ___) => setState((){})
+        onArticleData: (articleData) => mounted?setState((){}):null,
+        onEnd: (_, __, ___) => mounted?setState((){}):null
     );
 
     articleLoader.addListener(listener);

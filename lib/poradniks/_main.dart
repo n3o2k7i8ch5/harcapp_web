@@ -9,7 +9,6 @@ import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_core/harcthought/poradnik/poradnik.dart';
 import 'package:harcapp_core/harcthought/poradnik/poradnik_thumbnail_widget.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
-import 'package:harcapp_web/consts.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class PoradniksPage extends StatefulWidget{
@@ -78,8 +77,6 @@ class PoradniksPageState extends State<PoradniksPage>{
   Widget build(BuildContext context) => LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints){
 
-        bool workspaceAlwaysVisible = constraints.maxWidth>collapseWidth;
-
         List<PoradnikThumbnailWidget> poradnikWidgets = allPoradniks.map((poradnik) => PoradnikThumbnailWidget(
           poradnik,
           width: 100*3,
@@ -90,27 +87,8 @@ class PoradniksPageState extends State<PoradniksPage>{
         return BaseScaffold(
           scaffoldKey: scaffoldKey,
           backgroundColor: background_(context),
-          // drawer: workspaceAlwaysVisible?
-          // null:
-          // Drawer(
-          //   backgroundColor: background_(context),
-          //   child: tableOfContentBuilder(true, selectedPoradnik),
-          //   width: drawerWidth,
-          // ),
           body: Row(
             children: [
-
-              // if(workspaceAlwaysVisible)
-              //   Padding(
-              //     padding: EdgeInsets.only(
-              //       top: PoradniksPage.defPaddingVal,
-              //       left: PoradniksPage.defPaddingVal
-              //     ),
-              //     child: SizedBox(
-              //       width: drawerWidth,
-              //       child: tableOfContentBuilder(false, selectedPoradnik),
-              //     ),
-              //   ),
 
               Expanded(
                 child: Padding(
@@ -163,11 +141,11 @@ class ClickHereWidget extends StatelessWidget{
               children: [
 
                 Text(
-                  'Chcesz przeglądać inspiracje\nna pracę harcerską?',
+                  'Szukasz merytorycznego wsparcia\nw pracy harcerskiej?',
                   style: AppTextStyle(
-                      fontSize: 20.0,
-                      color: textDisab_(context),
-                      fontWeight: weight.halfBold
+                    fontSize: 20.0,
+                    color: textDisab_(context),
+                    fontWeight: weight.halfBold
                   ),
                 ),
 

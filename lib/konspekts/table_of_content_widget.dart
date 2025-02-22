@@ -59,7 +59,6 @@ class TableOfContentWidget<T extends KonspektFilters> extends StatefulWidget{
 
   final Konspekt? selectedKonspekt;
   final T filters;
-   // final void Function(T) onFiltersChanged;
   final KonspektFiltersWidget Function(KonspektSearchProvider<T>) filtersWidgetBuilder;
   final SearchFieldBottomFilterIndicatorsWidget searchFieldBottomFilterIndicatorsWidget;
   final EdgeInsets? padding;
@@ -69,7 +68,6 @@ class TableOfContentWidget<T extends KonspektFilters> extends StatefulWidget{
   const TableOfContentWidget({
     required this.selectedKonspekt,
     required this.filters,
-    // required this.onFiltersChanged,
     required this.filtersWidgetBuilder,
     required this.searchFieldBottomFilterIndicatorsWidget,
     this.padding,
@@ -86,7 +84,6 @@ class TableOfContentWidgetState<T extends KonspektFilters> extends State<TableOf
 
   Konspekt? get selectedKonspekt => widget.selectedKonspekt;
   T get filters => widget.filters;
-  // void Function(T) get onFiltersChanged => widget.onFiltersChanged;
   KonspektFiltersWidget Function(KonspektSearchProvider<T>) get filtersWidgetBuilder => widget.filtersWidgetBuilder;
   SearchFieldBottomFilterIndicatorsWidget get searchFieldBottomFilterIndicatorsWidget => widget.searchFieldBottomFilterIndicatorsWidget;
   EdgeInsets? get padding => widget.padding;

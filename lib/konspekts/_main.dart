@@ -10,11 +10,10 @@ import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
-import 'package:harcapp_core/harcthought/konspekts/base_konspekt_widget.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt_sphere_duch_levels_info_dialog.dart';
-import 'package:harcapp_core/harcthought/konspekts/konspekt_sphere_duch_mechanisms_info_dialog.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt_to_pdf/konspekt_to_pdf.dart';
+import 'package:harcapp_core/harcthought/konspekts/widgets/base_konspekt_widget.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/consts.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -125,7 +124,8 @@ class KonspektsPageState extends State<KonspektsPage>{
                         selectedKonspekt!,
                         withAppBar: false,
                         onDuchLevelInfoTap: () => openKonspektSphereDuchLevelsInfoDialog(context, maxWidth: defPageWidth),
-                        onDuchMechanismInfoTap: () => openKonspektSphereDuchMechanismsInfoDialog(context, maxWidth: defPageWidth),
+                        // onDuchMechanismInfoTap: () => openKonspektSphereDuchMechanismsInfoDialog(context, maxWidth: defPageWidth),
+                        onDuchMechanismInfoTap: () => null,
                         maxDialogWidth: defPageWidth,
                         oneLineMultiDuration: true,
                         controller: scrollController,
