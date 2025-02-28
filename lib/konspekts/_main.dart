@@ -14,6 +14,7 @@ import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt_sphere_duch_levels_info_dialog.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt_to_pdf/konspekt_to_pdf.dart';
 import 'package:harcapp_core/harcthought/konspekts/widgets/base_konspekt_widget.dart';
+import 'package:harcapp_core/harcthought/konspekts/widgets/cover_widget.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/consts.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -124,8 +125,6 @@ class KonspektsPageState extends State<KonspektsPage>{
                         selectedKonspekt!,
                         withAppBar: false,
                         onDuchLevelInfoTap: () => openKonspektSphereDuchLevelsInfoDialog(context, maxWidth: defPageWidth),
-                        // onDuchMechanismInfoTap: () => openKonspektSphereDuchMechanismsInfoDialog(context, maxWidth: defPageWidth),
-                        onDuchMechanismInfoTap: () => null,
                         maxDialogWidth: defPageWidth,
                         oneLineMultiDuration: true,
                         controller: scrollController,
@@ -155,11 +154,7 @@ class KonspektsPageState extends State<KonspektsPage>{
                                                       right: 0,
                                                       child: AspectRatio(
                                                           aspectRatio: 1000/667,
-                                                          child: Image.asset(
-                                                            selectedKonspekt!.coverPath,
-                                                            fit: BoxFit.cover,
-                                                            alignment: Alignment.topCenter,
-                                                          )
+                                                          child: KonspektCoverWidget(selectedKonspekt!)
                                                       )
                                                   )
 
@@ -200,6 +195,10 @@ class KonspektsPageState extends State<KonspektsPage>{
                             )
                         ),
                         oneLineSummary: false,
+                        thumbnailWidth: drawerWidth,
+                        thumbnailBackground: cardEnab_(context),
+                        thumbnailRadius: AppCard.defRadius,
+                        onThumbnailTap: (konspekt) => selectKonspekt(konspekt),
                       )
                     ),
                   ),

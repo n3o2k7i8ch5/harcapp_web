@@ -114,7 +114,7 @@ class TableOfContentWidgetState<T extends KonspektFilters> extends State<TableOf
           builder: (context, prov, _) => ListView.separated(
             padding: (padding??EdgeInsets.zero).add(EdgeInsets.only(top: Dimen.iconFootprint/2)),
             itemBuilder: (context, index) => SizedBox(
-              height: 140,
+              height: KonspektThumbnailWidget.defHeight,
               child: KonspektThumbnailWidget(
                 prov.konspekts[index],
                 radius: AppCard.defRadius,

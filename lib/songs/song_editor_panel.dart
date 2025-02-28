@@ -16,7 +16,6 @@ import 'package:harcapp_core/song_book/song_editor/widgets/scroll_to_bottom.dart
 import 'package:harcapp_core/song_book/song_editor/widgets/song_parts_list_widget.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/tags_widget.dart';
 import 'package:harcapp_core/song_book/widgets/song_widget_template.dart';
-import 'package:harcapp_web/main.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/song_editor_no_song_widget.dart';
 import 'package:harcapp_web/songs/song_part_editor.dart';

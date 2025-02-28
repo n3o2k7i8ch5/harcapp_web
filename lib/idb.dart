@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:harcapp_core/harcthought/articles/model/article_source.dart';
-import 'package:idb_shim/idb.dart';
 import 'package:idb_shim/idb_browser.dart';
 
 class IDB{

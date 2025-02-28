@@ -6,54 +6,51 @@ import 'package:harcapp_core/dimen.dart';
 
 class FloatingButton extends StatelessWidget{
 
-  IconData iconData;
-  Color color;
-  String text;
-  Function? onPressed;
-  bool? saving;
+  final IconData iconData;
+  final Color color;
+  final String text;
+  final Function? onPressed;
+  final bool? saving;
 
-  FloatingButton(this.iconData, this.color, this.text, this.onPressed, {this.saving = false});
+  const FloatingButton(this.iconData, this.color, this.text, this.onPressed, {this.saving = false});
 
   @override
-  Widget build(BuildContext context) {
-
-    return RawMaterialButton(
-        fillColor: color,
-        padding: EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-        elevation: 6.0,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            saving!?
-            SizedBox(
-              width: Dimen.iconSize,
-              height: Dimen.iconSize,
-              child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  backgroundColor: Colors.transparent
-              ),
-            ):
-            Icon(
-              iconData,
-              color: Colors.white,
+  Widget build(BuildContext context) => RawMaterialButton(
+      fillColor: color,
+      padding: EdgeInsets.all(16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+      elevation: 6.0,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          saving!?
+          SizedBox(
+            width: Dimen.iconSize,
+            height: Dimen.iconSize,
+            child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                backgroundColor: Colors.transparent
             ),
+          ):
+          Icon(
+            iconData,
+            color: Colors.white,
+          ),
 
-            SizedBox(width: 16),
+          SizedBox(width: 16),
 
-            Text(
-                text,
-                style: AppTextStyle(
-                    fontWeight: weight.bold,
-                    fontSize: 16,
-                    color: Colors.white
-                )
-            ),
-            SizedBox(width: 10),
-          ],
-        ),
-        onPressed: onPressed as void Function()?
-    );
-  }
+          Text(
+              text,
+              style: AppTextStyle(
+                  fontWeight: weight.bold,
+                  fontSize: 16,
+                  color: Colors.white
+              )
+          ),
+          SizedBox(width: 10),
+        ],
+      ),
+      onPressed: onPressed as void Function()?
+  );
 
 }

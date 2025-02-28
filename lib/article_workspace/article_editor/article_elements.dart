@@ -65,7 +65,7 @@ class ArticleElementListWidgetState extends State<ArticleElementListWidget>{
           builder: (context, dragAnimation, inDrag) {
             final t = dragAnimation.value;
             final elevation = ui.lerpDouble(0, 8, t)!;
-            final color = Color.lerp(Colors.white, Colors.white.withOpacity(0.8), t);
+            final color = Color.lerp(Colors.white, Colors.white.withValues(alpha: 0.8), t);
 
             return SizeFadeTransition(
               sizeFraction: 0.7,
