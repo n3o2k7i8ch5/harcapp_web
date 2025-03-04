@@ -129,7 +129,11 @@ class KonspektsPageState extends State<KonspektsPage>{
                         oneLineMultiDuration: true,
                         controller: scrollController,
                         leading: Padding(
-                            padding: EdgeInsets.only(top: KonspektsPage.defPaddingVal),
+                            padding: EdgeInsets.only(
+                              top: KonspektsPage.defPaddingVal,
+                              left: BaseKonspektWidget.horizontalPadding,
+                              right: BaseKonspektWidget.horizontalPadding,
+                            ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
