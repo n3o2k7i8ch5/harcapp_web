@@ -9,7 +9,7 @@ import 'package:harcapp_core/harcthought/konspekts/filter/konspekt_filters.dart'
 import 'package:harcapp_core/harcthought/konspekts/filter/konspekt_filters_widget.dart';
 import 'package:harcapp_core/harcthought/konspekts/filter/search_field_bottom_filters_indicators.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
-import 'package:harcapp_core/harcthought/konspekts/konspekt_thumbnail_widget.dart';
+import 'package:harcapp_core/harcthought/konspekts/konspekt_tile_widget.dart';
 import 'package:harcapp_web/consts.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
@@ -114,8 +114,8 @@ class TableOfContentWidgetState<T extends KonspektFilters> extends State<TableOf
           builder: (context, prov, _) => ListView.separated(
             padding: (padding??EdgeInsets.zero).add(EdgeInsets.only(top: Dimen.iconFootprint/2)),
             itemBuilder: (context, index) => SizedBox(
-              height: KonspektThumbnailWidget.defHeight,
-              child: KonspektThumbnailWidget(
+              height: KonspektTileWidget.defHeight,
+              child: KonspektTileWidget(
                 prov.konspekts[index],
                 radius: AppCard.defRadius,
                 background: prov.konspekts[index] == selectedKonspekt?Colors.grey[300]!:Colors.grey[100]!,
