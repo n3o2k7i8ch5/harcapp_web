@@ -203,6 +203,8 @@ class KonspektsPageState extends State<KonspektsPage>{
                         thumbnailBackground: cardEnab_(context),
                         thumbnailRadius: AppCard.defRadius,
                         onThumbnailTap: (konspekt) => selectKonspekt(konspekt),
+                        showStepGroupBorder: true,
+                        showStepGroupBackground: true,
                       )
                     ),
                   ),
