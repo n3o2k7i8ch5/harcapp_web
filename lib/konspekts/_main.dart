@@ -52,6 +52,8 @@ class KonspektsPageState extends State<KonspektsPage>{
   late ScrollController scrollController;
   late ValueNotifier<double> notifier;
 
+  TimeOfDay? startTime;
+
   void selectKonspekt(Konspekt konspekt) => context.go(itemPathTemplate.replaceAll(":name", konspekt.name));
 
   Future<void> tryOpenDrawerIfCollapsed() async {
@@ -123,6 +125,7 @@ class KonspektsPageState extends State<KonspektsPage>{
                       ClickHereWidget(workspaceAlwaysVisible):
                       BaseKonspektWidget(
                         selectedKonspekt!,
+                        startTime: startTime,
                         withAppBar: false,
                         onDuchLevelInfoTap: () => openKonspektSphereDuchLevelsInfoDialog(context, maxWidth: defPageWidth),
                         maxDialogWidth: defPageWidth,
@@ -175,25 +178,52 @@ class KonspektsPageState extends State<KonspektsPage>{
 
                                 SizedBox(height: KonspektsPage.defPaddingVal),
 
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: SimpleButton.from(
-                                      context: context,
-                                      color: cardEnab_(context),
-                                      radius: AppCard.defRadius,
-                                      margin: EdgeInsets.zero,
-                                      icon: MdiIcons.filePdfBox,
-                                      text: 'Pobierz jako PDF',
-                                      onTap: () async {
-                                        AppScaffold.showMessage(context, 'Przygotowywanie pliku PDF...');
-                                        Uint8List bytes = await konspektToPdf(selectedKonspekt!);
-                                        downloadFileFromBytes(
-                                            fileName: 'Konspekt - ${selectedKonspekt!.title}.pdf',
-                                            bytes: bytes
-                                        );
-                                      }
-                                  ),
-                                )
+                                Row(
+                                  children: [
+
+                                    SimpleButton.from(
+                                        context: context,
+                                        color: cardEnab_(context),
+                                        radius: AppCard.defRadius,
+                                        margin: EdgeInsets.zero,
+                                        icon: MdiIcons.clockStart,
+                                        text: startTime==null?'Wybierz czas rozpoczęcia':'Czas rozpoczęcia: ${startTime!.hour}:${startTime!.minute}',
+                                        onTap: () async {
+                                          startTime = await showTimePicker(
+                                              context: context,
+                                              initialTime: startTime??TimeOfDay.now(),
+                                          );
+                                          setState(() {});
+                                        }
+                                    ),
+
+                                    if(startTime != null)
+                                      IconButton(
+                                        icon: Icon(MdiIcons.close),
+                                        onPressed: () => setState(() => startTime = null),
+                                      ),
+
+                                    Expanded(child: Container()),
+
+                                    SimpleButton.from(
+                                        context: context,
+                                        color: cardEnab_(context),
+                                        radius: AppCard.defRadius,
+                                        margin: EdgeInsets.zero,
+                                        icon: MdiIcons.filePdfBox,
+                                        text: 'Pobierz jako PDF',
+                                        onTap: () async {
+                                          AppScaffold.showMessage(context, 'Przygotowywanie pliku PDF...');
+                                          Uint8List bytes = await konspektToPdf(selectedKonspekt!);
+                                          downloadFileFromBytes(
+                                              fileName: 'Konspekt - ${selectedKonspekt!.title}.pdf',
+                                              bytes: bytes
+                                          );
+                                        }
+                                    ),
+
+                                  ],
+                                ),
 
                               ],
                             )
