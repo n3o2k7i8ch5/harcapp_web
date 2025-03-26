@@ -2,12 +2,16 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
+import 'package:harcapp_core/comm_classes/app_navigator.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_classes/common.dart';
+import 'package:harcapp_core/comm_widgets/app_bar.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
+import 'package:harcapp_core/comm_widgets/app_toast.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/dimen.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
@@ -15,6 +19,7 @@ import 'package:harcapp_core/harcthought/konspekts/konspekt_sphere_duch_levels_i
 import 'package:harcapp_core/harcthought/konspekts/konspekt_to_pdf/konspekt_to_pdf.dart';
 import 'package:harcapp_core/harcthought/konspekts/widgets/base_konspekt_widget.dart';
 import 'package:harcapp_core/harcthought/konspekts/widgets/cover_widget.dart';
+import 'package:harcapp_web/common/alert_dialog.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/consts.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -91,6 +96,24 @@ class KonspektsPageState extends State<KonspektsPage>{
 
         bool workspaceAlwaysVisible = constraints.maxWidth>collapseWidth;
 
+        Widget downloadPdfButton = SimpleButton.from(
+            context: context,
+            color: cardEnab_(context),
+            radius: AppCard.defRadius,
+            margin: EdgeInsets.zero,
+            icon: MdiIcons.filePdfBox,
+            text: 'Pobierz jako PDF',
+            onTap: () async {
+              openDialog(
+                  context: context,
+                  builder: (context) => DownloadPDFOptionsDialog(
+                    selectedKonspekt!,
+                    startTime,
+                  )
+              );
+            }
+        );
+
         return BaseScaffold(
           scaffoldKey: scaffoldKey,
           backgroundColor: background_(context),
@@ -125,7 +148,6 @@ class KonspektsPageState extends State<KonspektsPage>{
                       ClickHereWidget(workspaceAlwaysVisible):
                       BaseKonspektWidget(
                         selectedKonspekt!,
-                        startTime: startTime,
                         withAppBar: false,
                         onDuchLevelInfoTap: () => openKonspektSphereDuchLevelsInfoDialog(context, maxWidth: defPageWidth),
                         maxDialogWidth: defPageWidth,
@@ -180,48 +202,8 @@ class KonspektsPageState extends State<KonspektsPage>{
 
                                 Row(
                                   children: [
-
-                                    SimpleButton.from(
-                                        context: context,
-                                        color: cardEnab_(context),
-                                        radius: AppCard.defRadius,
-                                        margin: EdgeInsets.zero,
-                                        icon: MdiIcons.clockStart,
-                                        text: startTime==null?'Wybierz czas rozpoczęcia':'Czas rozpoczęcia: ${startTime!.hour}:${startTime!.minute}',
-                                        onTap: () async {
-                                          startTime = await showTimePicker(
-                                              context: context,
-                                              initialTime: startTime??TimeOfDay.now(),
-                                          );
-                                          setState(() {});
-                                        }
-                                    ),
-
-                                    if(startTime != null)
-                                      IconButton(
-                                        icon: Icon(MdiIcons.close),
-                                        onPressed: () => setState(() => startTime = null),
-                                      ),
-
                                     Expanded(child: Container()),
-
-                                    SimpleButton.from(
-                                        context: context,
-                                        color: cardEnab_(context),
-                                        radius: AppCard.defRadius,
-                                        margin: EdgeInsets.zero,
-                                        icon: MdiIcons.filePdfBox,
-                                        text: 'Pobierz jako PDF',
-                                        onTap: () async {
-                                          AppScaffold.showMessage(context, 'Przygotowywanie pliku PDF...');
-                                          Uint8List bytes = await konspektToPdf(selectedKonspekt!);
-                                          downloadFileFromBytes(
-                                              fileName: 'Konspekt - ${selectedKonspekt!.title}.pdf',
-                                              bytes: bytes
-                                          );
-                                        }
-                                    ),
-
+                                    downloadPdfButton,
                                   ],
                                 ),
 
@@ -235,6 +217,9 @@ class KonspektsPageState extends State<KonspektsPage>{
                         onThumbnailTap: (konspekt) => selectKonspekt(konspekt),
                         showStepGroupBorder: true,
                         showStepGroupBackground: true,
+                        onStartTimeChanged: (startTime, stepsTimeTable) => setState((){
+                          this.startTime = startTime;
+                        }),
                       )
                     ),
                   ),
@@ -310,6 +295,187 @@ class ClickHereWidget extends StatelessWidget{
               ],
             ),
           ),
+        ),
+      ),
+    ),
+  );
+
+}
+
+class DownloadPDFOptionsDialog extends StatefulWidget{
+
+  final Konspekt konspekt;
+  final TimeOfDay? startTime;
+
+  const DownloadPDFOptionsDialog(this.konspekt, this.startTime);
+
+  @override
+  State<StatefulWidget> createState() => DownloadPDFOptionsDialogState();
+  
+}
+
+class DownloadPDFOptionsDialogState extends State<DownloadPDFOptionsDialog>{
+
+  late bool withCover;
+  late bool withMetadata;
+  late bool withAims;
+  late bool withMaterials;
+  TimeOfDay? startTime;
+  List<TimeOfDay>? stepsTimeTable;
+  late bool buildingPdf;
+
+  @override
+  void initState() {
+    withCover = true;
+    withMetadata = true;
+    withAims = true;
+    withMaterials = true;
+    buildingPdf = false;
+    startTime = widget.startTime;
+    if(startTime != null)
+      stepsTimeTable = widget.konspekt.stepsTimeTable(startTime!, expandStepGroups: true);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: SizedBox(
+      width: 500,
+      child: Material(
+        color: background_(context),
+        clipBehavior: Clip.hardEdge,
+        borderRadius: BorderRadius.circular(AppCard.bigRadius),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AppBarX(
+              title: 'Właściwości pliku PDF',
+              titleTextStyle: AppTextStyle(color: Colors.black, fontSize: Dimen.textSizeAppBar),
+              iconTheme: IconThemeData(color: iconEnab_(context)),
+            ),
+            Padding(
+              padding: EdgeInsets.all(Dimen.sideMarg),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(AppCard.defRadius),
+                      color: cardEnab_(context)
+                    ),
+                    child: SwitchListTile(
+                      title: Text('Zdjęcie okładki', style: AppTextStyle(color: iconEnab_(context))),
+                      value: withCover,
+                      onChanged: (value) => setState(() => withCover = value),
+                      activeColor: accent_(context),
+                    ),
+                  ),
+
+                  SizedBox(height: Dimen.sideMarg),
+
+                  Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(AppCard.defRadius),
+                        color: cardEnab_(context)
+                    ),
+                    child: SwitchListTile(
+                      title: Text('Metodyki, autor, czas, skrót', style: AppTextStyle(color: iconEnab_(context))),
+                      value: withMetadata,
+                      onChanged: (value) => setState(() => withMetadata = value),
+                      activeColor: accent_(context),
+                    ),
+                  ),
+
+                  SizedBox(height: Dimen.sideMarg),
+
+                  Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(AppCard.defRadius),
+                        color: cardEnab_(context)
+                    ),
+                    child: SwitchListTile(
+                      title: Text('Cele', style: AppTextStyle(color: iconEnab_(context))),
+                      value: withAims,
+                      onChanged: (value) => setState(() => withAims = value),
+                      activeColor: accent_(context),
+                    ),
+                  ),
+
+                  SizedBox(height: Dimen.sideMarg),
+
+                  Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(AppCard.defRadius),
+                        color: cardEnab_(context)
+                    ),
+                    child: SwitchListTile(
+                      title: Text('Lista materiałów', style: AppTextStyle(color: iconEnab_(context))),
+                      value: withMaterials,
+                      onChanged: (value) => setState(() => withMaterials = value),
+                      activeColor: accent_(context),
+                    ),
+                  ),
+
+                  if(widget.konspekt.anySteps)
+                    SizedBox(height: Dimen.sideMarg),
+
+                  if(widget.konspekt.anySteps)
+                    StartTimeButton(
+                      widget.konspekt,
+                      startTime: startTime,
+                      expandStepGroups: true,
+                      onStartTimeChanged: (startTime, stepsTimeTable) =>
+                        setState(() {
+                          this.startTime = startTime;
+                          this.stepsTimeTable = stepsTimeTable;
+                        })
+                    ),
+
+                ],
+              ),
+            ),
+
+            SimpleButton.from(
+                iconWidget:
+                buildingPdf?
+                SpinKitChasingDots(color: textDisab_(context), size: Dimen.iconSize):
+                null,
+
+                icon: buildingPdf?null:MdiIcons.printer,
+                color: cardEnab_(context),
+                textColor: buildingPdf?iconDisab_(context):iconEnab_(context),
+                margin: EdgeInsets.zero,
+                radius: 0,
+                text: buildingPdf?'Przygotowywanie pliku PDF...':'Pobierz PDF',
+                onTap: buildingPdf?null:() async {
+                  setState(() => buildingPdf = true);
+                  try {
+                    Uint8List bytes = await konspektToPdf(
+                      widget.konspekt,
+                      withCover: withCover,
+                      withMetadata: withMetadata,
+                      withAims: withAims,
+                      withMaterials: withMaterials,
+                      stepsTimeTable: stepsTimeTable,
+                    );
+                    downloadFileFromBytes(
+                        fileName: 'Konspekt - ${widget.konspekt.title}.pdf',
+                        bytes: bytes
+                    );
+                    popPage(context);
+
+                  }catch (e){
+                    AppScaffold.showMessage(context, 'Coś poszło nie tak: ${e.toString()}');
+                  } finally{
+                    setState(() => buildingPdf = false);
+                  }
+
+                }
+            )
+
+          ],
         ),
       ),
     ),
