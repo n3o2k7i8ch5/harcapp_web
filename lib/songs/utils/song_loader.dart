@@ -48,6 +48,6 @@ Map<String, List<SongRaw>> decodeSongs(String allSongsCode) {
 }
 
 Future<Map<String, List<SongRaw>>> loadSongs()async{
-  String allSongsCode = await rootBundle.loadString('assets/songs/all_songs.hrcpsng');
+  String allSongsCode = await rootBundle.loadString('packages/harcapp_core/assets/songs/all_songs.hrcpsng');
   return await compute(decodeSongs, allSongsCode);
 }
