@@ -91,7 +91,8 @@ class PoradniksPageState extends State<PoradniksPage>{
             children: [
 
               Expanded(
-                child: Padding(
+                child: SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
                   padding: EdgeInsets.all(PoradniksPage.defPaddingVal),
                   child: Wrap(
                     spacing: PoradniksPage.defPaddingVal,
