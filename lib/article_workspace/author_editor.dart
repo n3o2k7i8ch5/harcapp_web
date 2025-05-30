@@ -6,11 +6,11 @@ import 'dart:ui' as ui;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:harcapp_core/colors.dart';
+import 'package:harcapp_core/values/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
-import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_core/values/dimen.dart';
 
 import 'package:image/image.dart' as im;
 import 'package:image_picker_web/image_picker_web.dart';
@@ -92,7 +92,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
 
-                                Icon(Icons.account_box, size: 64, color: AppColors.text_hint_enab,),
+                                Icon(Icons.account_box, size: 64, color: AppColors.textHintEnab),
                                 SizedBox(height: Dimen.iconMarg),
 
                                 Padding(
@@ -101,7 +101,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                                     'KLIKNIJ, BY WCZYTAĆ ZDJĘCIE',
                                     textAlign: TextAlign.center,
                                     style: AppTextStyle(
-                                        color: AppColors.text_hint_enab,
+                                        color: AppColors.textHintEnab,
                                         fontWeight: weight.bold
                                     ),
                                   ),
@@ -178,7 +178,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                                 'Kod autora: ',
                                 style: AppTextStyle(
                                   fontSize: FONT_SIZE_NORM,
-                                  color: AppColors.text_hint_enab
+                                  color: AppColors.textHintEnab
                                 ),
                               ),
 
@@ -187,7 +187,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                                 style: AppTextStyle(
                                   fontSize: FONT_SIZE_NORM,
                                   fontWeight: weight.halfBold,
-                                  color: AppColors.text_hint_enab
+                                  color: AppColors.textHintEnab
                                 ),
                               ),
 
@@ -199,7 +199,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                                 hintText: 'Imię i nazwisko...',
                                 hintStyle: AppTextStyle(
                                     fontSize: 1.5*FONT_SIZE_NORM,
-                                    color: AppColors.text_hint_enab,
+                                    color: AppColors.textHintEnab,
                                     fontWeight: weight.halfBold,
                                   shadow: true
                                 ),
@@ -209,7 +209,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                             maxLines: 1,
                             style: AppTextStyle(
                                 fontSize: 1.5*FONT_SIZE_NORM,
-                                color: AppColors.text_def_enab,
+                                color: AppColors.textDefEnab,
                                 fontWeight: weight.halfBold,
                                 shadow: true
                             ),
@@ -221,7 +221,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                                 hintText: 'Opis...',
                                 hintStyle: AppTextStyle(
                                   fontSize: FONT_SIZE_NORM,
-                                  color: AppColors.text_hint_enab,
+                                  color: AppColors.textHintEnab,
                                 ),
                                 border: InputBorder.none
                             ),
@@ -230,7 +230,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                             maxLength: 350,
                             style: AppTextStyle(
                               fontSize: FONT_SIZE_NORM,
-                              color: AppColors.text_def_enab,
+                              color: AppColors.textDefEnab,
                             ),
                           ),
 
@@ -253,7 +253,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                 'Zdjęcie:\n',
                 style: AppTextStyle(
                   fontSize: FONT_SIZE_NORM,
-                  color: AppColors.text_hint_enab,
+                  color: AppColors.textHintEnab,
                   fontWeight: weight.bold
                 ),
               ),
@@ -264,7 +264,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                     '\n\t - przedstawiać autora w mundurze.',
                 style: AppTextStyle(
                     fontSize: FONT_SIZE_NORM,
-                    color: AppColors.text_hint_enab,
+                    color: AppColors.textHintEnab,
                 ),
               ),
 
@@ -275,7 +275,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                 'Opis:\n',
                 style: AppTextStyle(
                     fontSize: FONT_SIZE_NORM,
-                    color: AppColors.text_hint_enab,
+                    color: AppColors.textHintEnab,
                     fontWeight: weight.bold
                 ),
               ),
@@ -291,7 +291,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                     '\n\t - życiowe motto.',
                 style: AppTextStyle(
                   fontSize: FONT_SIZE_NORM,
-                  color: AppColors.text_hint_enab,
+                  color: AppColors.textHintEnab,
                 ),
               )
 

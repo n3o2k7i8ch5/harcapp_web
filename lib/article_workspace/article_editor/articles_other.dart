@@ -1,10 +1,10 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:harcapp_core/colors.dart';
+import 'package:harcapp_core/values/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
-import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_core/values/dimen.dart';
 import 'package:implicitly_animated_reorderable_list_2/implicitly_animated_reorderable_list_2.dart';
 import 'package:implicitly_animated_reorderable_list_2/transitions.dart';
 
@@ -41,7 +41,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
                   style: AppTextStyle(
                       fontSize: FONT_SIZE_NORM,
                       fontWeight: weight.halfBold,
-                      color: AppColors.text_hint_enab
+                      color: AppColors.textHintEnab
                   ),
                 ),
               ),
@@ -109,7 +109,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
                                           hintText: 'Kod artykułu...',
                                           hintStyle: AppTextStyle(
                                               fontSize: FONT_SIZE_NORM,
-                                              color: AppColors.text_hint_enab
+                                              color: AppColors.textHintEnab
                                           ),
                                           border: InputBorder.none
                                       ),

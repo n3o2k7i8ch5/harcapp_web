@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:harcapp_core/colors.dart';
+import 'package:harcapp_core/values/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_bar.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
-import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/harcthought/konspekts/filter/konspekt_filters.dart';
 import 'package:harcapp_core/harcthought/konspekts/filter/konspekt_filters_widget.dart';
 import 'package:harcapp_core/harcthought/konspekts/filter/search_field_bottom_filters_indicators.dart';
@@ -167,11 +167,11 @@ class TableOfContentWidgetState<T extends KonspektFilters> extends State<TableOf
 
                   Expanded(
                     child: TextField(
-                      style: AppTextStyle(color: AppColors.text_def_enab),
+                      style: AppTextStyle(color: AppColors.textDefEnab),
                       controller: controller,
                       decoration: InputDecoration(
                           hintText: 'Szukaj',
-                          hintStyle: AppTextStyle(color: AppColors.text_hint_enab),
+                          hintStyle: AppTextStyle(color: AppColors.textHintEnab),
                           border: InputBorder.none
                       ),
                       onChanged: (text){

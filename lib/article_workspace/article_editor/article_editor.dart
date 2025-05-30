@@ -4,11 +4,11 @@ import 'dart:html' as html;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:harcapp_core/colors.dart';
+import 'package:harcapp_core/values/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
-import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/common/float_act_butt.dart';
 import 'package:image/image.dart' as im;
 
@@ -118,7 +118,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
                           '(wstęp wyświetla się także przy przeglądaniu listy artykułów)',
                       hintStyle: AppTextStyle(
                           fontSize: FONT_SIZE_NORM,
-                          color: AppColors.text_hint_enab,
+                          color: AppColors.textHintEnab,
                           fontStyle: FontStyle.italic
                       ),
                       border: InputBorder.none
@@ -127,7 +127,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
                   keyboardType: TextInputType.multiline,
                   style: AppTextStyle(
                       fontSize: FONT_SIZE_NORM,
-                      color: AppColors.text_def_enab,
+                      color: AppColors.textDefEnab,
                       fontStyle: FontStyle.italic
                   ),
                   maxLength: 500,
@@ -217,7 +217,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
                           hintText: 'Kod autora...',
                           hintStyle: AppTextStyle(
                               fontSize: FONT_SIZE_NORM,
-                              color: AppColors.text_hint_enab,
+                              color: AppColors.textHintEnab,
                               fontWeight: weight.halfBold
                           ),
                           border: InputBorder.none
@@ -226,7 +226,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
                       keyboardType: TextInputType.multiline,
                       style: AppTextStyle(
                           fontSize: FONT_SIZE_NORM,
-                          color: AppColors.text_def_enab,
+                          color: AppColors.textDefEnab,
                           fontWeight: weight.halfBold
                       ),
                       onChanged: (text) => this.authCode = text,

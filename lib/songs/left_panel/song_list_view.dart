@@ -3,13 +3,13 @@ import 'dart:convert';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:harcapp_core/colors.dart';
+import 'package:harcapp_core/values/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/floating_container.dart';
-import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/song_book/song_tags.dart';
@@ -261,10 +261,10 @@ class SearchField extends StatelessWidget{
           ),
           Expanded(
             child: TextField(
-                style: AppTextStyle(color: AppColors.text_def_enab),
+                style: AppTextStyle(color: AppColors.textDefEnab),
                 decoration: InputDecoration(
                     hintText: 'Szukaj',
-                    hintStyle: AppTextStyle(color: AppColors.text_hint_enab),
+                    hintStyle: AppTextStyle(color: AppColors.textHintEnab),
                     border: InputBorder.none
                 ),
                 onChanged: (text) => prov.changeSearchPhrase(text)

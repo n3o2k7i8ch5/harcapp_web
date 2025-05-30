@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:harcapp_core/colors.dart';
+import 'package:harcapp_core/values/colors.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 
 class ColorPackGraphite extends ColorPack{
@@ -16,10 +16,10 @@ class ColorPackGraphite extends ColorPack{
   Color get accent => Colors.indigo;
 
   @override
-  Color get iconEnabled => AppColors.icon_enabled;
+  Color get iconEnabled => AppColors.iconEnab;
 
   @override
-  Color get iconDisabled => AppColors.icon_disabled;
+  Color get iconDisabled => AppColors.iconDisab;
 
   @override
   ColorPack? get darkEquivalent => this;

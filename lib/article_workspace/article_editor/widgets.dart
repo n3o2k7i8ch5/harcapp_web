@@ -1,8 +1,8 @@
 
 import 'package:flutter/material.dart';
-import 'package:harcapp_core/colors.dart';
+import 'package:harcapp_core/values/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
-import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_core/values/dimen.dart';
 import 'package:implicitly_animated_reorderable_list_2/implicitly_animated_reorderable_list_2.dart';
 
 import '../article_text_style.dart';
@@ -77,7 +77,7 @@ class ParagraphWidget extends ArticleElementWidget<Paragraph>{
           border: InputBorder.none,
           hintStyle: AppTextStyle(
               fontSize: FONT_SIZE_NORM,
-              color: AppColors.text_hint_enab,
+              color: AppColors.textHintEnab,
               height: 1.5
           )
       ),
@@ -85,7 +85,7 @@ class ParagraphWidget extends ArticleElementWidget<Paragraph>{
       controller: TextEditingController(text: item.text),
       style: AppTextStyle(
         fontSize: FONT_SIZE_NORM,
-        color: AppColors.text_def_enab,
+        color: AppColors.textDefEnab,
         height: 1.5
       ),
       onChanged: (text){
@@ -113,7 +113,7 @@ class HeaderWidget extends ArticleElementWidget<Header>{
           hintStyle: ArticleTextStyle(
             fontSize: 24.0,
             fontWeight: weight.bold,
-            color: AppColors.text_hint_enab,
+            color: AppColors.textHintEnab,
           )
       ),
       maxLines: null,
@@ -121,7 +121,7 @@ class HeaderWidget extends ArticleElementWidget<Header>{
       style: ArticleTextStyle(
           fontSize: 24.0,
           fontWeight: weight.bold,
-          color: AppColors.text_def_enab,
+          color: AppColors.textDefEnab,
       ),
       onChanged: (text){
         item.text = text;

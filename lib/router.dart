@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/harcthought/articles/model/article_source.dart';
 import 'package:harcapp_core/harcthought/konspekts/data/harcerskie/all.dart';
 import 'package:harcapp_core/harcthought/konspekts/data/ksztalcenie/all.dart';

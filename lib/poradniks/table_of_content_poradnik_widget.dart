@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:harcapp_core/dimen.dart';
+import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/harcthought/poradnik/data.dart';
 import 'package:harcapp_core/harcthought/poradnik/poradnik.dart';
 import 'package:harcapp_core/harcthought/poradnik/poradnik_thumbnail_widget.dart';
