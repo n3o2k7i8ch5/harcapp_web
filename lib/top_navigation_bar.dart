@@ -97,13 +97,13 @@ class TopNavigationBarState extends State<TopNavigationBar>{
               dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
             ),
 
-            PageNavItem(
-              icon: MdiIcons.textBoxEditOutline,
-              title: 'Warsztat\nartykułów',
-              contextInfo: 'Twórz i dodawaj artykuły do HarcAppki!',
-              path: pathArticlesWorkspace,
-              dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
-            ),
+            // PageNavItem(
+            //   icon: MdiIcons.textBoxEditOutline,
+            //   title: 'Warsztat\nartykułów',
+            //   contextInfo: 'Twórz i dodawaj artykuły do HarcAppki!',
+            //   path: pathArticlesWorkspace,
+            //   dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
+            // ),
 
             PageNavItem(
               icon: MdiIcons.textBoxMultiple,
