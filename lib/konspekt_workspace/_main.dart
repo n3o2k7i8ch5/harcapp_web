@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_classes/meto.dart';
+import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_text_field_hint.dart';
 import 'package:harcapp_core/comm_widgets/multi_text_field.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
@@ -9,6 +10,7 @@ import 'package:harcapp_core/harcthought/konspekts/widgets/level_selectable_grid
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/select_time_button.dart';
+import 'package:harcapp_web/konspekt_workspace/widgets/step_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../consts.dart';
@@ -46,6 +48,14 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                 physics: BouncingScrollPhysics(),
                 children: [
 
+                  Material(
+                    borderRadius: BorderRadius.circular(AppCard.bigRadius),
+                    color: backgroundIcon_(context),
+                    child: Container(height: 300, width: double.infinity),
+                  ),
+
+                  const SizedBox(height: Dimen.sideMarg),
+
                   AppTextFieldHint(
                     hint: 'Nazwa konspektu:',
                     style: TitleShortcutRowWidget.style,
@@ -62,6 +72,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                   AppTextFieldHint(
                     hint: 'W skrócie:',
                     textCapitalization: TextCapitalization.sentences,
+                    maxLines: null,
                   ),
 
                   const SizedBox(height: Dimen.sideMarg),
@@ -122,7 +133,8 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
                       SelectTimeButton(
                         duration,
-                        onChanged: (Duration? newDuration) => setState(() => duration = newDuration)
+                        onChanged: (Duration? newDuration) => setState(() => duration = newDuration),
+                        fontSize: TitleShortcutRowWidget.style.fontSize,
                       )
                     ],
                   ),
@@ -134,57 +146,63 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                     textAlign: TextAlign.left,
                   ),
 
-                  MultiTextField(
-                    hint: 'Row test',
-                    layout: LayoutMode.row,
-                  ),
+                  AppTextFieldHint(
+                    hint: 'Cele:',
+                    multi: true,
+                    multiAllowZeroFields: true,
+                    multiLayout: LayoutMode.column,
+                    multiItemBuilder: (index, key, widget) => Row(
+                      key: key,
+                      children: [
+                        // Because when having more than one item, the close button appears adding height.
+                        SizedBox(height: Dimen.iconFootprint),
 
-                  Container(
-                    height: 100,
-                    width: 100,
-                    color: backgroundIcon_(context),
-                  ),
-
-                  MultiTextField(
-                    hint: 'Column test',
-                    layout: LayoutMode.column,
-                    addButtonBuilder: (bool tappable, void Function() onTap) => SimpleButton.from(
+                        SizedBox(width: Dimen.iconMarg),
+                        Icon(MdiIcons.circleMedium),
+                        SizedBox(width: Dimen.iconMarg),
+                        Expanded(child: widget)
+                      ],
+                    ),
+                    multiAddButtonBuilder: (bool tappable, void Function() onTap) => SimpleButton.from(
                       context: context,
                       icon: MdiIcons.plus,
+                      margin: EdgeInsets.zero,
                       textColor: tappable? iconEnab_(context) : iconDisab_(context),
-                      text: 'Dodaj nowy',
+                      text: 'Dodaj cel',
                       onTap: tappable? onTap: null,
-                    )
+                    ),
+                    multiIsCollapsed: true,
                   ),
 
-                  Container(
-                    height: 100,
-                    width: 100,
-                    color: backgroundIcon_(context),
+                  const SizedBox(height: Dimen.sideMarg),
+
+                  TitleShortcutRowWidget(
+                    title: 'Materiały',
+                    textAlign: TextAlign.left,
+                  ),
+                  Text('<tutaj materiały>'),
+
+                  const SizedBox(height: Dimen.sideMarg),
+
+                  TitleShortcutRowWidget(
+                    title: 'Opis',
+                    textAlign: TextAlign.left,
                   ),
 
-                  MultiTextField(
-                    hint: 'Row test',
-                    layout: LayoutMode.wrap,
+                  AppTextFieldHint(
+                    hint: 'Opis:',
+                    textAlignVertical: TextAlignVertical.top,
+                    textCapitalization: TextCapitalization.sentences,
+                    maxLines: null,
                   ),
 
-                  Container(
-                    height: 100,
-                    width: 100,
-                    color: backgroundIcon_(context),
+                  TitleShortcutRowWidget(
+                    title: 'Plan',
+                    textAlign: TextAlign.left,
                   ),
-
-                  MultiTextField(
-                    hint: 'Row expanded test',
-                    layout: LayoutMode.row,
-                    expanded: true,
+                  StepWidget(
+                    index: 0,
                   ),
-
-                  Container(
-                    height: 100,
-                    width: 100,
-                    color: backgroundIcon_(context),
-                  )
 
                 ],
               )

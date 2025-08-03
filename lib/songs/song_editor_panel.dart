@@ -66,6 +66,233 @@ class SongEditorPanelState extends State<SongEditorPanel>{
           child: SongEditorNoSongWidget(workspaceAlwaysVisible: widget.workspaceAlwaysVisible),
         );
 
+      return SongPartsListWidget(
+        // shrinkWrap: true,
+        onPartTap: (index) async {
+
+          String _text = currItemProv.song.songParts[index].getText();
+          String _chords = currItemProv.song.songParts[index].chords;
+          bool _shifted = currItemProv.song.songParts[index].shift;
+          bool _isError = currItemProv.song.songParts[index].isError;
+
+          await showDialog(context: context, builder: (_) => Center(
+            child: SizedBox(
+              width: songDialogWidth,
+              child: SongPartEditor(
+                initText: _text,
+                initChords: _chords,
+                initShifted: _shifted,
+                isRefren: currItemProv.song.songParts[index].isRefren(context),
+                onTextChanged: (text, errCount){
+                  _text = text;
+                  _isError = errCount != 0;
+                },
+                onChordsChanged: (text, errCount){
+                  _chords = text;
+                  _isError = errCount != 0;
+                },
+                onShiftedChanged: (shifted){
+                  _shifted = shifted;
+                },
+              ),
+            ),
+          ));
+
+          currItemProv.song.songParts[index].setText(_text);
+          currItemProv.song.songParts[index].chords = _chords;
+          currItemProv.song.songParts[index].shift = _shifted;
+          currItemProv.song.songParts[index].isError = _isError;
+          currItemProv.notify();
+
+        },
+        controller: scrollController,
+        header: Column(
+          children: [
+
+            Padding(
+              padding: EdgeInsets.only(left: Dimen.iconMarg, top: Dimen.iconMarg),
+              child: TitleShortcutRowWidget(
+                title: 'Info. ogólne',
+                textAlign: TextAlign.start,
+              ),
+            ),
+
+            Consumer<BindTitleFileNameProvider>(
+              builder: (context, prov, child) =>
+                  SwitchListTile(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppCard.bigRadius)),
+                    contentPadding: EdgeInsets.only(left: Dimen.iconMarg),
+                    value: prov.bindTitle,
+                    onChanged: (value){
+                      prov.bindTitle = value;
+
+                      if(prov.bindTitle)
+                        CurrentItemProvider.of(context).setLclIdFromTitleAndPerformer(withPerformer: prov.bindPerformer);
+
+                      SongFileNameDupErrProvider.of(context).checkAllDups(context);
+
+                    },
+                    title: Text(
+                      'Powiąż identyfikator piosenki z tytułem',
+                      style: AppTextStyle(
+                          color: prov.bindTitle?textEnab_(context):textDisab_(context),
+                          fontSize: Dimen.textSizeBig
+                      ),
+                    ),
+                  ),
+            ),
+
+            SizedBox(height: Dimen.defMarg),
+
+            Consumer2<BindTitleFileNameProvider, CurrentItemProvider>(
+              builder: (context, bindTitleFileNameProv, currItemProv, child) =>
+                  IgnorePointer(
+                    ignoring: currItemProv.performersController.isEmpty,
+                    child: AnimatedOpacity(
+                      duration: Duration(milliseconds: 300),
+                      opacity: currItemProv.performersController.isEmpty?
+                      0.3:
+                      1.0,
+
+                      child: SwitchListTile(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppCard.bigRadius)),
+                        contentPadding: EdgeInsets.only(left: Dimen.iconMarg),
+                        value: currItemProv.performersController.isNotEmpty && bindTitleFileNameProv.bindPerformer,
+                        onChanged: (value) {
+                          bindTitleFileNameProv.bindPerformer = value;
+
+                          if(bindTitleFileNameProv.bindTitle)
+                            CurrentItemProvider.of(context).setLclIdFromTitleAndPerformer(withPerformer: value);
+
+                          SongFileNameDupErrProvider.of(context).checkAllDups(context);
+
+                        },
+                        title: Text(
+                          'Powiąż identyfikator piosenki z wykonawcą',
+                          style: AppTextStyle(
+                              color: bindTitleFileNameProv.bindPerformer?
+                              textEnab_(context):
+                              textDisab_(context),
+
+                              fontSize: Dimen.textSizeBig
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+            ),
+
+            SizedBox(height: Dimen.defMarg),
+
+            SimilarSongWidget(),
+
+            SizedBox(height: Dimen.defMarg),
+
+            BasicDataWidget(
+              onChangedTitle: (String text){
+                BindTitleFileNameProvider bindTitleFileNameProv = BindTitleFileNameProvider.of(context);
+                if(bindTitleFileNameProv.bindTitle){
+                  CurrentItemProvider.of(context).setLclIdFromTitleAndPerformer(withPerformer: bindTitleFileNameProv.bindPerformer);
+                  SongFileNameDupErrProvider.of(context).checkAllDups(context);
+                }
+
+              },
+              onChangedHiddenTitles: (List<String> texts) => currItemProv.notify(),
+              onChangedAuthor: (List<String> texts) => currItemProv.notify(),
+              onChangedComposer: (List<String> texts) => currItemProv.notify(),
+              onChangedPerformer: (List<String> texts){
+
+                currItemProv.notify();
+
+                BindTitleFileNameProvider bindTitleFileNameProv = BindTitleFileNameProvider.of(context);
+                if(bindTitleFileNameProv.bindTitle){
+                  CurrentItemProvider.of(context).setLclIdFromTitleAndPerformer(withPerformer: bindTitleFileNameProv.bindPerformer);
+                  SongFileNameDupErrProvider.of(context).checkAllDups(context);
+                }
+              },
+              onChangedYT: (String? text) => currItemProv.notify(),
+            ),
+
+            const SizedBox(height: Dimen.defMarg),
+
+            const AddPersListWidget(),
+
+            const SizedBox(height: Dimen.defMarg),
+
+            SongTagsWidget(
+              linear: false,
+              onChanged: (List<String> tags){
+                currItemProv.setTags(tags, notify: false);
+              },
+            ),
+
+            SizedBox(height: SEPARATOR_HEIGHT),
+
+            RefrenTemplate(
+                onPartTap: () async {
+
+                  String _text = currItemProv.song.refrenPart.getText();
+                  String _chords = currItemProv.song.refrenPart.chords;
+                  bool _shifted = currItemProv.song.refrenPart.shift;
+                  bool _isError = currItemProv.song.refrenPart.isError;
+
+                  await showDialog(
+                      barrierDismissible: false,
+                      context: context,
+                      builder: (context) => Center(
+                        child: SizedBox(
+                          width: songDialogWidth,
+                          child: SongPartEditor(
+                            initText: _text,
+                            initChords: _chords,
+                            initShifted: _shifted,
+                            isRefren: currItemProv.song.refrenPart.isRefren(context),
+                            onTextChanged: (text, errCount){
+                              _text = text;
+                              _isError = errCount != 0;
+                            },
+                            onChordsChanged: (text, errCount){
+                              _chords = text;
+                              _isError = errCount != 0;
+                            },
+                            onShiftedChanged: (shifted){
+                              _shifted = shifted;
+                            },
+                          ),
+                        ),
+                      )
+                  );
+
+                  currItemProv.song.refrenPart.setText(_text);
+                  currItemProv.song.refrenPart.chords = _chords;
+                  currItemProv.song.refrenPart.shift = _shifted;
+                  currItemProv.song.refrenPart.isError = _isError;
+                  currItemProv.notify();
+                  Provider.of<RefrenPartProvider>(context, listen: false).notify();
+
+                }
+            ),
+
+            SizedBox(height: SEPARATOR_HEIGHT),
+
+            Padding(
+              padding: EdgeInsets.only(left: Dimen.iconMarg),
+              child: TitleShortcutRowWidget(
+                title: 'Struktura piosenki',
+                textAlign: TextAlign.start,
+              ),
+            )
+
+          ],
+        ),
+        footer: Material(
+          elevation: AppCard.bigElevation,
+          borderRadius: BorderRadius.circular(AppCard.bigRadius),
+          color: cardEnab_(context),
+          child: AddButtonsWidget(onPressed: () => scrollToBottom(scrollController)),
+        ),
+      );
+
       return Column(
         children: [
 
@@ -295,16 +522,15 @@ class SongEditorPanelState extends State<SongEditorPanel>{
 
                   ],
                 ),
+                footer: Material(
+                  elevation: AppCard.bigElevation,
+                  borderRadius: BorderRadius.circular(AppCard.bigRadius),
+                  color: cardEnab_(context),
+                  child: AddButtonsWidget(onPressed: () => scrollToBottom(scrollController)),
+                ),
               ),
             )
           ),
-
-          Material(
-            elevation: AppCard.bigElevation,
-            borderRadius: BorderRadius.circular(AppCard.bigRadius),
-            color: cardEnab_(context),
-            child: AddButtonsWidget(onPressed: () => scrollToBottom(scrollController)),
-          )
 
         ],
       );

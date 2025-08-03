@@ -7,7 +7,6 @@ import 'package:harcapp_core/comm_classes/date_to_str.dart';
 import 'package:harcapp_core/comm_widgets/app_bar.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
-import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/common/alert_dialog.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -16,47 +15,50 @@ class SelectTimeButton extends StatelessWidget {
 
   final Duration? time;
   final void Function(Duration?) onChanged;
+  final double? fontSize;
 
-  const SelectTimeButton(this.time, {required this.onChanged, super.key});
+  const SelectTimeButton(this.time, {required this.onChanged, this.fontSize, super.key});
 
   @override
-  Widget build(BuildContext context) => Row(
-    children: [
+  Widget build(BuildContext context) => Material(
+    borderRadius: BorderRadius.circular(AppCard.bigRadius),
+    clipBehavior: Clip.hardEdge,
+    color: backgroundIcon_(context),
+    child: Row(
+      children: [
 
-      SimpleButton(
-          color: backgroundIcon_(context),
-          radius: AppCard.defRadius,
-          padding: EdgeInsets.symmetric(vertical: Dimen.iconMarg, horizontal: Dimen.defMarg),
+        SimpleButton(
+          radius: 0,
+          padding: EdgeInsets.symmetric(vertical: Dimen.iconMarg, horizontal: 1.5*Dimen.defMarg),
           child: SizedBox(
             height: Dimen.iconSize,
-            child: Text(
-              time==null?'[Automatycznie]':durationToString(time),
-              style: AppTextStyle(
-                fontSize: TitleShortcutRowWidget.style.fontSize,
-                color: textEnab_(context),
-                fontWeight: weightNormal,
-              ),
-            ),
+            child: Center(
+              child: Text(
+                time==null?'Auto':durationToString(time),
+                style: AppTextStyle(
+                  fontSize: fontSize??Dimen.textSizeBig,
+                  color: textEnab_(context),
+                  fontWeight: weightNormal,
+                ),
+              )
+            )
           ),
           onTap: () async {
             Duration? duration = await selectDuration(context, time);
             if(duration != null) onChanged.call(duration);
           }
-      ),
-
-      if(time != null)
-        SizedBox(width: Dimen.defMarg),
-
-      if(time != null)
-        SimpleButton.from(
-          context: context,
-          color: backgroundIcon_(context),
-          margin: EdgeInsets.zero,
-          radius: AppCard.defRadius,
-          icon: Icons.close,
-          onTap: () => onChanged.call(null)
         ),
-    ],
+
+        if(time != null)
+          SimpleButton.from(
+            context: context,
+            radius: 0,
+            margin: EdgeInsets.zero,
+            icon: Icons.close,
+            onTap: () => onChanged.call(null)
+          ),
+      ],
+    ),
   );
 }
 
