@@ -197,7 +197,7 @@ class ArticlePageState extends State<ArticlePage>{
                               Text(
                                   article!.source.displayName,
                                   style: AppTextStyle(
-                                      fontWeight: weight.halfBold,
+                                      fontWeight: weightHalfBold,
                                       color: iconEnab_(context)
                                   )
                               ),

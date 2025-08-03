@@ -239,13 +239,7 @@ class FiltersDialog<T extends KonspektFilters> extends StatelessWidget{
             mainAxisSize: MainAxisSize.min,
             children: [
 
-              AppBarX(
-                titleWidget: Text(
-                  'Filtry',
-                  style: AppTextStyle(color: iconEnab_(context)),
-                ),
-                iconTheme: IconThemeData(color: iconEnab_(context)),
-              ),
+              AppBarX(title: 'Filtry'),
 
               Padding(
                 padding: EdgeInsets.all(Dimen.sideMarg),

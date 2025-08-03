@@ -18,7 +18,7 @@ publish_to: 'https://harcapp.web.app' # Remove this line if you wish to publish 
 version: 1.0.17+17
 
 environment:
-  sdk: ^3.7.2
+  sdk: ^3.8.1
 
 dependencies:
 
@@ -26,6 +26,7 @@ dependencies:
   dio: ^5.8.0+1
   draggable_scrollbar: ^0.1.0
   dropdown_button2: ^2.3.9
+  duration_picker: ^1.2.0
   file_picker: ^10.0.0
   flutter_spinkit: ^5.2.1
   flutter_svg: ^2.0.17

@@ -138,7 +138,7 @@ class TopButton extends StatelessWidget{
             style: AppTextStyle(
               fontSize: FONT_SIZE_NORM,
               color: Colors.white,
-              fontWeight: isSelected?weight.bold:weight.halfBold,
+              fontWeight: isSelected?weightBold:weightHalfBold,
             ),
           ),
         ],

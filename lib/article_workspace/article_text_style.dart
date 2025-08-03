@@ -5,15 +5,11 @@ import 'package:harcapp_core/comm_classes/app_text_style.dart';
 
 class ArticleTextStyle extends TextStyle{
 
-  const ArticleTextStyle({Color color = AppColors.textDefEnab, weight fontWeight =weight.normal, fontSize, bool? shadow, FontStyle? fontStyle, double height = 1.0}):super(
+  const ArticleTextStyle({Color color = AppColors.textDefEnab, FontWeight fontWeight = weightNormal, fontSize, bool? shadow, FontStyle? fontStyle, double height = 1.0}):super(
       fontFamily: 'Gentium',
       color: color,
       fontStyle: fontStyle,
-      fontWeight:
-      fontWeight == weight.thin?FontWeight.w100:
-      (fontWeight == weight.normal?FontWeight.w300:
-      (fontWeight == weight.halfBold?FontWeight.w500:
-      /*fontWeight == weight.bold?*/FontWeight.w700)),
+      fontWeight: fontWeight,
       fontSize: fontSize,
       height: height,
       shadows: shadow==true?

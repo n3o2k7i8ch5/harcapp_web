@@ -47,7 +47,7 @@ class SongPreviewWidget extends StatelessWidget{
                           Icon(MdiIcons.eyeOutline, color: songPrevProv.code?iconDisab_(context):iconEnab_(context)),
                           SizedBox(width: Dimen.iconMarg),
                           Text('Podgląd', style: AppTextStyle(
-                              fontWeight: weight.halfBold,
+                              fontWeight: weightHalfBold,
                               color: songPrevProv.code?iconDisab_(context):iconEnab_(context)
                           ))
                         ],
@@ -68,7 +68,7 @@ class SongPreviewWidget extends StatelessWidget{
                           Icon(MdiIcons.codeTags, color: songPrevProv.code?iconEnab_(context):iconDisab_(context)),
                           SizedBox(width: Dimen.iconMarg),
                           Text('Kod', style: AppTextStyle(
-                              fontWeight: weight.halfBold,
+                              fontWeight: weightHalfBold,
                               color: songPrevProv.code?iconEnab_(context):iconDisab_(context)
                           ))
                         ],

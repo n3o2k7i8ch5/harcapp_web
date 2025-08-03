@@ -68,7 +68,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                 '\n',
                 style: AppTextStyle(
                   fontSize: FONT_SIZE_NORM,
-                  fontWeight: weight.halfBold,
+                  fontWeight: weightHalfBold,
                   color: Colors.red,
                 ),
                 textAlign: TextAlign.center,
@@ -102,7 +102,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                                     textAlign: TextAlign.center,
                                     style: AppTextStyle(
                                         color: AppColors.textHintEnab,
-                                        fontWeight: weight.bold
+                                        fontWeight: weightBold
                                     ),
                                   ),
                                 )
@@ -146,7 +146,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                                         Text(
                                           'ZMIEŃ OBRAZ',
                                           style: AppTextStyle(
-                                              fontWeight: weight.bold,
+                                              fontWeight: weightBold,
                                               color: Colors.white
                                           ),
                                         )
@@ -186,7 +186,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                                 remSpecChars(remPolChars(name.replaceAll(' ', '_'))),
                                 style: AppTextStyle(
                                   fontSize: FONT_SIZE_NORM,
-                                  fontWeight: weight.halfBold,
+                                  fontWeight: weightHalfBold,
                                   color: AppColors.textHintEnab
                                 ),
                               ),
@@ -200,7 +200,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                                 hintStyle: AppTextStyle(
                                     fontSize: 1.5*FONT_SIZE_NORM,
                                     color: AppColors.textHintEnab,
-                                    fontWeight: weight.halfBold,
+                                    fontWeight: weightHalfBold,
                                   shadow: true
                                 ),
                                 border: InputBorder.none
@@ -210,7 +210,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                             style: AppTextStyle(
                                 fontSize: 1.5*FONT_SIZE_NORM,
                                 color: AppColors.textDefEnab,
-                                fontWeight: weight.halfBold,
+                                fontWeight: weightHalfBold,
                                 shadow: true
                             ),
                             onChanged: (text) => setState((){}),
@@ -254,7 +254,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                 style: AppTextStyle(
                   fontSize: FONT_SIZE_NORM,
                   color: AppColors.textHintEnab,
-                  fontWeight: weight.bold
+                  fontWeight: weightBold
                 ),
               ),
 
@@ -276,7 +276,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
                 style: AppTextStyle(
                     fontSize: FONT_SIZE_NORM,
                     color: AppColors.textHintEnab,
-                    fontWeight: weight.bold
+                    fontWeight: weightBold
                 ),
               ),
 

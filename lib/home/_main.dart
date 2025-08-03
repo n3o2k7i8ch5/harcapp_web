@@ -135,7 +135,7 @@ class HomePage extends StatelessWidget{
                               style: AppTextStyle(
                                   fontSize: Dimen.textSizeAppBar,
                                   color: iconEnab_(context),
-                                  fontWeight: weight.halfBold
+                                  fontWeight: weightHalfBold,
                               )
                           ),
 
@@ -213,7 +213,7 @@ class DownloadButton extends StatelessWidget{
                               title,
                               style: AppTextStyle(
                                 fontSize: 20.0,
-                                fontWeight: weight.halfBold,
+                                fontWeight: weightHalfBold,
                                 color: iconEnab_(context),
                               )
                           ),
@@ -222,7 +222,7 @@ class DownloadButton extends StatelessWidget{
                               '$subTitle',
                               style: AppTextStyle(
                                 fontSize: 14.0,
-                                fontWeight: weight.halfBold,
+                                fontWeight: weightHalfBold,
                                 color: iconEnab_(context),
                               )
                           ),

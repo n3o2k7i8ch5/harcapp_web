@@ -17,10 +17,12 @@ import 'package:harcapp_web/songs/_main.dart';
 import 'articles/_main.dart';
 import 'articles/article_page.dart';
 import 'home/_main.dart';
+import 'konspekt_workspace/_main.dart';
 import 'konspekts/table_of_content_harcerskie_widget.dart';
 import 'konspekts/table_of_content_ksztalcenie_widget.dart';
 
 String pathHome = '/';
+String pathWarsztatKonspektow = '/konspekty/warsztat';
 String pathKonspektyHarcerskie = '/konspekty/harcerskie';
 String pathKonspektyHarcerskieItem = '/konspekty/harcerskie/:name';
 String pathKonspektyKsztalcenie = '/konspekty/ksztalcenie';
@@ -72,6 +74,14 @@ GoRouter router = GoRouter(
                 GoRoute(
                     path: pathHome,
                     pageBuilder: (context, state) => NoTransitionPage(child: HomePage())
+                ),
+                GoRoute(
+                    path: pathWarsztatKonspektow,
+                    pageBuilder: (context, state) => NoTransitionPage(
+                        child: KonspektWorkspacePage(
+                            key: ValueKey('warsztat konspektów')
+                        )
+                    )
                 ),
                 GoRoute(
                     path: pathKonspektyHarcerskie,

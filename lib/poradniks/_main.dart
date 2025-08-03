@@ -146,7 +146,7 @@ class ClickHereWidget extends StatelessWidget{
                   style: AppTextStyle(
                     fontSize: 20.0,
                     color: textDisab_(context),
-                    fontWeight: weight.halfBold
+                    fontWeight: weightHalfBold,
                   ),
                 ),
 
@@ -166,7 +166,7 @@ class ClickHereWidget extends StatelessWidget{
                       style: AppTextStyle(
                           fontSize: 20.0,
                           color: textDisab_(context),
-                          fontWeight: weight.halfBold
+                          fontWeight: weightHalfBold,
                       ),
                     ),
                   ],

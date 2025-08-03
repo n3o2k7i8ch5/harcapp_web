@@ -45,7 +45,7 @@ class TopNavigationBarState extends State<TopNavigationBar>{
 
   @override
   Widget build(BuildContext context) => Material(
-    elevation: AppCard.bigElevation,
+    // elevation: AppCard.bigElevation,
       color: cardEnab_(context),
       child: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) => Row(
@@ -110,6 +110,14 @@ class TopNavigationBarState extends State<TopNavigationBar>{
               title: 'Artykuły\nharcerskie',
               contextInfo: 'Bądź na bieżąco z harcerską myślą!',
               path: pathArticles,
+              dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
+            ),
+
+            PageNavItem(
+              icon: MdiIcons.notebookEditOutline,
+              title: 'Warsztat\nkonspektów',
+              contextInfo: 'Twórz i dodawaj konspekty do HarcAppki!',
+              path: pathWarsztatKonspektow,
               dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
             ),
 

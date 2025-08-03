@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/values/dimen.dart';
@@ -9,7 +7,7 @@ class FloatingButton extends StatelessWidget{
   final IconData iconData;
   final Color color;
   final String text;
-  final Function? onPressed;
+  final void Function()? onPressed;
   final bool? saving;
 
   const FloatingButton(this.iconData, this.color, this.text, this.onPressed, {this.saving = false});
@@ -32,17 +30,14 @@ class FloatingButton extends StatelessWidget{
                 backgroundColor: Colors.transparent
             ),
           ):
-          Icon(
-            iconData,
-            color: Colors.white,
-          ),
+          Icon(iconData, color: Colors.white),
 
           SizedBox(width: 16),
 
           Text(
               text,
               style: AppTextStyle(
-                  fontWeight: weight.bold,
+                  fontWeight: weightBold,
                   fontSize: 16,
                   color: Colors.white
               )
@@ -50,7 +45,7 @@ class FloatingButton extends StatelessWidget{
           SizedBox(width: 10),
         ],
       ),
-      onPressed: onPressed as void Function()?
+      onPressed: onPressed
   );
 
 }

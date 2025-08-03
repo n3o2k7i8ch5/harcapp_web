@@ -112,7 +112,7 @@ class HeaderWidget extends ArticleElementWidget<Header>{
           border: InputBorder.none,
           hintStyle: ArticleTextStyle(
             fontSize: 24.0,
-            fontWeight: weight.bold,
+            fontWeight: weightBold,
             color: AppColors.textHintEnab,
           )
       ),
@@ -120,7 +120,7 @@ class HeaderWidget extends ArticleElementWidget<Header>{
       controller: TextEditingController(text: item.text),
       style: ArticleTextStyle(
           fontSize: 24.0,
-          fontWeight: weight.bold,
+          fontWeight: weightBold,
           color: AppColors.textDefEnab,
       ),
       onChanged: (text){

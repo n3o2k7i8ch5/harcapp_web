@@ -78,7 +78,7 @@ class AlertDialogButton extends StatelessWidget{
       radius: AppCard.bigRadius,
       padding: const EdgeInsets.all(Dimen.iconMarg),
       onTap: enabled?onTap:null,
-      child: Text(text, style: AppTextStyle(fontWeight: weight.halfBold, color: textColor??(enabled?textEnab_(context):textDisab_(context)), fontSize: Dimen.textSizeBig))
+      child: Text(text, style: AppTextStyle(fontWeight: weightHalfBold, color: textColor??(enabled?textEnab_(context):textDisab_(context)), fontSize: Dimen.textSizeBig))
   );
 
 }
@@ -94,7 +94,7 @@ Future<void> showAlertDialog(
   context: context,
   dismissible: dismissible,
   builder: (BuildContext context) => AlertDialog(
-    title: Text(title, style: AppTextStyle(fontWeight: weight.halfBold)),
+    title: Text(title, style: AppTextStyle(fontWeight: weightHalfBold,)),
     content: Row(
       children: [
         if(leading != null) leading,

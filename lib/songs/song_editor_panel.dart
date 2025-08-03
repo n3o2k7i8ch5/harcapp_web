@@ -333,7 +333,7 @@ class SimilarSongWidget extends StatelessWidget{
               ),
               Expanded(child: Text(
                 'Ładowanie listy istniejących piosenek...',
-                style: AppTextStyle(fontSize: Dimen.textSizeBig, fontWeight: weight.halfBold, color: hintEnab_(context)),
+                style: AppTextStyle(fontSize: Dimen.textSizeBig, fontWeight: weightHalfBold, color: hintEnab_(context)),
                 textAlign: TextAlign.center,
               )),
               SizedBox(width: Dimen.iconFootprint)
@@ -361,7 +361,7 @@ class _NoSimilarSongsWidget extends StatelessWidget{
 
       Expanded(child: Text(
         'Sądząc po tytule, tego jeszcze nie ma w śpiewniku!',
-        style: AppTextStyle(fontSize: Dimen.textSizeBig, fontWeight: weight.halfBold, color: accent_(context)),
+        style: AppTextStyle(fontSize: Dimen.textSizeBig, fontWeight: weightHalfBold, color: accent_(context)),
         textAlign: TextAlign.center,
       )),
       SizedBox(width: Dimen.iconFootprint)
@@ -383,7 +383,7 @@ class _FoundSimilarSongWidget extends StatelessWidget{
 
           Expanded(child: Text(
             'Piosenka o takim tytule już jest!',
-            style: AppTextStyle(color: Colors.red, fontWeight: weight.halfBold, fontSize: Dimen.textSizeBig),
+            style: AppTextStyle(color: Colors.red, fontWeight: weightHalfBold, fontSize: Dimen.textSizeBig),
             textAlign: TextAlign.center,
           )),
 

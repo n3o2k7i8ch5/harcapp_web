@@ -28,6 +28,7 @@ Future<void> initArticles() async {
 }
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   // When changing this, delete the `web` folder.
   setPathUrlStrategy();
   initLogger();
@@ -104,7 +105,7 @@ class MyAppState extends State<MyApp>{
               builder: (context, prov, child) => MaterialApp.router(
                 routerConfig: router,
                 title: 'HarcApp',
-                theme: prov.colorPack.themeData,
+                theme: prov.colorPack.themeData(context),
                 builder: (context, child) => child!,
                 localizationsDelegates: const [
                   GlobalMaterialLocalizations.delegate,

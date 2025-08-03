@@ -40,7 +40,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
                   'Odnośniki do innych artykułów:',
                   style: AppTextStyle(
                       fontSize: FONT_SIZE_NORM,
-                      fontWeight: weight.halfBold,
+                      fontWeight: weightHalfBold,
                       color: AppColors.textHintEnab
                   ),
                 ),
@@ -147,7 +147,7 @@ class ArticlesOtherState extends State<ArticlesOther>{
                               'Dodaj artykuł',
                               style: AppTextStyle(
                                   fontSize: FONT_SIZE_NORM,
-                                  fontWeight: weight.halfBold,
+                                  fontWeight: weightHalfBold,
                                 color: Colors.black
                               ),
                             ),

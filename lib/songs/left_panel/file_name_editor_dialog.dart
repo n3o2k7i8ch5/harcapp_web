@@ -52,7 +52,7 @@ class FileNameEditorDialogState extends State<FileNameEditorDialog>{
               child: ListTile(
                 title: Row(
                   children: [
-                    Text(isConfid?'oc!_':'o!_', style: AppTextStyle(fontWeight: weight.bold, fontSize: Dimen.textSizeBig),),
+                    Text(isConfid?'oc!_':'o!_', style: AppTextStyle(fontWeight: weightBold, fontSize: Dimen.textSizeBig),),
                     Expanded(
                         child: Consumer<SongFileNameDupErrProvider>(
                           builder: (context, prov, child) => AppTextFieldHint(

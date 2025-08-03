@@ -9,7 +9,7 @@ class BaseScaffold extends StatelessWidget{
 
   final GlobalKey? scaffoldKey;
   final Widget? drawer;
-  final Widget? body;
+  final Widget body;
   final Widget? bottomNavigationBar;
   final Widget? floatingActionButton;
   final Color? backgroundColor;
@@ -19,7 +19,7 @@ class BaseScaffold extends StatelessWidget{
   const BaseScaffold({
     this.scaffoldKey,
     this.drawer,
-    this.body,
+    required this.body,
     this.backgroundColor,
     this.bottomNavigationBar,
     this.floatingActionButton,
@@ -35,9 +35,7 @@ class BaseScaffold extends StatelessWidget{
         key: scaffoldKey,
         appBar: TopNavigationBar(withMenuIcon: drawer!=null),
         drawer: drawer,
-        body: SafeArea(
-          child: body!,
-        ),
+        body: body,
         backgroundColor: backgroundColor,
         bottomNavigationBar: bottomNavigationBar,
         floatingActionButton: floatingActionButton,

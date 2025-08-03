@@ -266,7 +266,7 @@ class ClickHereWidget extends StatelessWidget{
                   style: AppTextStyle(
                       fontSize: 20.0,
                       color: textDisab_(context),
-                      fontWeight: weight.halfBold
+                      fontWeight: weightHalfBold,
                   ),
                 ),
 
@@ -286,7 +286,7 @@ class ClickHereWidget extends StatelessWidget{
                       style: AppTextStyle(
                           fontSize: 20.0,
                           color: textDisab_(context),
-                          fontWeight: weight.halfBold
+                          fontWeight: weightHalfBold,
                       ),
                     ),
                   ],
@@ -348,11 +348,7 @@ class DownloadPDFOptionsDialogState extends State<DownloadPDFOptionsDialog>{
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            AppBarX(
-              title: 'Właściwości pliku PDF',
-              titleTextStyle: AppTextStyle(color: Colors.black, fontSize: Dimen.textSizeAppBar),
-              iconTheme: IconThemeData(color: iconEnab_(context)),
-            ),
+            AppBarX(title: 'Właściwości pliku PDF'),
             Padding(
               padding: EdgeInsets.all(Dimen.sideMarg),
               child: Column(

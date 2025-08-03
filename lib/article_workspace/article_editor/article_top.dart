@@ -44,7 +44,7 @@ class ArticleTop extends StatelessWidget{
                 hintText: 'Tytuł...',
                 hintStyle: ArticleTextStyle(
                   fontSize: 38,
-                  fontWeight: weight.bold,
+                  fontWeight: weightBold,
                   color: HEADER_TEXT_COLOR.withAlpha(160)
                 ),
                 border: InputBorder.none,
@@ -55,7 +55,7 @@ class ArticleTop extends StatelessWidget{
               style: ArticleTextStyle(
                 fontSize: 38,
                 color: HEADER_TEXT_COLOR,
-                fontWeight: weight.bold
+                fontWeight: weightBold
               ),
               onChanged: (text) => page.title = text,
             ),
@@ -105,7 +105,7 @@ class ArticleTop extends StatelessWidget{
                 '${articleDate!.day} ${month[articleDate!.month]} ${articleDate!.year} A.D.',
                 style: ArticleTextStyle(
                     fontSize: 20.0,
-                    fontWeight: weight.bold,
+                    fontWeight: weightBold,
                     color: HEADER_TEXT_COLOR
                 ),
               ),

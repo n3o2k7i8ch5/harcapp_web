@@ -14,6 +14,7 @@ import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/song_book/song_tags.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
+import 'package:harcapp_web/common/alert_dialog.dart';
 import 'package:harcapp_web/songs/left_panel/provider.dart';
 import 'package:harcapp_web/songs/left_panel/song_tile.dart';
 import 'package:harcapp_web/songs/providers.dart';
@@ -419,7 +420,7 @@ void handleExampleSongTap(BuildContext context){
 
 void handleNewSongFromCode(BuildContext context){
   SongRaw song = handleNewSongEmptyTap(context);
-  showDialog(
+  openDialog(
       context: context,
       builder: (context) => CodeEditorDialog(song, showInitCode: false)
   );

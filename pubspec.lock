@@ -225,6 +225,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.9"
+  duration_picker:
+    dependency: "direct main"
+    description:
+      name: duration_picker
+      sha256: e505a749c93f3218aa4194d339e5d5480d927df23a81f075b5282511f6ac11ab
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   fake_async:
     dependency: transitive
     description:
@@ -490,7 +498,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "4b8e93dd8c1a46d8a3e7046880165a5e5082b4bc"
+      resolved-ref: d1db41dd8b5b6199fc324e6f485a1b2b652026d4
       url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"
@@ -1388,5 +1396,5 @@ packages:
     source: hosted
     version: "9.1.1"
 sdks:
-  dart: ">=3.8.0 <4.0.0"
+  dart: ">=3.8.1 <4.0.0"
   flutter: ">=3.29.0"

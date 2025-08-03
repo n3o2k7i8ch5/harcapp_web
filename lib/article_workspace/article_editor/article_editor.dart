@@ -165,7 +165,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
                                   'Dodaj nagłówek',
                                   style: AppTextStyle(
                                       fontSize: FONT_SIZE_NORM,
-                                      fontWeight: weight.halfBold,
+                                      fontWeight: weightHalfBold,
                                       color: Colors.black
                                   )
                               ),
@@ -197,7 +197,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
                                   'Dodaj akapit',
                                   style: AppTextStyle(
                                       fontSize: FONT_SIZE_NORM,
-                                      fontWeight: weight.halfBold,
+                                      fontWeight: weightHalfBold,
                                       color: Colors.black
                                   )
                               ),
@@ -218,7 +218,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
                           hintStyle: AppTextStyle(
                               fontSize: FONT_SIZE_NORM,
                               color: AppColors.textHintEnab,
-                              fontWeight: weight.halfBold
+                              fontWeight: weightHalfBold,
                           ),
                           border: InputBorder.none
                       ),
@@ -227,7 +227,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
                       style: AppTextStyle(
                           fontSize: FONT_SIZE_NORM,
                           color: AppColors.textDefEnab,
-                          fontWeight: weight.halfBold
+                          fontWeight: weightHalfBold,
                       ),
                       onChanged: (text) => this.authCode = text,
                       textAlign: TextAlign.end,

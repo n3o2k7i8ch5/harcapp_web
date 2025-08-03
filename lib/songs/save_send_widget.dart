@@ -46,7 +46,7 @@ class SaveSendWidget extends StatelessWidget{
                         Text(
                           'Zapisz wszystko',
                           style: AppTextStyle(
-                              fontWeight: weight.halfBold,
+                              fontWeight: weightHalfBold,
                               color: prov.count==0?iconEnab_(context):iconDisab_(context)
                           ),
                         )
@@ -141,7 +141,7 @@ class SaveSendWidget extends StatelessWidget{
                       SizedBox(width: Dimen.iconMarg),
                       Text(
                         'Prześlij',
-                        style: AppTextStyle(fontWeight: weight.halfBold, color: iconEnab_(context)),
+                        style: AppTextStyle(fontWeight: weightHalfBold, color: iconEnab_(context)),
                       )
                     ],
                   ),
@@ -241,7 +241,7 @@ class SendSongWidgetState extends State<SendSongWidget>{
 
             Text(
               'Prześlij piosenki do weryfikacji',
-              style: AppTextStyle(fontWeight: weight.halfBold, fontSize: Dimen.textSizeAppBar),
+              style: AppTextStyle(fontWeight: weightHalfBold, fontSize: Dimen.textSizeAppBar),
             ),
 
             SizedBox(height: 20),
@@ -266,7 +266,7 @@ class SendSongWidgetState extends State<SendSongWidget>{
 
             Row(
               children: [
-                SelectableText(EMAIL_TO_SEND, style: AppTextStyle(fontWeight: weight.halfBold)),
+                SelectableText(EMAIL_TO_SEND, style: AppTextStyle(fontWeight: weightHalfBold,)),
                 IconButton(icon: Icon(MdiIcons.contentCopy), onPressed: () => FlutterClipboard.copy(EMAIL_TO_SEND))
               ],
             ),
@@ -286,7 +286,7 @@ class SendSongWidgetState extends State<SendSongWidget>{
                         Text(
                           'Prześlij',
                           style: AppTextStyle(
-                            fontWeight: weight.halfBold,
+                            fontWeight: weightHalfBold,
                             color: sendable?iconEnab_(context):iconDisab_(context)
                           ),
                         ),

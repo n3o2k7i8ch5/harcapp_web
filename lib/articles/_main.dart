@@ -117,7 +117,7 @@ class ArticlePageState extends State<ArticlesPage>{
                           padding: EdgeInsets.all(Dimen.defMarg),
                           child: Text(
                             'Wersja testowa. Strona będzie się zacinać.',
-                            style: AppTextStyle(color: Colors.white, fontSize: 18.0, fontWeight: weight.halfBold),
+                            style: AppTextStyle(color: Colors.white, fontSize: 18.0, fontWeight: weightHalfBold,),
                             textAlign: TextAlign.center,
                           ),
                         )
