@@ -6,20 +6,23 @@ import 'package:harcapp_core/comm_widgets/app_text_field_hint.dart';
 import 'package:harcapp_core/comm_widgets/multi_text_field.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
+import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/harcthought/konspekts/widgets/level_selectable_grid_widget.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
+import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/select_time_button.dart';
-import 'package:harcapp_web/konspekt_workspace/widgets/step_widget.dart';
+import 'package:harcapp_web/konspekt_workspace/widgets/steps_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../consts.dart';
 
 
-
 class KonspektWorkspacePage extends StatefulWidget{
 
-  const KonspektWorkspacePage({Key? key}) : super(key: key);
+  final KonspektData? konspektData;
+
+  const KonspektWorkspacePage({this.konspektData, Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => KonspektWorkspacePageState();
@@ -28,12 +31,15 @@ class KonspektWorkspacePage extends StatefulWidget{
 
 class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
-  late Set<Meto> selectedMetos;
-  Duration? duration;
+  KonspektData? _konspektData;
+
+  KonspektData get konspektData => widget.konspektData??_konspektData!;
 
   @override
   void initState() {
-    selectedMetos = Set.from(Meto.values);
+    if(widget.konspektData == null)
+      _konspektData = KonspektData();
+
     super.initState();
   }
 
@@ -61,6 +67,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                     style: TitleShortcutRowWidget.style,
                     hintStyle: TitleShortcutRowWidget.style.copyWith(color: hintEnab_(context)),
                     textCapitalization: TextCapitalization.sentences,
+                    controller: konspektData.titleController,
                   ),
 
                   const SizedBox(height: Dimen.sideMarg),
@@ -72,6 +79,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                   AppTextFieldHint(
                     hint: 'W skrócie:',
                     textCapitalization: TextCapitalization.sentences,
+                    controller: konspektData.summaryController,
                     maxLines: null,
                   ),
 
@@ -84,12 +92,12 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
                   LevelSelectableGridWidget(
                     Set.from(Meto.values),
-                    selectedMetos,
+                    konspektData.metos.toSet(),
                     oneLine: true,
                     onLevelTap: (Meto meto, bool checked) {
                       setState(() {
-                        if (checked) selectedMetos.remove(meto);
-                        else selectedMetos.add(meto);
+                        if (checked) konspektData.metos.remove(meto);
+                        else konspektData.metos.add(meto);
                       });
                     },
                   ),
@@ -105,7 +113,15 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                         ),
                       ),
 
-                      Text('<tutaj selektor>')
+                      SizedBox(width: Dimen.defMarg),
+
+                      _KonspektTypeButton(
+                        type: konspektData.type,
+                        onChanged: (KonspektType? type) {
+                          if(type == null) return;
+                          setState(() => konspektData.type = type);
+                        }
+                      ),
 
                     ],
                   ),
@@ -132,8 +148,8 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                       SizedBox(width: Dimen.defMarg),
 
                       SelectTimeButton(
-                        duration,
-                        onChanged: (Duration? newDuration) => setState(() => duration = newDuration),
+                        konspektData.customDuration,
+                        onChanged: (Duration? newDuration) => setState(() => konspektData.customDuration = newDuration),
                         fontSize: TitleShortcutRowWidget.style.fontSize,
                       )
                     ],
@@ -164,6 +180,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                       ],
                     ),
                     multiAddButtonBuilder: (bool tappable, void Function() onTap) => SimpleButton.from(
+                      color: backgroundIcon_(context),
                       context: context,
                       icon: MdiIcons.plus,
                       margin: EdgeInsets.zero,
@@ -194,14 +211,15 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                     textAlignVertical: TextAlignVertical.top,
                     textCapitalization: TextCapitalization.sentences,
                     maxLines: null,
+                    controller: konspektData.descriptionController,
                   ),
 
                   TitleShortcutRowWidget(
                     title: 'Plan',
                     textAlign: TextAlign.left,
                   ),
-                  StepWidget(
-                    index: 0,
+                  StepsWidget(
+                    steps: konspektData.steps,
                   ),
 
                 ],
@@ -210,5 +228,51 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
       )
   );
 
+}
+
+class _KonspektTypeButton extends StatelessWidget{
+
+  final KonspektType type;
+  final void Function(KonspektType type)? onChanged;
+
+  const _KonspektTypeButton({required this.type, this.onChanged, super.key});
+
+  @override
+  Widget build(BuildContext context) => PopupMenuButton<KonspektType>(
+    splashRadius: AppCard.bigRadius,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppCard.bigRadius)),
+    borderRadius: BorderRadius.circular(AppCard.bigRadius),
+    clipBehavior: Clip.hardEdge,
+    menuPadding: EdgeInsets.zero,
+    padding: EdgeInsets.zero,
+    child: SimpleButton.from(
+      context: context,
+      textColor: iconEnab_(context),
+      color: backgroundIcon_(context),
+      margin: EdgeInsets.zero,
+      text: type.displayName,
+      onTap: null,
+      icon: MdiIcons.circleMedium,
+      iconColor: type.color(context),
+      iconLeading: false,
+    ),
+    onSelected: onChanged,
+    itemBuilder: (BuildContext context) => KonspektType.values.map(
+        (value) => PopupMenuItem<KonspektType>(
+          value: value,
+          padding: EdgeInsets.zero,
+          child: SimpleButton.from(
+            context: context,
+            textColor: iconEnab_(context),
+            text: value.displayName,
+            margin: EdgeInsets.zero,
+            onTap: null,
+            icon: MdiIcons.circleMedium,
+            iconColor: value.color(context),
+            iconLeading: false,
+          ),
+        )
+    ).toList()
+  );
 
 }

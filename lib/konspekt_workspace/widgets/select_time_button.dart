@@ -16,8 +16,15 @@ class SelectTimeButton extends StatelessWidget {
   final Duration? time;
   final void Function(Duration?) onChanged;
   final double? fontSize;
+  final bool removable;
 
-  const SelectTimeButton(this.time, {required this.onChanged, this.fontSize, super.key});
+  const SelectTimeButton(
+      this.time,
+      { required this.onChanged,
+        this.fontSize,
+        this.removable = true,
+        super.key
+      });
 
   @override
   Widget build(BuildContext context) => Material(
@@ -49,14 +56,19 @@ class SelectTimeButton extends StatelessWidget {
           }
         ),
 
-        if(time != null)
+        if(removable && time != null)
           SimpleButton.from(
             context: context,
             radius: 0,
             margin: EdgeInsets.zero,
             icon: Icons.close,
             onTap: () => onChanged.call(null)
-          ),
+          )
+        else if(!removable)
+          Padding(
+            padding: EdgeInsets.all(Dimen.iconMarg),
+            child: Icon(MdiIcons.pencilOutline),
+          )
       ],
     ),
   );

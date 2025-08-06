@@ -6,14 +6,16 @@ import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/harcthought/konspekts/widgets/step_widget.dart';
 import 'package:harcapp_core/values/dimen.dart';
+import 'package:harcapp_web/konspekt_workspace/models/konspekt_step_data.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/select_time_button.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class StepWidget extends StatefulWidget{
 
   final int index;
+  final KonspektStepData stepData;
 
-  const StepWidget({super.key, required this.index});
+  const StepWidget({super.key, required this.index, required this.stepData});
 
   @override
   State<StatefulWidget> createState() => StepWidgetState();
@@ -22,16 +24,11 @@ class StepWidget extends StatefulWidget{
 
 class StepWidgetState extends State<StepWidget> {
 
-  late Duration duration;
-  late KonspektStepActiveForm activeForm;
-  late bool optional;
+  // late Duration duration;
+  // late KonspektStepActiveForm activeForm;
+  // late bool optional;
 
-  void initState() {
-    super.initState();
-    duration = Duration(minutes: 15);
-    activeForm = KonspektStepActiveForm.static;
-    optional = false;
-  }
+  KonspektStepData get stepData => widget.stepData;
 
   @override
   Widget build(BuildContext context) => Material(
@@ -62,14 +59,15 @@ class StepWidgetState extends State<StepWidget> {
                     Row(
                       children: [
                         SelectTimeButton(
-                          duration,
-                          onChanged: (newDuration) => newDuration==null?null:setState(() => duration = newDuration),
+                          stepData.duration,
+                          onChanged: (newDuration) => newDuration==null?null:setState(() => stepData.duration = newDuration),
+                          removable: false,
                           fontSize: Dimen.textSizeBig,
                         ),
                         SizedBox(width: Dimen.sideMarg),
-                        _ActiveFormButton(activeForm: activeForm, onChanged: (activeForm) => setState(() => this.activeForm = activeForm)),
+                        _ActiveFormButton(activeForm: stepData.activeForm, onChanged: (activeForm) => setState(() => stepData.activeForm = activeForm)),
                         SizedBox(width: Dimen.sideMarg),
-                        _OptionalButton(optional: optional, onChanged: (optional) => setState(() => this.optional = optional)),
+                        _RequiredButton(required: stepData.required, onChanged: (optional) => setState(() => stepData.required = optional)),
                       ],
                     ),
 
@@ -147,12 +145,12 @@ class _ActiveFormButton extends StatelessWidget{
 
 }
 
-class _OptionalButton extends StatelessWidget{
+class _RequiredButton extends StatelessWidget{
 
-  final bool optional;
+  final bool required;
   final void Function(bool optional)? onChanged;
 
-  const _OptionalButton({required this.optional, this.onChanged, super.key});
+  const _RequiredButton({required this.required, this.onChanged, super.key});
 
   @override
   Widget build(BuildContext context) => PopupMenuButton<bool>(
@@ -166,7 +164,7 @@ class _OptionalButton extends StatelessWidget{
       context: context,
       color: backgroundIcon_(context),
       margin: EdgeInsets.zero,
-      text: optional? 'Opcjonalnie' : 'Obowiązkowo',
+      text: required? 'Obowiązkowo' : 'Opcjonalnie',
       onTap: null,
       icon: MdiIcons.chevronDown,
       iconColor: iconEnab_(context),
@@ -179,7 +177,7 @@ class _OptionalButton extends StatelessWidget{
         padding: EdgeInsets.zero,
         child: SimpleButton.from(
           context: context,
-          text: 'Opcjonalnie',
+          text: 'Obowiązkowo',
           margin: EdgeInsets.zero,
           onTap: null,
         ),
@@ -189,7 +187,7 @@ class _OptionalButton extends StatelessWidget{
           padding: EdgeInsets.zero,
           child: SimpleButton.from(
             context: context,
-            text: 'Obowiązkowo',
+            text: 'Opcjonalnie',
             margin: EdgeInsets.zero,
             onTap: null,
           )
