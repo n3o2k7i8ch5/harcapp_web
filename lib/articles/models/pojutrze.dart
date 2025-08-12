@@ -64,7 +64,7 @@ class ArticlePojutrze extends CoreArticle with ArticlePojutrzeMixin, CacheCoverM
 
   static ArticlePojutrze fromJson(String localId, Map jsonMap) =>
       ArticlePojutrze.fromData(
-          ArticleData.fromJson(localId, ArticleSource.pojutrze, jsonMap)
+          ArticleData.fromJsonMap(localId, ArticleSource.pojutrze, jsonMap)
       );
 
 }

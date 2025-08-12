@@ -64,7 +64,7 @@ class ArticleAzymut extends CoreArticle with ArticleAzymutMixin, CacheCoverMixin
 
   static ArticleAzymut fromJson(String localId, Map jsonMap) =>
       ArticleAzymut.fromData(
-          ArticleData.fromJson(localId, ArticleSource.azymut, jsonMap)
+          ArticleData.fromJsonMap(localId, ArticleSource.azymut, jsonMap)
       );
 
 }

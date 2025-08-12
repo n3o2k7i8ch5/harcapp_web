@@ -64,7 +64,7 @@ class ArticleHarcApp extends CoreArticle with ArticleHarcAppMixin, CacheCoverMix
 
   static ArticleHarcApp fromJson(String localId, Map jsonMap) =>
       ArticleHarcApp.fromData(
-          ArticleData.fromJson(localId, ArticleSource.harcApp, jsonMap)
+          ArticleData.fromJsonMap(localId, ArticleSource.harcApp, jsonMap)
       );
 
 }

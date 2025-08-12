@@ -3,6 +3,7 @@ import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_classes/meto.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_text_field_hint.dart';
+import 'package:harcapp_core/comm_widgets/floating_container.dart';
 import 'package:harcapp_core/comm_widgets/multi_text_field.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
@@ -49,178 +50,223 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
       body: Center(
           child: Container(
               constraints: BoxConstraints(maxWidth: defPageWidth),
-              child: ListView(
-                padding: EdgeInsets.all(Dimen.sideMarg),
+              child: CustomScrollView(
+                clipBehavior: Clip.none,
                 physics: BouncingScrollPhysics(),
-                children: [
+                slivers: [
 
-                  Material(
-                    borderRadius: BorderRadius.circular(AppCard.bigRadius),
-                    color: backgroundIcon_(context),
-                    child: Container(height: 300, width: double.infinity),
-                  ),
+                  FloatingContainer.child(
+                    child: Padding(
+                      padding: EdgeInsets.only(top: Dimen.defMarg),
+                      child: Row(
+                        children: [
 
-                  const SizedBox(height: Dimen.sideMarg),
+                          Expanded(
+                            child: SimpleButton.from(
+                                elevation: AppCard.bigElevation,
+                                context: context,
+                                color: cardEnab_(context),
+                                margin: EdgeInsets.zero,
+                                icon: MdiIcons.eyeOutline,
+                                text: 'Podgląd',
+                                onTap: (){}
+                            ),
+                          ),
 
-                  AppTextFieldHint(
-                    hint: 'Nazwa konspektu:',
-                    style: TitleShortcutRowWidget.style,
-                    hintStyle: TitleShortcutRowWidget.style.copyWith(color: hintEnab_(context)),
-                    textCapitalization: TextCapitalization.sentences,
-                    controller: konspektData.titleController,
-                  ),
+                          SizedBox(width: Dimen.defMarg),
 
-                  const SizedBox(height: Dimen.sideMarg),
+                          Expanded(
+                            child: SimpleButton.from(
+                                elevation: AppCard.bigElevation,
+                                context: context,
+                                color: cardEnab_(context),
+                                margin: EdgeInsets.zero,
+                                icon: MdiIcons.contentSave,
+                                text: 'Zapisz',
+                                onTap: (){}
+                            ),
+                          ),
 
-                  TitleShortcutRowWidget(
-                    title: 'W skrócie',
-                    textAlign: TextAlign.left,
-                  ),
-                  AppTextFieldHint(
-                    hint: 'W skrócie:',
-                    textCapitalization: TextCapitalization.sentences,
-                    controller: konspektData.summaryController,
-                    maxLines: null,
-                  ),
-
-                  const SizedBox(height: Dimen.sideMarg),
-
-                  TitleShortcutRowWidget(
-                    title: 'Metodyki',
-                    textAlign: TextAlign.left,
-                  ),
-
-                  LevelSelectableGridWidget(
-                    Set.from(Meto.values),
-                    konspektData.metos.toSet(),
-                    oneLine: true,
-                    onLevelTap: (Meto meto, bool checked) {
-                      setState(() {
-                        if (checked) konspektData.metos.remove(meto);
-                        else konspektData.metos.add(meto);
-                      });
-                    },
-                  ),
-
-                  const SizedBox(height: Dimen.sideMarg),
-
-                  Row(
-                    children: [
-                      IntrinsicWidth(
-                        child: TitleShortcutRowWidget(
-                          title: 'Rodzaj',
-                          textAlign: TextAlign.left,
-                        ),
+                        ],
                       ),
-
-                      SizedBox(width: Dimen.defMarg),
-
-                      _KonspektTypeButton(
-                        type: konspektData.type,
-                        onChanged: (KonspektType? type) {
-                          if(type == null) return;
-                          setState(() => konspektData.type = type);
-                        }
-                      ),
-
-                    ],
-                  ),
-
-                  const SizedBox(height: Dimen.sideMarg),
-
-                  TitleShortcutRowWidget(
-                    title: 'Sfery rozwoju',
-                    textAlign: TextAlign.left,
-                  ),
-                  Text('<tutaj sfery rozwoju>'),
-
-                  const SizedBox(height: Dimen.sideMarg),
-
-                  Row(
-                    children: [
-                      IntrinsicWidth(
-                        child: TitleShortcutRowWidget(
-                          title: 'Czas:',
-                          textAlign: TextAlign.left,
-                        ),
-                      ),
-
-                      SizedBox(width: Dimen.defMarg),
-
-                      SelectTimeButton(
-                        konspektData.customDuration,
-                        onChanged: (Duration? newDuration) => setState(() => konspektData.customDuration = newDuration),
-                        fontSize: TitleShortcutRowWidget.style.fontSize,
-                      )
-                    ],
-                  ),
-
-                  const SizedBox(height: Dimen.sideMarg),
-
-                  TitleShortcutRowWidget(
-                    title: 'Cele',
-                    textAlign: TextAlign.left,
-                  ),
-
-                  AppTextFieldHint(
-                    hint: 'Cele:',
-                    multi: true,
-                    multiAllowZeroFields: true,
-                    multiLayout: LayoutMode.column,
-                    multiItemBuilder: (index, key, widget) => Row(
-                      key: key,
-                      children: [
-                        // Because when having more than one item, the close button appears adding height.
-                        SizedBox(height: Dimen.iconFootprint),
-
-                        SizedBox(width: Dimen.iconMarg),
-                        Icon(MdiIcons.circleMedium),
-                        SizedBox(width: Dimen.iconMarg),
-                        Expanded(child: widget)
-                      ],
                     ),
-                    multiAddButtonBuilder: (bool tappable, void Function() onTap) => SimpleButton.from(
-                      color: backgroundIcon_(context),
-                      context: context,
-                      icon: MdiIcons.plus,
-                      margin: EdgeInsets.zero,
-                      textColor: tappable? iconEnab_(context) : iconDisab_(context),
-                      text: 'Dodaj cel',
-                      onTap: tappable? onTap: null,
-                    ),
-                    multiIsCollapsed: true,
+                    height: Dimen.iconFootprint + Dimen.defMarg, // kToolbarHeight
                   ),
 
-                  const SizedBox(height: Dimen.sideMarg),
+                  SliverPadding(
+                    padding: EdgeInsets.all(Dimen.sideMarg),
+                    sliver: SliverList(delegate: SliverChildListDelegate([
 
-                  TitleShortcutRowWidget(
-                    title: 'Materiały',
-                    textAlign: TextAlign.left,
-                  ),
-                  Text('<tutaj materiały>'),
+                      Material(
+                        borderRadius: BorderRadius.circular(AppCard.bigRadius),
+                        color: backgroundIcon_(context),
+                        child: Container(height: 300, width: double.infinity),
+                      ),
 
-                  const SizedBox(height: Dimen.sideMarg),
+                      const SizedBox(height: Dimen.sideMarg),
 
-                  TitleShortcutRowWidget(
-                    title: 'Opis',
-                    textAlign: TextAlign.left,
-                  ),
+                      AppTextFieldHint(
+                        hint: 'Nazwa konspektu:',
+                        style: TitleShortcutRowWidget.style,
+                        hintStyle: TitleShortcutRowWidget.style.copyWith(color: hintEnab_(context)),
+                        textCapitalization: TextCapitalization.sentences,
+                        controller: konspektData.titleController,
+                      ),
 
-                  AppTextFieldHint(
-                    hint: 'Opis:',
-                    textAlignVertical: TextAlignVertical.top,
-                    textCapitalization: TextCapitalization.sentences,
-                    maxLines: null,
-                    controller: konspektData.descriptionController,
-                  ),
+                      const SizedBox(height: Dimen.sideMarg),
 
-                  TitleShortcutRowWidget(
-                    title: 'Plan',
-                    textAlign: TextAlign.left,
-                  ),
-                  StepsWidget(
-                    steps: konspektData.steps,
-                  ),
+                      TitleShortcutRowWidget(
+                        title: 'W skrócie',
+                        textAlign: TextAlign.left,
+                      ),
+                      AppTextFieldHint(
+                        hint: 'W skrócie:',
+                        textCapitalization: TextCapitalization.sentences,
+                        controller: konspektData.summaryController,
+                        maxLines: null,
+                      ),
+
+                      const SizedBox(height: Dimen.sideMarg),
+
+                      TitleShortcutRowWidget(
+                        title: 'Metodyki',
+                        textAlign: TextAlign.left,
+                      ),
+
+                      LevelSelectableGridWidget(
+                        Set.from(Meto.values),
+                        konspektData.metos.toSet(),
+                        oneLine: true,
+                        onLevelTap: (Meto meto, bool checked) {
+                          setState(() {
+                            if (checked) konspektData.metos.remove(meto);
+                            else konspektData.metos.add(meto);
+                          });
+                        },
+                      ),
+
+                      const SizedBox(height: Dimen.sideMarg),
+
+                      Row(
+                        children: [
+                          IntrinsicWidth(
+                            child: TitleShortcutRowWidget(
+                              title: 'Rodzaj',
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
+
+                          SizedBox(width: Dimen.defMarg),
+
+                          _KonspektTypeButton(
+                              type: konspektData.type,
+                              onChanged: (KonspektType? type) {
+                                if(type == null) return;
+                                setState(() => konspektData.type = type);
+                              }
+                          ),
+
+                        ],
+                      ),
+
+                      const SizedBox(height: Dimen.sideMarg),
+
+                      TitleShortcutRowWidget(
+                        title: 'Sfery rozwoju',
+                        textAlign: TextAlign.left,
+                      ),
+                      Text('<tutaj sfery rozwoju>'),
+
+                      const SizedBox(height: Dimen.sideMarg),
+
+                      Row(
+                        children: [
+                          IntrinsicWidth(
+                            child: TitleShortcutRowWidget(
+                              title: 'Czas:',
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
+
+                          SizedBox(width: Dimen.defMarg),
+
+                          SelectTimeButton(
+                            konspektData.customDuration,
+                            onChanged: (Duration? newDuration) => setState(() => konspektData.customDuration = newDuration),
+                            fontSize: TitleShortcutRowWidget.style.fontSize,
+                          )
+                        ],
+                      ),
+
+                      const SizedBox(height: Dimen.sideMarg),
+
+                      TitleShortcutRowWidget(
+                        title: 'Cele',
+                        textAlign: TextAlign.left,
+                      ),
+
+                      AppTextFieldHint(
+                        hint: 'Cele:',
+                        multi: true,
+                        multiAllowZeroFields: true,
+                        multiLayout: LayoutMode.column,
+                        multiItemBuilder: (index, key, widget) => Row(
+                          key: key,
+                          children: [
+                            // Because when having more than one item, the close button appears adding height.
+                            SizedBox(height: Dimen.iconFootprint),
+
+                            SizedBox(width: Dimen.iconMarg),
+                            Icon(MdiIcons.circleMedium),
+                            SizedBox(width: Dimen.iconMarg),
+                            Expanded(child: widget)
+                          ],
+                        ),
+                        multiAddButtonBuilder: (bool tappable, void Function() onTap) => SimpleButton.from(
+                          color: backgroundIcon_(context),
+                          context: context,
+                          icon: MdiIcons.plus,
+                          margin: EdgeInsets.zero,
+                          textColor: tappable? iconEnab_(context) : iconDisab_(context),
+                          text: 'Dodaj cel',
+                          onTap: tappable? onTap: null,
+                        ),
+                        multiIsCollapsed: true,
+                      ),
+
+                      const SizedBox(height: Dimen.sideMarg),
+
+                      TitleShortcutRowWidget(
+                        title: 'Materiały',
+                        textAlign: TextAlign.left,
+                      ),
+                      Text('<tutaj materiały>'),
+
+                      const SizedBox(height: Dimen.sideMarg),
+
+                      TitleShortcutRowWidget(
+                        title: 'Opis',
+                        textAlign: TextAlign.left,
+                      ),
+
+                      AppTextFieldHint(
+                        hint: 'Opis:',
+                        textAlignVertical: TextAlignVertical.top,
+                        textCapitalization: TextCapitalization.sentences,
+                        maxLines: null,
+                        controller: konspektData.descriptionController,
+                      ),
+
+                      TitleShortcutRowWidget(
+                        title: 'Plan',
+                        textAlign: TextAlign.left,
+                      ),
+                      StepsWidget(
+                        steps: konspektData.steps,
+                      ),
+
+                    ])),
+                  )
 
                 ],
               )

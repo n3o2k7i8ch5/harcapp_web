@@ -12,7 +12,7 @@ mixin _CacheMixin on BaseSourceArticleLoader{
     try{
       Map? jsonMap = await IDB.getContent(source, localId);
       if(jsonMap == null) return null;
-      return ArticleData.fromJson(localId, source, jsonMap);
+      return ArticleData.fromJsonMap(localId, source, jsonMap);
     } catch(_){
       return null;
     }
@@ -23,13 +23,13 @@ mixin _CacheMixin on BaseSourceArticleLoader{
 
   @override
   Future<void> cache(ArticleData articleData) async {
-    await IDB.putContent(source, articleData.localId, articleData.toJson());
+    await IDB.putContent(source, articleData.localId, articleData.toJsonMap());
     logger.d("Article ${source.name} ${articleData.localId} cached.");
   }
 
   @override
   Future<void> cacheAll(List<ArticleData> data) async {
-    Map<String, dynamic> _data = Map.fromEntries(data.map((d) => MapEntry(d.localId, d.toJson())));
+    Map<String, dynamic> _data = Map.fromEntries(data.map((d) => MapEntry(d.localId, d.toJsonMap())));
     await IDB.putAllContent(source, _data);
     logger.d("Articles ${source.name} ${data.map((d) => d.localId).toList()} cached.");
   }

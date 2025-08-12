@@ -42,4 +42,23 @@ class KonspektData{
     howToFail = [],
     steps = [KonspektStepData()],
     attachments = null;
+
+  Map toJsonMap() => {
+    'title': titleController.text,
+    'additionalSearchPhrases': additionalSearchPhrases.map((e) => e.text).toList(),
+    'type': type.name,
+    'spheres': spheres.map((key, value) => MapEntry(key.name, value?.toJsonMap())),
+    'metos': metos.map((e) => e.name).toList(),
+    'coverAuthor': coverAuthor.text,
+    'author': author?.toJsonMap(),
+    'customDuration': customDuration?.inSeconds,
+    'aims': aims.map((e) => e.text).toList(),
+    'materials': materials?.map((e) => e.toJsonMap()).toList(),
+    'summary': summaryController.text,
+    'intro': introController.text,
+    'description': descriptionController.text,
+    'howToFail': howToFail.map((e) => e.text).toList(),
+    'steps': steps.map((e) => e.toJsonMap()).toList(),
+    'attachments': attachments?.map((e) => e.toJsonMap()).toList(),
+  };
 }
