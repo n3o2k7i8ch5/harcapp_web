@@ -56,6 +56,8 @@ class SongListTileWidget extends StatelessWidget{
 
               Expanded(child: Container()),
 
+              SizedBox(height: Dimen.iconFootprint + 2*Dimen.defMarg),
+
               if(allSongsProv.length>0)
                 SimpleButton.from(
                     context: context,

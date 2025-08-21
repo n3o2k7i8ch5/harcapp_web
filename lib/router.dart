@@ -13,6 +13,7 @@ import 'package:harcapp_web/poradniks/_main.dart';
 import 'package:harcapp_web/poradniks/table_of_content_poradnik_widget.dart';
 import 'package:harcapp_web/privacy_policy/_main.dart';
 import 'package:harcapp_web/songs/_main.dart';
+import 'package:harcapp_web/songs/song_contribution_rules_page.dart';
 
 import 'articles/_main.dart';
 import 'articles/article_page.dart';
@@ -34,6 +35,7 @@ String pathArticles = '/articles';
 String pathArticlesSource = '/articles/:source';
 String pathArticlesSourceItem = '/articles/:source/:localId';
 String pathSong = '/song';
+String pathSongContributionRules = '/song_contribution_rules';
 String pathPrivacyPolicy = '/privacy_policy';
 
 TableOfContentHarcerskieWidget tableOfContentHarcerskieWidget(BuildContext context, bool isDrawer, Konspekt? selectedKonspekt) => TableOfContentHarcerskieWidget(
@@ -239,6 +241,10 @@ GoRouter router = GoRouter(
                 GoRoute(
                     path: pathSong,
                     pageBuilder: (context, state) => NoTransitionPage(child: SongsPage())
+                ),
+                GoRoute(
+                    path: pathSongContributionRules,
+                    pageBuilder: (context, state) => NoTransitionPage(child: SongContributionRulesPage())
                 ),
                 GoRoute(
                     path: pathPrivacyPolicy,

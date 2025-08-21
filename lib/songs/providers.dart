@@ -36,9 +36,9 @@ class BindTitleFileNameProvider extends ChangeNotifier{
   }
 
   void setSetBasedOnSong(SongRaw song){
-    bindTitle = song.lclId.split('@')[0] == (song.isConfid?'oc!_':'o!_') + song.generateFileName(withPerformer: false);
+    bindTitle = song.id.split('@')[0] == (song.isConfid?'oc!_':'o!_') + song.generateFileName(withPerformer: false);
 
-    bindPerformer = song.lclId == (song.isConfid?'oc!_':'o!_') + song.generateFileName(withPerformer: true);
+    bindPerformer = song.id == (song.isConfid?'oc!_':'o!_') + song.generateFileName(withPerformer: true);
       // (song.lclId.contains('@') && bindTitle) || song.lclId == 'o!_' || song.lclId == 'oc!_';
     notifyListeners();
   }
@@ -130,14 +130,14 @@ class AllSongsProvider extends ChangeNotifier{
     int iterOff = 0;
     int iterConf = 0;
     for(SongRaw song in _songs){
-      Map map = song.toMap(withLclId: false);
+      Map map = song.toApiJsonMap(withId: false);
       if(isConf(song)!)
-        confSongMap[song.lclId] = {
+        confSongMap[song.id] = {
           'song': map,
           'index': iterConf++
         };
       else
-        offSongMap[song.lclId] = {
+        offSongMap[song.id] = {
           'song': map,
           'index': iterOff++
         };
@@ -167,7 +167,7 @@ class SongFileNameDupErrProvider extends ChangeNotifier{
   get lclIds => _map.keys.toList();
   get dupLclIds => lclIds.where((lclId) => _map[lclId]!.length > 1).toList();
 
-  List<SongRaw> get(SongRaw song) => _map[song.lclId]??[];
+  List<SongRaw> get(SongRaw song) => _map[song.id]??[];
 
   int get count{
     int num = 0;
@@ -178,14 +178,14 @@ class SongFileNameDupErrProvider extends ChangeNotifier{
     return num;
   }
 
-  bool hasDup(SongRaw song) => _map[song.lclId] != null && _map[song.lclId]!.length > 1;
+  bool hasDup(SongRaw song) => _map[song.id] != null && _map[song.id]!.length > 1;
 
   void checkAllDups(BuildContext context){
     _map.clear();
 
     for(SongRaw song in AllSongsProvider.of(context).songs) {
-      if(_map[song.lclId] == null) _map[song.lclId] = [];
-      _map[song.lclId]!.add(song);
+      if(_map[song.id] == null) _map[song.id] = [];
+      _map[song.id]!.add(song);
     }
 
     notifyListeners();

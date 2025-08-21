@@ -12,10 +12,10 @@ Map<String, List<SongRaw>> decodeSongs(String allSongsCode) {
   // OFFICIAL SONGS
   Map<String, List<SongRaw>> songsMap = {};
 
-  for(String fileName in allSongsJSONMap['official'].keys)
+  for(String songId in allSongsJSONMap['official'].keys)
     try {
-      Map songMap = allSongsJSONMap['official'][fileName]['song'];
-      SongRaw song = SongRaw.fromRespMap(fileName, songMap);
+      Map songMap = allSongsJSONMap['official'][songId]['song'];
+      SongRaw song = SongRaw.fromApiRespMap(songId, songMap);
       String title = remSpecChars(remPolChars(song.title)).trim();
       if(!songsMap.containsKey(title)) songsMap[title] = [];
       songsMap[title]!.add(song);
@@ -28,10 +28,10 @@ Map<String, List<SongRaw>> decodeSongs(String allSongsCode) {
     } on Error {}
 
   // CONFIDENTIAL SONGS
-  for(String fileName in allSongsJSONMap['conf'].keys)
+  for(String songId in allSongsJSONMap['conf'].keys)
     try {
-      Map songMap = allSongsJSONMap['conf'][fileName]['song'];
-      SongRaw song = SongRaw.fromRespMap(fileName, songMap);
+      Map songMap = allSongsJSONMap['conf'][songId]['song'];
+      SongRaw song = SongRaw.fromApiRespMap(songId, songMap);
       String title = remSpecChars(remPolChars(song.title)).trim();
       if(!songsMap.containsKey(title)) songsMap[title] = [];
       songsMap[title]!.add(song);

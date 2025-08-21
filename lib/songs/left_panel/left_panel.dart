@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
+import 'package:harcapp_core/comm_widgets/simple_button.dart';
+import 'package:harcapp_core/song_book/song_contribution_rules.dart';
 import 'package:harcapp_core/values/dimen.dart';
+import 'package:harcapp_web/common/open_in_new_tab.dart';
+import 'package:harcapp_web/router.dart';
 import 'package:harcapp_web/songs/left_panel/song_list_view.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/save_send_widget.dart';
@@ -18,6 +22,7 @@ class LeftPanel extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
 
       Padding(
@@ -43,6 +48,16 @@ class LeftPanel extends StatelessWidget{
           child: SongListView(onItemTap: onItemTap),
         ),
       ),
+
+      SizedBox(height: Dimen.defMarg),
+
+      SimpleButton.from(
+        context: context,
+        margin: EdgeInsets.zero,
+        color: cardEnab_(context),
+        text: songContributionRulesTitle,
+        onTap: () => openPathInNewTab(pathSongContributionRules)
+      )
 
     ],
   );

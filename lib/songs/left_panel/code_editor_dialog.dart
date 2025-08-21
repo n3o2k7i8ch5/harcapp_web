@@ -39,7 +39,7 @@ class CodeEditorDialogState extends State<CodeEditorDialog> {
   @override
   void initState() {
     controller = TextEditingController(
-        text: showInitCode?prettyJson(jsonDecode(song.toCode()), indent: 4):''
+        text: showInitCode?prettyJson(song.code, indent: 4):''
     );
     super.initState();
   }
@@ -113,22 +113,22 @@ class CodeEditorDialogState extends State<CodeEditorDialog> {
     try{
       // Try parsing the old song code
       song = parseOldCode('_nowa_piosenka', controller.text);
-      song.lclId = song.generateFileName(withPerformer: BindTitleFileNameProvider.of(context).bindPerformer);
+      song.id = song.generateFileName(withPerformer: BindTitleFileNameProvider.of(context).bindPerformer);
     } catch(e){
 
       try {
         // Try parsing the entire song code
         Map map = jsonDecode(controller.text);
-        String fileName = map.keys.toList()[0];
-        song = SongRaw.fromRespMap(fileName, map[fileName]);
+        String songId = map.keys.toList()[0];
+        song = SongRaw.fromApiRespMap(songId, map[songId]);
 
       } catch(e){
 
-        // Try parsing the song code without the filename level
+        // Try parsing the song code without the songId level
         try{
           Map map = jsonDecode(controller.text);
           String title = map['title'];
-          song = SongRaw.fromRespMap("o!_${SongCore.filenameFromTitle(title)}", map);
+          song = SongRaw.fromApiRespMap("o!_${SongCore.filenameFromTitle(title)}", map);
 
         }catch(e){
           AppScaffold.showMessage(context, 'Błędny kod piosneki.');

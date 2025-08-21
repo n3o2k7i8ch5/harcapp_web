@@ -50,7 +50,7 @@ class KonspektData{
     'spheres': spheres.map((key, value) => MapEntry(key.name, value?.toJsonMap())),
     'metos': metos.map((e) => e.name).toList(),
     'coverAuthor': coverAuthor.text,
-    'author': author?.toJsonMap(),
+    'author': author?.toApiJsonMap(),
     'customDuration': customDuration?.inSeconds,
     'aims': aims.map((e) => e.text).toList(),
     'materials': materials?.map((e) => e.toJsonMap()).toList(),

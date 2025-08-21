@@ -357,9 +357,9 @@ void handleImportSongsTap(BuildContext context) async {
     for(String fileName in offSongsMap.keys){
       try {
         Map<String, dynamic> songPackMap = offSongsMap[fileName];
-        SongRaw song = SongRaw.fromRespMap(fileName, songPackMap['song']);
+        SongRaw song = SongRaw.fromApiRespMap(fileName, songPackMap['song']);
 
-        if (!song.isOfficial) song.lclId = 'o!_' + song.lclId;
+        if (!song.isOfficial) song.id = 'o!_' + song.id;
         offSongs[songPackMap['index']] = song;
       } catch(e){
         AppScaffold.showMessage(context, 'Błąd odczytu pliku (błąd dekodowania piosenki ${fileName})');
@@ -377,9 +377,9 @@ void handleImportSongsTap(BuildContext context) async {
     for(String fileName in confSongsMap.keys){
       try {
         Map<String, dynamic> songPackMap = confSongsMap[fileName];
-        SongRaw song = SongRaw.fromRespMap(fileName, songPackMap['song']);
+        SongRaw song = SongRaw.fromApiRespMap(fileName, songPackMap['song']);
 
-        if (!song.isConfid) song.lclId = 'oc!_' + song.lclId;
+        if (!song.isConfid) song.id = 'oc!_' + song.id;
         confSongs[songPackMap['index']] = song;
       } catch(e){
         AppScaffold.showMessage(context, 'Błąd odczytu pliku (błąd dekodowania piosenki ${fileName})');
@@ -409,7 +409,7 @@ void handleExampleSongTap(BuildContext context){
     return;
   }
 
-  SongRaw song = allSongs.values.firstWhere((songs) => songs.first.lclId == 'o!_addio_pomidory@kabaret_starszych_panow').first.copy(withLclId: true);
+  SongRaw song = allSongs.values.firstWhere((songs) => songs.first.id == 'o!_addio_pomidory@kabaret_starszych_panow').first.copy(withLclId: true);
 
   AllSongsProvider.of(context).addOff(song);
   displaySong(context, song);
@@ -429,7 +429,7 @@ void handleNewSongFromCode(BuildContext context){
 SongRaw handleNewSongEmptyTap(BuildContext context){
 
   SongRaw song = SongRaw.empty();
-  song.lclId = 'o!_';
+  song.id = 'o!_';
   AllSongsProvider.of(context).addOff(song);
 
   SongFileNameDupErrProvider songFileNameDupErrProv = SongFileNameDupErrProvider.of(context);

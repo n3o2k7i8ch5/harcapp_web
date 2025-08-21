@@ -5,7 +5,7 @@ import 'package:harcapp_web/songs/old/song_basic_data.dart';
 import 'package:harcapp_web/songs/old/song_element_old.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-SongRaw parseOldCode(String lclId, String code, {bool official = true}){
+SongRaw parseOldCode(String id, String code, {bool official = true}){
   bool hasRefren;
   SongElementOld refrenElementOld;
   SongElement? refrenElement;
@@ -14,7 +14,7 @@ SongRaw parseOldCode(String lclId, String code, {bool official = true}){
 
   try {
 
-    SongBasicData1 basicData = SongBasicData1.parse(lclId, code, official: official);
+    SongBasicData1 basicData = SongBasicData1.parse(id, code, official: official);
 
     List<String> parts = code.split('<');
 
@@ -56,13 +56,14 @@ SongRaw parseOldCode(String lclId, String code, {bool official = true}){
     List<String> hidTitles = [];
 
     return SongRaw(
-      lclId: lclId,
+      id: id,
       title: basicData.title,
       hidTitles: hidTitles,
       authors: [basicData.author],
       composers: [],
       performers: [basicData.performer],
-      addPers: [AddPerson(name: basicData.moderator, emailRef: null, userKeyRef: null)],
+      addPers: [ContributorIdentity(name: basicData.moderator, emailRef: null, userKeyRef: null)],
+      contributorData: null,
       youtubeVideoId: basicData.youtubeLink==null?
         null:
         YoutubePlayer.convertUrlToId(basicData.youtubeLink!),

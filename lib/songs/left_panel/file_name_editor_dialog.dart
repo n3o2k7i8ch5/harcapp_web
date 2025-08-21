@@ -33,8 +33,8 @@ class FileNameEditorDialogState extends State<FileNameEditorDialog>{
 
   @override
   void initState() {
-    allSongsProvider = Provider.of<AllSongsProvider>(context, listen: false);
-    textController = TextEditingController(text: song.lclId.substring(song.isConfid?4:3));
+    allSongsProvider = AllSongsProvider.of(context);
+    textController = TextEditingController(text: song.id.substring(song.isConfid?4:3));
     super.initState();
   }
 
@@ -63,7 +63,7 @@ class FileNameEditorDialogState extends State<FileNameEditorDialog>{
                               hintStyle: TextStyle(color: hintEnab_(context)),
                               onAnyChanged: (texts){
 
-                                song.lclId = (isConfid?'oc!_':'o!_') + texts[0];
+                                song.id = (isConfid?'oc!_':'o!_') + texts[0];
 
                                 prov.checkAllDups(context);
                               }

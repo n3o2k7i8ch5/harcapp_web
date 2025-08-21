@@ -48,7 +48,7 @@ class SongTileState extends State<SongTile>{
       String title = song.title;
       if(title.length==0) title = HINT_FILE_TITLE;
 
-      String lclId = song.lclId;
+      String lclId = song.id;
       if(lclId.length==0) lclId = HINT_FILE_NAME;
 
       return ListTile(
@@ -160,8 +160,8 @@ class SongTileState extends State<SongTile>{
 
                     switch(value){
                       case MENU_CONF:
-                        if(song.isConfid) song.lclId = 'o!_' + song.lclId.substring(4);
-                        else song.lclId = 'oc!_' + song.lclId.substring(3);
+                        if(song.isConfid) song.id = 'o!_' + song.id.substring(4);
+                        else song.id = 'oc!_' + song.id.substring(3);
 
                         AllSongsProvider.of(context).set(song, song.isConfid);
 

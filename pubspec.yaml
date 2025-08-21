@@ -49,6 +49,7 @@ dependencies:
   shared_preferences: ^2.5.1
   smooth_scroll_multiplatform: ^1.0.8
   url_strategy: ^0.3.0
+  web: 1.1.1
   worker_manager: ^7.2.2
   youtube_player_flutter: ^9.1.1
 

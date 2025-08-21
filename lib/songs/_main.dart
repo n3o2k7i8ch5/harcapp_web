@@ -5,6 +5,7 @@ import 'package:harcapp_web/common/alert_dialog.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/main.dart';
 import 'package:harcapp_web/songs/providers.dart';
+import 'package:harcapp_web/songs/song_contribution_rules_acceptance_manager.dart';
 import 'package:harcapp_web/songs/song_editor_panel.dart';
 import 'package:harcapp_web/songs/song_preview_widget.dart';
 import 'package:provider/provider.dart';
@@ -75,15 +76,20 @@ class SongsPageState extends State<SongsPage>{
     }
   }
 
+  void asyncInitState() async {
+    await SongContributionRulesAcceptanceManager.ensureRulesAccepted(context);
+    await tryClearCachedSongs();
+    if(MyApp.lastLoadedSongs.isNotEmpty)
+      SongFileNameDupErrProvider.of(context).checkAllDups(context);
+  }
+
   @override
   void initState() {
 
     scaffoldKey = GlobalKey();
     post(tryOpenDrawerIfCollapsed);
 
-    tryClearCachedSongs();
-    if(MyApp.lastLoadedSongs.isNotEmpty)
-      SongFileNameDupErrProvider.of(context).checkAllDups(context);
+    post(asyncInitState);
     super.initState();
   }
   

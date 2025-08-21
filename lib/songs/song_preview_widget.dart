@@ -89,7 +89,7 @@ class SongPreviewWidget extends StatelessWidget{
                 width: 400,
                 child: songPrevProv.code?
                 SelectableText(
-                    prettyJson(currItemProv.song.toMap(), indent: 2)
+                    prettyJson(currItemProv.song.toApiJsonMap(), indent: 2)
                 ):
                 SongWidgetTemplate<SongRaw, AddPersonSimpleResolver>(
                   currItemProv.song,
