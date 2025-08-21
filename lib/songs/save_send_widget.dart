@@ -149,6 +149,13 @@ class SaveSendWidget extends StatelessWidget{
                                   crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
 
+                                    Text(
+                                      'Mejl z piosenkami',
+                                      style: DialogTheme.of(context).titleTextStyle?.copyWith(
+                                        fontFamily: 'Ubuntu'
+                                      ),
+                                    ),
+
                                     Padding(
                                         padding: EdgeInsets.all(Dimen.sideMarg),
                                         child: HowToSendEmailWidget()
