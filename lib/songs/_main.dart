@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_classes/common.dart';
-import 'package:harcapp_web/common/alert_dialog.dart';
+import 'package:harcapp_core/comm_widgets/dialog/alert_dialog.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/main.dart';
 import 'package:harcapp_web/songs/providers.dart';

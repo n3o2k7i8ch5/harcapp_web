@@ -11,6 +11,7 @@ import 'package:harcapp_core/comm_classes/common.dart';
 import 'package:harcapp_core/comm_widgets/app_bar.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
+import 'package:harcapp_core/comm_widgets/dialog/dialog.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
@@ -18,7 +19,6 @@ import 'package:harcapp_core/harcthought/konspekts/konspekt_sphere_duch_levels_i
 import 'package:harcapp_core/harcthought/konspekts/konspekt_to_pdf/konspekt_to_pdf.dart';
 import 'package:harcapp_core/harcthought/konspekts/widgets/base_konspekt_widget.dart';
 import 'package:harcapp_core/harcthought/konspekts/widgets/cover_widget.dart';
-import 'package:harcapp_web/common/alert_dialog.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/consts.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';

@@ -6,22 +6,19 @@ import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/app_text.dart';
-import 'package:harcapp_core/comm_widgets/app_text_field_hint.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/song_book/contrib_song.dart';
-import 'package:harcapp_core/song_book/song_contribution_rules.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
-import 'package:harcapp_web/common/alert_dialog.dart';
 import 'package:harcapp_web/common/download_file.dart';
-import 'package:harcapp_web/common/google_form_sender.dart';
 import 'package:harcapp_web/common/open_in_new_tab.dart' show openPathInNewTab;
 import 'package:harcapp_web/songs/left_panel/song_tile.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/song_contribution_rules_acceptance_manager.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:harcapp_core/comm_widgets/dialog/alert_dialog.dart';
 
 import '../router.dart';
 
@@ -135,48 +132,17 @@ class SaveSendWidget extends StatelessWidget{
                       downloadFileFromString(content: code, fileName: '${songCount}_songs.hrcpsng');
                       AllSongsProvider.clearCachedSongs();
 
-                      await openDialog(
-                        context: context,
-                        builder: (context) => Center(
-                          child: Container(
-                              constraints: BoxConstraints(maxWidth: 500),
-                              child: Material(
-                                borderRadius: BorderRadius.circular(AppCard.bigRadius),
-                                clipBehavior: Clip.hardEdge,
-                                color: background_(context),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: [
-
-                                    Text(
-                                      'Mejl z piosenkami',
-                                      style: DialogTheme.of(context).titleTextStyle?.copyWith(
-                                        fontFamily: 'Ubuntu'
-                                      ),
-                                    ),
-
-                                    Padding(
-                                        padding: EdgeInsets.all(Dimen.sideMarg),
-                                        child: HowToSendEmailWidget()
-                                    ),
-                                    
-                                    SizedBox(height: Dimen.defMarg),
-                                    
-                                    SimpleButton.from(
-                                      context: context,
-                                      radius: 0,
-                                      margin: EdgeInsets.zero,
-                                      color: cardEnab_(context),
-                                      text: 'Wszystko jasne!',
-                                      onTap: () => popPage(context)
-                                    )
-                                    
-                                  ],
-                                )
-                              )
+                      await showAlertDialog(
+                        context,
+                        title: 'Mejl z piosenkami',
+                        dismissible: false,
+                        contentWidget: HowToSendEmailWidget(),
+                        actionBuilder: (context) => [
+                          AlertDialogButton(
+                            text: 'Wszystko jasne!',
+                            onTap: () => popPage(context),
                           ),
-                        )
+                        ]
                       );
 
                     }
@@ -221,32 +187,33 @@ class SaveSendWidget extends StatelessWidget{
 
     bool goAhead = false;
     await showAlertDialog(
-    context,
-    title: title,
-    content: "$content"
-        "\n"
-        "\n"
-        "\nBraki dotyczą piosenek (w liczbie: ${songs.length}):"
-        "\n<b><i>${shortSongs.map((song) => song.title.isEmpty?SongTileState.HINT_FILE_TITLE:song.title).join("\n")}"
-        "${songs.length > shortSongs.length ? "\n..." : ""}"
-        "</i></b>",
-    actionBuilder: (context) =>
-    [
-      AlertDialogButton(text: "Kontynuuj pomimo to",
-          onTap: (){
-            goAhead = true;
-            Navigator.pop(context);
-          },
-          textColor: hintEnab_(context)
-      ),
-      AlertDialogButton(
-          text: "Wracam uzupełnić braki!",
-          onTap: (){
-            goAhead = false;
-            Navigator.pop(context);
-          }
-      ),
-    ]
+        context,
+        title: title,
+        dismissible: false,
+        content: "$content"
+          "\n"
+          "\n"
+          "\nBraki dotyczą piosenek (w liczbie: ${songs.length}):"
+          "\n<b><i>${shortSongs.map((song) => song.title.isEmpty?SongTileState.HINT_FILE_TITLE:song.title).join("\n")}"
+          "${songs.length > shortSongs.length ? "\n..." : ""}"
+          "</i></b>",
+        actionBuilder: (context) =>
+        [
+          AlertDialogButton(text: "Kontynuuj pomimo to",
+              onTap: (){
+                goAhead = true;
+                Navigator.pop(context);
+              },
+              textColor: hintEnab_(context)
+          ),
+          AlertDialogButton(
+              text: "Wracam uzupełnić braki!",
+              onTap: (){
+                goAhead = false;
+                Navigator.pop(context);
+              }
+          ),
+        ]
     );
 
     return goAhead;
@@ -262,11 +229,6 @@ class HowToSendEmailWidget extends StatelessWidget{
     mainAxisSize: MainAxisSize.min,
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-
-      TitleShortcutRowWidget(
-        title: 'Mejl z piosenkami',
-        textAlign: TextAlign.left,
-      ),
 
       AppText(
         'Mejl musi mieć niniejszą formę, <b>inaczej</b> piosenki <b>nie będą rozpatrzone</b>!',
@@ -362,6 +324,12 @@ class HowToContributeDialog extends StatelessWidget{
                     BulletPoint(3, 'Wyślij mejlem pobrany plik na adres: <b>harcapp@gmail.com</b>.'),
 
                     SizedBox(height: 24),
+
+
+                    TitleShortcutRowWidget(
+                      title: 'Mejl z piosenkami',
+                      textAlign: TextAlign.left,
+                    ),
 
                     HowToSendEmailWidget(),
 
