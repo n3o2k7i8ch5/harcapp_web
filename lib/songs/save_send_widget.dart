@@ -134,7 +134,7 @@ class SaveSendWidget extends StatelessWidget{
 
                       await showAlertDialog(
                         context,
-                        title: 'Mejl z piosenkami',
+                        title: 'Jak wysłać mejla z piosenkami',
                         dismissible: false,
                         contentWidget: HowToSendEmailWidget(),
                         actionBuilder: (context) => [
@@ -231,11 +231,12 @@ class HowToSendEmailWidget extends StatelessWidget{
     children: [
 
       AppText(
-        'Mejl musi mieć niniejszą formę, <b>inaczej</b> piosenki <b>nie będą rozpatrzone</b>!',
+        'Mejl musi mieć niniejszą formę, <b>inaczej</b> piosenki <b>nie będą rozpatrzone</b>!'
+        '\n',
         selectable: true,
         size: Dimen.textSizeBig,
       ),
-      SizedBox(height: HowToContributeDialog.textSeparation),
+      // SizedBox(height: HowToContributeDialog.textSeparation),
 
       BulletPoint(1, 'Tytuł'),
       SizedBox(height: HowToContributeDialog.textSeparation),
@@ -303,10 +304,11 @@ class HowToContributeDialog extends StatelessWidget{
                   shrinkWrap: true,
                   children: [
 
-                    TitleShortcutRowWidget(
-                      title: 'Jak przesłać piosenki do weryfikacji?',
-                      textAlign: TextAlign.left,
+                    Text(
+                      'Jak przesłać piosenki do weryfikacji?',
+                      style: alertDialogTextStyle(context),
                     ),
+                    SizedBox(height: alertDialogTitleBottomMarginVal),
 
                     AppText(
                       'Przesłanie piosenek do weryfikacji jest bajecznie proste!',
@@ -326,10 +328,11 @@ class HowToContributeDialog extends StatelessWidget{
                     SizedBox(height: 24),
 
 
-                    TitleShortcutRowWidget(
-                      title: 'Mejl z piosenkami',
-                      textAlign: TextAlign.left,
+                    Text(
+                      'Mejl z piosenkami',
+                      style: alertDialogTextStyle(context),
                     ),
+                    SizedBox(height: alertDialogTitleBottomMarginVal),
 
                     HowToSendEmailWidget(),
 
