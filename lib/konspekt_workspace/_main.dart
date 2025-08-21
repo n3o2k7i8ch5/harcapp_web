@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_classes/meto.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
@@ -55,6 +56,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                 physics: BouncingScrollPhysics(),
                 slivers: [
 
+
                   FloatingContainer.child(
                     child: Padding(
                       padding: EdgeInsets.only(top: Dimen.defMarg),
@@ -96,6 +98,24 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                   SliverPadding(
                     padding: EdgeInsets.all(Dimen.sideMarg),
                     sliver: SliverList(delegate: SliverChildListDelegate([
+
+                      Container(
+                        height: 50,
+                        width: double.infinity,
+                        color: Colors.red[700]!,
+                        child: Center(
+                          child: Text(
+                            'To jeszcze nie działa. W budowie. Prosze sobie pójść gdzie indziej :)',
+                            style: AppTextStyle(
+                              fontSize: Dimen.textSizeAppBar,
+                              color: background_(context),
+                              fontWeight: weightBold,
+                            ),
+                          ),
+                        )
+                      ),
+
+                      SizedBox(height: Dimen.sideMarg),
 
                       Material(
                         borderRadius: BorderRadius.circular(AppCard.bigRadius),

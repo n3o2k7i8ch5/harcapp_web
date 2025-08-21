@@ -28,13 +28,13 @@ SongRaw parseOldCode(String id, String code, {bool official = true}){
     }else
       hasRefren = false;
 
-//ZWROTKI
+    //ZWROTKI
     String? firstElementChords;
     for(int i=2; i<parts.length; i++)
     {
       if (parts[i].length == 0) {
 
-//null oznacza refren
+        //null oznacza refren
         songElementOldList.add(null);
         songElements.add(refrenElement);
         continue;

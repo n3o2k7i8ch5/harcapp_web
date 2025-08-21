@@ -7,7 +7,6 @@ import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/app_text.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
-import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/song_book/contrib_song.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
@@ -165,11 +164,16 @@ class SaveSendWidget extends StatelessWidget{
                       )
                     ],
                   ),
-                  onTap: () => showDialog(
-                      context: context,
-                      builder: (context) => Center(
-                        child: HowToContributeDialog(),
-                      )
+                  onTap: () => showAlertDialog(
+                    context,
+                    title: 'Jak przesłać piosenki do weryfikacji?',
+                    contentWidget: HowToContributeDialog(),
+                    actionBuilder: (context) => [
+                      AlertDialogButton(
+                        text: 'Wszystko jasne!',
+                        onTap: () => popPage(context),
+                      ),
+                    ]
                   )
               )
           ),
@@ -286,75 +290,52 @@ class HowToContributeDialog extends StatelessWidget{
   static const double textSeparation = 5.0;
 
   @override
-  Widget build(BuildContext context) => Center(
-    child: Padding(
-      padding: EdgeInsets.all(Dimen.sideMarg),
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: 500,
-        ),
-        child: Material(
-            borderRadius: BorderRadius.circular(AppCard.bigRadius),
-            clipBehavior: Clip.hardEdge,
-            color: background_(context),
-            child: Padding(
-                padding: EdgeInsets.all(Dimen.sideMarg),
-                child: ListView(
-                  physics: BouncingScrollPhysics(),
-                  shrinkWrap: true,
-                  children: [
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    mainAxisSize: MainAxisSize.min,
+    // physics: BouncingScrollPhysics(),
+    // shrinkWrap: true,
+    children: [
 
-                    Text(
-                      'Jak przesłać piosenki do weryfikacji?',
-                      style: alertDialogTextStyle(context),
-                    ),
-                    SizedBox(height: alertDialogTitleBottomMarginVal),
-
-                    AppText(
-                      'Przesłanie piosenek do weryfikacji jest bajecznie proste!',
-                      selectable: true,
-                      size: Dimen.textSizeBig,
-                    ),
-                    SizedBox(height: textSeparation),
-
-                    BulletPoint(1, '<b>Przygotuj propozycje piosenek</b>, do śpiewnika HarcApp.'),
-                    SizedBox(height: textSeparation),
-
-                    BulletPoint(2, 'Pobierz plik z piosenkami przyciskiem "<b>Zapisz wszystko</b>".'),
-                    SizedBox(height: textSeparation),
-
-                    BulletPoint(3, 'Wyślij mejlem pobrany plik na adres: <b>harcapp@gmail.com</b>.'),
-
-                    SizedBox(height: 24),
-
-
-                    Text(
-                      'Mejl z piosenkami',
-                      style: alertDialogTextStyle(context),
-                    ),
-                    SizedBox(height: alertDialogTitleBottomMarginVal),
-
-                    HowToSendEmailWidget(),
-
-                    SizedBox(height: 24 + 8),
-
-                    MouseRegion(
-                        cursor: SystemMouseCursors.click, // Changes cursor to hand/pointer
-                        child: GestureDetector(
-                          child: AppText(
-                            'Przesłanie propozycji piosenek jest równoznaczne z akceptacją <b>zasad dodawania piosenek</b>.',
-                            size: Dimen.textSizeBig,
-                          ),
-                          onTap: () => openPathInNewTab(pathSongContributionRules),
-                        )
-                    )
-
-                  ],
-                )
-            )
-        ),
+      AppText(
+        'Przesłanie piosenek do weryfikacji jest bajecznie proste!',
+        selectable: true,
+        size: Dimen.textSizeBig,
       ),
-    ),
+      SizedBox(height: textSeparation),
+
+      BulletPoint(1, '<b>Przygotuj propozycje piosenek</b>, do śpiewnika HarcApp.'),
+      SizedBox(height: textSeparation),
+
+      BulletPoint(2, 'Pobierz plik z piosenkami przyciskiem "<b>Zapisz wszystko</b>".'),
+      SizedBox(height: textSeparation),
+
+      BulletPoint(3, 'Wyślij mejlem pobrany plik na adres: <b>harcapp@gmail.com</b>.'),
+
+      SizedBox(height: 24),
+
+      Text(
+        'Mejl z piosenkami',
+        style: alertDialogTextStyle(context),
+      ),
+      SizedBox(height: alertDialogTitleBottomMarginVal),
+
+      HowToSendEmailWidget(),
+
+      SizedBox(height: 24 + 8),
+
+      MouseRegion(
+          cursor: SystemMouseCursors.click, // Changes cursor to hand/pointer
+          child: GestureDetector(
+            child: AppText(
+              'Przesłanie propozycji piosenek jest równoznaczne z akceptacją <b>zasad dodawania piosenek</b>.',
+              size: Dimen.textSizeBig,
+            ),
+            onTap: () => openPathInNewTab(pathSongContributionRules),
+          )
+      )
+
+    ],
   );
 
 }
@@ -400,6 +381,7 @@ class CopiableText extends StatelessWidget {
 
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
       children: [
 
         Container(
