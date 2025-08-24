@@ -5,6 +5,7 @@ import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_bar.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
+import 'package:harcapp_core/comm_widgets/dialog/dialog.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/song_book/song_core.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
@@ -39,7 +40,7 @@ class CodeEditorDialogState extends State<CodeEditorDialog> {
   @override
   void initState() {
     controller = TextEditingController(
-        text: showInitCode?prettyJson(song.code, indent: 4):''
+        text: showInitCode?prettyJson(song.toApiJsonMap(withId: false), indent: 4):''
     );
     super.initState();
   }
@@ -47,7 +48,7 @@ class CodeEditorDialogState extends State<CodeEditorDialog> {
   @override
   Widget build(BuildContext context) => Center(
       child: Padding(
-        padding: EdgeInsets.all(32),
+        padding: EdgeInsets.all(Dimen.sideMarg),
         child: Container(
             width: songDialogWidth,
             child: Material(
@@ -99,7 +100,7 @@ class CodeEditorDialogState extends State<CodeEditorDialog> {
 
   void cleanupText(){
     try {
-      String prettyText = prettyJson(jsonDecode(controller.text));
+      String prettyText = prettyJson(jsonDecode(controller.text), indent: 4);
       controller.text = prettyText;
     } catch(e){
       AppScaffold.showMessage(context, 'Błędny kod piosenki.');
@@ -149,3 +150,8 @@ class CodeEditorDialogState extends State<CodeEditorDialog> {
   }
 
 }
+
+void showCodeEditorDialog(BuildContext context, SongRaw song) => openDialog(
+  context: context,
+  builder: (context) => CodeEditorDialog(song)
+);

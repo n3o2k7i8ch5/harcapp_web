@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:harcapp_core/comm_widgets/app_dropdown.dart';
 import 'package:harcapp_core/comm_widgets/dialog/dialog.dart';
 import 'package:harcapp_core/values/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
@@ -24,7 +24,7 @@ import 'package:provider/provider.dart';
 import 'code_editor_dialog.dart';
 import '../new_song_buttons.dart';
 
-enum NewSongType{
+enum NewSongType implements IconTextEnum{
   importSongs,
   newSong,
   newSongExample,
@@ -41,7 +41,7 @@ enum NewSongType{
     }
   }
   
-  String get displayName{
+  String get text{
     switch(this){
       case NewSongType.importSongs: return 'Importuj piosenki';
       case NewSongType.newSong: return 'Nowa piosenka';
@@ -152,77 +152,109 @@ class SongListViewState extends State<SongListView>{
                       Expanded(
                         child: Tooltip(
                           message: 'Nowa piosenka',
-                          child: DropdownButtonHideUnderline(
-                              child: DropdownButton2<NewSongType>(
-                                dropdownStyleData: DropdownStyleData(
-                                  padding: EdgeInsets.zero,
-                                  offset: Offset(0, 3*Dimen.iconFootprint),
-                                  width: 240,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(AppCard.bigRadius),
-                                  ),
-                                ),
-                                customButton: SimpleButton.from(
-                                    context: context,
-                                    margin: EdgeInsets.zero,
-                                    radius: null,
-                                    icon: NewSongType.newSong.icon,
-                                    onTap: null
-                                ),
-                                value: null,
-                                onChanged: (value){
-                                  switch(value){
-                                    case NewSongType.newSongExample:
-                                      handleExampleSongTap(context);
-                                      break;
-                                    case NewSongType.newSongFromCode:
-                                      handleNewSongFromCode(context);
-                                      break;
-                                    case NewSongType.newSongEmpty:
-                                      handleNewSongEmptyTap(context);
-                                      break;
-                                    default:
-                                      break;
-                                  }
-                                },
-                                items: [
+                          child: AppDropdown<NewSongType>(
+                            position: PopupMenuPosition.over,
+                            child: SimpleButton.from(
+                                context: context,
+                                margin: EdgeInsets.zero,
+                                radius: null,
+                                icon: NewSongType.newSong.icon,
+                                onTap: null
+                            ),
+                            onSelected: (value){
+                              switch(value){
+                                case NewSongType.newSongExample:
+                                  handleExampleSongTap(context);
+                                  break;
+                                case NewSongType.newSongFromCode:
+                                  handleNewSongFromCode(context);
+                                  break;
+                                case NewSongType.newSongEmpty:
+                                  handleNewSongEmptyTap(context);
+                                  break;
+                                default:
+                                  break;
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              AppDropdownButton<NewSongType>(context, NewSongType.newSongExample),
+                              AppDropdownButton<NewSongType>(context, NewSongType.newSongFromCode),
+                              AppDropdownButton<NewSongType>(context, NewSongType.newSongEmpty),
+                            ]
+                          )
 
-                                  DropdownMenuItem<NewSongType>(
-                                      value: NewSongType.newSongExample,
-                                      child: Row(
-                                        children: [
-                                          Icon(NewSongType.newSongExample.icon),
-                                          SizedBox(width: Dimen.iconMarg),
-                                          Text(NewSongType.newSongExample.displayName, style: AppTextStyle(fontSize: Dimen.textSizeBig)),
-                                        ],
-                                      )
-                                  ),
 
-                                  DropdownMenuItem<NewSongType>(
-                                    value: NewSongType.newSongFromCode,
-                                    child: Row(
-                                      children: [
-                                        Icon(NewSongType.newSongFromCode.icon),
-                                        SizedBox(width: Dimen.iconMarg),
-                                        Text(NewSongType.newSongFromCode.displayName, style: AppTextStyle(fontSize: Dimen.textSizeBig)),
-                                      ],
-                                    ),
-                                  ),
-
-                                  DropdownMenuItem<NewSongType>(
-                                      value: NewSongType.newSongEmpty,
-                                      child: Row(
-                                        children: [
-                                          Icon(NewSongType.newSongEmpty.icon),
-                                          SizedBox(width: Dimen.iconMarg),
-                                          Text(NewSongType.newSongEmpty.displayName, style: AppTextStyle(fontSize: Dimen.textSizeBig)),
-                                        ],
-                                      )
-                                  ),
-
-                                ],
-                              )
-                          ),
+                          // DropdownButtonHideUnderline(
+                          //     child: DropdownButton2<NewSongType>(
+                          //       dropdownStyleData: DropdownStyleData(
+                          //         padding: EdgeInsets.zero,
+                          //         offset: Offset(0, 3*Dimen.iconFootprint),
+                          //         width: 240,
+                          //         decoration: BoxDecoration(
+                          //           borderRadius: BorderRadius.circular(AppCard.bigRadius),
+                          //         ),
+                          //       ),
+                          //       customButton: SimpleButton.from(
+                          //           context: context,
+                          //           margin: EdgeInsets.zero,
+                          //           radius: null,
+                          //           icon: NewSongType.newSong.icon,
+                          //           onTap: null
+                          //       ),
+                          //       value: null,
+                          //       onChanged: (value){
+                          //         switch(value){
+                          //           case NewSongType.newSongExample:
+                          //             handleExampleSongTap(context);
+                          //             break;
+                          //           case NewSongType.newSongFromCode:
+                          //             handleNewSongFromCode(context);
+                          //             break;
+                          //           case NewSongType.newSongEmpty:
+                          //             handleNewSongEmptyTap(context);
+                          //             break;
+                          //           default:
+                          //             break;
+                          //         }
+                          //       },
+                          //       items: [
+                          //
+                          //         DropdownMenuItem<NewSongType>(
+                          //             value: NewSongType.newSongExample,
+                          //             child: Row(
+                          //               children: [
+                          //                 Icon(NewSongType.newSongExample.icon),
+                          //                 SizedBox(width: Dimen.iconMarg),
+                          //                 Text(NewSongType.newSongExample.text, style: AppTextStyle(fontSize: Dimen.textSizeBig)),
+                          //               ],
+                          //             )
+                          //         ),
+                          //
+                          //         DropdownMenuItem<NewSongType>(
+                          //           value: NewSongType.newSongFromCode,
+                          //           child: Row(
+                          //             children: [
+                          //               Icon(NewSongType.newSongFromCode.icon),
+                          //               SizedBox(width: Dimen.iconMarg),
+                          //               Text(NewSongType.newSongFromCode.text, style: AppTextStyle(fontSize: Dimen.textSizeBig)),
+                          //             ],
+                          //           ),
+                          //         ),
+                          //
+                          //         DropdownMenuItem<NewSongType>(
+                          //             value: NewSongType.newSongEmpty,
+                          //             child: Row(
+                          //               children: [
+                          //                 Icon(NewSongType.newSongEmpty.icon),
+                          //                 SizedBox(width: Dimen.iconMarg),
+                          //                 Text(NewSongType.newSongEmpty.text, style: AppTextStyle(fontSize: Dimen.textSizeBig)),
+                          //               ],
+                          //             )
+                          //         ),
+                          //
+                          //       ],
+                          //     )
+                          // ),
                         ),
                       )
 

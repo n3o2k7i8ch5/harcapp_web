@@ -11,18 +11,18 @@ import 'package:provider/provider.dart';
 import '../providers.dart';
 
 
-class FileNameEditorDialog extends StatefulWidget{
+class SongIdEditorDialog extends StatefulWidget{
 
   final SongRaw song;
 
-  FileNameEditorDialog(this.song, {super.key});
+  SongIdEditorDialog(this.song, {super.key});
 
   @override
-  State<StatefulWidget> createState() => FileNameEditorDialogState();
+  State<StatefulWidget> createState() => SongIdEditorDialogState();
 
 }
 
-class FileNameEditorDialogState extends State<FileNameEditorDialog>{
+class SongIdEditorDialogState extends State<SongIdEditorDialog>{
 
   SongRaw get song => widget.song;
 
@@ -88,3 +88,8 @@ class FileNameEditorDialogState extends State<FileNameEditorDialog>{
   );
 
 }
+
+void showSongIdEditorDialog(BuildContext context, SongRaw song) => showDialog(
+  context: context,
+  builder: (context) => SongIdEditorDialog(song)
+);

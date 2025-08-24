@@ -15,7 +15,7 @@ class ImportSongsButton extends StatelessWidget{
       color: backgroundIcon_(context),
       icon: NewSongType.importSongs.icon,
       iconSize: 32.0,
-      text: NewSongType.importSongs.displayName,
+      text: NewSongType.importSongs.text,
       direction: Axis.vertical,
       onTap: () => handleImportSongsTap(context)
   );
@@ -30,7 +30,7 @@ class NewExampleSongButton extends StatelessWidget {
           color: backgroundIcon_(context),
           icon: NewSongType.newSongExample.icon,
           iconSize: 32.0,
-          text: NewSongType.newSongExample.displayName,
+          text: NewSongType.newSongExample.text,
           direction: Axis.vertical,
           onTap: prov.allSongs == null?null:() => handleExampleSongTap(context)
       )
@@ -45,7 +45,7 @@ class NewEmptySongButton extends StatelessWidget {
       color: backgroundIcon_(context),
       icon: NewSongType.newSongEmpty.icon,
       iconSize: 32.0,
-      text: NewSongType.newSongEmpty.displayName,
+      text: NewSongType.newSongEmpty.text,
       direction: Axis.vertical,
       onTap: () => handleNewSongEmptyTap(context)
   );
@@ -59,7 +59,7 @@ class NewSongFromCodeButton extends StatelessWidget {
       color: backgroundIcon_(context),
       icon: NewSongType.newSongFromCode.icon,
       iconSize: 32.0,
-      text: NewSongType.newSongFromCode.displayName,
+      text: NewSongType.newSongFromCode.text,
       direction: Axis.vertical,
       onTap: () => handleNewSongFromCode(context)
   );

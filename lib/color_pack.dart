@@ -10,9 +10,6 @@ class ColorPackGraphite extends ColorPack{
   String get name => 'ColorPackGraphite';
 
   @override
-  Color get appBarTextEnabled => Colors.white;
-
-  @override
   Color get accent => Colors.indigo;
 
   @override

@@ -119,27 +119,27 @@ class SongEditorPanelState extends State<SongEditorPanel>{
 
             Consumer<BindTitleFileNameProvider>(
               builder: (context, prov, child) =>
-                  SwitchListTile(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppCard.bigRadius)),
-                    contentPadding: EdgeInsets.only(left: Dimen.iconMarg),
-                    value: prov.bindTitle,
-                    onChanged: (value){
-                      prov.bindTitle = value;
+                SwitchListTile(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppCard.bigRadius)),
+                  contentPadding: EdgeInsets.only(left: Dimen.iconMarg),
+                  value: prov.bindTitle,
+                  onChanged: (value){
+                    prov.bindTitle = value;
 
-                      if(prov.bindTitle)
-                        CurrentItemProvider.of(context).setLclIdFromTitleAndPerformer(withPerformer: prov.bindPerformer);
+                    if(prov.bindTitle)
+                      CurrentItemProvider.of(context).setLclIdFromTitleAndPerformer(withPerformer: prov.bindPerformer);
 
-                      SongFileNameDupErrProvider.of(context).checkAllDups(context);
+                    SongFileNameDupErrProvider.of(context).checkAllDups(context);
 
-                    },
-                    title: Text(
-                      'Powiąż identyfikator piosenki z tytułem',
-                      style: AppTextStyle(
-                          color: prov.bindTitle?textEnab_(context):textDisab_(context),
-                          fontSize: Dimen.textSizeBig
-                      ),
+                  },
+                  title: Text(
+                    'Powiąż identyfikator piosenki z tytułem',
+                    style: AppTextStyle(
+                      color: prov.bindTitle?textEnab_(context):textDisab_(context),
+                      fontSize: Dimen.textSizeBig
                     ),
                   ),
+                ),
             ),
 
             SizedBox(height: Dimen.defMarg),

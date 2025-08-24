@@ -101,8 +101,8 @@ class MyAppState extends State<MyApp>{
 
             ChangeNotifierProvider(create: (context) => SongEditorPanelProvider()),
           ],
-          builder: (context, child) => Consumer<ColorPackProvider>(
-              builder: (context, prov, child) => MaterialApp.router(
+          builder: (context, _) => Consumer<ColorPackProvider>(
+              builder: (context, prov, _) => MaterialApp.router(
                 routerConfig: router,
                 title: 'HarcApp',
                 theme: prov.colorPack.themeData(context),
