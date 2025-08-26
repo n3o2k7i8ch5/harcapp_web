@@ -74,7 +74,7 @@ class MyAppState extends State<MyApp>{
             }),
 
             ChangeNotifierProvider(create: (context) => SearchListProvider(
-                AllSongsProvider.of(context).songs
+                allSongsProv.songs
             )),
 
             ChangeNotifierProvider(create: (context){
