@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_widgets/app_dropdown.dart';
 import 'package:harcapp_core/comm_widgets/dialog/dialog.dart';
+import 'package:harcapp_core/song_book/import_hrcpsng.dart';
 import 'package:harcapp_core/values/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
@@ -363,62 +364,11 @@ void handleImportSongsTap(BuildContext context) async {
     return;
   }
 
+  var songsResult = importHrcpsng(code);
+  List<SongRaw> offSongs = songsResult.$1;
+  List<SongRaw> confSongs = songsResult.$2;
+
   AllSongsProvider allSongsProv = AllSongsProvider.of(context);
-
-  Map<String, dynamic> songMap;
-  try{
-    songMap = jsonDecode(code);
-  } catch(e){
-    AppScaffold.showMessage(context, 'Błąd odczytu pliku (błąd dekodowania JSON)');
-    return;
-  }
-
-  Map<String, dynamic>? offSongsMap;
-  try {
-    offSongsMap = songMap['official'];
-  } catch(e){
-    AppScaffold.showMessage(context, 'Błąd odczytu pliku (brak sekcji "official")');
-    return;
-  }
-
-  List<SongRaw?> offSongs;
-  if(offSongsMap == null) offSongs = [];
-  else {
-    offSongs = List.filled(offSongsMap.keys.length, null, growable: true);
-
-    for(String fileName in offSongsMap.keys){
-      try {
-        Map<String, dynamic> songPackMap = offSongsMap[fileName];
-        SongRaw song = SongRaw.fromApiRespMap(fileName, songPackMap['song']);
-
-        if (!song.isOfficial) song.id = 'o!_' + song.id;
-        offSongs[songPackMap['index']] = song;
-      } catch(e){
-        AppScaffold.showMessage(context, 'Błąd odczytu pliku (błąd dekodowania piosenki ${fileName})');
-        return;
-      }
-    }
-  }
-
-  Map<String, dynamic>? confSongsMap = songMap['conf'];
-  List<SongRaw?> confSongs;
-  if(confSongsMap == null) confSongs = [];
-  else{
-    confSongs = List.filled(confSongsMap.keys.length, null, growable: true);
-
-    for(String fileName in confSongsMap.keys){
-      try {
-        Map<String, dynamic> songPackMap = confSongsMap[fileName];
-        SongRaw song = SongRaw.fromApiRespMap(fileName, songPackMap['song']);
-
-        if (!song.isConfid) song.id = 'oc!_' + song.id;
-        confSongs[songPackMap['index']] = song;
-      } catch(e){
-        AppScaffold.showMessage(context, 'Błąd odczytu pliku (błąd dekodowania piosenki ${fileName})');
-        return;
-      }
-    }
-  }
 
   List<SongRaw> songs = confSongs.cast<SongRaw>() + offSongs.cast<SongRaw>();
   if(songs.isEmpty) return;
