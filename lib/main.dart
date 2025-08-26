@@ -10,6 +10,7 @@ import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/song_book/song_tags.dart';
 import 'package:harcapp_web/logger.dart';
 import 'package:harcapp_web/router.dart';
+import 'package:harcapp_web/songs/left_panel/provider.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/song_preview_widget.dart';
 import 'package:provider/provider.dart';
@@ -71,6 +72,10 @@ class MyAppState extends State<MyApp>{
               allSongsProv = AllSongsProvider(MyApp.lastLoadedSongs);
               return allSongsProv;
             }),
+
+            ChangeNotifierProvider(create: (context) => SearchListProvider(
+                AllSongsProvider.of(context).songs
+            )),
 
             ChangeNotifierProvider(create: (context){
               currItemProv = CurrentItemProvider(song: SongRaw.empty());

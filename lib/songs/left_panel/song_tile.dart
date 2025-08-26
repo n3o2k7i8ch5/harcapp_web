@@ -107,133 +107,6 @@ class SongTileState extends State<SongTile>{
         selected: currItemProv.song == song,
         selectedTileColor: backgroundIcon_(context),
         trailing: _MoreButton(song: song),
-
-        // Row(
-        //   mainAxisSize: MainAxisSize.min,
-        //   children: [
-        //
-        //     SimpleButton.from(
-        //         context: context,
-        //         margin: EdgeInsets.zero,
-        //         radius: 100,
-        //         icon: MdiIcons.close,
-        //         onTap: () => AppScaffold.showMessage(context, 'Przytrzymaj przycisk, by usunąć piosenkę.'),
-        //         onLongPress: (){
-        //
-        //           AllSongsProvider allSongsProv = AllSongsProvider.of(context);
-        //
-        //           int remIndex = allSongsProv.songs.indexOf(song);
-        //           allSongsProv.remove(song);
-        //
-        //           if(currItemProv.song == song){
-        //
-        //             if(remIndex == allSongsProv.length)
-        //               remIndex--;
-        //
-        //             if(remIndex < 0)
-        //               SongPreviewProvider.of(context).showSong = false;
-        //             else
-        //               displaySong(context, allSongsProv.songs[remIndex]);
-        //           }
-        //
-        //           SearchListProvider.of(context).research();
-        //           SongFileNameDupErrProvider.of(context).checkAllDups(context);
-        //           SongEditorPanelProvider.of(context).notify();
-        //
-        //         }
-        //     ),
-        //
-        //     _MoreButton(),
-        //
-        //     DropdownButtonHideUnderline(
-        //         child: DropdownButton2<String>(
-        //           dropdownStyleData: DropdownStyleData(
-        //             width: 180,
-        //             padding: EdgeInsets.zero,
-        //             decoration: BoxDecoration(
-        //               borderRadius: BorderRadius.circular(AppCard.bigRadius),
-        //             ),
-        //           ),
-        //           buttonStyleData: ButtonStyleData(
-        //             decoration: BoxDecoration(
-        //                 borderRadius: BorderRadius.circular(100)
-        //             ),
-        //           ),
-        //           customButton: SimpleButton.from(
-        //               context: context,
-        //               margin: EdgeInsets.zero,
-        //               icon: MdiIcons.dotsHorizontal,
-        //               onTap: null
-        //           ),
-        //           value: null,
-        //           onChanged: (value){
-        //
-        //             switch(value){
-        //               case MENU_CONF:
-        //                 if(song.isConfid) song.id = 'o!_' + song.id.substring(4);
-        //                 else song.id = 'oc!_' + song.id.substring(3);
-        //
-        //                 AllSongsProvider.of(context).set(song, song.isConfid);
-        //
-        //                 SongFileNameDupErrProvider songFileNameDupErrProv = Provider.of<SongFileNameDupErrProvider>(context, listen: false);
-        //                 songFileNameDupErrProv.checkAllDups(context);
-        //
-        //                 break;
-        //               case MENU_CODE:
-        //                 showDialog(
-        //                     context: context,
-        //                     builder: (context) => CodeEditorDialog(song)
-        //                 );
-        //                 break;
-        //               case MENU_NAME:
-        //                 showDialog(
-        //                     context: context,
-        //                     builder: (context) => SongIdEditorDialog(song)
-        //                 );
-        //                 break;
-        //             }
-        //
-        //           },
-        //           items: [
-        //             DropdownMenuItem<String>(
-        //                 value: MENU_CONF,
-        //                 child: Row(
-        //                   children: [
-        //                     Icon(song.isConfid?MdiIcons.eyeOutline:MdiIcons.eyeOffOutline),
-        //                     SizedBox(width: Dimen.iconMarg),
-        //                     Text(song.isConfid?'Pokaż':'Ukryj', style: AppTextStyle(fontSize: Dimen.textSizeBig)),
-        //                   ],
-        //                 )
-        //             ),
-        //
-        //             DropdownMenuItem<String>(
-        //               value: MENU_CODE,
-        //               child: Row(
-        //                 children: [
-        //                   Icon(MdiIcons.codeTags),
-        //                   SizedBox(width: Dimen.iconMarg),
-        //                   Text('Edytuj kod', style: AppTextStyle(fontSize: Dimen.textSizeBig)),
-        //                 ],
-        //               ),
-        //             ),
-        //
-        //             DropdownMenuItem<String>(
-        //                 value: MENU_NAME,
-        //                 child: Row(
-        //                   children: [
-        //                     Icon(MdiIcons.formTextbox),
-        //                     SizedBox(width: Dimen.iconMarg),
-        //                     Text('Edytuj nazwę', style: AppTextStyle(fontSize: Dimen.textSizeBig)),
-        //                   ],
-        //                 )
-        //             )
-        //
-        //           ],
-        //         )
-        //     ),
-        //
-        //   ],
-        // ),
       );
 
     },
@@ -320,6 +193,8 @@ class _MoreButton extends StatelessWidget{
             SearchListProvider.of(context).research();
             SongFileNameDupErrProvider.of(context).checkAllDups(context);
             SongEditorPanelProvider.of(context).notify();
+
+            popPage(context);
           }
       ),
       AlertDialogButton(
