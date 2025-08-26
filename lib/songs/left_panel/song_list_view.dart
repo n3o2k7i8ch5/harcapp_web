@@ -285,7 +285,13 @@ void handleImportSongsTap(BuildContext context) async {
     return;
   }
 
-  var songsResult = importHrcpsng(code);
+  var songsResult;
+  try {
+    songsResult = importHrcpsng(code);
+  } catch(e){
+    AppScaffold.showMessage(context, e.toString());
+    return;
+  }
   List<SongRaw> offSongs = songsResult.$1;
   List<SongRaw> confSongs = songsResult.$2;
 
