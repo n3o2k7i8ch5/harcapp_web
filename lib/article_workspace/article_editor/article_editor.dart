@@ -273,7 +273,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
 
               } on Exception catch (error){
 
-                AppScaffold.showMessage(context, 'Wystąpił błąd: ${error.toString()}');
+                AppScaffold.showMessage(context, text: 'Wystąpił błąd: ${error.toString()}');
                 print(error.toString());
 
               }
@@ -287,17 +287,17 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
                 saving?'Zapisywanie...':'Zapisz atrykuł', saving?null:(){
 
               if(title == null || title!.length==0){
-                AppScaffold.showMessage(context, "Podaj tytuł artykułu.");
+                AppScaffold.showMessage(context, text: "Podaj tytuł artykułu.");
                 return;
               }
 
               if(intro == null || intro!.length==0){
-                AppScaffold.showMessage(context, "Wstęp artykułu nie może być pusty.");
+                AppScaffold.showMessage(context, text: "Wstęp artykułu nie może być pusty.");
                 return;
               }
 
               if(authCode == null || authCode!.length==0){
-                AppScaffold.showMessage(context, "Nie został podany autor artykułu.");
+                AppScaffold.showMessage(context, text: "Nie został podany autor artykułu.");
                 return;
               }
 

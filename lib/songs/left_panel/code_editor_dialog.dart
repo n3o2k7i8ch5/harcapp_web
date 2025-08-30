@@ -103,7 +103,7 @@ class CodeEditorDialogState extends State<CodeEditorDialog> {
       String prettyText = prettyJson(jsonDecode(controller.text), indent: 4);
       controller.text = prettyText;
     } catch(e){
-      AppScaffold.showMessage(context, 'Błędny kod piosenki.');
+      AppScaffold.showMessage(context, text: 'Błędny kod piosenki.');
     }
   }
 
@@ -132,7 +132,7 @@ class CodeEditorDialogState extends State<CodeEditorDialog> {
           song = SongRaw.fromApiRespMap("o!_${SongCore.filenameFromTitle(title)}", map);
 
         }catch(e){
-          AppScaffold.showMessage(context, 'Błędny kod piosneki.');
+          AppScaffold.showMessage(context, text: 'Błędny kod piosneki.');
           return;
         }
       }

@@ -364,7 +364,7 @@ class DownloadPDFOptionsDialogState extends State<DownloadPDFOptionsDialog>{
                       title: Text('Zdjęcie okładki', style: AppTextStyle(color: iconEnab_(context))),
                       value: withCover,
                       onChanged: (value) => setState(() => withCover = value),
-                      activeColor: accent_(context),
+                      activeThumbColor: accent_(context),
                     ),
                   ),
 
@@ -379,7 +379,7 @@ class DownloadPDFOptionsDialogState extends State<DownloadPDFOptionsDialog>{
                       title: Text('Metodyki, autor, czas, skrót', style: AppTextStyle(color: iconEnab_(context))),
                       value: withMetadata,
                       onChanged: (value) => setState(() => withMetadata = value),
-                      activeColor: accent_(context),
+                      activeThumbColor: accent_(context),
                     ),
                   ),
 
@@ -394,7 +394,7 @@ class DownloadPDFOptionsDialogState extends State<DownloadPDFOptionsDialog>{
                       title: Text('Cele', style: AppTextStyle(color: iconEnab_(context))),
                       value: withAims,
                       onChanged: (value) => setState(() => withAims = value),
-                      activeColor: accent_(context),
+                      activeThumbColor: accent_(context),
                     ),
                   ),
 
@@ -409,7 +409,7 @@ class DownloadPDFOptionsDialogState extends State<DownloadPDFOptionsDialog>{
                       title: Text('Lista materiałów', style: AppTextStyle(color: iconEnab_(context))),
                       value: withMaterials,
                       onChanged: (value) => setState(() => withMaterials = value),
-                      activeColor: accent_(context),
+                      activeThumbColor: accent_(context),
                     ),
                   ),
 
@@ -462,7 +462,7 @@ class DownloadPDFOptionsDialogState extends State<DownloadPDFOptionsDialog>{
                     popPage(context);
 
                   }catch (e){
-                    AppScaffold.showMessage(context, 'Coś poszło nie tak: ${e.toString()}');
+                    AppScaffold.showMessage(context, text: 'Coś poszło nie tak: ${e.toString()}');
                   } finally{
                     setState(() => buildingPdf = false);
                   }

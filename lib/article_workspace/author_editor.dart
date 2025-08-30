@@ -336,17 +336,17 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
 
 
               if(name.isEmpty){
-                AppScaffold.showMessage(context, "Nie podałeś swojego imienia i nazwiska.");
+                AppScaffold.showMessage(context, text: "Nie podałeś swojego imienia i nazwiska.");
                 return;
               }
 
               if(desc.isEmpty){
-                AppScaffold.showMessage(context, "Napisz kilka słów o sobie!");
+                AppScaffold.showMessage(context, text: "Napisz kilka słów o sobie!");
                 return;
               }
 
               if(imageBytes == null){
-                AppScaffold.showMessage(context, "Dodaj obraz swojej osoby.");
+                AppScaffold.showMessage(context, text: "Dodaj obraz swojej osoby.");
                 return;
               }
 
@@ -413,7 +413,7 @@ Future<void> loadImage(BuildContext context, AuthorEditorPageState state) async 
   ui.Image image = await decodeImageFromList(imageBytes);
 
   if(image.width != image.height)
-    AppScaffold.showMessage(context, "Obraz musi być kwadratowy.");
+    AppScaffold.showMessage(context, text: "Obraz musi być kwadratowy.");
 
   state.setState(() => state.imageBytes = imageBytes);
 }

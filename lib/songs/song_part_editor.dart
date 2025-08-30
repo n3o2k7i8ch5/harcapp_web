@@ -43,24 +43,27 @@ class SongPartEditorState extends State<SongPartEditor>{
   }
 
   @override
-  Widget build(BuildContext context) => SongPartEditorTemplate(
-    initText: initText,
-    initChord: initChord,
-    initShifted: initShifted,
-    isRefren: isRefren,
-    onTextChanged: onTextChanged,
-    onChordsChanged: onChordsChanged,
-    onShiftedChanged: onShiftedChanged,
-    bottomBuilder: (context, state) => Column(
-      children: [
-        ButtonsWidget(
-          isRefren: isRefren,
-          onCheckPressed: () => Navigator.pop(context),
-          onAlertTap: () => setState(() => showErrBar = !showErrBar),
-          onChordsChanged: onChordsChanged,
-        ),
-        ErrorListWidget(showErrBar),
-      ],
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.all(Dimen.sideMarg),
+    child: SongPartEditorTemplate(
+      initText: initText,
+      initChord: initChord,
+      initShifted: initShifted,
+      isRefren: isRefren,
+      onTextChanged: onTextChanged,
+      onChordsChanged: onChordsChanged,
+      onShiftedChanged: onShiftedChanged,
+      bottomBuilder: (context, state) => Column(
+        children: [
+          ButtonsWidget(
+            isRefren: isRefren,
+            onCheckPressed: () => Navigator.pop(context),
+            onAlertTap: () => setState(() => showErrBar = !showErrBar),
+            onChordsChanged: onChordsChanged,
+          ),
+          ErrorListWidget(showErrBar),
+        ],
+      ),
     ),
   );
 

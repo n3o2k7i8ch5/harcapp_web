@@ -281,7 +281,7 @@ void handleImportSongsTap(BuildContext context) async {
   try {
     code = utf8.decode(result.files.single.bytes!);
   } catch(e){
-    AppScaffold.showMessage(context, 'Błąd odczytu pliku (błąd kodowania binarnego)');
+    AppScaffold.showMessage(context, text: 'Błąd odczytu pliku (błąd kodowania binarnego)');
     return;
   }
 
@@ -289,7 +289,7 @@ void handleImportSongsTap(BuildContext context) async {
   try {
     songsResult = importHrcpsng(code);
   } catch(e){
-    AppScaffold.showMessage(context, e.toString());
+    AppScaffold.showMessage(context, text: e.toString());
     return;
   }
   List<SongRaw> offSongs = songsResult.$1;
@@ -314,7 +314,7 @@ void handleExampleSongTap(BuildContext context){
   Map<String, List<SongRaw>>? allSongs = SimilarSongProvider.of(context).allSongs;
 
   if(allSongs == null) {
-    AppScaffold.showMessage(context, 'Ładowanie piosenek. Spróbuj za chwilę');
+    AppScaffold.showMessage(context, text: 'Ładowanie piosenek. Spróbuj za chwilę');
     return;
   }
 

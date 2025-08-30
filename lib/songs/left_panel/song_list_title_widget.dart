@@ -47,7 +47,7 @@ class SongListTileWidget extends StatelessWidget{
                           text: '${prov.count}',
                           onTap: prov.count==0?null:() => AppScaffold.showMessage(
                             context,
-                            'Liczba piosenek o takiej samej nazwie: ${prov.count}.'
+                            text: 'Liczba piosenek o takiej samej nazwie: ${prov.count}.'
                                 '\nMowa o: ${prov.dupLclIds.map((s) => '<b>$s</b>').join(', ')}',
                           )
                       ),
@@ -63,7 +63,7 @@ class SongListTileWidget extends StatelessWidget{
                     context: context,
                     margin: EdgeInsets.symmetric(vertical: Dimen.defMarg),
                     onTap: () => AppScaffold.showMessage(context,
-                      'Przytrzymaj, by usunąć wszystkie piosenki',
+                      text: 'Przytrzymaj, by usunąć wszystkie piosenki',
                     ),
                     onLongPress: (){
                       allSongsProv.clear();

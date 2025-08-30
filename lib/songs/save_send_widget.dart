@@ -124,9 +124,9 @@ class SaveSendWidget extends StatelessWidget{
 
                       int songCount = AllSongsProvider.of(context).length;
                       if(songCount == 1)
-                        AppScaffold.showMessage(context, 'Rozpoczęto pobieranie 1 piosenki', duration: Duration(seconds: 5));
+                        AppScaffold.showMessage(context, text: 'Rozpoczęto pobieranie 1 piosenki', duration: Duration(seconds: 5));
                       else
-                        AppScaffold.showMessage(context, 'Rozpoczęto pobieranie $songCount piosenek', duration: Duration(seconds: 5));
+                        AppScaffold.showMessage(context, text: 'Rozpoczęto pobieranie $songCount piosenek', duration: Duration(seconds: 5));
 
                       downloadFileFromString(content: code, fileName: '${songCount}_songs.hrcpsng');
                       AllSongsProvider.clearCachedSongs();
@@ -397,7 +397,7 @@ class CopiableText extends StatelessWidget {
                 icon: Icon(MdiIcons.contentCopy),
                 onPressed: () async {
                   await FlutterClipboard.copy(text);
-                  AppScaffold.showMessage(context, 'Skopiowano!');
+                  AppScaffold.showMessage(context, text: 'Skopiowano!');
                 },
               )
 
