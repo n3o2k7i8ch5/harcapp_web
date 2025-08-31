@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_navigator.dart';
 import 'package:harcapp_core/comm_classes/sha_pref.dart';
+import 'package:harcapp_core/comm_classes/web_utils_web.dart';
 import 'package:harcapp_core/song_book/song_contribution_rules.dart';
 import 'package:harcapp_core/comm_widgets/dialog/alert_dialog.dart';
-import 'package:harcapp_web/common/open_in_new_tab.dart';
 import 'package:harcapp_web/common/sha_pref.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harcapp_web/router.dart';

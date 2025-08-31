@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_text_field_hint.dart';
 import 'package:harcapp_core/values/dimen.dart';
@@ -72,9 +73,9 @@ class SongIdEditorDialogState extends State<SongIdEditorDialog>{
                     )
                   ],
                 ),
-                trailing: IconButton(
+                trailing: AppButton(
                     icon: Icon(MdiIcons.check, color: iconEnab_(context)),
-                    onPressed: (){
+                    onTap: (){
                       BindTitleFileNameProvider.of(context).setSetBasedOnSong(song);
                       SongFileNameDupErrProvider.of(context).checkAllDups(context);
                       Navigator.pop(context);

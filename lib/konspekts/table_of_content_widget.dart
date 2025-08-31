@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/values/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
@@ -145,9 +146,9 @@ class TableOfContentWidgetState<T extends KonspektFilters> extends State<TableOf
                 children: [
 
                   if(filters.isNotEmpty)
-                    IconButton(
+                    AppButton(
                       icon: Icon(MdiIcons.close),
-                      onPressed: (){
+                      onTap: (){
                         filters.clear();
                         controller.clear();
                         KonspektSearchProvider.runSearch_(context, filters);
@@ -155,9 +156,9 @@ class TableOfContentWidgetState<T extends KonspektFilters> extends State<TableOf
                       },
                     )
                   else if(withBackButton)
-                    IconButton(
+                    AppButton(
                       icon: Icon(MdiIcons.arrowLeft),
-                      onPressed: () => Navigator.pop(context),
+                      onTap: () => Navigator.pop(context),
                     )
                   else
                     Padding(
@@ -182,9 +183,9 @@ class TableOfContentWidgetState<T extends KonspektFilters> extends State<TableOf
                     ),
                   ),
 
-                  IconButton(
+                  AppButton(
                     icon: Icon(MdiIcons.cogOutline),
-                    onPressed: () async {
+                    onTap: () async {
                       KonspektSearchProvider<T> provider = KonspektSearchProvider.of<T>(context);
                       await showDialog(
                         context: context,

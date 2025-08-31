@@ -5,6 +5,7 @@ import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_classes/date_to_str.dart';
 import 'package:harcapp_core/comm_classes/regexp_email.dart';
 import 'package:harcapp_core/comm_widgets/app_bar.dart';
+import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_text_field_hint.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
@@ -62,12 +63,12 @@ class ContribRulesDialogState extends State<ContribRulesDialog> {
                 title: 'Potwierdź regulamin',
                 clipBehavior: Clip.none,
                 actions: [
-                  IconButton(
+                  AppButton(
                     icon: Icon(
                       MdiIcons.check,
                       color: acceptedRulesVersion==null || !regExpEmail.hasMatch(emailController.text)?iconDisab_(context):iconEnab_(context),
                     ),
-                    onPressed: acceptedRulesVersion==null || !regExpEmail.hasMatch(emailController.text)?null:(){
+                    onTap: acceptedRulesVersion==null || !regExpEmail.hasMatch(emailController.text)?null:(){
                       CurrentItemProvider prov = CurrentItemProvider.of(context);
                       prov.song.contributorData = ContributorData(
                         email: emailController.text.trim(),

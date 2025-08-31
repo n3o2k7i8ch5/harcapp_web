@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_classes/web_utils_web.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/song_book/song_contribution_rules.dart';
 import 'package:harcapp_core/values/dimen.dart';
-import 'package:harcapp_web/common/open_in_new_tab.dart';
 import 'package:harcapp_web/router.dart';
 import 'package:harcapp_web/songs/left_panel/song_list_view.dart';
 import 'package:harcapp_web/songs/providers.dart';

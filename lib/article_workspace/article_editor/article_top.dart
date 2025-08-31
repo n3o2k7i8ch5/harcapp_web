@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:image_picker_web/image_picker_web.dart';
@@ -29,9 +30,9 @@ class ArticleTop extends StatelessWidget{
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
 
-        IconButton(
+        AppButton(
           icon: Icon(Icons.image, color: HEADER_TEXT_COLOR),
-          onPressed: () async {
+          onTap: () async {
             Uint8List? imageBytes = await ImagePickerWeb.getImageAsBytes();
             page.setImage(imageBytes);
           },

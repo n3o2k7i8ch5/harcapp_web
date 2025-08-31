@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_bar.dart';
+import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/dialog/dialog.dart';
@@ -61,14 +62,14 @@ class CodeEditorDialogState extends State<CodeEditorDialog> {
                     title: 'Edytor kodu',
                     actions: [
 
-                      IconButton(
+                      AppButton(
                         icon: Icon(MdiIcons.formatIndentIncrease),
-                        onPressed: cleanupText
+                        onTap: cleanupText
                       ),
 
-                      IconButton(
+                      AppButton(
                         icon: Icon(MdiIcons.check),
-                        onPressed: save
+                        onTap: save
                       ),
 
                     ],

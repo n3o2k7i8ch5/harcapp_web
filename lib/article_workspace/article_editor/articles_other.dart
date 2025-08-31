@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/values/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
@@ -94,9 +95,9 @@ class ArticlesOtherState extends State<ArticlesOther>{
                                     ),
                                   ),
 
-                                  IconButton(
+                                  AppButton(
                                     icon: Icon(Icons.close),
-                                    onPressed: () =>
+                                    onTap: () =>
                                     widget.parent.setState(() =>
                                       widget.parent.otherArts!.removeAt(index)
                                     ),

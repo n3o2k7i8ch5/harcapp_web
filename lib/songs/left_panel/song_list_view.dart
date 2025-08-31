@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/comm_widgets/app_dropdown.dart';
 import 'package:harcapp_core/comm_widgets/dialog/dialog.dart';
 import 'package:harcapp_core/song_book/import_hrcpsng.dart';
@@ -203,13 +204,13 @@ class SearchField extends StatelessWidget{
     child: Consumer<SearchListProvider>(
       builder: (context, prov, child) => Row(
         children: [
-          IconButton(
+          AppButton(
             icon:
             prov.searchPhrase.isEmpty?
             Icon(MdiIcons.magnify, color: hintEnab_(context)):
             Icon(MdiIcons.close),
 
-            onPressed:
+            onTap:
             prov.searchPhrase.isEmpty?
             null:
                 () => prov.changeSearchPhrase(''),

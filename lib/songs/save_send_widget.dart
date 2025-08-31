@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_navigator.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_classes/web_utils_web.dart';
+import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/app_text.dart';
@@ -11,7 +13,6 @@ import 'package:harcapp_core/song_book/contrib_song.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_web/common/download_file.dart';
-import 'package:harcapp_web/common/open_in_new_tab.dart' show openPathInNewTab;
 import 'package:harcapp_web/songs/left_panel/song_tile.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/song_contribution_rules_acceptance_manager.dart';
@@ -393,9 +394,9 @@ class CopiableText extends StatelessWidget {
 
               Expanded(child: Text(title, style: AppTextStyle(fontSize: Dimen.textSizeBig, fontWeight: weightBold))),
 
-              IconButton(
+              AppButton(
                 icon: Icon(MdiIcons.contentCopy),
-                onPressed: () async {
+                onTap: () async {
                   await FlutterClipboard.copy(text);
                   AppScaffold.showMessage(context, text: 'Skopiowano!');
                 },

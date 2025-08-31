@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/values/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/values/dimen.dart';
@@ -34,9 +35,9 @@ abstract class ArticleElementWidget<T extends ArticleElement> extends StatelessW
           Expanded(child: builder(context)),
 
           AnimatedOpacity(
-            child: IconButton(
+            child: AppButton(
               icon: Icon(Icons.close),
-              onPressed: showClose?(){
+              onTap: showClose?(){
                 pageState.removeElement(item);
               }:null,
             ),
