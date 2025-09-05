@@ -5,9 +5,8 @@ import 'package:harcapp_core/color_pack_app.dart';
 import 'package:harcapp_core/comm_classes/color_pack_provider.dart';
 import 'package:harcapp_core/comm_classes/sha_pref.dart';
 import 'package:harcapp_core/song_book/providers.dart';
-import 'package:harcapp_core/song_book/song_editor/providers.dart';
+import 'package:harcapp_core/song_book/song_editor/song_editor_app.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
-import 'package:harcapp_core/song_book/song_tags.dart';
 import 'package:harcapp_web/logger.dart';
 import 'package:harcapp_web/router.dart';
 import 'package:harcapp_web/songs/left_panel/provider.dart';
@@ -57,7 +56,7 @@ class MyApp extends StatefulWidget {
 class MyAppState extends State<MyApp>{
 
   late AllSongsProvider allSongsProv;
-  late CurrentItemProvider currItemProv;
+  // late CurrentItemProvider currItemProv;
   late BindTitleFileNameProvider bindTitleFileNameProv;
   late SongFileNameDupErrProvider songFileNameDupErrProv;
 
@@ -65,61 +64,63 @@ class MyAppState extends State<MyApp>{
   Widget build(BuildContext context) => ColorPackApp(
       initColorPack: ColorPackGraphite(),
       isDark: () => false,
-      child: MultiProvider(
-          providers: [
+      child: SongEditorApp(
+          builder: (context, _) => MultiProvider(
+              providers: [
 
-            ChangeNotifierProvider(create: (context){
-              allSongsProv = AllSongsProvider(MyApp.lastLoadedSongs);
-              return allSongsProv;
-            }),
+                ChangeNotifierProvider(create: (context){
+                  allSongsProv = AllSongsProvider(MyApp.lastLoadedSongs);
+                  return allSongsProv;
+                }),
 
-            ChangeNotifierProvider(create: (context) => SearchListProvider(
-                allSongsProv.songs
-            )),
+                ChangeNotifierProvider(create: (context) => SearchListProvider(
+                    allSongsProv.songs
+                )),
 
-            ChangeNotifierProvider(create: (context){
-              currItemProv = CurrentItemProvider(song: SongRaw.empty());
-              return currItemProv;
-            }),
+                // ChangeNotifierProvider(create: (context){
+                //   // currItemProv = CurrentItemProvider(song: SongRaw.empty());
+                //   return CurrentItemProvider(song: SongRaw.empty());;
+                // }),
 
-            ChangeNotifierProvider(create: (context){
-              SimilarSongProvider prov = SimilarSongProvider();
-              prov.init();
-              return prov;
-            }),
+                ChangeNotifierProvider(create: (context){
+                  SimilarSongProvider prov = SimilarSongProvider();
+                  prov.init();
+                  return prov;
+                }),
 
-            ChangeNotifierProvider(create: (context) => RefrenEnabProvider(true)),
-            ChangeNotifierProvider(create: (context) => RefrenPartProvider()),
-            ChangeNotifierProvider(create: (context) => TagsProvider(SongTag.ALL, [])),
+                // ChangeNotifierProvider(create: (context) => RefrenEnabProvider(true)),
+                // ChangeNotifierProvider(create: (context) => RefrenPartProvider()),
+                // ChangeNotifierProvider(create: (context) => TagsProvider(SongTag.ALL, [])),
 
-            ChangeNotifierProvider(create: (context){
-              bindTitleFileNameProv = BindTitleFileNameProvider();
-              return bindTitleFileNameProv;
-            }),
+                ChangeNotifierProvider(create: (context){
+                  bindTitleFileNameProv = BindTitleFileNameProvider();
+                  return bindTitleFileNameProv;
+                }),
 
-            ChangeNotifierProvider(create: (context){
-              songFileNameDupErrProv = SongFileNameDupErrProvider();
-              return songFileNameDupErrProv;
-            }),
+                ChangeNotifierProvider(create: (context){
+                  songFileNameDupErrProv = SongFileNameDupErrProvider();
+                  return songFileNameDupErrProv;
+                }),
 
-            ChangeNotifierProvider(create: (context) => SongPreviewProvider()),
+                ChangeNotifierProvider(create: (context) => SongPreviewProvider()),
 
-            ChangeNotifierProvider(create: (context) => SongEditorPanelProvider()),
-          ],
-          builder: (context, _) => Consumer<ColorPackProvider>(
-              builder: (context, prov, _) => MaterialApp.router(
-                routerConfig: router,
-                title: 'HarcApp',
-                theme: prov.colorPack.themeData(context),
-                builder: (context, child) => child!,
-                localizationsDelegates: const [
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate, // ONLY if it's a RTL language
-                  GlobalCupertinoLocalizations.delegate,
-                ],
-                supportedLocales: const [
-                  Locale('pl', 'PL'), // include country code too
-                ],
+                ChangeNotifierProvider(create: (context) => SongEditorPanelProvider()),
+              ],
+              builder: (context, _) => Consumer<ColorPackProvider>(
+                  builder: (context, prov, _) => MaterialApp.router(
+                    routerConfig: router,
+                    title: 'HarcApp',
+                    theme: prov.colorPack.themeData(context),
+                    builder: (context, child) => child!,
+                    localizationsDelegates: const [
+                      GlobalMaterialLocalizations.delegate,
+                      GlobalWidgetsLocalizations.delegate, // ONLY if it's a RTL language
+                      GlobalCupertinoLocalizations.delegate,
+                    ],
+                    supportedLocales: const [
+                      Locale('pl', 'PL'), // include country code too
+                    ],
+                  )
               )
           )
       )

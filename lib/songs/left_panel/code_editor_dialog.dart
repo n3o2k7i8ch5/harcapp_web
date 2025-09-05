@@ -11,7 +11,6 @@ import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/song_book/song_core.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
-import 'package:harcapp_core/song_book/song_tags.dart';
 import 'package:harcapp_web/consts.dart';
 import 'package:harcapp_web/songs/left_panel/song_list_view.dart';
 import 'package:harcapp_web/songs/old/parse_old_code.dart';
@@ -23,8 +22,9 @@ class CodeEditorDialog extends StatefulWidget{
 
   final SongRaw song;
   final bool showInitCode;
+  final void Function()? onSaved;
 
-  const CodeEditorDialog(this.song, {this.showInitCode = true, super.key});
+  const CodeEditorDialog(this.song, {this.showInitCode = true, this.onSaved, super.key});
 
   @override
   State<StatefulWidget> createState() => CodeEditorDialogState();
@@ -139,10 +139,12 @@ class CodeEditorDialogState extends State<CodeEditorDialog> {
       }
     }
 
-    TagsProvider.of(context).set(SongTag.ALL, song.tags);
+    TagsProvider.of(context).set(song.tags);
 
     this.song.set(song);
     AllSongsProvider.of(context).set(this.song, this.song.isConfid);
+
+    widget.onSaved?.call();
 
     SongFileNameDupErrProvider.of(context).checkAllDups(context);
 

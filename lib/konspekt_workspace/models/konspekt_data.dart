@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:harcapp_core/comm_classes/common.dart';
 import 'package:harcapp_core/comm_classes/meto.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/values/people.dart';
@@ -42,6 +43,15 @@ class KonspektData{
     howToFail = [],
     steps = [KonspektStepData()],
     attachments = null;
+
+  String get titleAsFileName =>
+    remPolChars(titleController.text).trim()
+        .replaceAll(":", "_")
+        .replaceAll('-', '_')
+        .replaceAll('/', '_')
+        .replaceAll(' ', '_')
+        .replaceAll(RegExp(r"_+"), "_")
+        .replaceAll(RegExp(r"[^\w]"), '');
 
   Map toJsonMap() => {
     'title': titleController.text,

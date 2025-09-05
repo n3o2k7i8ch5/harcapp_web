@@ -391,10 +391,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_svg
-      sha256: cd57f7969b4679317c17af6fd16ee233c1e60a82ed209d8a475c54fd6fd6f845
+      sha256: b9c2ad5872518a27507ab432d1fb97e8813b05f0fc693f9d40fad06d073e0678
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0"
+    version: "2.2.1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -409,10 +409,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_widget_from_html
-      sha256: "71566eb82614cbf548d84e04cbc532a2444479edb05447c0b6121134ee95cc05"
+      sha256: "7f1daefcd3009c43c7e7fb37501e6bb752d79aa7bfad0085fb0444da14e89bd0"
       url: "https://pub.dev"
     source: hosted
-    version: "0.17.0"
+    version: "0.17.1"
   flutter_widget_from_html_core:
     dependency: transitive
     description:
@@ -473,10 +473,10 @@ packages:
     dependency: transitive
     description:
       name: fwfh_webview
-      sha256: "06595c7ca945c8d8522864a764e21abbcf50096852f8d256e45c0fa101b6fbc6"
+      sha256: f71b0aa16e15d82f3c017f33560201ff5ae04e91e970cab5d12d3bcf970b870c
       url: "https://pub.dev"
     source: hosted
-    version: "0.15.5"
+    version: "0.15.6"
   go_router:
     dependency: "direct main"
     description:
@@ -498,7 +498,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: a5a216cfd995cab27a0ef264ec37ce5315437aa6
+      resolved-ref: "511894eca331356e9ec2e0ef4e0324cd31d18a14"
       url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"
@@ -586,10 +586,10 @@ packages:
     dependency: transitive
     description:
       name: just_audio
-      sha256: "679637a3ec5b6e00f36472f5a3663667df00ee4822cbf5dafca0f568c710960a"
+      sha256: "9694e4734f515f2a052493d1d7e0d6de219ee0427c7c29492e246ff32a219908"
       url: "https://pub.dev"
     source: hosted
-    version: "0.10.4"
+    version: "0.10.5"
   just_audio_platform_interface:
     dependency: transitive
     description:

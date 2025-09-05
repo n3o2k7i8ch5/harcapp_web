@@ -137,7 +137,7 @@ class SongsPageState extends State<SongsPage>{
 
                 if(constraints.maxWidth>1280 && songPreviewProv.showSong)
                   SizedBox(
-                    width: 400,
+                    width: songPreviewWidth,
                     child: Padding(
                         padding: EdgeInsets.only(bottom: 32, right: 32),
                         child:

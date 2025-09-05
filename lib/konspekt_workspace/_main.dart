@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
@@ -12,8 +14,10 @@ import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/harcthought/konspekts/widgets/level_selectable_grid_widget.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
+import 'package:harcapp_web/common/download_file.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/select_time_button.dart';
+import 'package:harcapp_web/konspekt_workspace/widgets/spheres_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/steps_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -56,7 +60,6 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                 physics: BouncingScrollPhysics(),
                 slivers: [
 
-
                   FloatingContainer.child(
                     child: Padding(
                       padding: EdgeInsets.only(top: Dimen.defMarg),
@@ -85,7 +88,10 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                                 margin: EdgeInsets.zero,
                                 icon: MdiIcons.contentSave,
                                 text: 'Zapisz',
-                                onTap: (){}
+                                onTap: (){
+                                  String code = jsonEncode(konspektData.toJsonMap());
+                                  downloadFileFromString(content: code, fileName: '${konspektData.titleAsFileName}.hrcpkspkt');
+                                }
                             ),
                           ),
 
@@ -195,7 +201,14 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                         title: 'Sfery rozwoju',
                         textAlign: TextAlign.left,
                       ),
-                      Text('<tutaj sfery rozwoju>'),
+                      SpheresWidget(
+                        spheres: konspektData.spheres,
+                        onChanged: (Map<KonspektSphere, KonspektSphereDetails?> newSpheres){
+                          konspektData.spheres.clear();
+                          konspektData.spheres.addAll(newSpheres);
+                          setState((){});
+                        },
+                      ),
 
                       const SizedBox(height: Dimen.sideMarg),
 

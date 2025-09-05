@@ -18,6 +18,10 @@ import 'package:provider/provider.dart';
 
 class SongPreviewWidget extends StatelessWidget{
 
+  final dynamic songWidgetHeroTag;
+
+  const SongPreviewWidget({this.songWidgetHeroTag});
+
   @override
   Widget build(BuildContext context) => Consumer2<CurrentItemProvider, SongPreviewProvider>(
       builder: (context, currItemProv, songPrevProv, child) => Column(

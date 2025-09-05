@@ -15,7 +15,6 @@ import 'package:harcapp_core/comm_widgets/floating_container.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
-import 'package:harcapp_core/song_book/song_tags.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_web/songs/left_panel/provider.dart';
 import 'package:harcapp_web/songs/left_panel/song_tile.dart';
@@ -319,7 +318,7 @@ void handleExampleSongTap(BuildContext context){
     return;
   }
 
-  SongRaw song = allSongs.values.firstWhere((songs) => songs.first.id == 'o!_addio_pomidory@kabaret_starszych_panow').first.copy(withLclId: true);
+  SongRaw song = allSongs.values.firstWhere((songs) => songs.first.id == 'o!_addio_pomidory@kabaret_starszych_panow').first.copy(withId: true);
 
   AllSongsProvider.of(context).addOff(song);
   displaySong(context, song);
@@ -328,12 +327,19 @@ void handleExampleSongTap(BuildContext context){
 
 }
 
-void handleNewSongFromCode(BuildContext context){
+void handleNewSongFromCode(BuildContext context) async {
   SongRaw song = handleNewSongEmptyTap(context);
-  openDialog(
+  bool saved = false;
+  await openDialog(
       context: context,
-      builder: (context) => CodeEditorDialog(song, showInitCode: false)
+      builder: (context) => CodeEditorDialog(
+        song,
+        showInitCode: false,
+        onSaved: () => saved = true,
+      )
   );
+  if(!saved) AllSongsProvider.of(context).remove(song);
+
 }
 
 SongRaw handleNewSongEmptyTap(BuildContext context){
@@ -356,7 +362,7 @@ void displaySong(BuildContext context, SongRaw song){
 
   BindTitleFileNameProvider.of(context).setSetBasedOnSong(song);
   SongEditorPanelProvider.notify_(context);
-  TagsProvider.of(context).set(SongTag.ALL, song.tags);
+  TagsProvider.of(context).set(song.tags);
 
   // SimilarSongProvider.of(context).title = song.title;
 }

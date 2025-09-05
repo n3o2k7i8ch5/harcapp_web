@@ -4,22 +4,19 @@ import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
-import 'package:harcapp_core/song_book/contributor_identity_resolver.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/contributor_identity_list_widget.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
-import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/add_buttons_widget.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/basic_data_widget.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/refren_template.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/scroll_to_bottom.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/song_parts_list_widget.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/tags_widget.dart';
-import 'package:harcapp_core/song_book/widgets/song_widget_template.dart';
 import 'package:harcapp_web/songs/providers.dart';
+import 'package:harcapp_web/songs/similar_song_viewer.dart';
 import 'package:harcapp_web/songs/song_editor_no_song_widget.dart';
 import 'package:harcapp_web/songs/song_part_editor.dart';
-import 'package:harcapp_web/songs/song_preview_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -109,19 +106,19 @@ class SongEditorPanelState extends State<SongEditorPanel>{
         header: Column(
           children: [
 
-            Padding(
-              padding: EdgeInsets.only(left: Dimen.iconMarg, top: Dimen.iconMarg),
-              child: TitleShortcutRowWidget(
-                title: 'Info. ogólne',
-                textAlign: TextAlign.start,
-              ),
+            SizedBox(height: Dimen.iconMarg),
+
+            TitleShortcutRowWidget(
+              title: 'Identyfikator piosenki',
+              textAlign: TextAlign.left,
             ),
 
             Consumer<BindTitleFileNameProvider>(
               builder: (context, prov, child) =>
                 SwitchListTile(
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppCard.bigRadius)),
-                  contentPadding: EdgeInsets.only(left: Dimen.iconMarg),
+                  hoverColor: Colors.transparent,
+                  contentPadding: EdgeInsets.zero,
                   value: prov.bindTitle,
                   onChanged: (value){
                     prov.bindTitle = value;
@@ -147,17 +144,18 @@ class SongEditorPanelState extends State<SongEditorPanel>{
             Consumer2<BindTitleFileNameProvider, CurrentItemProvider>(
               builder: (context, bindTitleFileNameProv, currItemProv, child) =>
                   IgnorePointer(
-                    ignoring: currItemProv.performersController.isEmpty,
+                    ignoring: currItemProv.performersController.isContentEmpty,
                     child: AnimatedOpacity(
                       duration: Duration(milliseconds: 300),
-                      opacity: currItemProv.performersController.isEmpty?
+                      opacity: currItemProv.performersController.isContentEmpty?
                       0.3:
                       1.0,
 
                       child: SwitchListTile(
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppCard.bigRadius)),
-                        contentPadding: EdgeInsets.only(left: Dimen.iconMarg),
-                        value: currItemProv.performersController.isNotEmpty && bindTitleFileNameProv.bindPerformer,
+                        hoverColor: Colors.transparent,
+                        contentPadding: EdgeInsets.zero,
+                        value: currItemProv.performersController.isContentNotEmpty && bindTitleFileNameProv.bindPerformer,
                         onChanged: (value) {
                           bindTitleFileNameProv.bindPerformer = value;
 
@@ -183,6 +181,11 @@ class SongEditorPanelState extends State<SongEditorPanel>{
             ),
 
             SizedBox(height: Dimen.defMarg),
+
+            TitleShortcutRowWidget(
+              title: 'Info. ogólne',
+              textAlign: TextAlign.left,
+            ),
 
             SimilarSongWidget(),
 
@@ -275,12 +278,9 @@ class SongEditorPanelState extends State<SongEditorPanel>{
 
             SizedBox(height: SEPARATOR_HEIGHT),
 
-            Padding(
-              padding: EdgeInsets.only(left: Dimen.iconMarg),
-              child: TitleShortcutRowWidget(
-                title: 'Struktura piosenki',
-                textAlign: TextAlign.start,
-              ),
+            TitleShortcutRowWidget(
+              title: 'Struktura piosenki',
+              textAlign: TextAlign.left,
             )
 
           ],
@@ -379,21 +379,9 @@ class _FoundSimilarSongWidget extends StatelessWidget{
               text: 'Podgląd',
               onTap: () => showDialog(
                 context: context,
-                builder: (context) => Center(
-                    child: Material(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(AppCard.bigRadius),
-                      child: SizedBox(
-                        width: 400,
-                        child: SongWidgetTemplate<SongRaw, ContributorIdentitySimpleResolver>(
-                            similarSongProv.getSimilarSongs(currItemProv.titleController.text)![0],
-                            SongBaseSettings(),
-                            contribIdResolver: ContributorIdentitySimpleResolver(),
-                            scrollController: ScrollController(),
-                            key: UniqueKey()//ValueKey(currItemProv.song)
-                        ),
-                      ),
-                    )
+                builder: (context) => Padding(
+                  padding: EdgeInsets.all(Dimen.sideMarg),
+                  child: SimilarSongViewerDialog(),
                 ),
               )
           ),
