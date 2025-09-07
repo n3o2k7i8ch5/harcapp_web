@@ -32,7 +32,7 @@ class StepWidgetState extends State<StepWidget> {
 
   @override
   Widget build(BuildContext context) => Material(
-    borderRadius: BorderRadius.circular(AppCard.bigRadius),
+    borderRadius: BorderRadius.circular(AppCard.defRadius),
     color: backgroundIcon_(context),
     child: Padding(
       padding: EdgeInsets.all(Dimen.sideMarg),
@@ -102,14 +102,16 @@ class _ActiveFormButton extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) => PopupMenuButton<KonspektStepActiveForm>(
-    splashRadius: AppCard.bigRadius,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppCard.bigRadius)),
-    borderRadius: BorderRadius.circular(AppCard.bigRadius),
+    splashRadius: AppCard.defRadius,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppCard.defRadius)),
+    borderRadius: BorderRadius.circular(AppCard.defRadius),
     clipBehavior: Clip.hardEdge,
     menuPadding: EdgeInsets.zero,
     padding: EdgeInsets.zero,
     child: SimpleButton.from(
       textColor: activeForm.color,
+      radius: AppCard.defRadius,
+      padding: EdgeInsets.all(Dimen.defMarg),
       color: backgroundIcon_(context),
       margin: EdgeInsets.zero,
       text: activeForm.displayName,
@@ -119,11 +121,14 @@ class _ActiveFormButton extends StatelessWidget{
       iconLeading: false,
     ),
     onSelected: onChanged,
+    color: background_(context),
     itemBuilder: (BuildContext context) => [
       PopupMenuItem<KonspektStepActiveForm>(
         value: KonspektStepActiveForm.active,
         padding: EdgeInsets.zero,
         child: SimpleButton.from(
+          radius: AppCard.defRadius,
+          padding: EdgeInsets.all(Dimen.defMarg),
           textColor: KonspektStepActiveForm.active.color,
           text: KonspektStepActiveForm.active.displayName,
           margin: EdgeInsets.zero,
@@ -134,6 +139,8 @@ class _ActiveFormButton extends StatelessWidget{
         value: KonspektStepActiveForm.static,
         padding: EdgeInsets.zero,
         child: SimpleButton.from(
+          radius: AppCard.defRadius,
+          padding: EdgeInsets.all(Dimen.defMarg),
           textColor: KonspektStepActiveForm.static.color,
           text: KonspektStepActiveForm.static.displayName,
           margin: EdgeInsets.zero,
@@ -154,14 +161,16 @@ class _RequiredButton extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) => PopupMenuButton<bool>(
-    splashRadius: AppCard.bigRadius,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppCard.bigRadius)),
-    borderRadius: BorderRadius.circular(AppCard.bigRadius),
+    splashRadius: AppCard.defRadius,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppCard.defRadius)),
+    borderRadius: BorderRadius.circular(AppCard.defRadius),
     clipBehavior: Clip.hardEdge,
     menuPadding: EdgeInsets.zero,
     padding: EdgeInsets.zero,
     child: SimpleButton.from(
       context: context,
+      radius: AppCard.defRadius,
+      padding: EdgeInsets.all(Dimen.defMarg),
       color: backgroundIcon_(context),
       margin: EdgeInsets.zero,
       text: required? 'Obowiązkowo' : 'Opcjonalnie',
@@ -171,12 +180,15 @@ class _RequiredButton extends StatelessWidget{
       iconLeading: false,
     ),
     onSelected: onChanged,
+    color: background_(context),
     itemBuilder: (BuildContext context) => [
       PopupMenuItem<bool>(
         value: true,
         padding: EdgeInsets.zero,
         child: SimpleButton.from(
           context: context,
+          radius: AppCard.defRadius,
+          padding: EdgeInsets.all(Dimen.defMarg),
           text: 'Obowiązkowo',
           margin: EdgeInsets.zero,
           onTap: null,
@@ -187,6 +199,8 @@ class _RequiredButton extends StatelessWidget{
           padding: EdgeInsets.zero,
           child: SimpleButton.from(
             context: context,
+            radius: AppCard.defRadius,
+            padding: EdgeInsets.all(Dimen.defMarg),
             text: 'Opcjonalnie',
             margin: EdgeInsets.zero,
             onTap: null,

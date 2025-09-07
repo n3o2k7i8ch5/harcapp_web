@@ -11,6 +11,7 @@ import 'package:harcapp_core/comm_widgets/multi_text_field.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
+import 'package:harcapp_core/harcthought/konspekts/widgets/base_konspekt_widget.dart';
 import 'package:harcapp_core/harcthought/konspekts/widgets/level_selectable_grid_widget.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
@@ -74,7 +75,27 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                                 margin: EdgeInsets.zero,
                                 icon: MdiIcons.eyeOutline,
                                 text: 'Podgląd',
-                                onTap: (){}
+                                onTap: (){
+                                  Map json = konspektData.toJsonMap();
+                                  Konspekt konspekt = Konspekt.fromJsonMap(json);
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => Center(
+                                      child: Container(
+                                        constraints: BoxConstraints(maxWidth: defPageWidth),
+                                        child: Padding(
+                                          padding: EdgeInsets.all(Dimen.sideMarg),
+                                          child: Material(
+                                            child: BaseKonspektWidget(
+                                              konspekt,
+                                              onDuchLevelInfoTap: null,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  );
+                                }
                             ),
                           ),
 
@@ -257,6 +278,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                         ),
                         multiAddButtonBuilder: (bool tappable, void Function() onTap) => SimpleButton.from(
                           color: backgroundIcon_(context),
+                          radius: AppCard.defRadius,
                           context: context,
                           icon: MdiIcons.plus,
                           margin: EdgeInsets.zero,
@@ -295,7 +317,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                         textAlign: TextAlign.left,
                       ),
                       StepsWidget(
-                        steps: konspektData.steps,
+                        steps: konspektData.stepsData,
                       ),
 
                     ])),
@@ -318,14 +340,16 @@ class _KonspektTypeButton extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) => PopupMenuButton<KonspektType>(
-    splashRadius: AppCard.bigRadius,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppCard.bigRadius)),
-    borderRadius: BorderRadius.circular(AppCard.bigRadius),
+    splashRadius: AppCard.defRadius,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppCard.defRadius)),
+    borderRadius: BorderRadius.circular(AppCard.defRadius),
     clipBehavior: Clip.hardEdge,
     menuPadding: EdgeInsets.zero,
     padding: EdgeInsets.zero,
     child: SimpleButton.from(
       context: context,
+      radius: AppCard.defRadius,
+      padding: EdgeInsets.all(Dimen.defMarg),
       textColor: iconEnab_(context),
       color: backgroundIcon_(context),
       margin: EdgeInsets.zero,
@@ -336,11 +360,15 @@ class _KonspektTypeButton extends StatelessWidget{
       iconLeading: false,
     ),
     onSelected: onChanged,
+    color: background_(context),
+    constraints: BoxConstraints(),
+    elevation: AppCard.bigElevation,
     itemBuilder: (BuildContext context) => KonspektType.values.map(
         (value) => PopupMenuItem<KonspektType>(
           value: value,
           padding: EdgeInsets.zero,
           child: SimpleButton.from(
+            padding: EdgeInsets.all(Dimen.defMarg),
             context: context,
             textColor: iconEnab_(context),
             text: value.displayName,

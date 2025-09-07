@@ -23,14 +23,24 @@ class KonspektStepData{
   String get title => titleController.text;
   String get content => contentController.text;
 
-  Map toJsonMap() => {
-    'title': title,
-    'duration': duration.inSeconds,
-    'activeForm': activeForm.name,
-    'required': required,
-    'content': content,
-    'aims': aims.map((e) => e.text).toList(),
-    'materials': materials?.map((e) => e.toJsonMap()).toList(),
-  };
+  // Map toJsonMap() => {
+  //   'title': title,
+  //   'duration': duration.inSeconds,
+  //   'activeForm': activeForm.name,
+  //   'required': required,
+  //   'content': content,
+  //   'aims': aims.map((e) => e.text).toList(),
+  //   'materials': materials?.map((e) => e.toJsonMap()).toList(),
+  // };
+
+  KonspektStep toKonspektStep() => KonspektStep(
+    title: title,
+    duration: duration,
+    activeForm: activeForm,
+    required: required,
+    content: content,
+    aims: aims.map((e) => e.text).toList(),
+    materials: materials,
+  );
 
 }

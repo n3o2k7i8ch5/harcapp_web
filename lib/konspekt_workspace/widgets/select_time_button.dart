@@ -29,7 +29,7 @@ class SelectTimeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-    borderRadius: BorderRadius.circular(AppCard.bigRadius),
+    borderRadius: BorderRadius.circular(AppCard.defRadius),
     clipBehavior: Clip.hardEdge,
     color: backgroundIcon_(context),
     child: Row(
@@ -37,7 +37,7 @@ class SelectTimeButton extends StatelessWidget {
 
         SimpleButton(
           radius: 0,
-          padding: EdgeInsets.symmetric(vertical: Dimen.iconMarg, horizontal: 1.5*Dimen.defMarg),
+          padding: EdgeInsets.symmetric(vertical: Dimen.defMarg, horizontal: 1.5*Dimen.defMarg),
           child: SizedBox(
             height: Dimen.iconSize,
             child: Center(
@@ -60,6 +60,7 @@ class SelectTimeButton extends StatelessWidget {
         if(removable && time != null)
           SimpleButton.from(
             context: context,
+            padding: EdgeInsets.all(Dimen.defMarg),
             radius: 0,
             margin: EdgeInsets.zero,
             icon: Icons.close,
@@ -67,7 +68,7 @@ class SelectTimeButton extends StatelessWidget {
           )
         else if(!removable)
           Padding(
-            padding: EdgeInsets.all(Dimen.iconMarg),
+            padding: EdgeInsets.all(Dimen.defMarg),
             child: Icon(MdiIcons.pencilOutline),
           )
       ],

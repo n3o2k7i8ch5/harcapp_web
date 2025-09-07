@@ -66,6 +66,7 @@ class _StepsWidgetState extends State<StepsWidget> {
 
       SimpleButton.from(
         context: context,
+        radius: AppCard.defRadius,
         color: backgroundIcon_(context),
         icon: MdiIcons.plus,
         margin: EdgeInsets.zero,
@@ -83,7 +84,7 @@ class _StepsWidgetState extends State<StepsWidget> {
       final color = Color.lerp(background_(context), cardEnab_(context), animValue);
       final double elevation = lerpDouble(0, AppCard.bigElevation, animValue)!;
       return Material(
-        borderRadius: BorderRadius.circular(AppCard.bigRadius),
+        borderRadius: BorderRadius.circular(AppCard.defRadius),
         elevation: elevation,
         color: color,
         child: child,
