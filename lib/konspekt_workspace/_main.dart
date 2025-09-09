@@ -20,6 +20,7 @@ import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/select_time_button.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/spheres_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/steps_widget.dart';
+import 'package:harcapp_web/konspekt_workspace/widgets/attachments_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../consts.dart';
@@ -319,6 +320,15 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                       StepsWidget(
                         steps: konspektData.stepsData,
                       ),
+
+                      const SizedBox(height: Dimen.sideMarg),
+
+                      TitleShortcutRowWidget(
+                        title: 'Załączniki',
+                        textAlign: TextAlign.left,
+                      ),
+
+                      AttachmentsWidget(),
 
                     ])),
                   )

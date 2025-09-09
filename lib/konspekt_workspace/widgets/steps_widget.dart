@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:animated_reorderable_list/animated_reorderable_list.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
@@ -41,7 +42,7 @@ class _StepsWidgetState extends State<StepsWidget> {
         physics: NeverScrollableScrollPhysics(),
         items: steps,
         clipBehavior: Clip.none,
-        dragStartDelay: Duration.zero,
+        dragStartDelay: Duration(milliseconds: 300),
         isSameItem: (oldItem, newItem) => oldItem.hashCode == newItem.hashCode,
         onReorder: (int oldIndex, int newIndex){
           final KonspektStepData stepData = steps.removeAt(oldIndex);
@@ -53,7 +54,11 @@ class _StepsWidgetState extends State<StepsWidget> {
           padding: EdgeInsets.only(bottom: index < steps.length-1 ? Dimen.defMarg : 0),
           child: StepWidget(
             index: index,
-            stepData: steps[index]
+            stepData: steps[index],
+            nameTrailing: AppButton(
+              icon: Icon(MdiIcons.close),
+              onTap: () => setState(() => steps.removeAt(index)),
+            ),
           ),
         ),
 

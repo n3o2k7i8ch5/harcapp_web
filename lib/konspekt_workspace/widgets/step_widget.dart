@@ -14,8 +14,9 @@ class StepWidget extends StatefulWidget{
 
   final int index;
   final KonspektStepData stepData;
+  final Widget? nameTrailing;
 
-  const StepWidget({super.key, required this.index, required this.stepData});
+  const StepWidget({super.key, required this.index, required this.stepData, this.nameTrailing});
 
   @override
   State<StatefulWidget> createState() => StepWidgetState();
@@ -49,9 +50,18 @@ class StepWidgetState extends State<StepWidget> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
 
-                    AppTextFieldHint(
-                      hint: 'Tytuł kroku ${widget.index + 1}:',
-                      textCapitalization: TextCapitalization.sentences,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: AppTextFieldHint(
+                            hint: 'Tytuł kroku ${widget.index + 1}:',
+                            textCapitalization: TextCapitalization.sentences,
+                          ),
+                        ),
+
+                        if(widget.nameTrailing != null)
+                          widget.nameTrailing!
+                      ],
                     ),
 
                     SizedBox(height: Dimen.defMarg),

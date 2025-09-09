@@ -270,8 +270,12 @@ class SphereDuchWidgetState extends State<SphereDuchWidget>{
             multiAddButtonBuilder: (bool tappable, void Function() onTap) => MultiTextFieldAddButton(
               tappable: tappable,
               text: 'Dodaj postawę',
-              onTap: onTap,
+              onTap: (){
+                onTap.call();
+                postawyController.$2.add({});
+              },
             ),
+            multiOnRemoved: (int index) => postawyController.$2.removeAt(index),
             multiIsCollapsed: true,
           ),
 
@@ -305,8 +309,12 @@ class SphereDuchWidgetState extends State<SphereDuchWidget>{
             multiAddButtonBuilder: (bool tappable, void Function() onTap) => MultiTextFieldAddButton(
               tappable: tappable,
               text: 'Dodaj wartość',
-              onTap: onTap,
+              onTap: (){
+                onTap.call();
+                wartosciController.$2.add({});
+              },
             ),
+            multiOnRemoved: (int index) => wartosciController.$2.removeAt(index),
             multiIsCollapsed: true,
           ),
 
@@ -340,8 +348,12 @@ class SphereDuchWidgetState extends State<SphereDuchWidget>{
             multiAddButtonBuilder: (bool tappable, void Function() onTap) => MultiTextFieldAddButton(
               tappable: tappable,
               text: 'Dodaj aksjomat',
-              onTap: onTap,
+              onTap: (){
+                onTap.call();
+                aksjomatyController.$2.add({});
+              },
             ),
+            multiOnRemoved: (int index) => aksjomatyController.$2.removeAt(index),
             multiIsCollapsed: true,
           ),
 
@@ -414,8 +426,12 @@ class SphereDuchWidgetState extends State<SphereDuchWidget>{
             multiAddButtonBuilder: (bool tappable, void Function() onTap) => MultiTextFieldAddButton(
               tappable: tappable,
               text: 'Dodaj zdolność refleksyjną',
-              onTap: onTap,
+              onTap: (){
+                onTap.call();
+                zdolnoscRefleksyjnaController.$2.add({});
+              },
             ),
+            multiOnRemoved: (int index) => zdolnoscRefleksyjnaController.$2.removeAt(index),
             multiIsCollapsed: true,
           ),
 
