@@ -268,11 +268,9 @@ class SprawnosciRepository {
     
     // Fall back to standard icon locations
     final svgPath = '$itemDir/icon.svg';
-    final pngPath = '$itemDir/icon.png';
-    
+
     if (assetPaths.contains(svgPath)) return svgPath;
-    if (assetPaths.contains(pngPath)) return pngPath;
-    
+
     return ''; // No icon found
   }
 
