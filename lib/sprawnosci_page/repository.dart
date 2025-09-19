@@ -310,9 +310,8 @@ class SprawnosciRepository {
   /// Maps an icon link to an asset path.
   String _mapIconLinkToAsset(String link) {
     if (link.isEmpty) return '';
-    // Convert common_new/... paths to common/...
-    final mapped = link.replaceFirst('common_new/', 'common/');
-    return '$_assetsBasePath/$mapped';
+    // Return the full asset path
+    return '$_assetsBasePath/$link';
   }
 
   /// Loads a YAML file if it exists in the asset paths.
