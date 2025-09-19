@@ -147,12 +147,16 @@ class SprawnosciRepository {
     Set<String> assetPaths, 
     String dirPath,
   ) async {
+    final dirDepth = dirPath.split('/').length;
     final familyDirs = assetPaths
-        .where((path) => 
-          path.startsWith('$dirPath/') && 
-          path.contains('/family') && 
-          path.endsWith('/_data.yaml')
-        )
+        .where((path) {
+          if (!path.startsWith('$dirPath/') || !path.endsWith('/_data.yaml')) return false;
+          final parts = path.split('/');
+          // Expect exactly: <dirPath>/<familyX>/_data.yaml
+          if (parts.length != dirDepth + 2) return false;
+          final familySegment = parts[dirDepth];
+          return familySegment.startsWith('family');
+        })
         .map((path) => path.replaceAll('/_data.yaml', ''))
         .toList();
 
