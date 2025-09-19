@@ -4,10 +4,13 @@ import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_button.dart';
+import 'package:harcapp_core/comm_widgets/app_dropdown.dart';
 import 'package:harcapp_core/comm_widgets/app_text_field_hint.dart';
+import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/harcthought/common/file_format.dart';
 import 'package:harcapp_core/harcthought/common/file_format_selector_row_widget.dart';
+import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -24,16 +27,26 @@ class AttachmentWidget extends StatefulWidget{
 
 class _AttachmentWidgetState extends State<AttachmentWidget>{
 
-  final TextEditingController _nameController = TextEditingController();
+  late TextEditingController _nameController;
+  late Set<FileFormat> _selectedFormats;
+  late Map<FileFormat, PlatformFile?> _pickedFiles;
+  late Map<FileFormat, String?> _pickedUrls;
 
-  // Selected formats to display rows for (insertion-ordered).
-  final Set<FileFormat> _selectedFormats = <FileFormat>{};
+  late bool _printInfoEnabled;
+  late KonspektAttachmentPrintSide _printSide;
+  late KonspektAttachmentPrintColor _printColor;
 
-  // Picked file per format (for non-URL formats).
-  final Map<FileFormat, PlatformFile?> _pickedFiles = <FileFormat, PlatformFile?>{};
-
-  // Picked value for URL formats.
-  final Map<FileFormat, String?> _pickedUrls = <FileFormat, String?>{};
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController();
+    _selectedFormats = {};
+    _pickedFiles = {};
+    _pickedUrls = {};
+    _printInfoEnabled = false;
+    _printSide = KonspektAttachmentPrintSide.single;
+    _printColor = KonspektAttachmentPrintColor.monochrome;
+  }
 
   @override
   void dispose() {
@@ -144,32 +157,17 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
           // Add new format dropdown
           Align(
             alignment: Alignment.centerLeft,
-            child: PopupMenuButton<FileFormat>(
-              splashRadius: AppCard.defRadius,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppCard.defRadius)),
-              borderRadius: BorderRadius.circular(AppCard.defRadius),
-              clipBehavior: Clip.hardEdge,
-              menuPadding: EdgeInsets.zero,
-              padding: EdgeInsets.zero,
-              onSelected: (format) async {
-                final picked = await _pickFor(format);
-                if (picked) setState(() => _selectedFormats.add(format));
+            child: AppDropdown<FileFormat>(
+              position: PopupMenuPosition.over,
+              onSelected: (format) {
+                _pickFor(format).then((picked){
+                  if (picked) setState(() => _selectedFormats.add(format));
+                });
               },
               itemBuilder: (context) => FileFormat.values
                   .where((f) => !_selectedFormats.contains(f))
-                  .map((f) => PopupMenuItem<FileFormat>(
-                        value: f,
-                        padding: EdgeInsets.zero,
-                        child: SimpleButton(
-                          radius: AppCard.defRadius,
-                          padding: EdgeInsets.all(Dimen.defMarg),
-                          margin: EdgeInsets.zero,
-                          onTap: null,
-                          child: FileFormatWidget(f),
-                        ),
-                      ))
+                  .map((f) => AppDropdownButton<FileFormat>(context, f))
                   .toList(),
-              color: background_(context),
               child: SimpleButton.from(
                 context: context,
                 radius: AppCard.defRadius,
@@ -185,11 +183,124 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
             ),
           ),
 
+          SizedBox(height: Dimen.sideMarg),
+
+          // Printing section (toggleable)
+          if(!_printInfoEnabled)
+            SimpleButton.from(
+              context: context,
+              radius: AppCard.defRadius,
+              padding: EdgeInsets.all(Dimen.defMarg),
+              color: backgroundIcon_(context),
+              margin: EdgeInsets.zero,
+              text: 'Dodaj informacje o drukowaniu',
+              onTap: () => setState(() => _printInfoEnabled = true),
+              icon: MdiIcons.printer,
+              iconColor: iconEnab_(context),
+            )
+          else
+            Material(
+              borderRadius: BorderRadius.circular(AppCard.defRadius),
+              color: backgroundIcon_(context),
+              clipBehavior: Clip.hardEdge,
+              child: Padding(
+                padding: EdgeInsets.all(Dimen.defMarg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TitleShortcutRowWidget(
+                            title: 'Jak drukować:',
+                            textAlign: TextAlign.left,
+                            icon: MdiIcons.printer,
+                            iconColor: hintEnab_(context),
+                            titleColor: hintEnab_(context),
+                          ),
+                        ),
+                        AppButton(
+                          icon: Icon(MdiIcons.close),
+                          onTap: () => setState(() => _printInfoEnabled = false),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: Dimen.defMarg),
+
+                    Row(
+                      children: [
+
+                        Expanded(
+                          child: AppDropdown<KonspektAttachmentPrintSide>(
+                            position: PopupMenuPosition.over,
+                            onSelected: (val) => setState(() => _printSide = val),
+                            itemBuilder: (context) => KonspektAttachmentPrintSide.values
+                                .map((value) => AppDropdownButton<KonspektAttachmentPrintSide>(
+                              context,
+                              value,
+                            ))
+                                .toList(),
+                            borderRadius: BorderRadius.circular(AppCard.defRadius),
+                            child: SimpleButton.from(
+                              context: context,
+                              radius: AppCard.defRadius,
+                              padding: EdgeInsets.all(Dimen.defMarg),
+                              textColor: iconEnab_(context),
+                              color: background_(context),
+                              margin: EdgeInsets.zero,
+                              text: _printSide.displayName,
+                              fontWeight: weightNormal,
+                              onTap: null,
+                              icon: _printSide.icon,
+                              iconColor: iconEnab_(context),
+                              iconLeading: true,
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(width: Dimen.defMarg),
+
+                        Expanded(
+                          child: AppDropdown<KonspektAttachmentPrintColor>(
+                            position: PopupMenuPosition.over,
+                            onSelected: (val) => setState(() => _printColor = val),
+                            itemBuilder: (context) => KonspektAttachmentPrintColor.values
+                                .map((value) => AppDropdownButton<KonspektAttachmentPrintColor>(
+                              context,
+                              value,
+                            ))
+                                .toList(),
+                            borderRadius: BorderRadius.circular(AppCard.defRadius),
+                            child: SimpleButton.from(
+                              context: context,
+                              radius: AppCard.defRadius,
+                              padding: EdgeInsets.all(Dimen.defMarg),
+                              textColor: iconEnab_(context),
+                              color: background_(context),
+                              margin: EdgeInsets.zero,
+                              text: _printColor.displayName,
+                              fontWeight: weightNormal,
+                              onTap: null,
+                              icon: _printColor.icon,
+                              iconColor: iconEnab_(context),
+                              iconLeading: true,
+                            ),
+                          ),
+                        )
+
+                      ],
+                    ),
+
+                  ],
+                ),
+              ),
+            )
+
         ],
       ),
     ),
   );
-
 }
 
 class AttachmentFileRow extends StatelessWidget {

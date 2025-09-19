@@ -3,21 +3,25 @@ import 'dart:ui';
 import 'package:animated_reorderable_list/animated_reorderable_list.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
-import 'package:harcapp_web/konspekt_workspace/widgets/attachment_widget.dart';
+import 'package:harcapp_web/konspekt_workspace/models/konspekt_material_data.dart';
+import 'package:harcapp_web/konspekt_workspace/widgets/material_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-class AttachmentsWidget extends StatefulWidget {
-  const AttachmentsWidget({super.key});
+class MaterialsWidget extends StatefulWidget {
+  final List<KonspektMaterialData> materials;
+
+  const MaterialsWidget({super.key, required this.materials});
 
   @override
-  State<AttachmentsWidget> createState() => _AttachmentsWidgetState();
+  State<MaterialsWidget> createState() => _MaterialsWidgetState();
 }
 
-class _AttachmentsWidgetState extends State<AttachmentsWidget> {
-  final List<int> _ids = [DateTime.now().microsecondsSinceEpoch];
+class _MaterialsWidgetState extends State<MaterialsWidget> {
+  List<KonspektMaterialData> get materials => widget.materials;
 
   @override
   Widget build(BuildContext context) => Column(
@@ -27,19 +31,25 @@ class _AttachmentsWidgetState extends State<AttachmentsWidget> {
             buildDefaultDragHandles: false,
             proxyDecorator: proxyDecorator,
             physics: const NeverScrollableScrollPhysics(),
-            items: _ids,
+            items: materials,
             clipBehavior: Clip.none,
             dragStartDelay: Duration(milliseconds: 300),
-            isSameItem: (oldItem, newItem) => oldItem == newItem,
+            isSameItem: (oldItem, newItem) => oldItem.hashCode == newItem.hashCode,
             onReorder: (int oldIndex, int newIndex) {
-              final int id = _ids.removeAt(oldIndex);
-              _ids.insert(newIndex, id);
-              setState(() {});
+              final KonspektMaterialData item = materials.removeAt(oldIndex);
+              materials.insert(newIndex, item);
             },
             itemBuilder: (BuildContext context, int index) => Padding(
-              key: ValueKey("attachment_${_ids[index]}"),
-              padding: EdgeInsets.only(bottom: index < _ids.length - 1 ? Dimen.defMarg : 0),
-              child: AttachmentWidget(onRemove: () => setState(() => _ids.removeAt(index))),
+              key: ValueKey("material_${materials[index].hashCode}"),
+              padding: EdgeInsets.only(bottom: index < materials.length - 1 ? Dimen.defMarg : 0),
+              child: MaterialWidget(
+                index: index,
+                materialData: materials[index],
+                nameTrailing: AppButton(
+                  icon: Icon(MdiIcons.close),
+                  onTap: () => setState(() => materials.removeAt(index)),
+                ),
+              ),
             ),
             shrinkWrap: true,
             enterTransition: [FadeIn()],
@@ -54,19 +64,13 @@ class _AttachmentsWidgetState extends State<AttachmentsWidget> {
             color: backgroundIcon_(context),
             icon: MdiIcons.plus,
             margin: EdgeInsets.zero,
-            text: 'Dodaj załącznik',
-            onTap: () => setState(() =>
-                _ids.add(DateTime.now().microsecondsSinceEpoch)),
+            text: 'Dodaj materiał',
+            onTap: () => setState(() => materials.add(KonspektMaterialData())),
           )
         ],
       );
 
-  Widget proxyDecorator(
-    Widget child,
-    int index,
-    Animation<double> animation,
-  ) =>
-      AnimatedBuilder(
+  Widget proxyDecorator(Widget child, int index, Animation<double> animation) => AnimatedBuilder(
         animation: animation,
         builder: (BuildContext context, Widget? child) {
           final double animValue = Curves.easeInOut.transform(animation.value);

@@ -1,9 +1,11 @@
+import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:harcapp_core/comm_classes/common.dart';
 import 'package:harcapp_core/comm_classes/meto.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
-import 'package:harcapp_core/values/people.dart';
+import 'package:harcapp_core/values/people/person.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_step_data.dart';
+import 'package:harcapp_web/konspekt_workspace/models/konspekt_material_data.dart';
 
 class KonspektData extends BaseKonspekt {
   
@@ -14,10 +16,12 @@ class KonspektData extends BaseKonspekt {
 
   final List<Meto> metos;
   final TextEditingController coverAuthorController;
+  Uint8List? coverImageBytes;
   final Person? author;
   Duration? customDuration;
   final List<TextEditingController> aimControllers;
   final List<KonspektMaterial>? materials;
+  final List<KonspektMaterialData> materialsData;
   final TextEditingController summaryController;
   final TextEditingController introController;
   final TextEditingController descriptionController;
@@ -49,10 +53,12 @@ class KonspektData extends BaseKonspekt {
     spheres = {},
     metos = [],
     coverAuthorController = TextEditingController(),
+    coverImageBytes = null,
     author = null,
     customDuration = null,
     aimControllers = [],
     materials = null,
+    materialsData = [],
     summaryController = TextEditingController(),
     introController = TextEditingController(),
     descriptionController = TextEditingController(),

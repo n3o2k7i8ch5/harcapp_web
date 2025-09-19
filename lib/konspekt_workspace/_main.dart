@@ -5,6 +5,7 @@ import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_classes/meto.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:harcapp_core/comm_widgets/app_text_field_hint.dart';
 import 'package:harcapp_core/comm_widgets/floating_container.dart';
 import 'package:harcapp_core/comm_widgets/multi_text_field.dart';
@@ -17,6 +18,7 @@ import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/common/download_file.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
+import 'package:harcapp_web/konspekt_workspace/widgets/materials_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/select_time_button.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/spheres_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/steps_widget.dart';
@@ -65,60 +67,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                   FloatingContainer.child(
                     child: Padding(
                       padding: EdgeInsets.only(top: Dimen.defMarg),
-                      child: Row(
-                        children: [
-
-                          Expanded(
-                            child: SimpleButton.from(
-                                elevation: AppCard.bigElevation,
-                                context: context,
-                                color: cardEnab_(context),
-                                margin: EdgeInsets.zero,
-                                icon: MdiIcons.eyeOutline,
-                                text: 'Podgląd',
-                                onTap: (){
-                                  Map json = konspektData.toJsonMap();
-                                  Konspekt konspekt = Konspekt.fromJsonMap(json);
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => Center(
-                                      child: Container(
-                                        constraints: BoxConstraints(maxWidth: defPageWidth),
-                                        child: Padding(
-                                          padding: EdgeInsets.all(Dimen.sideMarg),
-                                          child: Material(
-                                            child: BaseKonspektWidget(
-                                              konspekt,
-                                              onDuchLevelInfoTap: null,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  );
-                                }
-                            ),
-                          ),
-
-                          SizedBox(width: Dimen.defMarg),
-
-                          Expanded(
-                            child: SimpleButton.from(
-                                elevation: AppCard.bigElevation,
-                                context: context,
-                                color: cardEnab_(context),
-                                margin: EdgeInsets.zero,
-                                icon: MdiIcons.contentSave,
-                                text: 'Zapisz',
-                                onTap: (){
-                                  String code = jsonEncode(konspektData.toJsonMap());
-                                  downloadFileFromString(content: code, fileName: '${konspektData.titleAsFileName}.hrcpkspkt');
-                                }
-                            ),
-                          ),
-
-                        ],
-                      ),
+                      child: _TopActions(konspektData: konspektData),
                     ),
                     height: Dimen.iconFootprint + Dimen.defMarg, // kToolbarHeight
                   ),
@@ -145,13 +94,21 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
                       SizedBox(height: Dimen.sideMarg),
 
-                      Material(
-                        borderRadius: BorderRadius.circular(AppCard.bigRadius),
-                        color: backgroundIcon_(context),
-                        child: Container(height: 300, width: double.infinity),
-                      ),
+                      // Cover image picker + preview
+                      _CoverWidget(konspektData: konspektData),
 
                       const SizedBox(height: Dimen.sideMarg),
+
+                      // Cover author
+                      TitleShortcutRowWidget(
+                        title: 'Autor okładki',
+                        textAlign: TextAlign.left,
+                      ),
+                      AppTextFieldHint(
+                        hint: 'Autor okładki (jeśli dotyczy):',
+                        textCapitalization: TextCapitalization.sentences,
+                        controller: konspektData.coverAuthorController,
+                      ),
 
                       AppTextFieldHint(
                         hint: 'Nazwa konspektu:',
@@ -296,7 +253,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                         title: 'Materiały',
                         textAlign: TextAlign.left,
                       ),
-                      Text('<tutaj materiały>'),
+                      MaterialsWidget(materials: konspektData.materialsData),
 
                       const SizedBox(height: Dimen.sideMarg),
 
@@ -339,6 +296,144 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
       )
   );
 
+}
+
+class _TopActions extends StatelessWidget {
+  final KonspektData konspektData;
+
+  const _TopActions({super.key, required this.konspektData});
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      Expanded(
+        child: SimpleButton.from(
+            elevation: AppCard.bigElevation,
+            context: context,
+            color: cardEnab_(context),
+            margin: EdgeInsets.zero,
+            icon: MdiIcons.eyeOutline,
+            text: 'Podgląd',
+            onTap: () {
+              Map json = konspektData.toJsonMap();
+              Konspekt konspekt = Konspekt.fromJsonMap(json);
+              showDialog(
+                  context: context,
+                  builder: (context) => Center(
+                    child: Container(
+                      constraints:
+                      BoxConstraints(maxWidth: defPageWidth),
+                      child: Padding(
+                        padding: EdgeInsets.all(Dimen.sideMarg),
+                        child: Material(
+                          child: BaseKonspektWidget(
+                            konspekt,
+                            onDuchLevelInfoTap: null,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ));
+            }),
+      ),
+
+      SizedBox(width: Dimen.defMarg),
+
+      Expanded(
+        child: SimpleButton.from(
+            elevation: AppCard.bigElevation,
+            context: context,
+            color: cardEnab_(context),
+            margin: EdgeInsets.zero,
+            icon: MdiIcons.contentSave,
+            text: 'Zapisz',
+            onTap: () {
+              String code = jsonEncode(konspektData.toJsonMap());
+              downloadFileFromString(
+                  content: code,
+                  fileName: '${konspektData.titleAsFileName}.hrcpkspkt');
+            }),
+      ),
+    ],
+  );
+}
+
+class _CoverWidget extends StatelessWidget {
+  final KonspektData konspektData;
+
+  const _CoverWidget({super.key, required this.konspektData});
+
+  @override
+  Widget build(BuildContext context) => StatefulBuilder(
+        builder: (context, setState) => Material(
+          borderRadius: BorderRadius.circular(AppCard.defRadius),
+          color: backgroundIcon_(context),
+          clipBehavior: Clip.hardEdge,
+          child: SizedBox(
+            height: 300,
+            width: double.infinity,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                if (konspektData.coverImageBytes != null)
+                  Image.memory(
+                    konspektData.coverImageBytes!,
+                    fit: BoxFit.cover,
+                  )
+                else
+                  Center(
+                    child: Text(
+                      'Brak okładki',
+                      style: AppTextStyle(color: hintEnab_(context)),
+                    ),
+                  ),
+
+                Positioned(
+                  top: Dimen.defMarg,
+                  right: Dimen.defMarg,
+                  child: Row(
+                    children: [
+                      SimpleButton.from(
+                        context: context,
+                        color: background_(context),
+                        margin: EdgeInsets.zero,
+                        radius: AppCard.defRadius,
+                        padding: EdgeInsets.symmetric(horizontal: Dimen.defMarg, vertical: 8),
+                        icon: MdiIcons.imagePlus,
+                        text: konspektData.coverImageBytes == null ? 'Dodaj obraz' : 'Zmień obraz',
+                        onTap: () async {
+                          FilePickerResult? result = await FilePicker.platform.pickFiles(
+                            type: FileType.custom,
+                            allowedExtensions: ['png', 'jpg', 'jpeg', 'webp'],
+                            withData: true,
+                          );
+                          if (result != null && result.files.isNotEmpty) {
+                            setState(() => konspektData.coverImageBytes = result.files.first.bytes);
+                          }
+                        },
+                      ),
+
+                      if (konspektData.coverImageBytes != null)
+                        SizedBox(width: Dimen.defMarg),
+                      if (konspektData.coverImageBytes != null)
+                        SimpleButton.from(
+                          context: context,
+                          color: background_(context),
+                          margin: EdgeInsets.zero,
+                          radius: AppCard.defRadius,
+                          padding: EdgeInsets.symmetric(horizontal: Dimen.defMarg, vertical: 8),
+                          icon: MdiIcons.delete,
+                          text: 'Usuń',
+                          onTap: () => setState(() => konspektData.coverImageBytes = null),
+                        ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      );
 }
 
 class _KonspektTypeButton extends StatelessWidget{

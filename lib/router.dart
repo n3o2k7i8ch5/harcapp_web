@@ -14,6 +14,8 @@ import 'package:harcapp_web/poradniks/table_of_content_poradnik_widget.dart';
 import 'package:harcapp_web/privacy_policy/_main.dart';
 import 'package:harcapp_web/songs/_main.dart';
 import 'package:harcapp_web/songs/song_contribution_rules_page.dart';
+import 'package:harcapp_web/sprawnosci_page/_main.dart';
+import 'package:harcapp_web/sprawnosci_page/family_page.dart';
 
 import 'articles/_main.dart';
 import 'articles/article_page.dart';
@@ -37,6 +39,8 @@ String pathArticlesSourceItem = '/articles/:source/:localId';
 String pathSong = '/song';
 String pathSongContributionRules = '/song_contribution_rules';
 String pathPrivacyPolicy = '/privacy_policy';
+String pathSprawnosci = '/sprawnosci';
+String pathSprawnosciFamily = '/sprawnosci/:group/:family';
 
 TableOfContentHarcerskieWidget tableOfContentHarcerskieWidget(BuildContext context, bool isDrawer, Konspekt? selectedKonspekt) => TableOfContentHarcerskieWidget(
     selectedKonspekt: selectedKonspekt,
@@ -191,7 +195,7 @@ GoRouter router = GoRouter(
                     } on StateError {}
                     return NoTransitionPage(
                         child: PoradniksPage(
-                            pathKonspektyKsztalcenieItem,
+                            pathPoradnikItem,
                             allPoradniks,
                             selectedPoradnik: selectedPoradnik,
                             tableOfContentBuilder: (bool isDrawer, Poradnik? selectedPoradnik) => tableOfContentPoradnikWidget(
@@ -245,6 +249,18 @@ GoRouter router = GoRouter(
                 GoRoute(
                     path: pathSongContributionRules,
                     pageBuilder: (context, state) => NoTransitionPage(child: SongContributionRulesPage())
+                ),
+                GoRoute(
+                    path: pathSprawnosci,
+                    pageBuilder: (context, state) => NoTransitionPage(child: SprawnosciPage())
+                ),
+                GoRoute(
+                    path: pathSprawnosciFamily,
+                    pageBuilder: (context, state) {
+                      final group = state.pathParameters['group']!;
+                      final family = state.pathParameters['family']!;
+                      return NoTransitionPage(child: SprawnosciFamilyPage(groupSlug: group, familySlug: family));
+                    }
                 ),
                 GoRoute(
                     path: pathPrivacyPolicy,
