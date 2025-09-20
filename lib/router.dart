@@ -40,16 +40,19 @@ String pathSong = '/song';
 String pathSongContributionRules = '/song_contribution_rules';
 String pathPrivacyPolicy = '/privacy_policy';
 String pathSprawnosci = '/sprawnosci';
-String pathSprawnosciFamily = '/sprawnosci/:group/:family';
+String pathSprawnosciBook = '/sprawnosci/:bookId';
+String pathSprawnosciBookFamily = '/sprawnosci/:bookId/:familyId';
+
+// Removed pathSprawnosciFamily
 
 TableOfContentHarcerskieWidget tableOfContentHarcerskieWidget(BuildContext context, bool isDrawer, Konspekt? selectedKonspekt) => TableOfContentHarcerskieWidget(
-    selectedKonspekt: selectedKonspekt,
-    padding: const EdgeInsets.all(Dimen.defMarg),
-    onItemTap: (Konspekt konspekt){
-        context.go(pathKonspektyHarcerskieItem.replaceAll(":name", konspekt.name));
-        if(isDrawer) Navigator.pop(context);
-    },
-    withBackButton: isDrawer,
+  selectedKonspekt: selectedKonspekt,
+  padding: const EdgeInsets.all(Dimen.defMarg),
+  onItemTap: (Konspekt konspekt){
+    context.go(pathKonspektyHarcerskieItem.replaceAll(":name", konspekt.name));
+    if(isDrawer) Navigator.pop(context);
+  },
+  withBackButton: isDrawer,
 );
 
 TableOfContentKsztalcenieWidget tableOfContentKsztalcenieWidget(BuildContext context, bool isDrawer, Konspekt? selectedKonspekt) => TableOfContentKsztalcenieWidget(
@@ -63,212 +66,228 @@ TableOfContentKsztalcenieWidget tableOfContentKsztalcenieWidget(BuildContext con
 );
 
 TableOfContentPoradnikWidget tableOfContentPoradnikWidget(BuildContext context, bool isDrawer, Poradnik? selectedPoradnik) => TableOfContentPoradnikWidget(
-    selectedPoradnik: selectedPoradnik,
-    padding: const EdgeInsets.all(Dimen.defMarg),
-    onItemTap: (Poradnik poradnik){
-        context.go(pathPoradnikItem.replaceAll(":name", poradnik.name));
-        if(isDrawer) Navigator.pop(context);
-    },
-    withBackButton: isDrawer,
+  selectedPoradnik: selectedPoradnik,
+  padding: const EdgeInsets.all(Dimen.defMarg),
+  onItemTap: (Poradnik poradnik){
+    context.go(pathPoradnikItem.replaceAll(":name", poradnik.name));
+    if(isDrawer) Navigator.pop(context);
+  },
+  withBackButton: isDrawer,
 );
 
 GoRouter router = GoRouter(
     initialLocation: pathHome,
     routes: [
-        ShellRoute(
-            routes: [
-                GoRoute(
-                    path: pathHome,
-                    pageBuilder: (context, state) => NoTransitionPage(child: HomePage())
-                ),
-                GoRoute(
-                    path: pathWarsztatKonspektow,
-                    pageBuilder: (context, state) => NoTransitionPage(
-                        child: KonspektWorkspacePage(
-                            key: ValueKey('warsztat konspektów')
-                        )
+      ShellRoute(
+          routes: [
+            GoRoute(
+                path: pathHome,
+                pageBuilder: (context, state) => NoTransitionPage(child: HomePage())
+            ),
+            GoRoute(
+                path: pathWarsztatKonspektow,
+                pageBuilder: (context, state) => NoTransitionPage(
+                    child: KonspektWorkspacePage(
+                        key: ValueKey('warsztat konspektów')
                     )
-                ),
-                GoRoute(
-                    path: pathKonspektyHarcerskie,
-                    pageBuilder: (context, state) => NoTransitionPage(
-                        child: KonspektsPage(
-                            pathKonspektyHarcerskieItem,
-                            allHarcerskieKonspekts,
-                            tableOfContentBuilder: (bool isDrawer, Konspekt? selectedKonspekt) => tableOfContentHarcerskieWidget(
-                              context,
-                              isDrawer,
-                              selectedKonspekt,
-                            ),
-                            key: ValueKey('konspekty harcerskie')
-                        )
+                )
+            ),
+            GoRoute(
+                path: pathKonspektyHarcerskie,
+                pageBuilder: (context, state) => NoTransitionPage(
+                    child: KonspektsPage(
+                        pathKonspektyHarcerskieItem,
+                        allHarcerskieKonspekts,
+                        tableOfContentBuilder: (bool isDrawer, Konspekt? selectedKonspekt) => tableOfContentHarcerskieWidget(
+                          context,
+                          isDrawer,
+                          selectedKonspekt,
+                        ),
+                        key: ValueKey('konspekty harcerskie')
                     )
-                ),
-                GoRoute(
-                    path: pathKonspektyHarcerskieItem,
-                    pageBuilder: (context, state){
-                        final name = state.pathParameters['name'];
+                )
+            ),
+            GoRoute(
+                path: pathKonspektyHarcerskieItem,
+                pageBuilder: (context, state){
+                  final name = state.pathParameters['name'];
 
-                        Konspekt? selectedKonspekt = null;
-                        try {
-                          selectedKonspekt = allHarcerskieKonspekts.firstWhere((konspekt) => konspekt.name == name);
-                        } on StateError {}
-                        return NoTransitionPage(
-                            child: KonspektsPage(
-                                pathKonspektyHarcerskieItem,
-                                allHarcerskieKonspekts,
-                                selectedKonspekt: selectedKonspekt,
-                                tableOfContentBuilder: (bool isDrawer, Konspekt? selectedKonspekt) => tableOfContentHarcerskieWidget(
-                                  context,
-                                  isDrawer,
-                                  selectedKonspekt
-                                ),
-                                key: ValueKey('konspekty harcerskie')
-                            )
-                        );
-                    }
-                ),
-
-                GoRoute(
-                    path: pathKonspektyKsztalcenie,
-                    pageBuilder: (context, state) => NoTransitionPage(
-                        child: KonspektsPage(
-                            pathKonspektyKsztalcenieItem,
-                            allKsztalcenieKonspekts,
-                            tableOfContentBuilder: (bool isDrawer, Konspekt? selectedKonspekt) => tableOfContentKsztalcenieWidget(
+                  Konspekt? selectedKonspekt = null;
+                  try {
+                    selectedKonspekt = allHarcerskieKonspekts.firstWhere((konspekt) => konspekt.name == name);
+                  } on StateError {}
+                  return NoTransitionPage(
+                      child: KonspektsPage(
+                          pathKonspektyHarcerskieItem,
+                          allHarcerskieKonspekts,
+                          selectedKonspekt: selectedKonspekt,
+                          tableOfContentBuilder: (bool isDrawer, Konspekt? selectedKonspekt) => tableOfContentHarcerskieWidget(
                               context,
                               isDrawer,
                               selectedKonspekt
-                            ),
-                            key: ValueKey('konspekty ksztalcenie')
-                        )
+                          ),
+                          key: ValueKey('konspekty harcerskie')
+                      )
+                  );
+                }
+            ),
+
+            GoRoute(
+                path: pathKonspektyKsztalcenie,
+                pageBuilder: (context, state) => NoTransitionPage(
+                    child: KonspektsPage(
+                        pathKonspektyKsztalcenieItem,
+                        allKsztalcenieKonspekts,
+                        tableOfContentBuilder: (bool isDrawer, Konspekt? selectedKonspekt) => tableOfContentKsztalcenieWidget(
+                            context,
+                            isDrawer,
+                            selectedKonspekt
+                        ),
+                        key: ValueKey('konspekty ksztalcenie')
                     )
-                ),
-                GoRoute(
-                    path: pathKonspektyKsztalcenieItem,
-                    pageBuilder: (context, state){
-                        final name = state.pathParameters['name'];
+                )
+            ),
+            GoRoute(
+                path: pathKonspektyKsztalcenieItem,
+                pageBuilder: (context, state){
+                  final name = state.pathParameters['name'];
 
-                        Konspekt? selectedKonspekt = null;
-                        try {
-                          selectedKonspekt = allKsztalcenieKonspekts.firstWhere((konspekt) => konspekt.name == name);
-                        } on StateError {}
-                        return NoTransitionPage(
-                            child: KonspektsPage(
-                                pathKonspektyKsztalcenieItem,
-                                allKsztalcenieKonspekts,
-                                selectedKonspekt: selectedKonspekt,
-                                tableOfContentBuilder: (bool isDrawer, Konspekt? selectedKonspekt) => tableOfContentKsztalcenieWidget(
-                                  context,
-                                  isDrawer,
-                                  selectedKonspekt
-                                ),
-                                key: ValueKey('konspekty ksztalcenie')
-                            )
-                        );
-                    }
-                ),
+                  Konspekt? selectedKonspekt = null;
+                  try {
+                    selectedKonspekt = allKsztalcenieKonspekts.firstWhere((konspekt) => konspekt.name == name);
+                  } on StateError {}
+                  return NoTransitionPage(
+                      child: KonspektsPage(
+                          pathKonspektyKsztalcenieItem,
+                          allKsztalcenieKonspekts,
+                          selectedKonspekt: selectedKonspekt,
+                          tableOfContentBuilder: (bool isDrawer, Konspekt? selectedKonspekt) => tableOfContentKsztalcenieWidget(
+                              context,
+                              isDrawer,
+                              selectedKonspekt
+                          ),
+                          key: ValueKey('konspekty ksztalcenie')
+                      )
+                  );
+                }
+            ),
 
-                GoRoute(
-                    path: pathPoradnik,
-                    pageBuilder: (context, state) => NoTransitionPage(
-                        child: PoradniksPage(
-                            pathPoradnikItem,
-                            allPoradniks,
-                            tableOfContentBuilder: (bool isDrawer, Poradnik? selectedPoradnik) => tableOfContentPoradnikWidget(
-                                context,
-                                isDrawer,
-                                selectedPoradnik
-                            ),
-                            key: ValueKey('poradnik')
-                        )
+            GoRoute(
+                path: pathPoradnik,
+                pageBuilder: (context, state) => NoTransitionPage(
+                    child: PoradniksPage(
+                        pathPoradnikItem,
+                        allPoradniks,
+                        tableOfContentBuilder: (bool isDrawer, Poradnik? selectedPoradnik) => tableOfContentPoradnikWidget(
+                            context,
+                            isDrawer,
+                            selectedPoradnik
+                        ),
+                        key: ValueKey('poradnik')
                     )
-                ),
-                GoRoute(
-                  path: pathPoradnikItem,
-                  pageBuilder: (context, state){
-                    final name = state.pathParameters['name'];
+                )
+            ),
+            GoRoute(
+                path: pathPoradnikItem,
+                pageBuilder: (context, state){
+                  final name = state.pathParameters['name'];
 
-                    Poradnik? selectedPoradnik = null;
-                    try {
-                      selectedPoradnik = allPoradniks.firstWhere((poradnik) => poradnik.name == name);
-                    } on StateError {}
-                    return NoTransitionPage(
-                        child: PoradniksPage(
-                            pathPoradnikItem,
-                            allPoradniks,
-                            selectedPoradnik: selectedPoradnik,
-                            tableOfContentBuilder: (bool isDrawer, Poradnik? selectedPoradnik) => tableOfContentPoradnikWidget(
-                                context,
-                                isDrawer,
-                                selectedPoradnik
-                            ),
-                            key: ValueKey('poradnik')
-                        )
-                    );
-                  }
-                ),
+                  Poradnik? selectedPoradnik = null;
+                  try {
+                    selectedPoradnik = allPoradniks.firstWhere((poradnik) => poradnik.name == name);
+                  } on StateError {}
+                  return NoTransitionPage(
+                      child: PoradniksPage(
+                          pathPoradnikItem,
+                          allPoradniks,
+                          selectedPoradnik: selectedPoradnik,
+                          tableOfContentBuilder: (bool isDrawer, Poradnik? selectedPoradnik) => tableOfContentPoradnikWidget(
+                              context,
+                              isDrawer,
+                              selectedPoradnik
+                          ),
+                          key: ValueKey('poradnik')
+                      )
+                  );
+                }
+            ),
 
-                GoRoute(
-                    path: pathArticles,
-                    pageBuilder: (context, state) => NoTransitionPage(child: ArticlesPage())
-                ),
-                GoRoute(
-                    path: pathArticlesSource,
-                    pageBuilder: (context, state){
-                      final String sourceName = state.pathParameters['source']!;
-                      ArticleSource? source = ArticleSource.fromName(sourceName);
-                      return NoTransitionPage(child: ArticlesPage(source: source));
-                    }
-                ),
-              GoRoute(
-                  path: pathArticlesSourceItem,
-                  pageBuilder: (context, state){
-                    final String sourceName = state.pathParameters['source']!;
-                    final String localId = state.pathParameters['localId']!;
-                    ArticleSource? source = ArticleSource.fromName(sourceName);
-                    if(source == null) return NoTransitionPage(child: ArticlesPage());
+            GoRoute(
+                path: pathArticles,
+                pageBuilder: (context, state) => NoTransitionPage(child: ArticlesPage())
+            ),
+            GoRoute(
+                path: pathArticlesSource,
+                pageBuilder: (context, state){
+                  final String sourceName = state.pathParameters['source']!;
+                  ArticleSource? source = ArticleSource.fromName(sourceName);
+                  return NoTransitionPage(child: ArticlesPage(source: source));
+                }
+            ),
+            GoRoute(
+                path: pathArticlesSourceItem,
+                pageBuilder: (context, state){
+                  final String sourceName = state.pathParameters['source']!;
+                  final String localId = state.pathParameters['localId']!;
+                  ArticleSource? source = ArticleSource.fromName(sourceName);
+                  if(source == null) return NoTransitionPage(child: ArticlesPage());
 
-                    // Get current path
-                    return NoTransitionPage(
-                        child: ArticlePage(source: source, localId: localId)
-                    );
-                  }
+                  // Get current path
+                  return NoTransitionPage(
+                      child: ArticlePage(source: source, localId: localId)
+                  );
+                }
+            ),
+
+
+            GoRoute(
+                path: pathArticlesWorkspace,
+                pageBuilder: (context, state) => NoTransitionPage(child: ArticleWorkspacePage())
+            ),
+
+            GoRoute(
+                path: pathSong,
+                pageBuilder: (context, state) => NoTransitionPage(child: SongsPage())
+            ),
+            GoRoute(
+                path: pathSongContributionRules,
+                pageBuilder: (context, state) => NoTransitionPage(child: SongContributionRulesPage())
+            ),
+            GoRoute(
+                path: pathSprawnosci,
+                pageBuilder: (context, state) => NoTransitionPage(
+                  child: SprawnosciPage(),
+                )
+            ),
+            GoRoute(
+              path: pathSprawnosciBook,
+              pageBuilder: (context, state) => NoTransitionPage(
+                child: SprawnosciPage(
+                  initialBookSlug: state.pathParameters['bookId'],
+                ),
               ),
-
-
+              routes: [
                 GoRoute(
-                    path: pathArticlesWorkspace,
-                    pageBuilder: (context, state) => NoTransitionPage(child: ArticleWorkspacePage())
+                  path: ':group/:family',
+                  pageBuilder: (context, state) {
+                    return NoTransitionPage(
+                      child: SprawnosciFamilyPage(
+                        bookSlug: state.pathParameters['bookId']!,
+                        groupSlug: state.pathParameters['group']!,
+                        familySlug: state.pathParameters['family']!,
+                      ),
+                    );
+                  },
                 ),
-
-                GoRoute(
-                    path: pathSong,
-                    pageBuilder: (context, state) => NoTransitionPage(child: SongsPage())
-                ),
-                GoRoute(
-                    path: pathSongContributionRules,
-                    pageBuilder: (context, state) => NoTransitionPage(child: SongContributionRulesPage())
-                ),
-                GoRoute(
-                    path: pathSprawnosci,
-                    pageBuilder: (context, state) => NoTransitionPage(child: SprawnosciPage())
-                ),
-                GoRoute(
-                    path: pathSprawnosciFamily,
-                    pageBuilder: (context, state) {
-                      final group = state.pathParameters['group']!;
-                      final family = state.pathParameters['family']!;
-                      return NoTransitionPage(child: SprawnosciFamilyPage(groupSlug: group, familySlug: family));
-                    }
-                ),
-                GoRoute(
-                    path: pathPrivacyPolicy,
-                    pageBuilder: (context, state) => NoTransitionPage(child: PrivacyPolicyPage())
-                ),
-            ],
-            builder: (context, state, child) => child
-        )
+              ],
+            ),
+            GoRoute(
+                path: pathPrivacyPolicy,
+                pageBuilder: (context, state) => NoTransitionPage(child: PrivacyPolicyPage())
+            ),
+          ],
+          builder: (context, state, child) => child
+      )
 
     ]
 );

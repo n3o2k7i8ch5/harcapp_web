@@ -8,26 +8,31 @@ import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import '_main.dart';
-import 'data.dart';
+import 'repository.dart';
 
 
 class SprawnosciFamilyPage extends StatefulWidget {
+  final String bookSlug;
   final String groupSlug;
   final String familySlug;
-  const SprawnosciFamilyPage({required this.groupSlug, required this.familySlug, super.key});
+  const SprawnosciFamilyPage({
+    required this.bookSlug,
+    required this.groupSlug,
+    required this.familySlug,
+    super.key
+  });
 
   @override
   State<SprawnosciFamilyPage> createState() => _SprawnosciFamilyPageState();
 }
 
 class _SprawnosciFamilyPageState extends State<SprawnosciFamilyPage> {
-  Future<SprawBookData>? _future;
+  Future<SprawBook>? _future;
 
   @override
   void initState() {
     super.initState();
-    _future = SprawnosciRepository().loadDefaultBook();
+    _future = SprawnosciRepositoryNew().loadBook(widget.bookSlug);
   }
 
   @override
@@ -38,7 +43,7 @@ class _SprawnosciFamilyPageState extends State<SprawnosciFamilyPage> {
           alignment: Alignment.topCenter,
           child: Container(
             constraints: const BoxConstraints(maxWidth: 1000),
-            child: FutureBuilder<SprawBookData>(
+            child: FutureBuilder<SprawBook>(
               future: _future,
               builder: (context, snap) {
                 if (snap.connectionState != ConnectionState.done)
@@ -67,7 +72,7 @@ class _SprawnosciFamilyPageState extends State<SprawnosciFamilyPage> {
 
                       AppButton(
                         icon: Icon(MdiIcons.arrowLeft),
-                        onTap: () => context.go('/sprawnosci'),
+                        onTap: () => context.go('/sprawnosci/${widget.bookSlug}'),
                       ),
                       const SizedBox(height: Dimen.sideMarg),
 
@@ -160,7 +165,7 @@ class _SprawnosciFamilyPageState extends State<SprawnosciFamilyPage> {
 }
 
 class SprawItemWidget extends StatelessWidget {
-  final SprawItemData item;
+  final SprawItem item;
   const SprawItemWidget({super.key, required this.item});
 
   @override

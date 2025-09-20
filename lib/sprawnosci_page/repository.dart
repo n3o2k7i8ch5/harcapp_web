@@ -1,343 +1,251 @@
-part of '_main.dart';
+import 'dart:convert';
 
-/// Repository for loading sprawności (scout badges) data from assets.
-class SprawnosciRepository {
-  static const String defaultBookSlug = 'zhr_harc_c_sim_2023';
-  static const String _assetsBasePath = 'packages/harcapp_core/assets/sprawnosci';
-  
-  // Cache to avoid reloading the same book repeatedly
-  static Future<SprawBookData>? _cachedDefaultBook;
+import 'package:flutter/services.dart';
+import 'package:yaml/yaml.dart';
 
-  /// Loads the default book of sprawności.
-  Future<SprawBookData> loadDefaultBook() {
-    return _cachedDefaultBook ??= loadBook(defaultBookSlug);
-  }
+/// Alternative repository with a clean, directory-like model structure
+/// that works with assets (no dart:io). It mirrors the "fromDir" style by
+/// scanning AssetManifest for logical directories.
 
-  /// Loads a specific book of sprawności by its slug.
-  Future<SprawBookData> loadBook(String bookSlug) async {
-    final assetPaths = await _loadAssetManifest();
-    final String base = '$_assetsBasePath/$bookSlug';
+const String _assetsLocalBase = 'assets/sprawnosci';
+const String _assetsPackageBase = 'packages/harcapp_core/assets/sprawnosci';
 
-    // Load book metadata
-    final bookYaml = await _loadYamlIfExists(assetPaths, '$base/_data.yaml');
-    final bookName = (bookYaml?['name'] ?? bookSlug).toString();
+class SprawnosciBooks {
+  static const String bookCHarcC = 'zhr_harc_c_sim_2023';
+  static const String bookCHarcD = 'zhr_harc_d_sim_2023';
+  static const String defaultBookSlug = bookCHarcC;
+}
 
-    // Try to load groups with explicit YAML structure first
-    var groups = await _loadExplicitGroups(assetPaths, base);
-    
-    // Fall back to inferring structure from directory layout if no explicit groups found
-    if (groups.isEmpty) {
-      groups = await _loadGroupsFromDirectoryStructure(assetPaths, base);
-    }
-
-    if (groups.isEmpty) {
-      final underBase = assetPaths.where((k) => k.startsWith('$base/')).take(10).toList();
-      throw StateError('No groups found in $base. Found ${underBase.length} assets under base (showing up to 10):\n' + underBase.join('\n'));
-    }
-
-    // Sort groups by name
-    groups.sort((a, b) => a.name.compareTo(b.name));
-    return SprawBookData(slug: bookSlug, name: bookName, groups: groups);
-  }
-
-  /// Loads the asset manifest and returns a set of all available asset paths.
-  Future<Set<String>> _loadAssetManifest() async {
+Future<Set<String>> _loadAssetManifest() async {
+  try {
+    final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+    return manifest.listAssets().toSet();
+  } catch (_) {
     try {
-      final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
-      return manifest.listAssets().toSet();
-    } catch (_) {
-      // Fallback to legacy JSON manifest
-      try {
-        final manifestStr = await rootBundle.loadString('AssetManifest.json');
-        final dynamic manifestJson = jsonDecode(manifestStr);
-        
-        if (manifestJson is Map<String, dynamic>) {
-          return manifestJson.keys.toSet();
-        } else if (manifestJson is List) {
-          return manifestJson.cast<String>().toSet();
-        } else if (manifestJson is Map && manifestJson.containsKey('assets')) {
-          final assets = manifestJson['assets'] as List?;
-          return assets?.cast<String>().toSet() ?? <String>{};
-        }
-      } catch (e) {
-        debugPrint('Failed to load asset manifest: $e');
-      }
-      return <String>{};
-    }
+      final manifestStr = await rootBundle.loadString('AssetManifest.json');
+      final dynamic manifestJson = jsonDecode(manifestStr);
+      if (manifestJson is Map<String, dynamic>)
+        return manifestJson.keys.toSet();
+
+      if (manifestJson is List)
+        return manifestJson.cast<String>().toSet();
+
+    } catch (_) {}
+    return <String>{};
   }
+}
 
-  /// Loads groups using explicit YAML structure if available.
-  Future<List<SprawGroupData>> _loadExplicitGroups(
-    Set<String> assetPaths, 
-    String basePath,
-  ) async {
-    final groups = <SprawGroupData>[];
-    final baseDepth = basePath.split('/').length;
-    
-    // Find all group data files
-    final groupDataFiles = assetPaths.where((path) => 
-      path.startsWith('$basePath/') && 
-      path.endsWith('/_data.yaml') && 
-      path.contains('/group') && 
-      path.split('/').length == baseDepth + 2
-    );
+Future<YamlMap> _loadYaml(String path, Set<String> assets) async {
+  if (!assets.contains(path))
+    throw StateError('Asset not found: $path');
 
-    // Load each group and its families
-    for (final groupDataFile in groupDataFiles) {
-      final groupDir = groupDataFile.replaceAll('/_data.yaml', '');
-      final groupYaml = await _loadYamlIfExists(assetPaths, groupDataFile);
-      final groupSlug = _extractSlugFromPath(groupDir, groupYaml?['id']);
-      final groupName = (groupYaml?['name'] ?? _formatNameFromSlug(groupSlug)).toString();
+  final content = await rootBundle.loadString(path);
+  final parsed = loadYaml(content);
+  if (parsed is YamlMap) return parsed;
+  throw StateError('YAML at $path is not a map');
+}
 
-      // Load families for this group
-      final families = await _loadFamiliesInDirectory(assetPaths, groupDir);
-      groups.add(SprawGroupData(
-        slug: groupSlug, 
-        name: groupName, 
-        families: families,
-      ));
-    }
+String _resolveBaseForBook(String bookSlug, Set<String> assets) {
+  final localBase = '$_assetsLocalBase/$bookSlug';
+  final pkgBase = '$_assetsPackageBase/$bookSlug';
+  if (assets.any((p) => p.startsWith('$localBase/'))) return localBase;
+  if (assets.any((p) => p.startsWith('$pkgBase/'))) return pkgBase;
+  // Prefer package base by default to match current project layout
+  return pkgBase;
+}
 
-    return groups;
-  }
+String _stripSuffix(String s, String suffix) => s.endsWith(suffix) ? s.substring(0, s.length - suffix.length) : s;
 
-  /// Loads groups by inferring structure from directory layout.
-  Future<List<SprawGroupData>> _loadGroupsFromDirectoryStructure(
-    Set<String> assetPaths, 
-    String basePath,
-  ) async {
-    final groups = <SprawGroupData>[];
-    final itemDataRe = RegExp(
-      r'^' + RegExp.escape('$basePath/') + r'group[^/]+/family[^/]+/\d+@[^/]+/_data\.yaml$'
-    );
+class SprawBook {
+  final String slug;
+  final String name;
+  final List<SprawGroup> groups;
 
-    // Find all item data files
-    final itemFiles = assetPaths.where((path) => itemDataRe.hasMatch(path));
+  SprawBook({required this.slug, required this.name, required this.groups});
 
-    // Group by group and family directories
-    final groupMap = <String, Map<String, List<String>>>{};
-    for (final path in itemFiles) {
-      final parts = path.split('/');
-      final groupDir = parts.sublist(0, parts.length - 3).join('/');
-      final familyDir = parts.sublist(0, parts.length - 2).join('/');
-      
-      groupMap.putIfAbsent(groupDir, () => {});
-      groupMap[groupDir]!.putIfAbsent(familyDir, () => []).add(path);
-    }
+  static Future<SprawBook> fromAssets(Set<String> assets, String baseDir) async {
+    final baseDepth = baseDir.split('/').length;
+    final dataPath = '$baseDir/_data.yaml';
+    final data = await _loadYaml(dataPath, assets);
 
-    // Convert directory structure to group/family hierarchy
-    for (final groupEntry in groupMap.entries) {
-      final groupDir = groupEntry.key;
-      final groupSlug = _extractSlugFromPath(groupDir);
-      final groupName = _formatNameFromSlug(groupSlug);
-      
-      final families = await _loadFamiliesInDirectory(assetPaths, groupDir);
-      groups.add(SprawGroupData(
-        slug: groupSlug,
-        name: groupName,
-        families: families,
-      ));
-    }
+    final slug = data['id'] ?? (throw StateError('Missing id in: $baseDir'));
+    final name = data['name'] ?? (throw StateError('Missing name in: $baseDir'));
 
-    return groups;
-  }
-
-  /// Loads all families in a directory.
-  Future<List<SprawFamilyData>> _loadFamiliesInDirectory(
-    Set<String> assetPaths, 
-    String dirPath,
-  ) async {
-    final dirDepth = dirPath.split('/').length;
-    final familyDirs = assetPaths
-        .where((path) {
-          if (!path.startsWith('$dirPath/') || !path.endsWith('/_data.yaml')) return false;
-          final parts = path.split('/');
-          // Expect exactly: <dirPath>/<familyX>/_data.yaml
-          if (parts.length != dirDepth + 2) return false;
-          final familySegment = parts[dirDepth];
-          return familySegment.startsWith('family');
+    // Find group directories: <baseDir>/groupX/_data.yaml
+    final groupDirs = assets
+        .where((p) {
+          if (!p.startsWith('$baseDir/') || !p.endsWith('/_data.yaml')) return false;
+          final parts = p.split('/');
+          if (parts.length != baseDepth + 2) return false;
+          final seg = parts[baseDepth];
+          return seg.startsWith('group');
         })
-        .map((path) => path.replaceAll('/_data.yaml', ''))
-        .toList();
+        .map((p) => _stripSuffix(p, '/_data.yaml'))
+        .toList()
+      ..sort();
+
+    final groups = await Future.wait(
+      groupDirs.map((gdir) => SprawGroup.fromAssets(assets, gdir))
+    );
+
+    return SprawBook(slug: slug, name: name, groups: groups);
+  }
+}
+
+class SprawGroup {
+  final String slug;
+  final String name;
+  final List<SprawFamily> families;
+
+  SprawGroup({required this.slug, required this.name, required this.families});
+
+  static Future<SprawGroup> fromAssets(Set<String> assets, String groupDir) async {
+    final data = await _loadYaml('$groupDir/_data.yaml', assets);
+
+    final slug = data['id'] ?? (throw StateError('Missing id in: $groupDir'));
+    final name = data['name'] ?? (throw StateError('Missing name in: $groupDir'));
+
+    final dirDepth = groupDir.split('/').length;
+    // Find family directories: <groupDir>/familyX/_data.yaml
+    final familyDirs = assets
+        .where((p) {
+          if (!p.startsWith('$groupDir/') || !p.endsWith('/_data.yaml')) return false;
+          final parts = p.split('/');
+          if (parts.length != dirDepth + 2) return false;
+          final seg = parts[dirDepth];
+          return seg.startsWith('family');
+        })
+        .map((p) => _stripSuffix(p, '/_data.yaml'))
+        .toList()
+      ..sort();
 
     final families = await Future.wait(
-      familyDirs.map((familyDir) => _loadFamily(assetPaths, familyDir))
+      familyDirs.map((fdir) => SprawFamily.fromAssets(assets, fdir))
     );
-    
-    families.sort((a, b) => a.name.compareTo(b.name));
-    return families;
-  }
 
-  /// Loads a single family from a directory.
-  Future<SprawFamilyData> _loadFamily(
-    Set<String> assetPaths, 
-    String familyDir,
-  ) async {
-    final familyYaml = await _loadYamlIfExists(assetPaths, '$familyDir/_data.yaml');
-    final familySlug = _extractSlugFromPath(familyDir);
-    final familyName = (familyYaml?['name'] ?? _formatNameFromSlug(familySlug)).toString();
-    
-    final tags = _parseStringList(familyYaml?['tags']);
-    final fragment = (familyYaml?['fragment'] ?? '').toString();
-    final fragmentAuthor = (familyYaml?['fragment_author'] ?? familyYaml?['fragmentAuthor'] ?? '').toString();
-    
-    final items = await _loadItemsForFamily(assetPaths, familyDir);
-    
-    return SprawFamilyData(
-      slug: familySlug,
-      name: familyName,
+    return SprawGroup(slug: slug, name: name, families: families);
+  }
+}
+
+class SprawFamily {
+  final String slug;
+  final String name;
+  final List<String> tags;
+  final String fragment;
+  final String fragmentAuthor;
+  final List<SprawItem> items;
+
+  SprawFamily({
+    required this.slug,
+    required this.name,
+    required this.tags,
+    required this.fragment,
+    required this.fragmentAuthor,
+    required this.items,
+  });
+
+  static Future<SprawFamily> fromAssets(Set<String> assets, String familyDir) async {
+    final data = await _loadYaml('$familyDir/_data.yaml', assets);
+
+    final slug = data['id'];
+    final name = data['name'];
+    final tags = data['tags'].toList().cast<String>();
+    final fragment = data['fragment'] ?? '';
+    final fragmentAuthor = data['fragmentAuthor'] ?? '';
+
+    final dirDepth = familyDir.split('/').length;
+    // Find item directories: <familyDir>/N@slug/_data.yaml
+    final itemDirs = assets
+        .where((p) {
+          if (!p.startsWith('$familyDir/') || !p.endsWith('/_data.yaml')) return false;
+          final parts = p.split('/');
+          if (parts.length != dirDepth + 2) return false; // family/item/_data.yaml
+          return RegExp(r'^\d+@').hasMatch(parts[dirDepth]);
+        })
+        .map((p) => _stripSuffix(p, '/_data.yaml'))
+        .toList()
+      ..sort();
+
+    final items = await Future.wait(
+      itemDirs.map((idir) => SprawItem.fromAssets(assets, idir))
+    );
+
+    return SprawFamily(
+      slug: slug,
+      name: name,
       tags: tags,
       fragment: fragment,
       fragmentAuthor: fragmentAuthor,
       items: items,
     );
   }
+}
 
-  /// Loads all items for a family.
-  Future<List<SprawItemData>> _loadItemsForFamily(
-    Set<String> assetPaths, 
-    String familyDir,
-  ) async {
-    // Find all item data files in the family directory
-    final itemDataFiles = assetPaths.where((path) {
-      if (!path.startsWith('$familyDir/') || !path.endsWith('/_data.yaml')) {
-        return false;
-      }
-      final parts = path.split('/');
-      final familyDepth = familyDir.split('/').length;
-      return parts.length == familyDepth + 2; // family/item/_data.yaml
-    });
+class SprawItem {
+  final String slug;
+  final String iconPath; // absolute asset path
+  final String name;
+  final int level;
+  final List<String> tasks;
 
-    // Load items concurrently
-    final items = await Future.wait(
-      itemDataFiles.map((path) => _loadItem(assetPaths, path))
-    );
-    
-    // Sort items by level and name
-    items.sort((a, b) {
-      final levelCompare = a.level.compareTo(b.level);
-      return levelCompare != 0 ? levelCompare : a.name.compareTo(b.name);
-    });
-    
-    return items;
-  }
+  SprawItem({
+    required this.slug,
+    required this.iconPath,
+    required this.name,
+    required this.level,
+    required this.tasks,
+  });
 
-  /// Loads a single item from a data file.
-  Future<SprawItemData> _loadItem(
-    Set<String> assetPaths, 
-    String itemDataPath,
-  ) async {
-    final itemDir = itemDataPath.replaceAll('/_data.yaml', '');
-    final itemYaml = await _loadYaml(assetPaths, itemDataPath);
-    
-    final itemSlug = _extractSlugFromPath(itemDir, itemYaml['id']);
-    final itemName = (itemYaml['name'] ?? itemSlug).toString();
-    final level = int.tryParse((itemYaml['level'] ?? '1').toString()) ?? 1;
-    final tasks = _parseStringList(itemYaml['tasks']);
-    
-    // Find and load icon
-    final iconPath = await _findItemIcon(assetPaths, itemDir, itemYaml);
-    
-    return SprawItemData(
-      slug: itemSlug,
+  static Future<SprawItem> fromAssets(Set<String> assets, String itemDir) async {
+    final data = await _loadYaml('$itemDir/_data.yaml', assets);
+
+    // icon can come from icon.yaml -> link or icon.svg file
+    final iconYamlPath = '$itemDir/icon.yaml';
+    final iconSvgPath = '$itemDir/icon.svg';
+
+    String iconPath = '';
+    if (assets.contains(iconYamlPath)) {
+      final iconYaml = await _loadYaml(iconYamlPath, assets);
+      final link = (iconYaml['link'] ?? '').toString();
+      iconPath = _normalizeIconLink(link);
+    } else if (assets.contains(iconSvgPath)) {
+      iconPath = iconSvgPath;
+    } else {
+      throw StateError('Missing icon file in: $itemDir');
+    }
+
+    final slug = data['id'] ?? (throw StateError('Missing id in: $itemDir'));
+    final name = data['name'] ?? (throw StateError('Missing name in: $itemDir'));
+    final level = data['level'];
+    final tasks = data['tasks'].toList().cast<String>();
+
+    return SprawItem(
+      slug: slug,
       iconPath: iconPath,
-      name: itemName,
+      name: name,
       level: level,
       tasks: tasks,
     );
   }
+}
 
-  /// Finds the appropriate icon for an item.
-  Future<String> _findItemIcon(
-    Set<String> assetPaths, 
-    String itemDir, 
-    dynamic itemYaml,
-  ) async {
-    // Check for icon defined in YAML
-    final iconYamlPath = '$itemDir/icon.yaml';
-    if (assetPaths.contains(iconYamlPath)) {
-      try {
-        final iconYaml = await _loadYaml(assetPaths, iconYamlPath);
-        final link = (iconYaml['link'] ?? '').toString();
-        if (link.isNotEmpty) {
-          final mappedPath = _mapIconLinkToAsset(link);
-          if (assetPaths.contains(mappedPath)) {
-            return mappedPath;
-          }
-        }
-      } catch (e) {
-        debugPrint('Failed to load icon YAML at $iconYamlPath: $e');
-      }
-    }
-    
-    // Fall back to standard icon locations
-    final svgPath = '$itemDir/icon.svg';
-
-    if (assetPaths.contains(svgPath)) return svgPath;
-
-    return ''; // No icon found
+String _normalizeIconLink(String link) {
+  if (link.isEmpty) return '';
+  // some content may use common_new/ -> normalize to common/
+  if (link.startsWith('common_new/')) {
+    link = link.replaceFirst('common_new/', 'common/');
   }
+  // if already an absolute asset path, leave it
+  if (link.startsWith('packages/')) return link;
+  if (link.startsWith('assets/')) return link;
+  // otherwise assume relative to sprawnosci/ root (package base)
+  return '$_assetsPackageBase/$link';
+}
 
-  /// Parses a YAML list or dynamic value into a list of strings.
-  List<String> _parseStringList(dynamic value) {
-    if (value == null) return const [];
-    if (value is YamlList) return value.map((e) => e.toString()).toList().cast<String>();
-    if (value is List) return value.map((e) => e.toString()).toList().cast<String>();
-    return [];
-  }
-
-  /// Extracts a slug from a path, with an optional override value.
-  String _extractSlugFromPath(String path, [dynamic overrideValue]) {
-    if (overrideValue != null) return overrideValue.toString();
-    
-    // Takes last path segment, then returns substring after '@' and before '$' if present.
-    final last = path.split('/').last;
-    final atIdx = last.indexOf('@');
-    String slug = atIdx >= 0 ? last.substring(atIdx + 1) : last;
-    final dollarIdx = slug.indexOf(r'$');
-    if (dollarIdx >= 0) slug = slug.substring(0, dollarIdx);
-    return slug;
-  }
-
-  /// Formats a slug into a human-readable name.
-  String _formatNameFromSlug(String slug) {
-    return slug
-        .replaceAll('_', ' ')
-        .split(' ')
-        .where((w) => w.isNotEmpty)
-        .map((w) => w[0].toUpperCase() + (w.length > 1 ? w.substring(1) : ''))
-        .join(' ');
-  }
-
-  /// Maps an icon link to an asset path.
-  String _mapIconLinkToAsset(String link) {
-    if (link.isEmpty) return '';
-    // Return the full asset path
-    return '$_assetsBasePath/$link';
-  }
-
-  /// Loads a YAML file if it exists in the asset paths.
-  Future<YamlMap?> _loadYamlIfExists(Set<String> assetPaths, String path) async {
-    if (!assetPaths.contains(path)) return null;
-    try {
-      return await _loadYaml(assetPaths, path);
-    } catch (e) {
-      debugPrint('Failed to load YAML at $path: $e');
-      return null;
-    }
-  }
-
-  /// Loads and parses a YAML file from assets.
-  Future<YamlMap> _loadYaml(Set<String> assetPaths, String path) async {
-    if (!assetPaths.contains(path)) {
-      throw StateError('Asset not found: $path');
-    }
-    
-    try {
-      final content = await rootBundle.loadString(path);
-      return loadYaml(content) as YamlMap;
-    } catch (e) {
-      throw StateError('Failed to parse YAML at $path: $e');
-    }
+class SprawnosciRepositoryNew {
+  Future<SprawBook> loadBook(String bookSlug) async {
+    final assets = await _loadAssetManifest();
+    final base = _resolveBaseForBook(bookSlug, assets);
+    return SprawBook.fromAssets(assets, base);
   }
 }
