@@ -65,96 +65,100 @@ class _SprawnosciFamilyPageState extends State<SprawnosciFamilyPage> {
                   });
 
                 return SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: Dimen.sideMarg),
+                  child: SelectionArea(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: Dimen.sideMarg),
 
-                      AppButton(
-                        icon: Icon(MdiIcons.arrowLeft),
-                        onTap: () => context.go('/sprawnosci/${widget.bookSlug}'),
-                      ),
-                      const SizedBox(height: Dimen.sideMarg),
-
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: Dimen.sideMarg),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-
-                            Text(
-                                family.name,
-                                style: AppTextStyle(
-                                    fontSize: Dimen.textSizeAppBar,
-                                    fontWeight: FontWeight.w700,
-                                    color: iconEnab_(context)
-                                )
-                            ),
-
-                            const SizedBox(height: Dimen.sideMarg),
-
-                            if (family.tags.isNotEmpty)
-                              Wrap(
-                                spacing: 6,
-                                runSpacing: 4,
-                                children: family.tags
-                                    .map((t) =>
-                                    Text(
-                                        t,
-                                        style: AppTextStyle(
-                                            fontSize: Dimen.textSizeBig, color: textDisab_(context)
-                                        )
-                                    )
-                                ).toList(),
-                              ),
-
-                            if (family.fragment.isNotEmpty) ...[
-                              const SizedBox(height: Dimen.sideMarg),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                      family.fragment,
-                                      style: AppTextStyle(
-                                        color: textEnab_(context),
-                                        fontStyle: FontStyle.italic,
-                                        fontSize: Dimen.textSizeBig,
-                                      )
-                                  ),
-                                  if (family.fragmentAuthor.isNotEmpty) ...[
-                                    const SizedBox(height: Dimen.sideMarg),
-                                    Align(
-                                      alignment: Alignment.centerRight,
-                                      child: Text(
-                                          '— ${family.fragmentAuthor}',
-                                          style: AppTextStyle(
-                                            color: textEnab_(context),
-                                            fontStyle: FontStyle.italic,
-                                            fontSize: Dimen.textSizeBig,
-                                          )
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ],
-
-                            const SizedBox(height: 3*Dimen.sideMarg),
-
-                            // Render all items inline with spacing
-                            ...[for (int i = 0; i < items.length; i++) ...[
-                              Padding(
-                                padding: EdgeInsets.only(bottom: 3*Dimen.sideMarg),
-                                child: SprawItemWidget(item: items[i]),
-                              ),
-                            ]],
-
-                          ],
+                        AppButton(
+                          icon: Icon(MdiIcons.arrowLeft),
+                          onTap: () => context.go('/sprawnosci/${widget.bookSlug}'),
                         ),
-                      )
+                        const SizedBox(height: Dimen.sideMarg),
+
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: Dimen.sideMarg),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+
+                              Text(
+                                  family.name,
+                                  style: AppTextStyle(
+                                      fontSize: Dimen.textSizeAppBar,
+                                      fontWeight: FontWeight.w700,
+                                      color: iconEnab_(context)
+                                  )
+                              ),
+
+                              const SizedBox(height: Dimen.sideMarg),
+
+                              if (family.tags.isNotEmpty)
+                                Wrap(
+                                  spacing: 6,
+                                  runSpacing: 4,
+                                  children: family.tags
+                                      .map((t) =>
+                                      Text(
+                                          t,
+                                          style: AppTextStyle(
+                                              fontSize: Dimen.textSizeBig,
+                                              fontWeight: weightHalfBold,
+                                              color: textDisab_(context)
+                                          )
+                                      )
+                                  ).toList(),
+                                ),
+
+                              if (family.fragment.isNotEmpty) ...[
+                                const SizedBox(height: Dimen.sideMarg),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        family.fragment,
+                                        style: AppTextStyle(
+                                          color: textEnab_(context),
+                                          fontStyle: FontStyle.italic,
+                                          fontSize: Dimen.textSizeBig,
+                                        )
+                                    ),
+                                    if (family.fragmentAuthor.isNotEmpty) ...[
+                                      const SizedBox(height: Dimen.sideMarg),
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Text(
+                                            '— ${family.fragmentAuthor}',
+                                            style: AppTextStyle(
+                                              color: textEnab_(context),
+                                              fontStyle: FontStyle.italic,
+                                              fontSize: Dimen.textSizeBig,
+                                            )
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ],
+
+                              const SizedBox(height: 3*Dimen.sideMarg),
+
+                              // Render all items inline with spacing
+                              ...[for (int i = 0; i < items.length; i++) ...[
+                                Padding(
+                                  padding: EdgeInsets.only(bottom: 3*Dimen.sideMarg),
+                                  child: SprawItemWidget(item: items[i]),
+                                ),
+                              ]],
+
+                            ],
+                          ),
+                        )
 
 
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },

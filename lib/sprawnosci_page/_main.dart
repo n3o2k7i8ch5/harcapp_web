@@ -216,7 +216,7 @@ class _SprawnosciPageState extends State<SprawnosciPage> {
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 4*Dimen.sideMarg),
                               child: Center(
-                                child: Text(
+                                child: SelectableText(
                                   book.name,
                                   textAlign: TextAlign.center,
                                   style: AppTextStyle(
