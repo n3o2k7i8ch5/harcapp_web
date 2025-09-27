@@ -66,7 +66,7 @@ class KonspektMaterialData extends BaseKonspektMaterial{
     attachmentNameController: TextEditingController(text: map['attachmentName']),
 
     amountController: TextEditingController(text: map['amount'].toString()),
-    amountAttendantFactorController: TextEditingController(text: map['amountAttendantFactor']),
+    amountAttendantFactorController: TextEditingController(text: map['amountAttendantFactor'].toString()),
   );
 
 }

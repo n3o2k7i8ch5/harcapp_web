@@ -188,29 +188,72 @@ class KonspektData extends BaseKonspekt {
 
     Map coreData = jsonDecode(data.konspektCoreData);
 
-    return KonspektData(
-      titleController: TextEditingController(text: coreData['title']),
-      additionalSearchPhraseControllers: coreData["additionalSearchPhrases"].map((phrase) => TextEditingController(text: phrase)).toList(),
-      type: KonspektType.fromApiParam(coreData['type'])??(throw InvalidDecodeParamError('KonspektData.type', coreData['type'])),
-      spheres: coreData['spheres'].map((key, value) => MapEntry(
-        KonspektSphere.fromApiParam(key)??(throw InvalidDecodeParamError('KonspektSphere', key)),
-        value == null ? null : KonspektSphereDetails.fromJsonMap((value as Map).cast<String, dynamic>())
-      )),
-      metos: coreData['metos'].map((e) => Meto.fromApiParam(e)??(throw InvalidDecodeParamError('Meto', e))).toList(),
-      coverAuthorController: TextEditingController(text: coreData['coverAuthor']),
-      coverImageBytes: data.coverImage,
-      author: coreData['author'] == null ? null : Person.fromApiJsonMap((coreData['author'] as Map).cast<String, dynamic>()),
-      customDuration: coreData['customDuration'] == null ? null : Duration(seconds: coreData['customDuration'] as int),
-      aimControllers: coreData['aims'].map((aim) => TextEditingController(text: aim)).toList(),
-      materials: coreData['materials'].map((material) => KonspektMaterialData.fromJsonMap((material as Map).cast<String, dynamic>())).toList(),
-      summaryController: TextEditingController(text: coreData['summary']),
-      introController: TextEditingController(text: coreData['intro']),
-      descriptionController: TextEditingController(text: coreData['description']),
-      howToFailControllers: coreData['howToFail'].map((howToFail) => TextEditingController(text: howToFail)).toList(),
-      stepsData: coreData['steps'].map((step) => KonspektStepData.fromJsonMap((step as Map).cast<String, dynamic>())).toList(),
-      attachments: coreData['attachments'].map((attachment) => KonspektAttachmentData.fromJsonMap((attachment as Map).cast<String, dynamic>())).toList(),
+    TextEditingController titleController = TextEditingController(
+        text: coreData['title']??(throw MissingDecodeParamError('title'))
     );
 
+    List<TextEditingController> additionalSearchPhraseControllers = (coreData["additionalSearchPhrases"]??(throw MissingDecodeParamError('additionalSearchPhrases')))
+        .map((phrase) => TextEditingController(text: phrase)).toList().cast<TextEditingController>();
+
+    KonspektType type = KonspektType.fromApiParam(coreData['type'])??(throw MissingDecodeParamError('type'));
+
+    Map<KonspektSphere, KonspektSphereDetails?> spheres = (coreData['spheres']??(throw MissingDecodeParamError('spheres')))
+        .map((key, value) => MapEntry(
+          KonspektSphere.fromApiParam(key)??(throw InvalidDecodeParamError('KonspektSphere', key)),
+          value == null ? null : KonspektSphereDetails.fromJsonMap((value as Map).cast<String, dynamic>())
+        )).cast<KonspektSphere, KonspektSphereDetails?>();
+
+    List<Meto> metos = (coreData['metos']??(throw MissingDecodeParamError('metos')))
+        .map((e) => Meto.fromApiParam(e)).toList().cast<Meto>();
+
+    TextEditingController coverAuthorController = TextEditingController(
+        text: coreData['coverAuthor']??(throw MissingDecodeParamError('coverAuthor'))
+    );
+
+    Person? author = coreData['author'] == null ? null : Person.fromApiJsonMap((coreData['author'] as Map).cast<String, dynamic>());
+
+    Duration? customDuration = coreData['customDuration'] == null ? null : Duration(seconds: coreData['customDuration'] as int);
+
+    List<TextEditingController> aimControllers = (coreData['aims']??(throw MissingDecodeParamError('aims')))
+        .map((aim) => TextEditingController(text: aim)).toList().cast<TextEditingController>();
+
+    List<KonspektMaterialData> materials = (coreData['materials']??(throw MissingDecodeParamError('materials')))
+        .map((material) => KonspektMaterialData.fromJsonMap((material as Map).cast<String, dynamic>())).toList().cast<KonspektMaterialData>();
+
+    TextEditingController summaryController = TextEditingController(text: coreData['summary']);
+
+    TextEditingController introController = TextEditingController(text: coreData['intro']);
+
+    TextEditingController descriptionController = TextEditingController(text: coreData['description']);
+
+    List<TextEditingController> howToFailControllers = (coreData['howToFail']??(throw MissingDecodeParamError('howToFail')))
+        .map((howToFail) => TextEditingController(text: howToFail)).toList().cast<TextEditingController>();
+
+    List<KonspektStepData> stepsData = (coreData['steps']??(throw MissingDecodeParamError('steps')))
+        .map((step) => KonspektStepData.fromJsonMap((step as Map).cast<String, dynamic>())).toList().cast<KonspektStepData>();
+
+    List<KonspektAttachmentData> attachments = (coreData['attachments']??[])
+        .map((attachment) => KonspektAttachmentData.fromJsonMap((attachment as Map).cast<String, dynamic>())).toList().cast<KonspektAttachmentData>();
+
+    return KonspektData(
+      titleController: titleController,
+      additionalSearchPhraseControllers: additionalSearchPhraseControllers,
+      type: type,
+      spheres: spheres,
+      metos: metos,
+      coverAuthorController: coverAuthorController,
+      coverImageBytes: data.coverImage,
+      author: author,
+      customDuration: customDuration,
+      aimControllers: aimControllers,
+      materials: materials,
+      summaryController: summaryController,
+      introController: introController,
+      descriptionController: descriptionController,
+      howToFailControllers: howToFailControllers,
+      stepsData: stepsData,
+      attachments: attachments,
+    );
 
   }
 
