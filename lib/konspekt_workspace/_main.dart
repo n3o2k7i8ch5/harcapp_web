@@ -71,9 +71,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                       padding: EdgeInsets.only(top: Dimen.defMarg),
                       child: _TopActions(
                         konspektData: konspektData,
-                        onLoaded: (data){
-
-                        },
+                        onLoaded: (data) => setState(() => _konspektData = KonspektData.fromHrcpknspktData(data)),
                       ),
                     ),
                     height: Dimen.iconFootprint + Dimen.defMarg, // kToolbarHeight
