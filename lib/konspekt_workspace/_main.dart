@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
@@ -6,11 +6,13 @@ import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_classes/meto.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/app_text_field_hint.dart';
 import 'package:harcapp_core/comm_widgets/floating_container.dart';
 import 'package:harcapp_core/comm_widgets/multi_text_field.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
+import 'package:harcapp_core/harcthought/konspekts/hrcpknspkt_data.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/harcthought/konspekts/widgets/base_konspekt_widget.dart';
 import 'package:harcapp_core/harcthought/konspekts/widgets/level_selectable_grid_widget.dart';
@@ -48,7 +50,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
   @override
   void initState() {
     if(widget.konspektData == null)
-      _konspektData = KonspektData();
+      _konspektData = KonspektData.empty();
 
     super.initState();
   }
@@ -67,7 +69,12 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                   FloatingContainer.child(
                     child: Padding(
                       padding: EdgeInsets.only(top: Dimen.defMarg),
-                      child: _TopActions(konspektData: konspektData),
+                      child: _TopActions(
+                        konspektData: konspektData,
+                        onLoaded: (data){
+
+                        },
+                      ),
                     ),
                     height: Dimen.iconFootprint + Dimen.defMarg, // kToolbarHeight
                   ),
@@ -253,7 +260,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                         title: 'Materiały',
                         textAlign: TextAlign.left,
                       ),
-                      MaterialsWidget(materials: konspektData.materialsData),
+                      MaterialsWidget(materials: konspektData.materials),
 
                       const SizedBox(height: Dimen.sideMarg),
 
@@ -285,7 +292,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                         textAlign: TextAlign.left,
                       ),
 
-                      AttachmentsWidget(),
+                      AttachmentsWidget(konspektData.attachments),
 
                     ])),
                   )
@@ -300,8 +307,9 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
 class _TopActions extends StatelessWidget {
   final KonspektData konspektData;
+  final void Function(HrcpknspktData data) onLoaded;
 
-  const _TopActions({super.key, required this.konspektData});
+  const _TopActions({super.key, required this.konspektData, required this.onLoaded});
 
   @override
   Widget build(BuildContext context) => Row(
@@ -345,14 +353,46 @@ class _TopActions extends StatelessWidget {
             context: context,
             color: cardEnab_(context),
             margin: EdgeInsets.zero,
+            icon: MdiIcons.folderOpenOutline,
+            text: 'Wczytaj',
+            onTap: () async {
+
+              FilePickerResult? result = await FilePicker.platform.pickFiles(
+                type: FileType.custom,
+                allowedExtensions: ['hrcpknspkt'],
+              );
+
+              if(result == null)
+                return;
+
+              final Uint8List? bytes = result.files.single.bytes!;
+
+              if(bytes == null){
+                AppScaffold.showMessage(context, text: 'Coś poszło nie tak.');
+                return;
+              }
+
+              HrcpknspktData hrcpknspktData = HrcpknspktData.fromBytes(bytes);
+
+              onLoaded(hrcpknspktData);
+            }
+        ),
+      ),
+
+      SizedBox(width: Dimen.defMarg),
+
+      Expanded(
+        child: SimpleButton.from(
+            elevation: AppCard.bigElevation,
+            context: context,
+            color: cardEnab_(context),
+            margin: EdgeInsets.zero,
             icon: MdiIcons.contentSave,
             text: 'Zapisz',
-            onTap: () {
-              String code = jsonEncode(konspektData.toJsonMap());
-              downloadFileFromString(
-                  content: code,
-                  fileName: '${konspektData.titleAsFileName}.hrcpkspkt');
-            }),
+            onTap: () => downloadFileFromBytes(
+              fileName: '${konspektData.titleAsFileName}.hrcpknspkt',
+              bytes: konspektData.toHrcpknspktData().toBytes()
+            )),
       ),
     ],
   );

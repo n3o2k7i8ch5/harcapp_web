@@ -1,28 +1,38 @@
 import 'package:flutter/cupertino.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 
-class KonspektMaterialData {
+class KonspektMaterialData extends BaseKonspektMaterial{
   final TextEditingController nameController;
   final TextEditingController? commentController;
   final TextEditingController? additionalPreparationController;
   final TextEditingController? attachmentNameController;
   final TextEditingController? amountController; // plain amount
-  final TextEditingController? attendantFactorController; // per participant factor
+  final TextEditingController? amountAttendantFactorController; // per participant factor
 
-  KonspektMaterialData()
-      : nameController = TextEditingController(),
-        commentController = TextEditingController(),
-        additionalPreparationController = TextEditingController(),
-        attachmentNameController = TextEditingController(),
-        amountController = TextEditingController(),
-        attendantFactorController = TextEditingController();
+  const KonspektMaterialData({
+    required this.nameController,
+    this.commentController,
+    this.additionalPreparationController,
+    this.attachmentNameController,
+    this.amountController,
+    this.amountAttendantFactorController,
+  });
+  
+  static KonspektMaterialData empty() => KonspektMaterialData(
+      nameController: TextEditingController(),
+      commentController: TextEditingController(),
+      additionalPreparationController: TextEditingController(),
+      attachmentNameController: TextEditingController(),
+      amountController: TextEditingController(),
+      amountAttendantFactorController: TextEditingController()
+  );
 
   String get name => nameController.text;
   String? get comment => _textOrNull(commentController);
   String? get additionalPreparation => _textOrNull(additionalPreparationController);
   String? get attachmentName => _textOrNull(attachmentNameController);
   int? get amount => _intOrNull(amountController);
-  int? get amountAttendantFactor => _intOrNull(attendantFactorController);
+  int? get amountAttendantFactor => _intOrNull(amountAttendantFactorController);
 
   KonspektMaterial toKonspektMaterial() => KonspektMaterial(
     amount: amount,
@@ -47,4 +57,16 @@ class KonspektMaterialData {
       return null;
     }
   }
+
+
+  static KonspektMaterialData fromJsonMap(Map<String, dynamic> map) => KonspektMaterialData(
+    nameController: TextEditingController(text: map['name']),
+    commentController: TextEditingController(text: map['comment']),
+    additionalPreparationController: TextEditingController(text: map['additionalPreparation']),
+    attachmentNameController: TextEditingController(text: map['attachmentName']),
+
+    amountController: TextEditingController(text: map['amount'].toString()),
+    amountAttendantFactorController: TextEditingController(text: map['amountAttendantFactor']),
+  );
+
 }

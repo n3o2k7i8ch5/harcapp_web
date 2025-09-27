@@ -95,6 +95,19 @@ class KonspektsPageState extends State<KonspektsPage>{
 
         bool workspaceAlwaysVisible = constraints.maxWidth>collapseWidth;
 
+        Widget downloadHrcpknspktButton = SimpleButton.from(
+            context: context,
+            color: cardEnab_(context),
+            radius: AppCard.defRadius,
+            margin: EdgeInsets.zero,
+            icon: MdiIcons.trayArrowDown,
+            text: 'Pobierz surowe dane',
+            onTap: () async => downloadFileFromBytes(
+                fileName: 'konspekt_${selectedKonspekt!.name}.hrcpknspkt',
+                bytes: (await selectedKonspekt!.toHrcpknspktData()).toBytes()
+            )
+        );
+
         Widget downloadPdfButton = SimpleButton.from(
             context: context,
             color: cardEnab_(context),
@@ -202,6 +215,8 @@ class KonspektsPageState extends State<KonspektsPage>{
                                 Row(
                                   children: [
                                     Expanded(child: Container()),
+                                    downloadHrcpknspktButton,
+                                    SizedBox(width: Dimen.defMarg),
                                     downloadPdfButton,
                                   ],
                                 ),

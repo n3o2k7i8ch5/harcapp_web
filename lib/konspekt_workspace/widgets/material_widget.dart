@@ -56,7 +56,7 @@ class MaterialWidget extends StatelessWidget {
                             Expanded(
                               child: AppTextFieldHint(
                                 hint: 'Na uczestnika (np. 1):',
-                                controller: materialData.attendantFactorController,
+                                controller: materialData.amountAttendantFactorController,
                                 keyboardType: TextInputType.number,
                               ),
                             ),

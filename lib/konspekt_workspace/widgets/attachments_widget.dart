@@ -6,18 +6,20 @@ import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
+import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/attachment_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class AttachmentsWidget extends StatefulWidget {
-  const AttachmentsWidget({super.key});
+  final List<KonspektAttachmentData> attachments;
+  const AttachmentsWidget(this.attachments, {super.key});
 
   @override
   State<AttachmentsWidget> createState() => _AttachmentsWidgetState();
 }
 
 class _AttachmentsWidgetState extends State<AttachmentsWidget> {
-  final List<int> _ids = [DateTime.now().microsecondsSinceEpoch];
+  // final List<int> _ids = [DateTime.now().microsecondsSinceEpoch];
 
   @override
   Widget build(BuildContext context) => Column(
@@ -27,19 +29,23 @@ class _AttachmentsWidgetState extends State<AttachmentsWidget> {
             buildDefaultDragHandles: false,
             proxyDecorator: proxyDecorator,
             physics: const NeverScrollableScrollPhysics(),
-            items: _ids,
+            items: widget.attachments,
             clipBehavior: Clip.none,
             dragStartDelay: Duration(milliseconds: 300),
             isSameItem: (oldItem, newItem) => oldItem == newItem,
             onReorder: (int oldIndex, int newIndex) {
-              final int id = _ids.removeAt(oldIndex);
-              _ids.insert(newIndex, id);
+              final KonspektAttachmentData attachment = widget.attachments.removeAt(oldIndex);
+              widget.attachments.insert(newIndex, attachment);
               setState(() {});
             },
             itemBuilder: (BuildContext context, int index) => Padding(
-              key: ValueKey("attachment_${_ids[index]}"),
-              padding: EdgeInsets.only(bottom: index < _ids.length - 1 ? Dimen.defMarg : 0),
-              child: AttachmentWidget(onRemove: () => setState(() => _ids.removeAt(index))),
+              key: ValueKey("attachment_${widget.attachments[index].name}"),
+              padding: EdgeInsets.only(bottom: index < widget.attachments.length - 1 ? Dimen.defMarg : 0),
+              child: AttachmentWidget(
+                  data: widget.attachments[index],
+                  onChange: () => setState(() {}),
+                  onRemove: () => setState(() => widget.attachments.removeAt(index))
+              ),
             ),
             shrinkWrap: true,
             enterTransition: [FadeIn()],
@@ -56,7 +62,7 @@ class _AttachmentsWidgetState extends State<AttachmentsWidget> {
             margin: EdgeInsets.zero,
             text: 'Dodaj załącznik',
             onTap: () => setState(() =>
-                _ids.add(DateTime.now().microsecondsSinceEpoch)),
+                widget.attachments.add(KonspektAttachmentData.empty())),
           )
         ],
       );

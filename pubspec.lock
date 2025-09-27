@@ -481,24 +481,24 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: eb059dfe59f08546e9787f895bd01652076f996bcbf485a8609ef990419ad227
+      sha256: c752e2d08d088bf83742cb05bf83003f3e9d276ff1519b5c92f9d5e60e5ddd23
       url: "https://pub.dev"
     source: hosted
-    version: "16.2.1"
+    version: "16.2.4"
   google_fonts:
     dependency: "direct main"
     description:
       name: google_fonts
-      sha256: ebc94ed30fd13cefd397cb1658b593f21571f014b7d1197eeb41fb95f05d899a
+      sha256: "517b20870220c48752eafa0ba1a797a092fb22df0d89535fd9991e86ee2cdd9c"
       url: "https://pub.dev"
     source: hosted
-    version: "6.3.1"
+    version: "6.3.2"
   harcapp_core:
     dependency: "direct main"
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "2d91fd015c8f1dd600ec7d0626504e0549f5d4f8"
+      resolved-ref: "060e5ef42a90c8cfce414661e5217a0de2e764f1"
       url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"
@@ -586,18 +586,18 @@ packages:
     dependency: transitive
     description:
       name: isar_community
-      sha256: eae4a7e659bec0f92fc953afb8738512062df6a2ff99fe838cb53f9ed4fa6e97
+      sha256: "28f59e54636c45ba0bb1b3b7f2656f1c50325f740cea6efcd101900be3fba546"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.0-dev.2"
+    version: "3.3.0-dev.3"
   isar_community_flutter_libs:
     dependency: transitive
     description:
       name: isar_community_flutter_libs
-      sha256: e8e6668d2c20ed61af9422bddc0bc3d1f6db91e3a5dae4406379a1426c06fbff
+      sha256: c2934fe755bb3181cb67602fd5df0d080b3d3eb52799f98623aa4fc5acbea010
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.0-dev.2"
+    version: "3.3.0-dev.3"
   js:
     dependency: transitive
     description:
@@ -986,10 +986,10 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences_android
-      sha256: a2608114b1ffdcbc9c120eb71a0e207c71da56202852d4aab8a5e30a82269e74
+      sha256: bd14436108211b0d4ee5038689a56d4ae3620fd72fd6036e113bf1345bc74d9e
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.12"
+    version: "2.4.13"
   shared_preferences_foundation:
     dependency: transitive
     description:

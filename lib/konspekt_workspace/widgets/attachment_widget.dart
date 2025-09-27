@@ -12,13 +12,16 @@ import 'package:harcapp_core/harcthought/common/file_format.dart';
 import 'package:harcapp_core/harcthought/common/file_format_selector_row_widget.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/values/dimen.dart';
+import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class AttachmentWidget extends StatefulWidget{
 
+  final KonspektAttachmentData data;
+  final void Function() onChange;
   final VoidCallback? onRemove;
 
-  const AttachmentWidget({super.key, this.onRemove});
+  const AttachmentWidget({super.key, required this.data, required this.onChange, this.onRemove});
 
   @override
   State<StatefulWidget> createState() => _AttachmentWidgetState();
@@ -27,36 +30,29 @@ class AttachmentWidget extends StatefulWidget{
 
 class _AttachmentWidgetState extends State<AttachmentWidget>{
 
-  late TextEditingController _nameController;
-  late Set<FileFormat> _selectedFormats;
-  late Map<FileFormat, PlatformFile?> _pickedFiles;
-  late Map<FileFormat, String?> _pickedUrls;
+  TextEditingController get titleController => widget.data.titleController;
+  Map<FileFormat, PlatformFile?> get pickedFiles => widget.data.pickedFiles;
+  Map<FileFormat, String?> get pickedUrls => widget.data.pickedUrls;
 
-  late bool _printInfoEnabled;
-  late KonspektAttachmentPrintSide _printSide;
-  late KonspektAttachmentPrintColor _printColor;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController();
-    _selectedFormats = {};
-    _pickedFiles = {};
-    _pickedUrls = {};
-    _printInfoEnabled = false;
-    _printSide = KonspektAttachmentPrintSide.single;
-    _printColor = KonspektAttachmentPrintColor.monochrome;
+  Set<FileFormat> get selectedFormats{
+    Set<FileFormat> data = {};
+    data.addAll(pickedFiles.keys);
+    data.addAll(pickedUrls.keys);
+    return data;
   }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
-  }
+  bool get printInfoEnabled => widget.data.printInfoEnabled;
+  set printInfoEnabled(bool value) => widget.data.printInfoEnabled = value;
+
+  KonspektAttachmentPrintSide get printSide => widget.data.printSide;
+  set printSide(KonspektAttachmentPrintSide value) => widget.data.printSide = value;
+
+  KonspektAttachmentPrintColor get printColor => widget.data.printColor;
+  set printColor(KonspektAttachmentPrintColor value) => widget.data.printColor = value;
 
   Future<bool> _pickFor(FileFormat format) async {
-    if (_isUrl(format)) {
-      final controller = TextEditingController(text: _pickedUrls[format] ?? '');
+    if (format.isUrl) {
+      final controller = TextEditingController(text: pickedUrls[format] ?? '');
       String? url = await showDialog<String>(
         context: context,
         builder: (context) => AlertDialog(
@@ -72,7 +68,7 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
         ),
       );
       if (url != null && url.isNotEmpty) {
-        setState(() => _pickedUrls[format] = url);
+        setState(() => pickedUrls[format] = url);
         return true;
       }
       return false;
@@ -86,24 +82,10 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
       withData: true,
     );
     if (result != null && result.files.isNotEmpty) {
-      setState(() => _pickedFiles[format] = result.files.single);
+      setState(() => pickedFiles[format] = result.files.single);
       return true;
     }
     return false;
-  }
-
-  bool _isUrl(FileFormat format){
-    switch(format){
-      case FileFormat.url:
-      case FileFormat.urlPdf:
-      case FileFormat.urlDocx:
-      case FileFormat.urlPng:
-      case FileFormat.urlWebp:
-      case FileFormat.urlSvg:
-        return true;
-      default:
-        return false;
-    }
   }
 
   @override
@@ -121,7 +103,7 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
               Expanded(
                 child: AppTextFieldHint(
                   hint: 'Nazwa załącznika:',
-                  controller: _nameController,
+                  controller: titleController,
                   textCapitalization: TextCapitalization.sentences,
                 ),
               ),
@@ -137,18 +119,17 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
           SizedBox(height: Dimen.sideMarg),
 
           // Selected formats rows
-          ..._selectedFormats.map((format) => Padding(
+          ...selectedFormats.map((format) => Padding(
             padding: EdgeInsets.only(bottom: Dimen.defMarg),
             child: AttachmentFileRow(
               fileFormat: format,
-              pickedName: _isUrl(format)
-                  ? _pickedUrls[format]
-                  : _pickedFiles[format]?.name,
+              pickedName: format.isUrl
+                  ? pickedUrls[format]
+                  : pickedFiles[format]?.name,
               onRemove: (){
                 setState((){
-                  _selectedFormats.remove(format);
-                  _pickedFiles.remove(format);
-                  _pickedUrls.remove(format);
+                  pickedFiles.remove(format);
+                  pickedUrls.remove(format);
                 });
               },
             ),
@@ -161,11 +142,16 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
               position: PopupMenuPosition.over,
               onSelected: (format) {
                 _pickFor(format).then((picked){
-                  if (picked) setState(() => _selectedFormats.add(format));
+                  if (picked)
+                    setState(() =>
+                      format.isUrl?
+                      pickedUrls[format] = null:
+                      pickedFiles[format] = null
+                    );
                 });
               },
               itemBuilder: (context) => FileFormat.values
-                  .where((f) => !_selectedFormats.contains(f))
+                  .where((f) => !selectedFormats.contains(f))
                   .map((f) => AppDropdownButton<FileFormat>(context, f))
                   .toList(),
               child: SimpleButton.from(
@@ -186,7 +172,7 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
           SizedBox(height: Dimen.sideMarg),
 
           // Printing section (toggleable)
-          if(!_printInfoEnabled)
+          if(!printInfoEnabled)
             SimpleButton.from(
               context: context,
               radius: AppCard.defRadius,
@@ -194,7 +180,7 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
               color: backgroundIcon_(context),
               margin: EdgeInsets.zero,
               text: 'Dodaj informacje o drukowaniu',
-              onTap: () => setState(() => _printInfoEnabled = true),
+              onTap: () => setState(() => printInfoEnabled = true),
               icon: MdiIcons.printer,
               iconColor: iconEnab_(context),
             )
@@ -221,7 +207,7 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
                         ),
                         AppButton(
                           icon: Icon(MdiIcons.close),
-                          onTap: () => setState(() => _printInfoEnabled = false),
+                          onTap: () => setState(() => printInfoEnabled = false),
                         ),
                       ],
                     ),
@@ -234,13 +220,15 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
                         Expanded(
                           child: AppDropdown<KonspektAttachmentPrintSide>(
                             position: PopupMenuPosition.over,
-                            onSelected: (val) => setState(() => _printSide = val),
+                            onSelected: (val){
+                              widget.onChange.call();
+                              setState(() => printSide = val);
+                            },
                             itemBuilder: (context) => KonspektAttachmentPrintSide.values
-                                .map((value) => AppDropdownButton<KonspektAttachmentPrintSide>(
-                              context,
-                              value,
-                            ))
-                                .toList(),
+                              .map((value) => AppDropdownButton<KonspektAttachmentPrintSide>(
+                                context,
+                                value,
+                              )).toList(),
                             borderRadius: BorderRadius.circular(AppCard.defRadius),
                             child: SimpleButton.from(
                               context: context,
@@ -249,10 +237,10 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
                               textColor: iconEnab_(context),
                               color: background_(context),
                               margin: EdgeInsets.zero,
-                              text: _printSide.displayName,
+                              text: printSide.displayName,
                               fontWeight: weightNormal,
                               onTap: null,
-                              icon: _printSide.icon,
+                              icon: printSide.icon,
                               iconColor: iconEnab_(context),
                               iconLeading: true,
                             ),
@@ -264,7 +252,7 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
                         Expanded(
                           child: AppDropdown<KonspektAttachmentPrintColor>(
                             position: PopupMenuPosition.over,
-                            onSelected: (val) => setState(() => _printColor = val),
+                            onSelected: (val) => setState(() => printColor = val),
                             itemBuilder: (context) => KonspektAttachmentPrintColor.values
                                 .map((value) => AppDropdownButton<KonspektAttachmentPrintColor>(
                               context,
@@ -279,10 +267,10 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
                               textColor: iconEnab_(context),
                               color: background_(context),
                               margin: EdgeInsets.zero,
-                              text: _printColor.displayName,
+                              text: printColor.displayName,
                               fontWeight: weightNormal,
                               onTap: null,
-                              icon: _printColor.icon,
+                              icon: printColor.icon,
                               iconColor: iconEnab_(context),
                               iconLeading: true,
                             ),

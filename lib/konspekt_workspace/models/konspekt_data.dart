@@ -1,11 +1,95 @@
+import 'dart:convert';
 import 'dart:typed_data';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:harcapp_core/comm_classes/common.dart';
 import 'package:harcapp_core/comm_classes/meto.dart';
+import 'package:harcapp_core/comm_classes/missing_decode_param_error.dart';
+import 'package:harcapp_core/harcthought/common/file_format.dart';
+import 'package:harcapp_core/harcthought/konspekts/hrcpknspkt_data.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/values/people/person.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_step_data.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_material_data.dart';
+import 'package:harcapp_web/konspekt_workspace/models/platform_file_utils.dart';
+
+class KonspektAttachmentData{
+  final String name;
+  final TextEditingController titleController;
+  final Map<FileFormat, PlatformFile?> pickedFiles;
+  final Map<FileFormat, String?> pickedUrls;
+
+  bool printInfoEnabled;
+  KonspektAttachmentPrintSide printSide;
+  KonspektAttachmentPrintColor printColor;
+
+  KonspektAttachmentData({
+    required this.name,
+    required this.titleController,
+    required this.pickedFiles,
+    required this.pickedUrls,
+    required this.printInfoEnabled,
+    required this.printSide,
+    required this.printColor
+  });
+
+  static KonspektAttachmentData empty() => KonspektAttachmentData(
+    name: DateTime.now().microsecondsSinceEpoch.toString(),
+    titleController: TextEditingController(),
+    pickedFiles: {},
+    pickedUrls: {},
+    printInfoEnabled: false,
+    printSide: KonspektAttachmentPrintSide.single,
+    printColor: KonspektAttachmentPrintColor.monochrome
+  );
+
+  AttachmentData toAttachmentData() {
+
+    Map<FileFormat, String?> _urlData = Map.of(pickedUrls);
+    _urlData.removeWhere((fileFormat, url) => url == null);
+    Map<FileFormat, String> urlData = _urlData.cast<FileFormat, String>();
+
+    Map<FileFormat, Uint8List> fileData = {};
+    for(MapEntry<FileFormat, PlatformFile?> entry in pickedFiles.entries)
+      if(entry.value?.bytes != null)
+        fileData[entry.key] = entry.value!.bytes!;
+
+    return AttachmentData(
+      name: name,
+      title: titleController.text,
+      fileData: fileData,
+      urlData: urlData,
+      printInfoEnabled: printInfoEnabled,
+      printSide: printSide,
+      printColor: printColor,
+    );
+  }
+
+  Map toJsonMap() => {
+    'name': name,
+    'title': titleController.text,
+    'pickedFiles': pickedFiles.map((key, value) => MapEntry(key.apiParam, value==null?null:platformFileToJsonMap(value))),
+    'pickedUrls': pickedUrls.map((key, value) => MapEntry(key.apiParam, value)),
+    'printInfoEnabled': printInfoEnabled,
+    'printSide': printSide.apiParam,
+    'printColor': printColor.apiParam
+
+  };
+
+  static KonspektAttachmentData fromJsonMap(Map<String, dynamic> map) => KonspektAttachmentData(
+      name: map['name'],
+      titleController: TextEditingController(text: map['title']),
+      pickedFiles: map['pickedFiles'].map((key, value) => MapEntry(
+          FileFormat.fromApiParam(key)??(throw InvalidDecodeParamError('FileFormat', key)),
+          value==null?null:platformFileFromJsonMap(value))
+      ),
+      pickedUrls: map['pickedUrls'],
+      printInfoEnabled: map['printInfoEnabled'],
+      printSide: KonspektAttachmentPrintSide.fromApiParam(map['printSide'])??(throw InvalidDecodeParamError('KonspektAttachmentData.printSide', map['printSide'])),
+      printColor: KonspektAttachmentPrintColor.fromApiParam(map['printColor'])??(throw InvalidDecodeParamError('KonspektAttachmentData.printColor', map['printColor']))
+  );
+
+}
 
 class KonspektData extends BaseKonspekt {
   
@@ -20,8 +104,7 @@ class KonspektData extends BaseKonspekt {
   final Person? author;
   Duration? customDuration;
   final List<TextEditingController> aimControllers;
-  final List<KonspektMaterial>? materials;
-  final List<KonspektMaterialData> materialsData;
+  final List<KonspektMaterialData> materials;
   final TextEditingController summaryController;
   final TextEditingController introController;
   final TextEditingController descriptionController;
@@ -29,7 +112,7 @@ class KonspektData extends BaseKonspekt {
 
   final List<KonspektStepData> stepsData;
 
-  final List<KonspektAttachment>? attachments;
+  final List<KonspektAttachmentData> attachments;
 
   //---
 
@@ -46,25 +129,45 @@ class KonspektData extends BaseKonspekt {
 
   List<KonspektStep> get steps => stepsData.map((e) => e.toKonspektStep()).toList();
 
-  KonspektData():
-    titleController = TextEditingController(),
-    additionalSearchPhraseControllers = [],
-    type = KonspektType.zajecia,
-    spheres = {},
-    metos = [],
-    coverAuthorController = TextEditingController(),
-    coverImageBytes = null,
-    author = null,
-    customDuration = null,
-    aimControllers = [],
-    materials = null,
-    materialsData = [],
-    summaryController = TextEditingController(),
-    introController = TextEditingController(),
-    descriptionController = TextEditingController(),
-    howToFailControllers = [],
-    stepsData = [KonspektStepData()],
-    attachments = null;
+  KonspektData({
+    required this.titleController,
+    required this.additionalSearchPhraseControllers,
+    required this.type,
+    required this.spheres,
+    required this.metos,
+    required this.coverAuthorController,
+    required this.coverImageBytes,
+    required this.author,
+    required this.customDuration,
+    required this.aimControllers,
+    required this.materials,
+    required this.summaryController,
+    required this.introController,
+    required this.descriptionController,
+    required this.howToFailControllers,
+    required this.stepsData,
+    required this.attachments
+  });
+
+  static KonspektData empty() => KonspektData(
+    titleController: TextEditingController(),
+    additionalSearchPhraseControllers: [],
+    type: KonspektType.zajecia,
+    spheres: {},
+    metos: [],
+    coverAuthorController: TextEditingController(),
+    coverImageBytes: null,
+    author: null,
+    customDuration: null,
+    aimControllers: [],
+    materials: [],
+    summaryController: TextEditingController(),
+    introController: TextEditingController(),
+    descriptionController: TextEditingController(),
+    howToFailControllers: [],
+    stepsData: [KonspektStepData.empty()],
+    attachments: []
+  );
 
   String get titleAsFileName =>
     remPolChars(titleController.text).trim()
@@ -74,5 +177,41 @@ class KonspektData extends BaseKonspekt {
         .replaceAll(' ', '_')
         .replaceAll(RegExp(r"_+"), "_")
         .replaceAll(RegExp(r"[^\w]"), '');
+
+  HrcpknspktData toHrcpknspktData() => HrcpknspktData(
+      coverImage: coverImageBytes,
+      attachments: attachments.map((attachment) => attachment.toAttachmentData()).toList(),
+      konspektCoreData: jsonEncode(toJsonMap())
+  );
+
+  static KonspektData fromHrcpknspktData(HrcpknspktData data){
+
+    Map coreData = jsonDecode(data.konspektCoreData);
+
+    return KonspektData(
+      titleController: TextEditingController(text: coreData['title']),
+      additionalSearchPhraseControllers: coreData["additionalSearchPhrases"].map((phrase) => TextEditingController(text: phrase)).toList(),
+      type: KonspektType.fromApiParam(coreData['type'])??(throw InvalidDecodeParamError('KonspektData.type', coreData['type'])),
+      spheres: coreData['spheres'].map((key, value) => MapEntry(
+        KonspektSphere.fromApiParam(key)??(throw InvalidDecodeParamError('KonspektSphere', key)),
+        value == null ? null : KonspektSphereDetails.fromJsonMap((value as Map).cast<String, dynamic>())
+      )),
+      metos: coreData['metos'].map((e) => Meto.fromApiParam(e)??(throw InvalidDecodeParamError('Meto', e))).toList(),
+      coverAuthorController: TextEditingController(text: coreData['coverAuthor']),
+      coverImageBytes: data.coverImage,
+      author: coreData['author'] == null ? null : Person.fromApiJsonMap((coreData['author'] as Map).cast<String, dynamic>()),
+      customDuration: coreData['customDuration'] == null ? null : Duration(seconds: coreData['customDuration'] as int),
+      aimControllers: coreData['aims'].map((aim) => TextEditingController(text: aim)).toList(),
+      materials: coreData['materials'].map((material) => KonspektMaterialData.fromJsonMap((material as Map).cast<String, dynamic>())).toList(),
+      summaryController: TextEditingController(text: coreData['summary']),
+      introController: TextEditingController(text: coreData['intro']),
+      descriptionController: TextEditingController(text: coreData['description']),
+      howToFailControllers: coreData['howToFail'].map((howToFail) => TextEditingController(text: howToFail)).toList(),
+      stepsData: coreData['steps'].map((step) => KonspektStepData.fromJsonMap((step as Map).cast<String, dynamic>())).toList(),
+      attachments: coreData['attachments'].map((attachment) => KonspektAttachmentData.fromJsonMap((attachment as Map).cast<String, dynamic>())).toList(),
+    );
+
+
+  }
 
 }

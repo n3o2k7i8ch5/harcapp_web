@@ -76,7 +76,7 @@ class _StepsWidgetState extends State<StepsWidget> {
         icon: MdiIcons.plus,
         margin: EdgeInsets.zero,
         text: 'Dodaj krok',
-        onTap: () => setState(() => steps.add(KonspektStepData())),
+        onTap: () => setState(() => steps.add(KonspektStepData.empty())),
       )
 
     ],

@@ -65,7 +65,7 @@ class _MaterialsWidgetState extends State<MaterialsWidget> {
             icon: MdiIcons.plus,
             margin: EdgeInsets.zero,
             text: 'Dodaj materiał',
-            onTap: () => setState(() => materials.add(KonspektMaterialData())),
+            onTap: () => setState(() => materials.add(KonspektMaterialData.empty())),
           )
         ],
       );
