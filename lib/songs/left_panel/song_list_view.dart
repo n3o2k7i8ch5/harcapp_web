@@ -193,29 +193,56 @@ class SongListViewState extends State<SongListView>{
 
 }
 
-class SearchField extends StatelessWidget{
+class SearchField extends StatefulWidget{
+
+  const SearchField();
+
+  @override
+  State<StatefulWidget> createState() => SearchFieldState();
+
+}
+
+class SearchFieldState extends State<SearchField> {
+
+  late TextEditingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => Material(
-    elevation: AppCard.bigElevation,
-    borderRadius: BorderRadius.circular(AppCard.bigRadius - 4),
-    color: background_(context),
-    child: Consumer<SearchListProvider>(
-      builder: (context, prov, child) => Row(
-        children: [
-          AppButton(
-            icon:
-            prov.searchPhrase.isEmpty?
-            Icon(MdiIcons.magnify, color: hintEnab_(context)):
-            Icon(MdiIcons.close),
+      elevation: AppCard.bigElevation,
+      borderRadius: BorderRadius.circular(AppCard.bigRadius - 4),
+      color: background_(context),
+      child: Consumer<SearchListProvider>(
+        builder: (context, prov, child) => Row(
+          children: [
+            AppButton(
+              icon:
+              prov.searchPhrase.isEmpty?
+              Icon(MdiIcons.magnify, color: hintEnab_(context)):
+              Icon(MdiIcons.close),
 
-            onTap:
-            prov.searchPhrase.isEmpty?
-            null:
-                () => prov.changeSearchPhrase(''),
-          ),
-          Expanded(
-            child: TextField(
+              onTap:
+              prov.searchPhrase.isEmpty?
+              null:
+              (){
+                controller.clear();
+                prov.changeSearchPhrase('');
+              }
+            ),
+            Expanded(
+              child: TextField(
+                controller: controller,
                 style: AppTextStyle(color: AppColors.textDefEnab),
                 decoration: InputDecoration(
                     hintText: 'Szukaj',
@@ -223,11 +250,11 @@ class SearchField extends StatelessWidget{
                     border: InputBorder.none
                 ),
                 onChanged: (text) => prov.changeSearchPhrase(text)
-            ),
-          )
-        ],
-      ),
-    )
+              ),
+            )
+          ],
+        ),
+      )
   );
 
 }
