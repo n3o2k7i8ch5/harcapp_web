@@ -97,12 +97,12 @@ class SongsPageState extends State<SongsPage>{
   Widget build(BuildContext context) => LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints){
 
-        bool workspaceAlwaysVisible = constraints.maxWidth>920;
+        bool drawerAlwaysVisible = constraints.maxWidth>920;
 
         return BaseScaffold(
           scaffoldKey: scaffoldKey,
           backgroundColor: background_(context),
-          drawer: workspaceAlwaysVisible?
+          drawer: drawerAlwaysVisible?
           null:
           Drawer(
             backgroundColor: background_(context),
@@ -116,7 +116,7 @@ class SongsPageState extends State<SongsPage>{
             builder: (context, songPreviewProv, child) => Row(
               children: [
 
-                if(workspaceAlwaysVisible)
+                if(drawerAlwaysVisible)
                   SizedBox(
                       width: drawerWidth,
                       child: Padding(
@@ -127,11 +127,11 @@ class SongsPageState extends State<SongsPage>{
 
                 Expanded(
                     child: Padding(
-                        padding: workspaceAlwaysVisible?
+                        padding: drawerAlwaysVisible?
                         EdgeInsets.only(right: 32, bottom: 32):
                         EdgeInsets.zero,
 
-                        child: SongEditorPanel(workspaceAlwaysVisible: workspaceAlwaysVisible)
+                        child: SongEditorPanel(workspaceAlwaysVisible: drawerAlwaysVisible)
                     )
                 ),
 
