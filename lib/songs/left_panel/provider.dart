@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:harcapp_core/comm_classes/common.dart';
+import 'package:harcapp_core/comm_classes/text_utils.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:provider/provider.dart';
 
@@ -29,8 +29,9 @@ class SearchListProvider extends ChangeNotifier{
     anySearchPhrase = text.length!=0;
     currSongList = [];
 
+    String simplifiedText = searchableString(text);
     for(SongRaw? song in allSongs){
-      if(remPolChars(song!.title).contains(remPolChars(text)))
+      if(searchableString(song!.title).contains(simplifiedText))
         currSongList.add(song);
     }
 

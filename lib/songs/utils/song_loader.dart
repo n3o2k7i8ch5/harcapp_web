@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:harcapp_core/comm_classes/common.dart';
+import 'package:harcapp_core/comm_classes/text_utils.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 
 Map<String, List<SongRaw>> decodeSongs(String allSongsCode) {
@@ -16,11 +16,11 @@ Map<String, List<SongRaw>> decodeSongs(String allSongsCode) {
     try {
       Map songMap = allSongsJSONMap['official'][songId]['song'];
       SongRaw song = SongRaw.fromApiRespMap(songId, songMap);
-      String title = remSpecChars(remPolChars(song.title)).trim();
+      String title = searchableString(song.title);
       if(!songsMap.containsKey(title)) songsMap[title] = [];
       songsMap[title]!.add(song);
       for(String hidTitle in song.hidTitles){
-        hidTitle = remSpecChars(remPolChars(hidTitle)).trim();
+        hidTitle = searchableString(hidTitle);
         if(!songsMap.containsKey(hidTitle))
           songsMap[hidTitle] = [];
         songsMap[hidTitle]!.add(song);

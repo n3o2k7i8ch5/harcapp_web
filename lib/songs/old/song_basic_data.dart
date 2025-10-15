@@ -1,5 +1,4 @@
-
-import 'package:harcapp_core/comm_classes/common.dart';
+import 'package:harcapp_core/comm_classes/text_utils.dart';
 import 'package:path/path.dart';
 
 class SongBasicData1{
@@ -64,7 +63,7 @@ class SongBasicData1{
     List<String> tags = lines[6].split(';');
     tags.removeWhere((tag) => tag.length==0);
 
-    List<String> tagsSimple = remPolCharsList(tags);
+    List<String> tagsSimple = tags.map((tag) => remPolChars(tag.toLowerCase())).toList();
 
     String tagsAsCode = lines[6];
     String tagsAsString = lines[6].replaceAll(';', ' ');

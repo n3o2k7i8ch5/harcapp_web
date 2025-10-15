@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:harcapp_core/comm_classes/common.dart';
 import 'package:harcapp_core/comm_classes/meto.dart';
 import 'package:harcapp_core/comm_classes/missing_decode_param_error.dart';
+import 'package:harcapp_core/comm_classes/text_utils.dart';
 import 'package:harcapp_core/harcthought/common/file_format.dart';
 import 'package:harcapp_core/harcthought/konspekts/hrcpknspkt_data.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
@@ -169,14 +169,7 @@ class KonspektData extends BaseKonspekt {
     attachments: []
   );
 
-  String get titleAsFileName =>
-    remPolChars(titleController.text).trim()
-        .replaceAll(":", "_")
-        .replaceAll('-', '_')
-        .replaceAll('/', '_')
-        .replaceAll(' ', '_')
-        .replaceAll(RegExp(r"_+"), "_")
-        .replaceAll(RegExp(r"[^\w]"), '');
+  String get titleAsFileName => simplifyString(titleController.text);
 
   HrcpknspktData toHrcpknspktData() => HrcpknspktData(
       coverImage: coverImageBytes,

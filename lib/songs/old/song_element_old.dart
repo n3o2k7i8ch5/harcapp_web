@@ -1,6 +1,5 @@
-
-import 'package:harcapp_core/comm_classes/common.dart';
 import 'package:harcapp_core/comm_classes/primitive_wrapper.dart';
+import 'package:harcapp_core/comm_classes/text_utils.dart';
 
 class SongElementOld{
   final PrimitiveWrapper<String> _text;
