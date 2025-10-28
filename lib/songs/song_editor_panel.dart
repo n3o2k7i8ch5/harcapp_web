@@ -343,11 +343,13 @@ class _NoSimilarSongsWidget extends StatelessWidget{
           child: Icon(MdiIcons.check, color: accent_(context))
       ),
 
-      Expanded(child: Text(
-        'Sądząc po tytule, tego jeszcze nie ma w śpiewniku!',
-        style: AppTextStyle(fontSize: Dimen.textSizeBig, fontWeight: weightHalfBold, color: accent_(context)),
-        textAlign: TextAlign.center,
-      )),
+      Expanded(
+        child: Text(
+          'Sądząc po tytule, tego jeszcze nie ma w śpiewniku!',
+          style: AppTextStyle(fontSize: Dimen.textSizeBig, fontWeight: weightHalfBold, color: accent_(context)),
+          textAlign: TextAlign.center,
+        )
+      ),
       SizedBox(width: Dimen.iconFootprint)
     ],
   );

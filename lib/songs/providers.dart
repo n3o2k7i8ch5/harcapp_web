@@ -241,7 +241,7 @@ class SimilarSongProvider extends ChangeNotifier{
 
   List<SongRaw>? getSimilarSongs(String title){
     if(allSongs == null) return null;
-    return allSongs![remSpecChars(remPolChars(title))]??[];
+    return allSongs![searchableString(title)]??[];
   }
 
   bool hasSimilarSong(String title){

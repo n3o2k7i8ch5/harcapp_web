@@ -32,11 +32,11 @@ Map<String, List<SongRaw>> decodeSongs(String allSongsCode) {
     try {
       Map songMap = allSongsJSONMap['conf'][songId]['song'];
       SongRaw song = SongRaw.fromApiRespMap(songId, songMap);
-      String title = remSpecChars(remPolChars(song.title)).trim();
+      String title = searchableString(song.title).trim();
       if(!songsMap.containsKey(title)) songsMap[title] = [];
       songsMap[title]!.add(song);
       for(String hidTitle in song.hidTitles){
-        hidTitle = remSpecChars(remPolChars(hidTitle)).trim();
+        hidTitle = searchableString(hidTitle).trim();
         if(!songsMap.containsKey(hidTitle))
           songsMap[hidTitle] = [];
         songsMap[hidTitle]!.add(song);
