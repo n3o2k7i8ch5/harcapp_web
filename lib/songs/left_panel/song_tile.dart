@@ -220,7 +220,7 @@ class _MoreButton extends StatelessWidget{
           switchConfidential(context);
           break;
         case _MoreButtonItem.confirmContribRules:
-          showContribRulesDialog(context);
+          showContribRulesDialog(context, song);
           break;
         case _MoreButtonItem.delete:
           deleteSong(context);

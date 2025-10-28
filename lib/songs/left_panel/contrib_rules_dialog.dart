@@ -12,13 +12,16 @@ import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/song_book/song_contribution_rules.dart';
 import 'package:harcapp_core/song_book/song_core.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
+import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/consts.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class ContribRulesDialog extends StatefulWidget {
 
-  const ContribRulesDialog({super.key});
+  final SongRaw song;
+
+  const ContribRulesDialog({super.key, required this.song});
 
   @override
   State<StatefulWidget> createState() => ContribRulesDialogState();
@@ -27,15 +30,17 @@ class ContribRulesDialog extends StatefulWidget {
 
 class ContribRulesDialogState extends State<ContribRulesDialog> {
 
+  SongRaw get song => widget.song;
+
   late TextEditingController emailController;
   late DateTime contributionDate;
   late String? acceptedRulesVersion;
 
   @override
   void initState() {
-    emailController = TextEditingController(text: CurrentItemProvider.of(context).song.contributorData?.email);
-    contributionDate = CurrentItemProvider.of(context).song.contributorData?.contributionDate ?? DateTime.now();
-    acceptedRulesVersion = CurrentItemProvider.of(context).song.contributorData?.acceptedContributionRulesVersion;
+    emailController = TextEditingController(text: song.contributorData?.email);
+    contributionDate = song.contributorData?.contributionDate ?? DateTime.now();
+    acceptedRulesVersion = song.contributorData?.acceptedContributionRulesVersion;
     super.initState();
   }
 
@@ -69,13 +74,12 @@ class ContribRulesDialogState extends State<ContribRulesDialog> {
                       color: acceptedRulesVersion==null || !regExpEmail.hasMatch(emailController.text)?iconDisab_(context):iconEnab_(context),
                     ),
                     onTap: acceptedRulesVersion==null || !regExpEmail.hasMatch(emailController.text)?null:(){
-                      CurrentItemProvider prov = CurrentItemProvider.of(context);
-                      prov.song.contributorData = ContributorData(
+                      song.contributorData = ContributorData(
                         email: emailController.text.trim(),
                         contributionDate: contributionDate,
                         acceptedContributionRulesVersion: acceptedRulesVersion!,
                       );
-                      prov.notify();
+                      CurrentItemProvider.notify_(context);
                       popPage(context);
                     },
                   )
@@ -212,7 +216,7 @@ class ContribRulesDialogState extends State<ContribRulesDialog> {
 }
 
 
-void showContribRulesDialog(BuildContext context) => showDialog(
+void showContribRulesDialog(BuildContext context, SongRaw song) => showDialog(
     context: context,
-    builder: (context) => const ContribRulesDialog()
+    builder: (context) => ContribRulesDialog(song: song)
 );
