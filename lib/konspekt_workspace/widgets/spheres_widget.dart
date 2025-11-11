@@ -107,10 +107,7 @@ class SphereNonDuchWidgetState extends State<SphereNonDuchWidget>{
 
           KonspektSphereTitleWidget(sphere),
 
-          AnimatedSize(
-            duration: Duration(milliseconds: 300),
-            child: SizedBox(height: controller.length==0?Dimen.iconMarg:0),
-          ),
+          SizedBox(height: controller.length==0?Dimen.iconMarg:0),
 
           AppTextFieldHint(
             multiController: controller,
@@ -242,10 +239,7 @@ class SphereDuchWidgetState extends State<SphereDuchWidget>{
 
           SizedBox(height: Dimen.sideMarg),
           KonspektSphereLevel.duchPostawy.textWidget,
-          AnimatedSize(
-            duration: Duration(milliseconds: 300),
-            child: SizedBox(height: postawyController.$1.length==0?Dimen.iconMarg:0),
-          ),
+          SizedBox(height: postawyController.$1.length==0?Dimen.iconMarg:0),
 
           AppTextFieldHint(
             multiController: postawyController.$1,
@@ -281,10 +275,7 @@ class SphereDuchWidgetState extends State<SphereDuchWidget>{
 
           SizedBox(height: Dimen.sideMarg),
           KonspektSphereLevel.duchWartosci.textWidget,
-          AnimatedSize(
-            duration: Duration(milliseconds: 300),
-            child: SizedBox(height: wartosciController.$1.length==0?Dimen.iconMarg:0),
-          ),
+          SizedBox(height: wartosciController.$1.length==0?Dimen.iconMarg:0),
 
           AppTextFieldHint(
             multiController: wartosciController.$1,
@@ -320,10 +311,7 @@ class SphereDuchWidgetState extends State<SphereDuchWidget>{
 
           SizedBox(height: Dimen.sideMarg),
           KonspektSphereLevel.duchAksjomaty.textWidget,
-          AnimatedSize(
-            duration: Duration(milliseconds: 300),
-            child: SizedBox(height: aksjomatyController.$1.length==0?Dimen.iconMarg:0),
-          ),
+          SizedBox(height: aksjomatyController.$1.length==0?Dimen.iconMarg:0),
 
           AppTextFieldHint(
             multiController: aksjomatyController.$1,
@@ -359,10 +347,7 @@ class SphereDuchWidgetState extends State<SphereDuchWidget>{
 
           SizedBox(height: Dimen.sideMarg),
           KonspektSphereLevel.duchSilaCharakteru.textWidget,
-          AnimatedSize(
-            duration: Duration(milliseconds: 300),
-            child: SizedBox(height: silaCharakteruController.$1.length==0?Dimen.iconMarg:0),
-          ),
+          SizedBox(height: silaCharakteruController.$1.length==0?Dimen.iconMarg:0),
 
           AppTextFieldHint(
             multiController: silaCharakteruController.$1,
@@ -398,10 +383,7 @@ class SphereDuchWidgetState extends State<SphereDuchWidget>{
 
           SizedBox(height: Dimen.sideMarg),
           KonspektSphereLevel.duchZdolnoscRefleksyjna.textWidget,
-          AnimatedSize(
-            duration: Duration(milliseconds: 300),
-            child: SizedBox(height: zdolnoscRefleksyjnaController.$1.length==0?Dimen.iconMarg:0),
-          ),
+          SizedBox(height: zdolnoscRefleksyjnaController.$1.length==0?Dimen.iconMarg:0),
 
           AppTextFieldHint(
             multiController: zdolnoscRefleksyjnaController.$1,
