@@ -132,7 +132,7 @@ class TopNavigationBarState extends State<TopNavigationBar>{
 
             PageNavItem(
               icon: MdiIcons.trophy,
-              title: 'Sprawności\n',
+              title: 'Sprawności',
               contextInfo: 'Zdobądź sprawności!',
               path: pathSprawnosci,
               dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
