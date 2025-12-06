@@ -281,6 +281,14 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                       const SizedBox(height: Dimen.sideMarg),
 
                       TitleShortcutRowWidget(
+                        title: 'Załączniki',
+                        textAlign: TextAlign.left,
+                      ),
+                      AttachmentsWidget(konspektData.attachments),
+
+                      const SizedBox(height: Dimen.sideMarg),
+
+                      TitleShortcutRowWidget(
                         title: 'Materiały',
                         textAlign: TextAlign.left,
                       ),
@@ -308,15 +316,6 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                       StepsWidget(
                         steps: konspektData.stepsData,
                       ),
-
-                      const SizedBox(height: Dimen.sideMarg),
-
-                      TitleShortcutRowWidget(
-                        title: 'Załączniki',
-                        textAlign: TextAlign.left,
-                      ),
-
-                        AttachmentsWidget(konspektData.attachments),
 
                       ]),
                     ),
