@@ -114,27 +114,12 @@ class TopNavigationBarState extends State<TopNavigationBar>{
             ),
 
             PageNavItem(
-              icon: MdiIcons.notebookEditOutline,
-              title: 'Warsztat\nkonspektów',
-              contextInfo: 'Twórz i dodawaj konspekty do HarcAppki!',
-              path: pathWarsztatKonspektow,
-              dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
-            ),
-
-            PageNavItem(
               icon: MdiIcons.notebookOutline,
-              title: 'Konspekty\ndla harcerzy',
-              contextInfo: 'Inspiracje na pracę harcerską',
+              title: 'Konspekty',
+              contextInfo: 'Konspekty dla harcerzy, kształceniowe i edytor',
               path: pathKonspektyHarcerskie,
               dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
-            ),
-
-            PageNavItem(
-              icon: MdiIcons.notebook,
-              title: 'Konspekty\nkształceniowe',
-              contextInfo: 'Inspiracje na kształcenie kadry',
-              path: pathKonspektyKsztalcenie,
-              dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
+              isSelected: (uri) => uri.startsWith('/konspekty'),
             ),
 
             PageNavItem(
@@ -170,6 +155,7 @@ class PageNavItem extends StatelessWidget{
   final String? contextInfo;
   final String path;
   final bool dense;
+  final bool Function(String uri)? isSelected;
 
   const PageNavItem({
     required this.icon,
@@ -178,43 +164,52 @@ class PageNavItem extends StatelessWidget{
     this.contextInfo,
     required this.path,
     required this.dense,
+    this.isSelected,
   });
 
   @override
-  Widget build(BuildContext context) =>
-  dense?
-  SimpleButton.from(
-    padding: EdgeInsets.all((height - Dimen.iconSize)/2),
-    margin: EdgeInsets.zero,
-    textColor: textEnab_(context),
-    radius: 0,
-    icon: icon,
-    color: GoRouterState.of(context).uri.toString() == path?backgroundIcon_(context):null,
-    onTap: () => context.go(path),
-  ):
-  Padding(
-    padding: EdgeInsets.symmetric(horizontal: 1),
-    child: IntrinsicWidth(
-      child: Tooltip(
-        message: contextInfo,
-        child: ListTile(
-          dense: true,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppCard.defRadius)),
-          tileColor: GoRouterState.of(context).uri.toString() == path?backgroundIcon_(context):null,
-          selectedColor: backgroundIcon_(context),
-          onTap: () => context.go(path),
-          leading: Icon(icon, color: iconEnab_(context)),
-          title: Text(
-            title,
-            style: AppTextStyle(
-              fontSize: Dimen.textSizeNormal,
-              color: iconEnab_(context),
-              height: 1.2
+  Widget build(BuildContext context) {
+    final String uri = GoRouterState
+        .of(context)
+        .uri
+        .toString();
+    final bool selected = isSelected != null ? isSelected!(uri) : uri == path;
+
+    return dense
+        ? SimpleButton.from(
+      padding: EdgeInsets.all((height - Dimen.iconSize) / 2),
+      margin: EdgeInsets.zero,
+      textColor: textEnab_(context),
+      radius: 0,
+      icon: icon,
+      color: selected ? backgroundIcon_(context) : null,
+      onTap: () => context.go(path),
+    )
+        : Padding(
+      padding: EdgeInsets.symmetric(horizontal: 1),
+      child: IntrinsicWidth(
+        child: Tooltip(
+          message: contextInfo,
+          child: ListTile(
+            dense: true,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppCard.defRadius)),
+            tileColor:
+            selected ? backgroundIcon_(context) : null,
+            selectedColor: backgroundIcon_(context),
+            onTap: () => context.go(path),
+            leading: Icon(icon, color: iconEnab_(context)),
+            title: Text(
+              title,
+              style: AppTextStyle(
+                  fontSize: Dimen.textSizeNormal,
+                  color: iconEnab_(context),
+                  height: 1.2
+              ),
             ),
           ),
         ),
       ),
-    ),
-  );
-
+    );
+  }
 }

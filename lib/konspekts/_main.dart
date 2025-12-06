@@ -21,6 +21,7 @@ import 'package:harcapp_core/harcthought/konspekts/widgets/base_konspekt_widget.
 import 'package:harcapp_core/harcthought/konspekts/widgets/cover_widget.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/consts.dart';
+import 'package:harcapp_web/konspekts/konspekty_tabs_row.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../common/download_file.dart';
@@ -128,7 +129,7 @@ class KonspektsPageState extends State<KonspektsPage>{
 
         return BaseScaffold(
           scaffoldKey: scaffoldKey,
-          backgroundColor: background_(context),
+          backgroundColor: backgroundIcon_(context),
           drawer: workspaceAlwaysVisible?
           null:
           Drawer(
@@ -136,29 +137,47 @@ class KonspektsPageState extends State<KonspektsPage>{
             child: tableOfContentBuilder(true, selectedKonspekt),
             width: drawerWidth,
           ),
-          body: Row(
+          body: Column(
             children: [
-
-              if(workspaceAlwaysVisible)
-                Padding(
-                  padding: EdgeInsets.only(
-                    top: KonspektsPage.defPaddingVal,
-                    left: KonspektsPage.defPaddingVal
-                  ),
-                  child: SizedBox(
-                    width: drawerWidth,
-                    child: tableOfContentBuilder(false, selectedKonspekt),
-                  ),
+              Padding(
+                padding: EdgeInsets.only(
+                  top: Dimen.defMarg,
+                  left: KonspektsPage.defPaddingVal,
+                  right: KonspektsPage.defPaddingVal,
                 ),
-
+                child: const KonspektyTabsRow(),
+              ),
               Expanded(
-                  child: Center(
-                    child: Container(
-                      constraints: BoxConstraints(maxWidth: defPageWidth),
-                      child:
-                      selectedKonspekt == null?
-                      ClickHereWidget(workspaceAlwaysVisible):
-                      BaseKonspektWidget(
+                child: Material(
+                  color: background_(context),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(AppCard.defRadius),
+                    topRight: Radius.circular(AppCard.defRadius),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Row(
+                    children: [
+
+                      if(workspaceAlwaysVisible)
+                        Padding(
+                          padding: EdgeInsets.only(
+                            top: KonspektsPage.defPaddingVal,
+                            left: KonspektsPage.defPaddingVal,
+                          ),
+                          child: SizedBox(
+                            width: drawerWidth,
+                            child: tableOfContentBuilder(false, selectedKonspekt),
+                          ),
+                        ),
+
+                      Expanded(
+                        child: Center(
+                          child: Container(
+                            constraints: BoxConstraints(maxWidth: defPageWidth),
+                            child:
+                          selectedKonspekt == null?
+                          ClickHereWidget(workspaceAlwaysVisible):
+                          BaseKonspektWidget(
                         selectedKonspekt!,
                         withAppBar: false,
                         onDuchLevelInfoTap: () => openKonspektSphereDuchLevelsInfoDialog(context, maxWidth: defPageWidth),
@@ -234,13 +253,17 @@ class KonspektsPageState extends State<KonspektsPage>{
                         onStartTimeChanged: (startTime, stepsTimeTable) => setState((){
                           this.startTime = startTime;
                         }),
-                      )
+                      ),
                     ),
                   ),
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
-        );
+        ),
+      ],
+    ),
+  );
       }
   );
 

@@ -8,7 +8,6 @@ import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/app_text_field_hint.dart';
-import 'package:harcapp_core/comm_widgets/floating_container.dart';
 import 'package:harcapp_core/comm_widgets/multi_text_field.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
@@ -19,6 +18,8 @@ import 'package:harcapp_core/harcthought/konspekts/widgets/level_selectable_grid
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/common/download_file.dart';
+import 'package:harcapp_web/konspekts/konspekty_tabs_row.dart';
+import 'package:harcapp_web/konspekts/_main.dart' show KonspektsPage;
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/materials_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/select_time_button.dart';
@@ -57,29 +58,54 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
   @override
   Widget build(BuildContext context) => BaseScaffold(
-      backgroundColor: background_(context),
-      body: Center(
-          child: Container(
-              constraints: BoxConstraints(maxWidth: defPageWidth),
-              child: CustomScrollView(
-                clipBehavior: Clip.none,
-                physics: BouncingScrollPhysics(),
-                slivers: [
+      backgroundColor: backgroundIcon_(context),
+      body: Column(
+        children: [
 
-                  FloatingContainer.child(
-                    child: Padding(
-                      padding: EdgeInsets.only(top: Dimen.defMarg),
-                      child: _TopActions(
-                        konspektData: konspektData,
-                        onLoaded: (data) => setState(() => _konspektData = KonspektData.fromHrcpknspktData(data)),
+          // Trzy główne przyciski konspektów – tak samo jak na stronach listy konspektów
+          Padding(
+            padding: EdgeInsets.only(
+              top: Dimen.defMarg,
+              left: KonspektsPage.defPaddingVal,
+              right: KonspektsPage.defPaddingVal,
+            ),
+            child: const KonspektyTabsRow(),
+          ),
+
+          // Reszta treści przewijana poniżej, z treścią edytora
+          Expanded(
+            child: Material(
+              color: background_(context),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(AppCard.defRadius),
+                topRight: Radius.circular(AppCard.defRadius),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Center(
+                child: Container(
+                  constraints: BoxConstraints(maxWidth: defPageWidth),
+                  child: CustomScrollView(
+                    clipBehavior: Clip.none,
+                    physics: BouncingScrollPhysics(),
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: KonspektsPage.defPaddingVal,
+                            vertical: Dimen.defMarg / 2,
+                          ),
+                          child: _TopActions(
+                            konspektData: konspektData,
+                            onLoaded: (data) => setState(
+                                () => _konspektData =
+                                    KonspektData.fromHrcpknspktData(data)),
+                          ),
+                        ),
                       ),
-                    ),
-                    height: Dimen.iconFootprint + Dimen.defMarg, // kToolbarHeight
-                  ),
-
-                  SliverPadding(
-                    padding: EdgeInsets.all(Dimen.sideMarg),
-                    sliver: SliverList(delegate: SliverChildListDelegate([
+                      SliverPadding(
+                        padding: EdgeInsets.all(Dimen.sideMarg),
+                        sliver: SliverList(
+                          delegate: SliverChildListDelegate([
 
                       Container(
                         height: 50,
@@ -290,16 +316,19 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                         textAlign: TextAlign.left,
                       ),
 
-                      AttachmentsWidget(konspektData.attachments),
+                        AttachmentsWidget(konspektData.attachments),
 
-                    ])),
-                  )
-
-                ],
-              )
-          )
-      )
-  );
+                      ]),
+                    ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ));
 
 }
 
