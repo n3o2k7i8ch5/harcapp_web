@@ -498,7 +498,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "6938536d68ba6bdb4bac59b5102fe5456d8501d9"
+      resolved-ref: "385e4b530fe09ed0f8f4e060987d05d64c80d4fe"
       url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"
@@ -586,18 +586,18 @@ packages:
     dependency: transitive
     description:
       name: isar_community
-      sha256: d92315e1862448f236489c2b2b1f9a7ad5ba2405f42d87216234be4fb2e1dd2d
+      sha256: "28f59e54636c45ba0bb1b3b7f2656f1c50325f740cea6efcd101900be3fba546"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.0"
+    version: "3.3.0-dev.3"
   isar_community_flutter_libs:
     dependency: transitive
     description:
       name: isar_community_flutter_libs
-      sha256: "3c072d8d77e820196fa23839b88481c50d903c73b3c0db6e647b29509d04fe3b"
+      sha256: c2934fe755bb3181cb67602fd5df0d080b3d3eb52799f98623aa4fc5acbea010
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.0"
+    version: "3.3.0-dev.3"
   js:
     dependency: transitive
     description:
