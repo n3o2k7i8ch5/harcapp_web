@@ -8,13 +8,15 @@ import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_material_data.dart';
+import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/material_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class MaterialsWidget extends StatefulWidget {
   final List<KonspektMaterialData> materials;
+  final List<KonspektAttachmentData> attachments;
 
-  const MaterialsWidget({super.key, required this.materials});
+  const MaterialsWidget({super.key, required this.materials, required this.attachments});
 
   @override
   State<MaterialsWidget> createState() => _MaterialsWidgetState();
@@ -22,6 +24,7 @@ class MaterialsWidget extends StatefulWidget {
 
 class _MaterialsWidgetState extends State<MaterialsWidget> {
   List<KonspektMaterialData> get materials => widget.materials;
+  List<KonspektAttachmentData> get attachments => widget.attachments;
 
   @override
   Widget build(BuildContext context) => Column(
@@ -45,6 +48,7 @@ class _MaterialsWidgetState extends State<MaterialsWidget> {
               child: MaterialWidget(
                 index: index,
                 materialData: materials[index],
+                attachments: attachments,
                 nameTrailing: AppButton(
                   icon: Icon(MdiIcons.close),
                   onTap: () => setState(() => materials.removeAt(index)),

@@ -57,9 +57,23 @@ class KonspektsPageState extends State<KonspektsPage>{
   late ScrollController scrollController;
   late ValueNotifier<double> notifier;
 
+  bool _hasScrolled = false;
+
   TimeOfDay? startTime;
 
   void selectKonspekt(Konspekt konspekt) => context.go(itemPathTemplate.replaceAll(":name", konspekt.name));
+
+  void _handleScrollChanged() {
+    final offset = scrollController.offset;
+    notifier.value = offset;
+
+    final hasScrolled = offset > 0;
+    if (hasScrolled != _hasScrolled) {
+      setState(() {
+        _hasScrolled = hasScrolled;
+      });
+    }
+  }
 
   Future<void> tryOpenDrawerIfCollapsed() async {
     if(!openDrawerIfCollapsed || MediaQuery.of(context).size.width>collapseWidth)
@@ -76,7 +90,7 @@ class KonspektsPageState extends State<KonspektsPage>{
     scrollController = ScrollController();
     notifier = ValueNotifier(0);
 
-    scrollController.addListener(() => notifier.value = scrollController.offset);
+    scrollController.addListener(_handleScrollChanged);
 
     post(tryOpenDrawerIfCollapsed);
 
@@ -148,122 +162,146 @@ class KonspektsPageState extends State<KonspektsPage>{
                 child: const KonspektyTabsRow(),
               ),
               Expanded(
-                child: Material(
-                  color: background_(context),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(AppCard.defRadius),
-                    topRight: Radius.circular(AppCard.defRadius),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: Row(
-                    children: [
+                child: Stack(
+                  children: [
+                    Material(
+                      color: background_(context),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(AppCard.defRadius),
+                        topRight: Radius.circular(AppCard.defRadius),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: Row(
+                        children: [
 
-                      if(workspaceAlwaysVisible)
-                        Padding(
-                          padding: EdgeInsets.only(
-                            top: KonspektsPage.defPaddingVal,
-                            left: KonspektsPage.defPaddingVal,
-                          ),
-                          child: SizedBox(
-                            width: drawerWidth,
-                            child: tableOfContentBuilder(false, selectedKonspekt),
-                          ),
-                        ),
-
-                      Expanded(
-                        child: Center(
-                          child: Container(
-                            constraints: BoxConstraints(maxWidth: defPageWidth),
-                            child:
-                          selectedKonspekt == null?
-                          ClickHereWidget(workspaceAlwaysVisible):
-                          BaseKonspektWidget(
-                        selectedKonspekt!,
-                        withAppBar: false,
-                        onDuchLevelInfoTap: () => openKonspektSphereDuchLevelsInfoDialog(context, maxWidth: defPageWidth),
-                        maxDialogWidth: defPageWidth,
-                        oneLineMultiDuration: true,
-                        controller: scrollController,
-                        leading: Padding(
-                            padding: EdgeInsets.only(
-                              top: KonspektsPage.defPaddingVal,
-                              left: BaseKonspektWidget.horizontalPadding,
-                              right: BaseKonspektWidget.horizontalPadding,
+                          if(workspaceAlwaysVisible)
+                            Padding(
+                              padding: EdgeInsets.only(
+                                top: KonspektsPage.defPaddingVal,
+                                left: KonspektsPage.defPaddingVal,
+                              ),
+                              child: SizedBox(
+                                width: drawerWidth,
+                                child: tableOfContentBuilder(false, selectedKonspekt),
+                              ),
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
 
-                                LayoutBuilder(
-                                  builder: (BuildContext context, BoxConstraints constraints) => AspectRatio(
-                                      aspectRatio: 1000/450,
-                                      child: Material(
-                                          elevation: AppCard.defElevation,
-                                          borderRadius: BorderRadius.circular(AppCard.defRadius),
-                                          clipBehavior: Clip.hardEdge,
-                                          child: AnimatedBuilder(
-                                              animation: notifier,
-                                              child: Stack(
-                                                fit: StackFit.expand,
-                                                clipBehavior: Clip.none,
-                                                children: [
+                          Expanded(
+                            child: Center(
+                              child: Container(
+                                constraints: BoxConstraints(maxWidth: defPageWidth),
+                                child:
+                                selectedKonspekt == null?
+                                ClickHereWidget(workspaceAlwaysVisible):
+                                BaseKonspektWidget(
+                                  selectedKonspekt!,
+                                  withAppBar: false,
+                                  onDuchLevelInfoTap: () => openKonspektSphereDuchLevelsInfoDialog(context, maxWidth: defPageWidth),
+                                  maxDialogWidth: defPageWidth,
+                                  oneLineMultiDuration: true,
+                                  controller: scrollController,
+                                  leading: Padding(
+                                      padding: EdgeInsets.only(
+                                        top: KonspektsPage.defPaddingVal,
+                                        left: BaseKonspektWidget.horizontalPadding,
+                                        right: BaseKonspektWidget.horizontalPadding,
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                                        children: [
 
-                                                  Positioned(
-                                                      top: 0,
-                                                      left: 0,
-                                                      right: 0,
-                                                      child: AspectRatio(
-                                                          aspectRatio: 1000/667,
-                                                          child: KonspektCoverWidget(selectedKonspekt!)
-                                                      )
-                                                  )
+                                          LayoutBuilder(
+                                            builder: (BuildContext context, BoxConstraints constraints) => AspectRatio(
+                                                aspectRatio: 1000/450,
+                                                child: Material(
+                                                    elevation: AppCard.defElevation,
+                                                    borderRadius: BorderRadius.circular(AppCard.defRadius),
+                                                    clipBehavior: Clip.hardEdge,
+                                                    child: AnimatedBuilder(
+                                                        animation: notifier,
+                                                        child: Stack(
+                                                          fit: StackFit.expand,
+                                                          clipBehavior: Clip.none,
+                                                          children: [
 
-                                                ],
-                                              ),
-                                              builder: (BuildContext context, Widget? child) => Transform.translate(
-                                                offset: Offset(0, -max(0.0, min(notifier.value/1.3, constraints.maxWidth/1000*(667-450)))),
-                                                child: child,
-                                              )
-                                          )
+                                                            Positioned(
+                                                                top: 0,
+                                                                left: 0,
+                                                                right: 0,
+                                                                child: AspectRatio(
+                                                                    aspectRatio: 1000/667,
+                                                                    child: KonspektCoverWidget(selectedKonspekt!)
+                                                                )
+                                                            )
+
+                                                          ],
+                                                        ),
+                                                        builder: (BuildContext context, Widget? child) => Transform.translate(
+                                                          offset: Offset(0, -max(0.0, min(notifier.value/1.3, constraints.maxWidth/1000*(667-450)))),
+                                                          child: child,
+                                                        )
+                                                    )
+                                                )
+                                            ),
+                                          ),
+
+                                          SizedBox(height: KonspektsPage.defPaddingVal),
+
+                                          Row(
+                                            children: [
+                                              Expanded(child: Container()),
+                                              downloadHrcpknspktButton,
+                                              SizedBox(width: Dimen.defMarg),
+                                              downloadPdfButton,
+                                            ],
+                                          ),
+
+                                        ],
                                       )
                                   ),
+                                  oneLineSummary: false,
+                                  thumbnailWidth: drawerWidth,
+                                  thumbnailBackground: cardEnab_(context),
+                                  thumbnailRadius: AppCard.defRadius,
+                                  onThumbnailTap: (konspekt) => selectKonspekt(konspekt),
+                                  showStepGroupBorder: true,
+                                  showStepGroupBackground: true,
+                                  onStartTimeChanged: (startTime, stepsTimeTable) => setState((){
+                                    this.startTime = startTime;
+                                  }),
                                 ),
-
-                                SizedBox(height: KonspektsPage.defPaddingVal),
-
-                                Row(
-                                  children: [
-                                    Expanded(child: Container()),
-                                    downloadHrcpknspktButton,
-                                    SizedBox(width: Dimen.defMarg),
-                                    downloadPdfButton,
-                                  ],
-                                ),
-
-                              ],
-                            )
-                        ),
-                        oneLineSummary: false,
-                        thumbnailWidth: drawerWidth,
-                        thumbnailBackground: cardEnab_(context),
-                        thumbnailRadius: AppCard.defRadius,
-                        onThumbnailTap: (konspekt) => selectKonspekt(konspekt),
-                        showStepGroupBorder: true,
-                        showStepGroupBackground: true,
-                        onStartTimeChanged: (startTime, stepsTimeTable) => setState((){
-                          this.startTime = startTime;
-                        }),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
+
+                    if (_hasScrolled)
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          height: 8,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.black.withValues(alpha: 0.15),
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ),
-      ],
-    ),
-  );
+        );
       }
   );
 

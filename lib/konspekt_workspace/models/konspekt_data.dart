@@ -16,6 +16,7 @@ import 'package:harcapp_web/konspekt_workspace/models/platform_file_utils.dart';
 class KonspektAttachmentData{
   final String name;
   final TextEditingController titleController;
+  TextEditingController? idController;
   final Map<FileFormat, PlatformFile?> pickedFiles;
   final Map<FileFormat, String?> pickedUrls;
 
@@ -23,24 +24,30 @@ class KonspektAttachmentData{
   KonspektAttachmentPrintSide printSide;
   KonspektAttachmentPrintColor printColor;
 
+  bool autoIdFromTitle;
+
   KonspektAttachmentData({
     required this.name,
     required this.titleController,
+    required this.idController,
     required this.pickedFiles,
     required this.pickedUrls,
     required this.printInfoEnabled,
     required this.printSide,
-    required this.printColor
+    required this.printColor,
+    required this.autoIdFromTitle,
   });
 
   static KonspektAttachmentData empty() => KonspektAttachmentData(
     name: DateTime.now().microsecondsSinceEpoch.toString(),
     titleController: TextEditingController(),
+    idController: TextEditingController(),
     pickedFiles: {},
     pickedUrls: {},
     printInfoEnabled: false,
     printSide: KonspektAttachmentPrintSide.single,
-    printColor: KonspektAttachmentPrintColor.monochrome
+    printColor: KonspektAttachmentPrintColor.monochrome,
+    autoIdFromTitle: true,
   );
 
   AttachmentData toAttachmentData() {
@@ -54,8 +61,18 @@ class KonspektAttachmentData{
       if(entry.value?.bytes != null)
         fileData[entry.key] = entry.value!.bytes!;
 
+    // Id załącznika – jeśli wpisane, używamy go, w przeciwnym razie generujemy ze slugowanej nazwy
+    final TextEditingController effectiveIdController =
+        idController ??= TextEditingController();
+
+    final String effectiveId = effectiveIdController.text.trim().isNotEmpty
+        ? effectiveIdController.text.trim()
+        : simplifyString(titleController.text).isNotEmpty
+            ? simplifyString(titleController.text)
+            : name;
+
     return AttachmentData(
-      name: name,
+      name: effectiveId,
       title: titleController.text,
       fileData: fileData,
       urlData: urlData,
@@ -67,18 +84,21 @@ class KonspektAttachmentData{
 
   Map toJsonMap() => {
     'name': name,
+    'id': idController?.text ?? '',
     'title': titleController.text,
     'pickedFiles': pickedFiles.map((key, value) => MapEntry(key.apiParam, value==null?null:platformFileToJsonMap(value))),
     'pickedUrls': pickedUrls.map((key, value) => MapEntry(key.apiParam, value)),
     'printInfoEnabled': printInfoEnabled,
     'printSide': printSide.apiParam,
-    'printColor': printColor.apiParam
+    'printColor': printColor.apiParam,
+    'autoIdFromTitle': autoIdFromTitle,
 
   };
 
   static KonspektAttachmentData fromJsonMap(Map<String, dynamic> map) => KonspektAttachmentData(
       name: map['name'],
       titleController: TextEditingController(text: map['title']),
+      idController: TextEditingController(text: (map['id'] ?? map['name']) as String),
       pickedFiles: map['pickedFiles'].map((key, value) => MapEntry(
           FileFormat.fromApiParam(key)??(throw InvalidDecodeParamError('FileFormat', key)),
           value==null?null:platformFileFromJsonMap(value))
@@ -86,7 +106,8 @@ class KonspektAttachmentData{
       pickedUrls: map['pickedUrls'],
       printInfoEnabled: map['printInfoEnabled'],
       printSide: KonspektAttachmentPrintSide.fromApiParam(map['printSide'])??(throw InvalidDecodeParamError('KonspektAttachmentData.printSide', map['printSide'])),
-      printColor: KonspektAttachmentPrintColor.fromApiParam(map['printColor'])??(throw InvalidDecodeParamError('KonspektAttachmentData.printColor', map['printColor']))
+      printColor: KonspektAttachmentPrintColor.fromApiParam(map['printColor'])??(throw InvalidDecodeParamError('KonspektAttachmentData.printColor', map['printColor'])),
+      autoIdFromTitle: (map['autoIdFromTitle'] as bool?) ?? true,
   );
 
 }

@@ -13,6 +13,7 @@ import 'package:harcapp_core/harcthought/common/file_format_selector_row_widget.
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
+import 'package:harcapp_core/comm_classes/text_utils.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class AttachmentWidget extends StatefulWidget{
@@ -31,6 +32,12 @@ class AttachmentWidget extends StatefulWidget{
 class _AttachmentWidgetState extends State<AttachmentWidget>{
 
   TextEditingController get titleController => widget.data.titleController;
+  TextEditingController get idController {
+    if (widget.data.idController == null) {
+      widget.data.idController = TextEditingController();
+    }
+    return widget.data.idController!;
+  }
   Map<FileFormat, PlatformFile?> get pickedFiles => widget.data.pickedFiles;
   Map<FileFormat, String?> get pickedUrls => widget.data.pickedUrls;
 
@@ -49,6 +56,30 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
 
   KonspektAttachmentPrintColor get printColor => widget.data.printColor;
   set printColor(KonspektAttachmentPrintColor value) => widget.data.printColor = value;
+
+  bool get autoIdFromTitle => widget.data.autoIdFromTitle;
+  set autoIdFromTitle(bool value) => widget.data.autoIdFromTitle = value;
+
+  void _syncIdFromTitle() {
+    if (!autoIdFromTitle) return;
+    final slug = simplifyString(titleController.text);
+    if (idController.text != slug) {
+      idController.text = slug;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    titleController.addListener(_syncIdFromTitle);
+    _syncIdFromTitle();
+  }
+
+  @override
+  void dispose() {
+    titleController.removeListener(_syncIdFromTitle);
+    super.dispose();
+  }
 
   Future<bool> _pickFor(FileFormat format) async {
     if (format.isUrl) {
@@ -116,6 +147,49 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
             ],
           ),
 
+          SizedBox(height: Dimen.defMarg),
+
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: AppTextFieldHint(
+                  hint: 'Id załącznika:',
+                  controller: idController,
+                  enabled: !autoIdFromTitle,
+                  textCapitalization: TextCapitalization.none,
+                ),
+              ),
+              const SizedBox(width: Dimen.defMarg),
+              Tooltip(
+                message: 'Automatyczne generuj id na podstawie tytułu',
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Switch(
+                      value: autoIdFromTitle,
+                      onChanged: (val) {
+                        setState(() {
+                          autoIdFromTitle = val;
+                          if (autoIdFromTitle) {
+                            _syncIdFromTitle();
+                          }
+                        });
+                        widget.onChange.call();
+                      },
+                    ),
+                    SizedBox(width: Dimen.iconMarg),
+                    Icon(
+                      MdiIcons.autoFix,
+                      color: autoIdFromTitle ? iconEnab_(context) : hintEnab_(context),
+                    ),
+                    SizedBox(width: Dimen.iconMarg),
+                  ],
+                ),
+              )
+            ],
+          ),
+
           SizedBox(height: Dimen.sideMarg),
 
           // Selected formats rows
@@ -126,6 +200,11 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
               pickedName: format.isUrl
                   ? pickedUrls[format]
                   : pickedFiles[format]?.name,
+              onTap: () {
+                _pickFor(format).then((picked) {
+                  if (picked) setState(() {});
+                });
+              },
               onRemove: (){
                 setState((){
                   pickedFiles.remove(format);
@@ -142,12 +221,12 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
               position: PopupMenuPosition.over,
               onSelected: (format) {
                 _pickFor(format).then((picked){
-                  if (picked)
-                    setState(() =>
-                      format.isUrl?
-                      pickedUrls[format] = null:
-                      pickedFiles[format] = null
-                    );
+                  if (picked) {
+                    // _pickFor already updates pickedFiles/pickedUrls with the
+                    // selected file or URL. We only need to rebuild to show
+                    // the current file name.
+                    setState(() {});
+                  }
                 });
               },
               itemBuilder: (context) => FileFormat.values
@@ -254,11 +333,10 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
                             position: PopupMenuPosition.over,
                             onSelected: (val) => setState(() => printColor = val),
                             itemBuilder: (context) => KonspektAttachmentPrintColor.values
-                                .map((value) => AppDropdownButton<KonspektAttachmentPrintColor>(
+                            .map((value) => AppDropdownButton<KonspektAttachmentPrintColor>(
                               context,
                               value,
-                            ))
-                                .toList(),
+                            )).toList(),
                             borderRadius: BorderRadius.circular(AppCard.defRadius),
                             child: SimpleButton.from(
                               context: context,
@@ -295,20 +373,21 @@ class AttachmentFileRow extends StatelessWidget {
   final FileFormat fileFormat;
   final String? pickedName;
   final VoidCallback onRemove;
+  final VoidCallback onTap;
 
   const AttachmentFileRow({
     super.key,
     required this.fileFormat,
     required this.pickedName,
     required this.onRemove,
+    required this.onTap,
   });
 
   @override
-  Widget build(BuildContext context) => Container(
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(AppCard.defRadius),
-      color: backgroundIcon_(context)
-    ),
+  Widget build(BuildContext context) => SimpleButton(
+    color: backgroundIcon_(context),
+    radius: AppCard.defRadius,
+    onTap: onTap,
     clipBehavior: Clip.hardEdge,
     child: Row(
       children: [
@@ -324,7 +403,7 @@ class AttachmentFileRow extends StatelessWidget {
             pickedName ?? '',
             overflow: TextOverflow.ellipsis,
             style: AppTextStyle(
-              color: iconEnab_(context),
+              color: hintEnab_(context),
             ),
           ),
         ),

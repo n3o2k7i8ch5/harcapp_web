@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_core/comm_widgets/app_bar.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_text_field_hint.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
+import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_material_data.dart';
 
 class MaterialWidget extends StatefulWidget {
   final int index;
   final KonspektMaterialData materialData;
   final Widget? nameTrailing;
+  final List<KonspektAttachmentData> attachments;
 
-  const MaterialWidget({super.key, required this.index, required this.materialData, this.nameTrailing});
+  const MaterialWidget({
+    super.key,
+    required this.index,
+    required this.materialData,
+    required this.attachments,
+    this.nameTrailing,
+  });
 
   @override
   State<MaterialWidget> createState() => _MaterialWidgetState();
@@ -119,6 +129,7 @@ class _MaterialWidgetState extends State<MaterialWidget> {
   int get index => widget.index;
   KonspektMaterialData get materialData => widget.materialData;
   Widget? get nameTrailing => widget.nameTrailing;
+  List<KonspektAttachmentData> get attachments => widget.attachments;
 
   TextEditingController? get _activeAmountController =>
       _amountMode == _AmountMode.absolute
@@ -190,7 +201,10 @@ class _MaterialWidgetState extends State<MaterialWidget> {
 
               SizedBox(height: Dimen.defMarg),
 
-              _AttachmentField(controller: materialData.attachmentNameController),
+              _AttachmentField(
+                controller: materialData.attachmentNameController,
+                attachments: attachments,
+              ),
 
               SizedBox(height: Dimen.defMarg),
 
@@ -300,17 +314,187 @@ class _AmountModeButton extends StatelessWidget {
       );
 }
 
-class _AttachmentField extends StatelessWidget {
+class _AttachmentField extends StatefulWidget {
   final TextEditingController? controller;
+  final List<KonspektAttachmentData> attachments;
 
-  const _AttachmentField({this.controller});
+  const _AttachmentField({required this.controller, required this.attachments});
 
   @override
-  Widget build(BuildContext context) => _SecondaryField(
-    hint: 'Nazwa lub adres załącznika (opcjonalnie)',
-    hintTop: 'Załącznik',
-    controller: controller,
-  );
+  State<_AttachmentField> createState() => _AttachmentFieldState();
+}
+
+class _AttachmentFieldState extends State<_AttachmentField> {
+
+  Future<void> _selectAttachment(BuildContext context) async {
+    final String? selectedId = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => Dialog(
+        insetPadding: EdgeInsets.all(Dimen.defMarg),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 520,
+          ),
+          child: Material(
+            borderRadius: BorderRadius.circular(AppCard.bigRadius),
+            color: background_(dialogContext),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(dialogContext).size.height * 0.8,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Header / app bar
+                  AppBarX(
+                    backgroundColor: backgroundIcon_(dialogContext),
+                    elevation: 0,
+                    automaticallyImplyLeading: false,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(AppCard.bigRadius),
+                      ),
+                    ),
+                    leading: IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      color: iconEnab_(dialogContext),
+                      onPressed: () => Navigator.of(dialogContext).pop(),
+                    ),
+                    title: 'Wybierz załącznik',
+                  ),
+
+                  // Content
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.all(Dimen.sideMarg),
+                      child: widget.attachments.isEmpty
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.insert_drive_file_outlined,
+                                  size: 48,
+                                  color: hintEnab_(dialogContext),
+                                ),
+                                SizedBox(height: Dimen.defMarg),
+                                Text(
+                                  'Brak załączników do dodania',
+                                  textAlign: TextAlign.center,
+                                  style: AppTextStyle(
+                                    color: hintEnab_(dialogContext),
+                                    fontSize: Dimen.textSizeBig,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : SingleChildScrollView(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  ...widget.attachments.map((att) {
+                                    final title = att.titleController.text.trim();
+                                    final idText = att.idController?.text.trim() ?? '';
+                                    final display = title.isNotEmpty
+                                        ? title
+                                        : (idText.isNotEmpty ? idText : att.name);
+                                    final value = idText.isNotEmpty ? idText : att.name;
+
+                                    return Padding(
+                                      padding: EdgeInsets.only(bottom: Dimen.defMarg),
+                                      child: SimpleButton.from(
+                                        context: dialogContext,
+                                        margin: EdgeInsets.zero,
+                                        radius: AppCard.defRadius,
+                                        padding: EdgeInsets.all(Dimen.defMarg),
+                                        color: backgroundIcon_(dialogContext),
+                                        text: display,
+                                        textColor: iconEnab_(dialogContext),
+                                        onTap: () => Navigator.of(dialogContext).pop(value),
+                                      ),
+                                    );
+                                  }),
+                                ],
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    if (selectedId != null) {
+      setState(() {
+        widget.controller?.text = selectedId;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final text = widget.controller?.text.trim() ?? '';
+    final bool hasValue = text.isNotEmpty;
+
+    return Material(
+      borderRadius: BorderRadius.circular(AppCard.defRadius),
+      color: backgroundIcon_(context),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppCard.defRadius),
+        onTap: () => _selectAttachment(context),
+        child: Padding(
+          padding: EdgeInsets.all(Dimen.defMarg),
+          child: Row(
+            children: [
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Załącznik',
+                      style: AppTextStyle(
+                        fontSize: AppTextFieldHint.topHintFontSize,
+                        fontWeight: AppTextFieldHint.topHintFontWeight,
+                        color: AppTextFieldHint.topHintColor(context),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      hasValue ? text : 'Załącznik (opcjonalnie)',
+                      style: AppTextStyle(
+                        color: hasValue ? iconEnab_(context) : hintEnab_(context),
+                        fontSize: Dimen.textSizeBig,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: AppTextFieldHint.topHintFontSize),
+                  ],
+                ),
+              ),
+
+              if (hasValue)
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  tooltip: 'Usuń załącznik',
+                  onPressed: () {
+                    setState(() {
+                      widget.controller?.text = '';
+                    });
+                  },
+                ),
+
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _AdditionalPreparationField extends StatelessWidget {
