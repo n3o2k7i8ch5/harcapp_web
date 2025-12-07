@@ -92,7 +92,6 @@ class KonspektAttachmentData{
     'printSide': printSide.apiParam,
     'printColor': printColor.apiParam,
     'autoIdFromTitle': autoIdFromTitle,
-
   };
 
   static KonspektAttachmentData fromJsonMap(Map<String, dynamic> map) => KonspektAttachmentData(
@@ -102,8 +101,8 @@ class KonspektAttachmentData{
       pickedFiles: map['pickedFiles'].map((key, value) => MapEntry(
           FileFormat.fromApiParam(key)??(throw InvalidDecodeParamError('FileFormat', key)),
           value==null?null:platformFileFromJsonMap(value))
-      ),
-      pickedUrls: map['pickedUrls'],
+      ).cast<FileFormat, PlatformFile?>(),
+      pickedUrls: map['pickedUrls'].cast<FileFormat, String?>(),
       printInfoEnabled: map['printInfoEnabled'],
       printSide: KonspektAttachmentPrintSide.fromApiParam(map['printSide'])??(throw InvalidDecodeParamError('KonspektAttachmentData.printSide', map['printSide'])),
       printColor: KonspektAttachmentPrintColor.fromApiParam(map['printColor'])??(throw InvalidDecodeParamError('KonspektAttachmentData.printColor', map['printColor'])),
@@ -191,6 +190,14 @@ class KonspektData extends BaseKonspekt {
   );
 
   String get titleAsFileName => simplifyString(titleController.text);
+
+  @override
+  Map toJsonMap() {
+    final map = super.toJsonMap();
+    map['attachments'] =
+        attachments.map((attachment) => attachment.toJsonMap()).toList();
+    return map;
+  }
 
   HrcpknspktData toHrcpknspktData() => HrcpknspktData(
       coverImage: coverImageBytes,
