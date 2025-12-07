@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:animated_reorderable_list/animated_reorderable_list.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
-import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
@@ -55,10 +54,7 @@ class _StepsWidgetState extends State<StepsWidget> {
           child: StepWidget(
             index: index,
             stepData: steps[index],
-            nameTrailing: AppButton(
-              icon: Icon(MdiIcons.close),
-              onTap: () => setState(() => steps.removeAt(index)),
-            ),
+            onRemove: () => setState(() => steps.removeAt(index)),
           ),
         ),
 

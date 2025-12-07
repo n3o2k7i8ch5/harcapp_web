@@ -5,7 +5,10 @@ import 'package:harcapp_core/comm_widgets/app_bar.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_text_field_hint.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
+import 'package:harcapp_core/harcthought/common/file_format.dart';
+import 'package:harcapp_core/harcthought/common/file_format_selector_row_widget.dart';
 import 'package:harcapp_core/values/dimen.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_material_data.dart';
 
@@ -14,6 +17,7 @@ class MaterialWidget extends StatefulWidget {
   final KonspektMaterialData materialData;
   final Widget? nameTrailing;
   final List<KonspektAttachmentData> attachments;
+  final VoidCallback? onRemove;
 
   const MaterialWidget({
     super.key,
@@ -21,6 +25,7 @@ class MaterialWidget extends StatefulWidget {
     required this.materialData,
     required this.attachments,
     this.nameTrailing,
+    this.onRemove,
   });
 
   @override
@@ -130,6 +135,7 @@ class _MaterialWidgetState extends State<MaterialWidget> {
   KonspektMaterialData get materialData => widget.materialData;
   Widget? get nameTrailing => widget.nameTrailing;
   List<KonspektAttachmentData> get attachments => widget.attachments;
+  VoidCallback? get onRemove => widget.onRemove;
 
   TextEditingController? get _activeAmountController =>
       _amountMode == _AmountMode.absolute
@@ -209,6 +215,28 @@ class _MaterialWidgetState extends State<MaterialWidget> {
               SizedBox(height: Dimen.defMarg),
 
               _AdditionalPreparationField(controller: materialData.additionalPreparationController),
+
+              if (onRemove != null) ...[
+                SizedBox(height: Dimen.defMarg),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: SimpleButton.from(
+                    context: context,
+                    radius: AppCard.defRadius,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Dimen.defMarg * 1.5,
+                      vertical: Dimen.defMarg,
+                    ),
+                    color: Colors.red.withValues(alpha: 0.3),
+                    margin: EdgeInsets.zero,
+                    text: 'Usuń',
+                    textColor: Colors.red,
+                    icon: MdiIcons.trashCanOutline,
+                    iconColor: Colors.red,
+                    onTap: onRemove,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -397,22 +425,71 @@ class _AttachmentFieldState extends State<_AttachmentField> {
                                   ...widget.attachments.map((att) {
                                     final title = att.titleController.text.trim();
                                     final idText = att.idController?.text.trim() ?? '';
-                                    final display = title.isNotEmpty
-                                        ? title
-                                        : (idText.isNotEmpty ? idText : att.name);
-                                    final value = idText.isNotEmpty ? idText : att.name;
+
+                                    // Główny tekst w liście: nazwa załącznika (tytuł).
+                                    // Jeśli brak tytułu, pokaż literalny tekst "bez nazwy" kursywą,
+                                    // a ID zostaw jedynie jako mały hint poniżej.
+                                    final bool hasTitle = title.isNotEmpty;
+                                    final String mainText = hasTitle ? title : 'bez nazwy';
+
+                                    // Zestaw formatów użytych w tym załączniku (pliki + URL-e)
+                                    final Set<FileFormat> formats = {
+                                      ...att.pickedFiles.keys,
+                                      ...att.pickedUrls.keys,
+                                    };
+
+                                    // Wartość zwracana po tapnięciu – dalej ID (lub name, jeśli brak ID)
+                                    final String value = idText.isNotEmpty ? idText : att.name;
 
                                     return Padding(
                                       padding: EdgeInsets.only(bottom: Dimen.defMarg),
-                                      child: SimpleButton.from(
-                                        context: dialogContext,
-                                        margin: EdgeInsets.zero,
-                                        radius: AppCard.defRadius,
-                                        padding: EdgeInsets.all(Dimen.defMarg),
+                                      child: SimpleButton(
                                         color: backgroundIcon_(dialogContext),
-                                        text: display,
-                                        textColor: iconEnab_(dialogContext),
+                                        radius: AppCard.defRadius,
+                                        clipBehavior: Clip.hardEdge,
                                         onTap: () => Navigator.of(dialogContext).pop(value),
+                                        child: Padding(
+                                          padding: EdgeInsets.all(Dimen.defMarg),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                mainText,
+                                                style: AppTextStyle(
+                                                  color: iconEnab_(dialogContext),
+                                                  fontSize: Dimen.textSizeBig,
+                                                  fontWeight: weightHalfBold,
+                                                  fontStyle: hasTitle
+                                                      ? FontStyle.normal
+                                                      : FontStyle.italic,
+                                                ),
+                                              ),
+                                              if (idText.isNotEmpty) ...[
+                                                const SizedBox(height: 2),
+                                                Text(
+                                                  idText,
+                                                  style: AppTextStyle(
+                                                    color: hintEnab_(dialogContext),
+                                                    fontSize: Dimen.textSizeSmall,
+                                                  ),
+                                                ),
+                                              ],
+                                              if (formats.isNotEmpty) ...[
+                                                const SizedBox(height: 4),
+                                                Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: formats
+                                                      .map((format) => Padding(
+                                                            padding: EdgeInsets.only(right: Dimen.defMarg / 2),
+                                                            child: FileFormatWidget(format),
+                                                          ))
+                                                      .toList(),
+                                                ),
+                                              ],
+                                            ],
+                                          ),
+                                        ),
                                       ),
                                     );
                                   }),

@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:animated_reorderable_list/animated_reorderable_list.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
-import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
@@ -49,10 +48,7 @@ class _MaterialsWidgetState extends State<MaterialsWidget> {
                 index: index,
                 materialData: materials[index],
                 attachments: attachments,
-                nameTrailing: AppButton(
-                  icon: Icon(MdiIcons.close),
-                  onTap: () => setState(() => materials.removeAt(index)),
-                ),
+                onRemove: () => setState(() => materials.removeAt(index)),
               ),
             ),
             shrinkWrap: true,

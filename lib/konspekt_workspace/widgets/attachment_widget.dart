@@ -138,12 +138,49 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
                   textCapitalization: TextCapitalization.sentences,
                 ),
               ),
+            ],
+          ),
 
-              if(widget.onRemove != null)
-                AppButton(
-                  icon: Icon(MdiIcons.close),
-                  onTap: widget.onRemove,
-                )
+          SizedBox(height: Dimen.defMarg),
+
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: AppTextFieldHint(
+                  hint: 'Id załącznika:',
+                  controller: idController,
+                  enabled: !autoIdFromTitle,
+                  textCapitalization: TextCapitalization.none,
+                ),
+              ),
+              const SizedBox(width: Dimen.defMarg),
+              Tooltip(
+                message: 'Automatyczne generuj id na podstawie tytułu',
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Switch(
+                      value: autoIdFromTitle,
+                      onChanged: (val) {
+                        setState(() {
+                          autoIdFromTitle = val;
+                          if (autoIdFromTitle) {
+                            _syncIdFromTitle();
+                          }
+                        });
+                        widget.onChange.call();
+                      },
+                    ),
+                    SizedBox(width: Dimen.iconMarg),
+                    Icon(
+                      MdiIcons.autoFix,
+                      color: autoIdFromTitle ? iconEnab_(context) : hintEnab_(context),
+                    ),
+                    SizedBox(width: Dimen.iconMarg),
+                  ],
+                ),
+              )
             ],
           ),
 
@@ -361,7 +398,29 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
                   ],
                 ),
               ),
-            )
+            ),
+
+          const SizedBox(height: Dimen.defMarg),
+
+          if (widget.onRemove != null)
+            Align(
+              alignment: Alignment.centerRight,
+              child: SimpleButton.from(
+                context: context,
+                radius: AppCard.defRadius,
+                padding: EdgeInsets.symmetric(
+                  horizontal: Dimen.defMarg * 1.5,
+                  vertical: Dimen.defMarg,
+                ),
+                color: Colors.red.withValues(alpha: 0.3),
+                margin: EdgeInsets.zero,
+                text: 'Usuń',
+                textColor: Colors.red,
+                icon: MdiIcons.trashCanOutline,
+                iconColor: Colors.red,
+                onTap: widget.onRemove,
+              ),
+            ),
 
         ],
       ),

@@ -8,7 +8,6 @@ import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/app_text_field_hint.dart';
-import 'package:harcapp_core/comm_widgets/multi_text_field.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/harcthought/konspekts/hrcpknspkt_data.dart';
@@ -80,6 +79,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
   Widget build(BuildContext context) => BaseScaffold(
       backgroundColor: backgroundIcon_(context),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
 
           // Trzy główne przyciski konspektów – tak samo jak na stronach listy konspektów
@@ -271,34 +271,73 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                               textAlign: TextAlign.left,
                             ),
 
-                            AppTextFieldHint(
-                              hint: 'Cele:',
-                              multi: true,
-                              multiAllowZeroFields: true,
-                              multiLayout: LayoutMode.column,
-                              multiItemBuilder: (index, key, widget) => Row(
-                                key: key,
-                                children: [
-                                  // Because when having more than one item, the close button appears adding height.
-                                  SizedBox(height: Dimen.iconFootprint),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                ...List.generate(konspektData.aimControllers.length, (index) {
+                                  final controller = konspektData.aimControllers[index];
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                      bottom: index < konspektData.aimControllers.length - 1
+                                          ? Dimen.defMarg
+                                          : 0,
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        SizedBox(height: Dimen.iconFootprint),
 
-                                  SizedBox(width: Dimen.iconMarg),
-                                  Icon(MdiIcons.circleMedium),
-                                  SizedBox(width: Dimen.iconMarg),
-                                  Expanded(child: widget)
-                                ],
-                              ),
-                              multiAddButtonBuilder: (bool tappable, void Function() onTap) => SimpleButton.from(
-                                color: backgroundIcon_(context),
-                                radius: AppCard.defRadius,
-                                context: context,
-                                icon: MdiIcons.plus,
-                                margin: EdgeInsets.zero,
-                                textColor: tappable? iconEnab_(context) : iconDisab_(context),
-                                text: 'Dodaj cel',
-                                onTap: tappable? onTap: null,
-                              ),
-                              multiIsCollapsed: true,
+                                        SizedBox(width: Dimen.iconMarg),
+                                        Icon(MdiIcons.circleMedium),
+                                        SizedBox(width: Dimen.iconMarg),
+
+                                        Expanded(
+                                          child: AppTextFieldHint(
+                                            hint: 'Cel:',
+                                            controller: controller,
+                                            textCapitalization: TextCapitalization.sentences,
+                                          ),
+                                        ),
+
+                                        SizedBox(width: Dimen.defMarg),
+
+                                        SimpleButton.from(
+                                          context: context,
+                                          radius: AppCard.defRadius,
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: Dimen.defMarg * 1.5,
+                                            vertical: Dimen.defMarg,
+                                          ),
+                                          color: Colors.red.withValues(alpha: 0.3),
+                                          margin: EdgeInsets.zero,
+                                          text: 'Usuń',
+                                          textColor: Colors.red,
+                                          icon: MdiIcons.trashCanOutline,
+                                          iconColor: Colors.red,
+                                          onTap: () => setState(() {
+                                            konspektData.aimControllers.removeAt(index);
+                                          }),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }),
+
+                                SizedBox(height: Dimen.defMarg),
+
+                                SimpleButton.from(
+                                  color: backgroundIcon_(context),
+                                  radius: AppCard.defRadius,
+                                  context: context,
+                                  icon: MdiIcons.plus,
+                                  margin: EdgeInsets.zero,
+                                  textColor: iconEnab_(context),
+                                  text: 'Dodaj cel',
+                                  onTap: () => setState(() {
+                                    konspektData.aimControllers.add(TextEditingController());
+                                  }),
+                                ),
+                              ],
                             ),
 
                             const SizedBox(height: Dimen.sideMarg),

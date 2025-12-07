@@ -152,6 +152,7 @@ class KonspektsPageState extends State<KonspektsPage>{
             width: drawerWidth,
           ),
           body: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
                 padding: EdgeInsets.only(

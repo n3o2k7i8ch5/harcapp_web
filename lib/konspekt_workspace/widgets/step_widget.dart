@@ -15,8 +15,9 @@ class StepWidget extends StatefulWidget{
   final int index;
   final KonspektStepData stepData;
   final Widget? nameTrailing;
+  final VoidCallback? onRemove;
 
-  const StepWidget({super.key, required this.index, required this.stepData, this.nameTrailing});
+  const StepWidget({super.key, required this.index, required this.stepData, this.nameTrailing, this.onRemove});
 
   @override
   State<StatefulWidget> createState() => StepWidgetState();
@@ -30,6 +31,7 @@ class StepWidgetState extends State<StepWidget> {
   // late bool optional;
 
   KonspektStepData get stepData => widget.stepData;
+  VoidCallback? get onRemove => widget.onRemove;
 
   @override
   Widget build(BuildContext context) => Material(
@@ -38,6 +40,7 @@ class StepWidgetState extends State<StepWidget> {
     child: Padding(
       padding: EdgeInsets.all(Dimen.sideMarg),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
 
           Row(
@@ -95,6 +98,28 @@ class StepWidgetState extends State<StepWidget> {
             textCapitalization: TextCapitalization.sentences,
             maxLines: null,
           ),
+
+          if (onRemove != null) ...[
+            SizedBox(height: Dimen.defMarg),
+            Align(
+              alignment: Alignment.centerRight,
+              child: SimpleButton.from(
+                context: context,
+                radius: AppCard.defRadius,
+                padding: EdgeInsets.symmetric(
+                  horizontal: Dimen.defMarg * 1.5,
+                  vertical: Dimen.defMarg,
+                ),
+                color: Colors.red.withValues(alpha: 0.3),
+                margin: EdgeInsets.zero,
+                text: 'Usuń',
+                textColor: Colors.red,
+                icon: MdiIcons.trashCanOutline,
+                iconColor: Colors.red,
+                onTap: onRemove,
+              ),
+            ),
+          ],
 
         ],
       ),
