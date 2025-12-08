@@ -279,107 +279,10 @@ class PlayStoreDownloadButton extends StatelessWidget{
               isAntiAlias: true,
               filterQuality: FilterQuality.high,
             ),
-            url: 'https://play.google.com/store/apps/details?id=zhp.harc.app',
+            url: 'https://play.google.com/store/apps/details?id=com.daniwan.harcapp',
           ),
 
           SizedBox(height: Dimen.defMarg),
-
-          // Align(
-          //   alignment: Alignment.centerLeft,
-          //   child: DownloadButton(
-          //     title: 'HarcApp',
-          //     subTitle: '(.apk)',
-          //     image: Image.asset(
-          //       'assets/images/harcapp_app_icon.png',
-          //       isAntiAlias: true,
-          //       filterQuality: FilterQuality.high,
-          //     ),
-          //     url: MyAppState.availableAppApkSource!,
-          //   ),
-          // ),
-
-          // SizedBox(height: Dimen.defMarg),
-          //
-          // SimpleButton(
-          //   color: backgroundIcon_(context),
-          //   radius: AppCard.bigRadius,
-          //   padding: EdgeInsets.all(24.0),
-          //   child: Text(
-          //     'Którą wersję wybrać na Androida?',
-          //     style: TextStyle(
-          //       fontSize: Dimen.textSizeBig,
-          //       fontWeight: FontWeight.w700,
-          //       color: iconEnab_(context),
-          //     ),
-          //     textAlign: TextAlign.center,
-          //   ),
-          //   onTap: () => openDialog(
-          //       context: context,
-          //       builder: (context) => Center(
-          //         child: SizedBox(
-          //           width: 400,
-          //           child: Material(
-          //             clipBehavior: Clip.hardEdge,
-          //             borderRadius: BorderRadius.circular(AppCard.bigRadius),
-          //             child: Column(
-          //                 mainAxisSize: MainAxisSize.min,
-          //                 children: [
-          //
-          //                   AppBar(
-          //                       leading: IconButton(
-          //                         icon: Icon(MdiIcons.arrowLeft, color: iconEnab_(context)),
-          //                         onPressed: () => popPage(context),
-          //                       ),
-          //                       title: Text(
-          //                         'Którą wersję wybrać na Androida?',
-          //                         style: AppTextStyle(color: iconEnab_(context)),
-          //                       )
-          //                   ),
-          //
-          //                   Padding(
-          //                     padding: EdgeInsets.only(
-          //                       left: 24.0,
-          //                       right: 24.0,
-          //                       bottom: 24.0,
-          //                     ),
-          //                     child: Column(
-          //                       children: [
-          //
-          //                         AppText(
-          //                           '\nJeśli jest dostępna - najlepiej wybrać <b>wersję z Google Play</b>.',
-          //                           size: Dimen.textSizeBig,
-          //                           textAlign: TextAlign.justify,
-          //                         ),
-          //
-          //                         AppText(
-          //                           '\nCzasami jednak zdarza się, że HarcAppka znika ze sklepu Google Play. Dlaczego? Otóż regulamin sklepu często jest zmieniany, i trudno za tym nadążyć - HarcAppki bowiem nie rozwija stado informatyków, tylko jedna osoba.',
-          //                           size: Dimen.textSizeBig,
-          //                           textAlign: TextAlign.justify,
-          //                         ),
-          //
-          //                         AppText(
-          //                           '\nNiestety, Google Play nie ma w zwyczaju informowania, gdy coś w apce wymaga poprawy. Zamiast tego apka jest blokowana, a żeby poznać przyczynę problemu, trzeba się odwołać, odczekać swoje aż Google uraczy odwołanie odpowiedzią (a i ta nie zawsze jest pomocna), wprowadzić zmiany i dopiero wówczas się dowiedzieć, czy w istocie o to chodziło.',
-          //                           size: Dimen.textSizeBig,
-          //                           textAlign: TextAlign.justify,
-          //                         ),
-          //
-          //                         AppText(
-          //                           '\nCzy to duży problem? Otóż nie ma powodów do obaw! <b>Ta sama HarcAppka</b> jest dostępna również w formie pliku instalacyjnego. Wystarczy pobrać na telefon, kliknąć odpowiednie uprawnienia - i zainstalować.',
-          //                           size: Dimen.textSizeBig,
-          //                           textAlign: TextAlign.justify,
-          //                         ),
-          //
-          //                       ],
-          //                     ),
-          //                   )
-          //
-          //                 ],
-          //               ),
-          //           ),
-          //         ),
-          //       )
-          //   ),
-          // ),
 
         ],
       ),
@@ -420,7 +323,7 @@ class AppStoreDownloadButton extends StatelessWidget {
             image: SvgPicture.asset(
               'assets/images/app_store_icon.svg',
             ),
-            url: 'https://apps.apple.com/id/app/harcapp/id1486296998',
+            url: 'https://apps.apple.com/us/app/harcapp/id6754627071',
           ),
 
         ],

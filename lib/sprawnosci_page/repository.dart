@@ -68,7 +68,7 @@ class SprawBook {
     final dataPath = '$baseDir/_data.yaml';
     final data = await _loadYaml(dataPath, assets);
 
-    final slug = data['id'] ?? (throw StateError('Missing id in: $baseDir'));
+    final slug = data['id'] ?? data['slug'] ?? (throw StateError('Missing id in: $baseDir'));
     final name = data['name'] ?? (throw StateError('Missing name in: $baseDir'));
 
     // Find group directories: <baseDir>/groupX/_data.yaml
@@ -102,7 +102,7 @@ class SprawGroup {
   static Future<SprawGroup> fromAssets(Set<String> assets, String groupDir) async {
     final data = await _loadYaml('$groupDir/_data.yaml', assets);
 
-    final slug = data['id'] ?? (throw StateError('Missing id in: $groupDir'));
+    final slug = data['id'] ?? data['slug'] ?? (throw StateError('Missing id in: $groupDir'));
     final name = data['name'] ?? (throw StateError('Missing name in: $groupDir'));
 
     final dirDepth = groupDir.split('/').length;
@@ -147,7 +147,7 @@ class SprawFamily {
   static Future<SprawFamily> fromAssets(Set<String> assets, String familyDir) async {
     final data = await _loadYaml('$familyDir/_data.yaml', assets);
 
-    final slug = data['id'];
+    final slug = data['id'] ?? data['slug'];
     final name = data['name'];
     final tags = data['tags'].toList().cast<String>();
     final fragment = data['fragment'] ?? '';
@@ -214,7 +214,7 @@ class SprawItem {
       throw StateError('Missing icon file in: $itemDir');
     }
 
-    final slug = data['id'] ?? (throw StateError('Missing id in: $itemDir'));
+    final slug = data['id'] ?? data['slug'] ?? (throw StateError('Missing id in: $itemDir'));
     final name = data['name'] ?? (throw StateError('Missing name in: $itemDir'));
     final level = data['level'];
     final tasks = data['tasks'].toList().cast<String>();

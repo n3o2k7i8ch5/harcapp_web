@@ -114,7 +114,7 @@ class TopNavigationBarState extends State<TopNavigationBar>{
             ),
 
             PageNavItem(
-              icon: MdiIcons.notebookOutline,
+              icon: MdiIcons.notebook,
               title: 'Konspekty',
               contextInfo: 'Konspekty dla harcerzy, kształceniowe i edytor',
               path: pathKonspektyHarcerskie,
@@ -186,25 +186,35 @@ class PageNavItem extends StatelessWidget{
       onTap: () => context.go(path),
     )
         : Padding(
-      padding: EdgeInsets.symmetric(horizontal: 1),
+      padding: EdgeInsets.symmetric(horizontal: 1, vertical: Dimen.defMarg / 2),
       child: IntrinsicWidth(
         child: Tooltip(
           message: contextInfo,
-          child: ListTile(
-            dense: true,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppCard.defRadius)),
-            tileColor:
-            selected ? backgroundIcon_(context) : null,
-            selectedColor: backgroundIcon_(context),
-            onTap: () => context.go(path),
-            leading: Icon(icon, color: iconEnab_(context)),
-            title: Text(
-              title,
-              style: AppTextStyle(
-                  fontSize: Dimen.textSizeNormal,
-                  color: iconEnab_(context),
-                  height: 1.2
+          child: SizedBox(
+            height: height - Dimen.defMarg,
+            child: Material(
+              color: selected ? backgroundIcon_(context) : Colors.transparent,
+              borderRadius: BorderRadius.circular(AppCard.defRadius),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(AppCard.defRadius),
+                onTap: () => context.go(path),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: Dimen.iconMarg),
+                  child: Row(
+                    children: [
+                      Icon(icon, color: iconEnab_(context)),
+                      SizedBox(width: Dimen.iconMarg),
+                      Text(
+                        title,
+                        style: AppTextStyle(
+                            fontSize: Dimen.textSizeNormal,
+                            color: iconEnab_(context),
+                            height: 1.2
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
