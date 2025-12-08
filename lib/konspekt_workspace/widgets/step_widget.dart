@@ -59,6 +59,7 @@ class StepWidgetState extends State<StepWidget> {
                           child: AppTextFieldHint(
                             hint: 'Tytuł kroku ${widget.index + 1}:',
                             textCapitalization: TextCapitalization.sentences,
+                            controller: stepData.titleController,
                           ),
                         ),
 
@@ -97,6 +98,7 @@ class StepWidgetState extends State<StepWidget> {
             hint: 'Opis kroku ${widget.index + 1}:',
             textCapitalization: TextCapitalization.sentences,
             maxLines: null,
+            controller: stepData.contentController,
           ),
 
           if (onRemove != null) ...[

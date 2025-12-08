@@ -25,6 +25,7 @@ import 'package:harcapp_web/konspekt_workspace/widgets/select_time_button.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/spheres_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/steps_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/attachments_widget.dart';
+import 'package:harcapp_web/konspekt_workspace/widgets/opis_html_editor.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../consts.dart';
@@ -366,11 +367,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                               textAlign: TextAlign.left,
                             ),
 
-                            AppTextFieldHint(
-                              hint: 'Opis:',
-                              textAlignVertical: TextAlignVertical.top,
-                              textCapitalization: TextCapitalization.sentences,
-                              maxLines: null,
+                            OpisHtmlEditor(
                               controller: konspektData.descriptionController,
                             ),
 

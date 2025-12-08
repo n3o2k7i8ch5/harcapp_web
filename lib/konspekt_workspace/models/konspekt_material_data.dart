@@ -65,8 +65,18 @@ class KonspektMaterialData extends BaseKonspektMaterial{
     additionalPreparationController: TextEditingController(text: map['additionalPreparation']),
     attachmentNameController: TextEditingController(text: map['attachmentName']),
 
-    amountController: TextEditingController(text: map['amount'].toString()),
-    amountAttendantFactorController: TextEditingController(text: map['amountAttendantFactor'].toString()),
+    // Jeśli w JSON-ie amount/amountAttendantFactor są null,
+    // nie chcemy mieć dosłownego tekstu 'null' w polu liczbowym.
+    // Zamiast tego wstawiamy pusty string, a logika UI zadba
+    // o domyślną wartość (np. 1) tam, gdzie to potrzebne.
+    amountController: TextEditingController(
+      text: map['amount'] == null ? '' : map['amount'].toString(),
+    ),
+    amountAttendantFactorController: TextEditingController(
+      text: map['amountAttendantFactor'] == null
+          ? ''
+          : map['amountAttendantFactor'].toString(),
+    ),
   );
 
 }

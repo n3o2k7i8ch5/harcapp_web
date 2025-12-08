@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/color_pack_app.dart';
 import 'package:harcapp_core/comm_classes/color_pack_provider.dart';
@@ -114,8 +115,9 @@ class MyAppState extends State<MyApp>{
                     builder: (context, child) => child!,
                     localizationsDelegates: const [
                       GlobalMaterialLocalizations.delegate,
-                      GlobalWidgetsLocalizations.delegate, // ONLY if it's a RTL language
+                      GlobalWidgetsLocalizations.delegate,
                       GlobalCupertinoLocalizations.delegate,
+                      FlutterQuillLocalizations.delegate,
                     ],
                     supportedLocales: const [
                       Locale('pl', 'PL'), // include country code too
