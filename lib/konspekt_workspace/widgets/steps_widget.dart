@@ -6,17 +6,20 @@ import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
+import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_step_data.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/step_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class StepsWidget extends StatefulWidget {
   final List<KonspektStepData> steps;
+  final List<KonspektAttachmentData>? attachments;
   // final Function() onReordered;
 
   const StepsWidget({
     Key? key,
     required this.steps,
+    this.attachments,
     // required this.onReordered,
   }) : super(key: key);
 
@@ -54,6 +57,7 @@ class _StepsWidgetState extends State<StepsWidget> {
           child: StepWidget(
             index: index,
             stepData: steps[index],
+            attachments: widget.attachments,
             onRemove: () => setState(() => steps.removeAt(index)),
           ),
         ),

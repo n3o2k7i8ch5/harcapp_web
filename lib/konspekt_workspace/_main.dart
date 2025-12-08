@@ -340,6 +340,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
                             OpisHtmlEditor(
                               controller: konspektData.descriptionController,
+                              attachments: konspektData.attachments,
                             ),
 
                             TitleShortcutRowWidget(
@@ -348,6 +349,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                             ),
                             StepsWidget(
                               steps: konspektData.stepsData,
+                              attachments: konspektData.attachments,
                             ),
 
                           ]),

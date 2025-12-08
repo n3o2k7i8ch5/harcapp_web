@@ -109,6 +109,27 @@ class KonspektAttachmentData{
       autoIdFromTitle: (map['autoIdFromTitle'] as bool?) ?? true,
   );
 
+  String get effectiveId {
+    final id = idController?.text.trim() ?? '';
+    return id.isNotEmpty ? id : name;
+  }
+
+  String get displayTitle {
+    final title = titleController.text.trim();
+    return title.isNotEmpty ? title : 'bez nazwy';
+  }
+
+  bool get hasTitle => titleController.text.trim().isNotEmpty;
+
+  static String? findTitleById(List<KonspektAttachmentData> attachments, String id) {
+    if (id.isEmpty) return null;
+    for (final att in attachments) {
+      if (att.effectiveId == id || att.name == id) {
+        return att.displayTitle;
+      }
+    }
+    return id;
+  }
 }
 
 class KonspektData extends BaseKonspekt {

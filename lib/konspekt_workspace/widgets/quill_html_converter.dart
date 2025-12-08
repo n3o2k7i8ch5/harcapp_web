@@ -1,8 +1,13 @@
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart' as html_parser;
 
+import 'attachment_embed.dart';
+
 /// Unicode Line Separator - creates a visual line break without starting a new paragraph.
 const String softLineBreak = '\u2028';
+
+/// Suffix used to identify attachment links in HTML.
+const String _attachmentSuffix = '@attachment';
 
 // =============================================================================
 // HTML → Delta
@@ -135,7 +140,12 @@ class _HtmlToDeltaConverter {
 
   void _processLink(dom.Element element, Map<String, dynamic>? inlineAttrs) {
     final href = element.attributes['href'];
-    if (href != null) {
+    if (href != null && href.endsWith(_attachmentSuffix)) {
+      final id = href.substring(0, href.length - _attachmentSuffix.length);
+      final title = element.text.trim();
+      final embed = AttachmentEmbed(id: id, title: title.isNotEmpty ? title : id);
+      ops.add({'insert': embed.toEmbeddable().toJson()});
+    } else if (href != null) {
       final newAttrs = _mergeAttrs(inlineAttrs, {'link': href});
       processNodes(element.nodes, newAttrs);
     } else {
@@ -225,7 +235,12 @@ class _ListItemConverter {
 
   void _processLink(dom.Element element, Map<String, dynamic>? inlineAttrs) {
     final href = element.attributes['href'];
-    if (href != null) {
+    if (href != null && href.endsWith(_attachmentSuffix)) {
+      final id = href.substring(0, href.length - _attachmentSuffix.length);
+      final title = element.text.trim();
+      final embed = AttachmentEmbed(id: id, title: title.isNotEmpty ? title : id);
+      ops.add({'insert': embed.toEmbeddable().toJson()});
+    } else if (href != null) {
       final newAttrs = _mergeAttrs(inlineAttrs, {'link': href});
       processNodes(element.nodes, newAttrs);
     } else {
@@ -276,6 +291,12 @@ class _DeltaToHtmlConverter {
   void _processOp(int index) {
     final op = ops[index] as Map<String, dynamic>;
     final insert = op['insert'];
+
+    if (insert is Map) {
+      _handleEmbed(insert.cast<String, dynamic>(), index);
+      return;
+    }
+
     if (insert is! String) return;
 
     final attrs = op['attributes'] as Map<String, dynamic>?;
@@ -284,6 +305,19 @@ class _DeltaToHtmlConverter {
       _handleLineEnd(attrs, index);
     } else {
       _handleText(insert, attrs, index);
+    }
+  }
+
+  void _handleEmbed(Map<String, dynamic> embed, int index) {
+    if (embed.containsKey(attachmentEmbedType)) {
+      final data = embed[attachmentEmbedType] as Map<dynamic, dynamic>?;
+      if (data != null) {
+        final id = data['id'] as String? ?? '';
+        final title = data['title'] as String? ?? id;
+        final align = _peekNextAlign(index);
+        _openParagraph(align);
+        _buffer.write('<a href="${_escapeHtml(id)}$_attachmentSuffix">${_escapeHtml(title)}</a>');
+      }
     }
   }
 

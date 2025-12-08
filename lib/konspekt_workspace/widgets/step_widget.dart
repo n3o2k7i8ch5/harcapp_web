@@ -6,6 +6,7 @@ import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/harcthought/konspekts/widgets/step_widget.dart';
 import 'package:harcapp_core/values/dimen.dart';
+import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_step_data.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/opis_html_editor.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/select_time_button.dart';
@@ -15,10 +16,11 @@ class StepWidget extends StatefulWidget{
 
   final int index;
   final KonspektStepData stepData;
+  final List<KonspektAttachmentData>? attachments;
   final Widget? nameTrailing;
   final VoidCallback? onRemove;
 
-  const StepWidget({super.key, required this.index, required this.stepData, this.nameTrailing, this.onRemove});
+  const StepWidget({super.key, required this.index, required this.stepData, this.attachments, this.nameTrailing, this.onRemove});
 
   @override
   State<StatefulWidget> createState() => StepWidgetState();
@@ -97,6 +99,7 @@ class StepWidgetState extends State<StepWidget> {
 
           OpisHtmlEditor(
             controller: stepData.contentController,
+            attachments: widget.attachments,
           ),
 
           if (onRemove != null) ...[

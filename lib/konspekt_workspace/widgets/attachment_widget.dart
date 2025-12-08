@@ -151,49 +151,9 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
                   hint: 'Id załącznika:',
                   controller: idController,
                   enabled: !autoIdFromTitle,
-                  textCapitalization: TextCapitalization.none,
-                ),
-              ),
-              const SizedBox(width: Dimen.defMarg),
-              Tooltip(
-                message: 'Automatyczne generuj id na podstawie tytułu',
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Switch(
-                      value: autoIdFromTitle,
-                      onChanged: (val) {
-                        setState(() {
-                          autoIdFromTitle = val;
-                          if (autoIdFromTitle) {
-                            _syncIdFromTitle();
-                          }
-                        });
-                        widget.onChange.call();
-                      },
-                    ),
-                    SizedBox(width: Dimen.iconMarg),
-                    Icon(
-                      MdiIcons.autoFix,
-                      color: autoIdFromTitle ? iconEnab_(context) : hintEnab_(context),
-                    ),
-                    SizedBox(width: Dimen.iconMarg),
-                  ],
-                ),
-              )
-            ],
-          ),
-
-          SizedBox(height: Dimen.defMarg),
-
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: AppTextFieldHint(
-                  hint: 'Id załącznika:',
-                  controller: idController,
-                  enabled: !autoIdFromTitle,
+                  style: autoIdFromTitle
+                      ? TextStyle(color: hintEnab_(context))
+                      : null,
                   textCapitalization: TextCapitalization.none,
                 ),
               ),

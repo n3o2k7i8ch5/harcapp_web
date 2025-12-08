@@ -423,23 +423,10 @@ class _AttachmentFieldState extends State<_AttachmentField> {
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   ...widget.attachments.map((att) {
-                                    final title = att.titleController.text.trim();
-                                    final idText = att.idController?.text.trim() ?? '';
-
-                                    // Główny tekst w liście: nazwa załącznika (tytuł).
-                                    // Jeśli brak tytułu, pokaż literalny tekst "bez nazwy" kursywą,
-                                    // a ID zostaw jedynie jako mały hint poniżej.
-                                    final bool hasTitle = title.isNotEmpty;
-                                    final String mainText = hasTitle ? title : 'bez nazwy';
-
-                                    // Zestaw formatów użytych w tym załączniku (pliki + URL-e)
                                     final Set<FileFormat> formats = {
                                       ...att.pickedFiles.keys,
                                       ...att.pickedUrls.keys,
                                     };
-
-                                    // Wartość zwracana po tapnięciu – dalej ID (lub name, jeśli brak ID)
-                                    final String value = idText.isNotEmpty ? idText : att.name;
 
                                     return Padding(
                                       padding: EdgeInsets.only(bottom: Dimen.defMarg),
@@ -447,7 +434,7 @@ class _AttachmentFieldState extends State<_AttachmentField> {
                                         color: backgroundIcon_(dialogContext),
                                         radius: AppCard.defRadius,
                                         clipBehavior: Clip.hardEdge,
-                                        onTap: () => Navigator.of(dialogContext).pop(value),
+                                        onTap: () => Navigator.of(dialogContext).pop(att.effectiveId),
                                         child: Padding(
                                           padding: EdgeInsets.all(Dimen.defMarg),
                                           child: Column(
@@ -455,20 +442,20 @@ class _AttachmentFieldState extends State<_AttachmentField> {
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
                                               Text(
-                                                mainText,
+                                                att.displayTitle,
                                                 style: AppTextStyle(
                                                   color: iconEnab_(dialogContext),
                                                   fontSize: Dimen.textSizeBig,
                                                   fontWeight: weightHalfBold,
-                                                  fontStyle: hasTitle
+                                                  fontStyle: att.hasTitle
                                                       ? FontStyle.normal
                                                       : FontStyle.italic,
                                                 ),
                                               ),
-                                              if (idText.isNotEmpty) ...[
+                                              if (att.effectiveId.isNotEmpty) ...[
                                                 const SizedBox(height: 2),
                                                 Text(
-                                                  idText,
+                                                  att.effectiveId,
                                                   style: AppTextStyle(
                                                     color: hintEnab_(dialogContext),
                                                     fontSize: Dimen.textSizeSmall,
@@ -517,6 +504,9 @@ class _AttachmentFieldState extends State<_AttachmentField> {
   Widget build(BuildContext context) {
     final text = widget.controller?.text.trim() ?? '';
     final bool hasValue = text.isNotEmpty;
+    final String? displayText = hasValue
+        ? KonspektAttachmentData.findTitleById(widget.attachments, text)
+        : null;
 
     return Material(
       borderRadius: BorderRadius.circular(AppCard.defRadius),
@@ -533,24 +523,28 @@ class _AttachmentFieldState extends State<_AttachmentField> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      'Załącznik',
-                      style: AppTextStyle(
-                        fontSize: AppTextFieldHint.topHintFontSize,
-                        fontWeight: AppTextFieldHint.topHintFontWeight,
-                        color: AppTextFieldHint.topHintColor(context),
+                    if (hasValue) ...[
+                      Text(
+                        'Załącznik',
+                        style: AppTextStyle(
+                          fontSize: AppTextFieldHint.topHintFontSize,
+                          fontWeight: AppTextFieldHint.topHintFontWeight,
+                          color: AppTextFieldHint.topHintColor(context),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
+                      const SizedBox(height: 4),
+                    ],
                     Text(
-                      hasValue ? text : 'Załącznik (opcjonalnie)',
+                      displayText ?? 'Załącznik (opcjonalnie)',
                       style: AppTextStyle(
                         color: hasValue ? iconEnab_(context) : hintEnab_(context),
                         fontSize: Dimen.textSizeBig,
+                        fontStyle: displayText == 'bez nazwy' ? FontStyle.italic : FontStyle.normal,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: AppTextFieldHint.topHintFontSize),
+                    if (hasValue)
+                      const SizedBox(height: AppTextFieldHint.topHintFontSize),
                   ],
                 ),
               ),
