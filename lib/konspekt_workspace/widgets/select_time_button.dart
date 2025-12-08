@@ -108,88 +108,90 @@ class DurationSelectorDialogState extends State<DurationSelectorDialog> {
           color: background_(context),
           clipBehavior: Clip.hardEdge,
           borderRadius: BorderRadius.circular(AppCard.bigRadius),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+          child: IntrinsicWidth(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
 
-              AppBarX(
-                title: 'Czas trwania',
-                backgroundColor: background_(context),
-                actions: [
+                AppBarX(
+                  title: 'Czas trwania',
+                  backgroundColor: background_(context),
+                  actions: [
 
-                  AppButton(
-                    icon: Icon(MdiIcons.check, color: iconEnab_(context)),
-                    onTap: (){
-                      widget.onSelected.call(duration);
-                      popPage(context);
-                    }
-                  )
+                    AppButton(
+                        icon: Icon(MdiIcons.check, color: iconEnab_(context)),
+                        onTap: (){
+                          widget.onSelected.call(duration);
+                          popPage(context);
+                        }
+                    )
 
-                ],
-              ),
+                  ],
+                ),
 
-              Padding(
-                  padding: EdgeInsets.all(Dimen.sideMarg),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
+                Padding(
+                    padding: EdgeInsets.all(Dimen.sideMarg),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
 
-                      Theme(
-                        data: Theme.of(context).copyWith(
-                          colorScheme: Theme.of(context).colorScheme.copyWith(
-                            surface: background_(context),
-                            onSurface: textEnab_(context),
-                            primary: iconEnab_(context),
-                            onPrimary: background_(context),
-                          ),
-                          textTheme: Theme.of(context).textTheme.apply(
-                            bodyColor: textEnab_(context),
-                            displayColor: textEnab_(context),
-                          ),
-                        ),
-                        child: DurationPicker(
-                          duration: duration,
-                          baseUnit: baseUnit,
-                          onChange: (value) => setState(() => duration = value),
-                        ),
-                      ),
-
-                      SizedBox(height: Dimen.sideMarg),
-
-                      Row(
-                        children: [
-                          Expanded(
-                            child: SimpleButton.from(
-                                context: context,
-                                margin: EdgeInsets.zero,
-                                color: baseUnit == BaseUnit.minute ? backgroundIcon_(context) : background_(context),
-                                fontWeight: baseUnit == BaseUnit.minute ? weightBold : weightNormal,
-                                text: 'Minuty',
-                                onTap: () => setState(() => baseUnit = BaseUnit.minute)
+                        Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: Theme.of(context).colorScheme.copyWith(
+                              surface: background_(context),
+                              onSurface: textEnab_(context),
+                              primary: iconEnab_(context),
+                              onPrimary: background_(context),
+                            ),
+                            textTheme: Theme.of(context).textTheme.apply(
+                              bodyColor: textEnab_(context),
+                              displayColor: textEnab_(context),
                             ),
                           ),
-
-                          SizedBox(width: Dimen.defMarg),
-
-                          Expanded(
-                            child: SimpleButton.from(
-                                context: context,
-                                margin: EdgeInsets.zero,
-                                color: baseUnit == BaseUnit.hour ? backgroundIcon_(context) : background_(context),
-                                fontWeight: baseUnit == BaseUnit.hour ? weightBold : weightNormal,
-                                text: 'Godziny',
-                                onTap: () => setState(() => baseUnit = BaseUnit.hour)
-                            ),
+                          child: DurationPicker(
+                            duration: duration,
+                            baseUnit: baseUnit,
+                            onChange: (value) => setState(() => duration = value),
                           ),
-                        ],
-                      )
+                        ),
 
-                    ],
-                  )
-              ),
+                        SizedBox(height: Dimen.sideMarg),
 
-            ],
+                        Row(
+                          children: [
+                            Expanded(
+                              child: SimpleButton.from(
+                                  context: context,
+                                  margin: EdgeInsets.zero,
+                                  color: baseUnit == BaseUnit.minute ? backgroundIcon_(context) : background_(context),
+                                  fontWeight: baseUnit == BaseUnit.minute ? weightBold : weightNormal,
+                                  text: 'Minuty',
+                                  onTap: () => setState(() => baseUnit = BaseUnit.minute)
+                              ),
+                            ),
+
+                            SizedBox(width: Dimen.defMarg),
+
+                            Expanded(
+                              child: SimpleButton.from(
+                                  context: context,
+                                  margin: EdgeInsets.zero,
+                                  color: baseUnit == BaseUnit.hour ? backgroundIcon_(context) : background_(context),
+                                  fontWeight: baseUnit == BaseUnit.hour ? weightBold : weightNormal,
+                                  text: 'Godziny',
+                                  onTap: () => setState(() => baseUnit = BaseUnit.hour)
+                              ),
+                            ),
+                          ],
+                        )
+
+                      ],
+                    )
+                ),
+
+              ],
+            ),
           ),
       ),
     ),

@@ -40,13 +40,18 @@ class StepWidgetState extends State<StepWidget> {
   Widget build(BuildContext context) => Material(
     borderRadius: BorderRadius.circular(AppCard.defRadius),
     color: backgroundIcon_(context),
-    child: Padding(
-      padding: EdgeInsets.all(Dimen.sideMarg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+    clipBehavior: Clip.hardEdge,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
 
-          Row(
+        Padding(
+          padding: EdgeInsets.only(
+            top: Dimen.sideMarg,
+            left: Dimen.sideMarg,
+            right: Dimen.sideMarg,
+          ),
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               StepIndexWidget(widget.index),
@@ -71,40 +76,56 @@ class StepWidgetState extends State<StepWidget> {
                       ],
                     ),
 
-                    SizedBox(height: Dimen.defMarg),
-
-                    Row(
-                      children: [
-                        SelectTimeButton(
-                          stepData.duration,
-                          onChanged: (newDuration) => newDuration==null?null:setState(() => stepData.duration = newDuration),
-                          removable: false,
-                          fontSize: Dimen.textSizeBig,
-                        ),
-                        SizedBox(width: Dimen.sideMarg),
-                        _ActiveFormButton(activeForm: stepData.activeForm, onChanged: (activeForm) => setState(() => stepData.activeForm = activeForm)),
-                        SizedBox(width: Dimen.sideMarg),
-                        _RequiredButton(required: stepData.required, onChanged: (optional) => setState(() => stepData.required = optional)),
-                      ],
-                    ),
-
                   ],
                 ),
               )
 
             ],
           ),
+        ),
 
-          SizedBox(height: Dimen.sideMarg),
+        SizedBox(height: Dimen.defMarg),
 
-          OpisHtmlEditor(
-            controller: stepData.contentController,
-            attachments: widget.attachments,
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: EdgeInsets.symmetric(horizontal: Dimen.sideMarg),
+          child: Row(
+            children: [
+              Opacity(
+                opacity: 0,
+                child: SizedBox(height: 0, child: StepIndexWidget(widget.index)),
+              ),
+              SizedBox(width: Dimen.sideMarg),
+              SelectTimeButton(
+                stepData.duration,
+                onChanged: (newDuration) => newDuration==null?null:setState(() => stepData.duration = newDuration),
+                removable: false,
+                fontSize: Dimen.textSizeBig,
+              ),
+              SizedBox(width: Dimen.sideMarg),
+              _ActiveFormButton(activeForm: stepData.activeForm, onChanged: (activeForm) => setState(() => stepData.activeForm = activeForm)),
+              SizedBox(width: Dimen.sideMarg),
+              _RequiredButton(required: stepData.required, onChanged: (optional) => setState(() => stepData.required = optional)),
+            ],
           ),
+        ),
 
-          if (onRemove != null) ...[
-            SizedBox(height: Dimen.defMarg),
-            Align(
+        SizedBox(height: Dimen.sideMarg),
+
+        OpisHtmlEditor(
+          radius: 0,
+          background: Colors.transparent,
+          controller: stepData.contentController,
+          attachments: widget.attachments,
+        ),
+
+        if (onRemove != null) ...[
+          Padding(
+            padding: EdgeInsets.only(
+              bottom: Dimen.defMarg,
+              right: Dimen.defMarg,
+            ),
+            child: Align(
               alignment: Alignment.centerRight,
               child: SimpleButton.from(
                 context: context,
@@ -122,11 +143,11 @@ class StepWidgetState extends State<StepWidget> {
                 onTap: onRemove,
               ),
             ),
-          ],
-
+          )
         ],
-      ),
-    )
+
+      ],
+    ),
   );
 
 }

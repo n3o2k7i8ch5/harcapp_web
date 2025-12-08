@@ -202,7 +202,11 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                         ),
                       ),
                       SliverPadding(
-                        padding: EdgeInsets.all(Dimen.sideMarg),
+                        padding: EdgeInsets.only(
+                          top: Dimen.sideMarg,
+                          left: Dimen.sideMarg,
+                          right: Dimen.sideMarg,
+                        ),
                         sliver: SliverList(
                           delegate: SliverChildListDelegate([
 
@@ -222,10 +226,6 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
                             const SizedBox(height: Dimen.sideMarg),
 
-                            TitleShortcutRowWidget(
-                              title: 'W skrócie',
-                              textAlign: TextAlign.left,
-                            ),
                             AppTextFieldHint(
                               hint: 'W skrócie:',
                               textCapitalization: TextCapitalization.sentences,
@@ -269,21 +269,36 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                               textAlign: TextAlign.left,
                             ),
 
-                            LevelSelectableGridWidget(
-                              konspektData.category == KonspektCategory.harcerskie
-                                  ? {Meto.zuch, Meto.harc, Meto.hs, Meto.wedro}
-                                  : {Meto.kadra},
-                              konspektData.metos.toSet(),
-                              oneLine: true,
-                              onLevelTap: (Meto meto, bool checked) {
-                                _setStateAndSave(() {
-                                  if (checked) konspektData.metos.remove(meto);
-                                  else konspektData.metos.add(meto);
-                                });
-                              },
-                            ),
+                          ]),
+                        ),
+                      ),
 
-                            const SizedBox(height: Dimen.sideMarg),
+                      // Metodyki - osobny sliver bez zewnętrznego paddingu
+                      SliverToBoxAdapter(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          padding: EdgeInsets.symmetric(horizontal: Dimen.sideMarg),
+                          child: LevelSelectableGridWidget(
+                            konspektData.category == KonspektCategory.harcerskie
+                                ? {Meto.zuch, Meto.harc, Meto.hs, Meto.wedro}
+                                : {Meto.kadra},
+                            konspektData.metos.toSet(),
+                            oneLine: true,
+                            onLevelTap: (Meto meto, bool checked) {
+                              _setStateAndSave(() {
+                                if (checked) konspektData.metos.remove(meto);
+                                else konspektData.metos.add(meto);
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+
+                      // Kontynuacja listy z paddingiem
+                      SliverPadding(
+                        padding: EdgeInsets.all(Dimen.sideMarg),
+                        sliver: SliverList(
+                          delegate: SliverChildListDelegate([
 
                             Row(
                               children: [
@@ -450,6 +465,8 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                               controller: konspektData.descriptionController,
                               attachments: konspektData.attachments,
                             ),
+
+                            const SizedBox(height: Dimen.sideMarg),
 
                             TitleShortcutRowWidget(
                               title: 'Plan',
@@ -853,13 +870,13 @@ class _DraftRecoveryDialog extends StatelessWidget {
                 style: AppTextStyle(color: textEnab_(context)),
               ),
 
-              SizedBox(height: Dimen.defMarg),
+              SizedBox(height: Dimen.sideMarg),
 
               Material(
                 borderRadius: BorderRadius.circular(AppCard.defRadius),
                 color: backgroundIcon_(context),
                 child: Padding(
-                  padding: EdgeInsets.all(Dimen.defMarg),
+                  padding: EdgeInsets.all(Dimen.iconMarg),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -928,7 +945,7 @@ class _DraftRecoveryDialog extends StatelessWidget {
 
               SimpleButton.from(
                 context: context,
-                color: Colors.transparent,
+                color: backgroundIcon_(context),
                 textColor: hintEnab_(context),
                 margin: EdgeInsets.zero,
                 text: 'Podgląd',

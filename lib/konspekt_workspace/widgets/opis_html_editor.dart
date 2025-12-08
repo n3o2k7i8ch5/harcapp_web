@@ -16,10 +16,12 @@ import 'attachment_embed.dart';
 import 'quill_html_converter.dart';
 
 class OpisHtmlEditor extends StatefulWidget {
+  final double? radius;
+  final Color? background;
   final TextEditingController controller;
   final List<KonspektAttachmentData>? attachments;
 
-  const OpisHtmlEditor({super.key, required this.controller, this.attachments});
+  const OpisHtmlEditor({super.key, this.radius, this.background, required this.controller, this.attachments});
 
   @override
   State<OpisHtmlEditor> createState() => _OpisHtmlEditorState();
@@ -97,8 +99,8 @@ class _OpisHtmlEditorState extends State<OpisHtmlEditor> {
 
   @override
   Widget build(BuildContext context) => Material(
-        borderRadius: BorderRadius.circular(AppCard.defRadius),
-        color: backgroundIcon_(context),
+        borderRadius: BorderRadius.circular(widget.radius??AppCard.defRadius),
+        color: widget.background??backgroundIcon_(context),
         child: Padding(
           padding: EdgeInsets.all(Dimen.defMarg),
           child: Column(

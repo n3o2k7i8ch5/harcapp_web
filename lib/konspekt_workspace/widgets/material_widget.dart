@@ -72,7 +72,7 @@ class _AmountCounterState extends State<_AmountCounter> {
   @override
   Widget build(BuildContext context) => Container(
         decoration: BoxDecoration(
-          color: backgroundIcon_(context),
+          color: cardEnab_(context),
           borderRadius: BorderRadius.circular(AppCard.defRadius),
         ),
         child: Row(
@@ -86,7 +86,7 @@ class _AmountCounterState extends State<_AmountCounter> {
                 controller: _controller,
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.number,
-                style: const TextStyle(fontSize: Dimen.textSizeSmall),
+                style: const TextStyle(fontSize: Dimen.textSizeNormal),
                 decoration: const InputDecoration(
                   isDense: true,
                   isCollapsed: true,
@@ -337,7 +337,7 @@ class _AmountModeButton extends StatelessWidget {
         color: selected ? backgroundIcon_(context).withValues(alpha: 0.6) : Colors.transparent,
         textColor: selected ? Colors.white : hintEnab_(context),
         text: text,
-        textSize: Dimen.textSizeSmall,
+        textSize: Dimen.textSizeNormal,
         onTap: onTap,
       );
 }
