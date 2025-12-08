@@ -182,7 +182,10 @@ class SprawItemWidget extends StatelessWidget {
         height: 100,
         child: item.iconPath.isEmpty
             ? Icon(Icons.verified, color: iconEnab_(context))
-            : SvgPicture.asset(item.iconPath),
+            : SvgPicture.asset(
+                item.iconPath,
+                colorFilter: ColorFilter.mode(iconEnab_(context), BlendMode.srcIn),
+              ),
       ),
       const SizedBox(width: Dimen.sideMarg),
 

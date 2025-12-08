@@ -13,6 +13,7 @@ import 'package:harcapp_web/router.dart';
 import 'package:harcapp_web/songs/left_panel/provider.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/song_preview_widget.dart';
+import 'package:harcapp_web/theme_mode_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:url_strategy/url_strategy.dart';
 
@@ -62,11 +63,14 @@ class MyAppState extends State<MyApp>{
   late SongFileNameDupErrProvider songFileNameDupErrProv;
 
   @override
-  Widget build(BuildContext context) => ColorPackApp(
-      initColorPack: ColorPackGraphite(),
-      isDark: () => false,
-      child: SongEditorApp(
-          builder: (context, _) => MultiProvider(
+  Widget build(BuildContext context) => ChangeNotifierProvider(
+      create: (_) => ThemeModeProvider(),
+      builder: (context, _) => Consumer<ThemeModeProvider>(
+        builder: (context, themeProv, _) => ColorPackApp(
+          initColorPack: ColorPackGraphite(),
+          isDark: () => themeProv.isDark,
+          child: SongEditorApp(
+            builder: (context, _) => MultiProvider(
               providers: [
 
                 ChangeNotifierProvider(create: (context){
@@ -125,6 +129,6 @@ class MyAppState extends State<MyApp>{
                   )
               )
           )
-      )
-  );
+      )),
+  ));
 }

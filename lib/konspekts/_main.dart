@@ -143,7 +143,7 @@ class KonspektsPageState extends State<KonspektsPage>{
 
         return BaseScaffold(
           scaffoldKey: scaffoldKey,
-          backgroundColor: backgroundIcon_(context),
+          backgroundColor: cardEnab_(context),
           drawer: workspaceAlwaysVisible?
           null:
           Drawer(

@@ -19,6 +19,18 @@ class ColorPackGraphite extends ColorPack{
   Color get iconDisabled => AppColors.iconDisab;
 
   @override
-  ColorPack? get darkEquivalent => this;
+  ColorPack? get darkEquivalent => const ColorPackGraphiteDark();
+
+}
+
+class ColorPackGraphiteDark extends ColorPackBlack {
+
+  const ColorPackGraphiteDark();
+
+  @override
+  String get name => 'ColorPackGraphiteDark';
+
+  @override
+  Color get accent => Colors.indigo;
 
 }

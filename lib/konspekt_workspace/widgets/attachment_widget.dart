@@ -1,6 +1,10 @@
+import 'dart:typed_data';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_web/common/download_file.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_button.dart';
@@ -197,6 +201,8 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
               pickedName: format.isUrl
                   ? pickedUrls[format]
                   : pickedFiles[format]?.name,
+              fileBytes: pickedFiles[format]?.bytes,
+              fileUrl: pickedUrls[format],
               onTap: () {
                 _pickFor(format).then((picked) {
                   if (picked) setState(() {});
@@ -391,6 +397,8 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
 class AttachmentFileRow extends StatelessWidget {
   final FileFormat fileFormat;
   final String? pickedName;
+  final Uint8List? fileBytes;
+  final String? fileUrl;
   final VoidCallback onRemove;
   final VoidCallback onTap;
 
@@ -398,9 +406,24 @@ class AttachmentFileRow extends StatelessWidget {
     super.key,
     required this.fileFormat,
     required this.pickedName,
+    this.fileBytes,
+    this.fileUrl,
     required this.onRemove,
     required this.onTap,
   });
+
+  bool get _canPreview => fileBytes != null || (fileUrl != null && fileUrl!.isNotEmpty);
+
+  void _handlePreview(BuildContext context) {
+    if (fileUrl != null && fileUrl!.isNotEmpty) {
+      launchUrlString(fileUrl!);
+    } else if (fileBytes != null) {
+      downloadFileFromBytes(
+        bytes: fileBytes!,
+        fileName: pickedName ?? 'attachment.${fileFormat.name}',
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) => SimpleButton(
@@ -428,6 +451,13 @@ class AttachmentFileRow extends StatelessWidget {
         ),
 
         SizedBox(width: Dimen.defMarg),
+
+        if (_canPreview)
+          AppButton(
+            icon: Icon(fileFormat.isUrl ? MdiIcons.openInNew : MdiIcons.trayArrowDown),
+            constraints: BoxConstraints(),
+            onTap: () => _handlePreview(context),
+          ),
 
         AppButton(
           icon: Icon(MdiIcons.close),

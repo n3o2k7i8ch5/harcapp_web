@@ -7,8 +7,10 @@ import 'package:harcapp_core/comm_widgets/harc_app.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/router.dart';
+import 'package:harcapp_web/theme_mode_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:provider/provider.dart';
 
 class TopNavigationBar extends StatefulWidget implements PreferredSizeWidget{
 
@@ -86,6 +88,7 @@ class TopNavigationBarState extends State<TopNavigationBar>{
                   ],
                 ),
               ),
+            const _ThemeModeButton(),
 
             Expanded(child: Container()),
 
@@ -219,6 +222,40 @@ class PageNavItem extends StatelessWidget{
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ThemeModeButton extends StatelessWidget {
+  const _ThemeModeButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final themeProv = context.watch<ThemeModeProvider>();
+    final IconData icon;
+    final String tooltip;
+
+    switch (themeProv.mode) {
+      case AppThemeMode.system:
+        icon = MdiIcons.themeLightDark;
+        tooltip = 'Tryb systemowy';
+        break;
+      case AppThemeMode.light:
+        icon = MdiIcons.weatherSunny;
+        tooltip = 'Tryb jasny';
+        break;
+      case AppThemeMode.dark:
+        icon = MdiIcons.weatherNight;
+        tooltip = 'Tryb ciemny';
+        break;
+    }
+
+    return Tooltip(
+      message: tooltip,
+      child: IconButton(
+        icon: Icon(icon, color: iconEnab_(context)),
+        onPressed: themeProv.toggle,
       ),
     );
   }

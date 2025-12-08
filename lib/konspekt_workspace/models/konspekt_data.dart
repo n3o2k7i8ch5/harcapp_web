@@ -92,7 +92,28 @@ class KonspektAttachmentData{
     'printSide': printSide.apiParam,
     'printColor': printColor.apiParam,
     'autoIdFromTitle': autoIdFromTitle,
+    // Format compatible with KonspektAttachment.fromJsonMap
+    'assets': _buildAssetsMap(),
+    'print': printInfoEnabled ? {
+      'side': printSide.name,
+      'color': printColor.name,
+    } : null,
   };
+
+  Map<String, String> _buildAssetsMap() {
+    final Map<String, String> assets = {};
+    for (final entry in pickedFiles.entries) {
+      if (entry.value != null) {
+        assets[entry.key.apiParam] = entry.value!.name;
+      }
+    }
+    for (final entry in pickedUrls.entries) {
+      if (entry.value != null && entry.value!.isNotEmpty) {
+        assets[entry.key.apiParam] = entry.value!;
+      }
+    }
+    return assets;
+  }
 
   static KonspektAttachmentData fromJsonMap(Map<String, dynamic> map) => KonspektAttachmentData(
       name: map['name'],
@@ -136,6 +157,7 @@ class KonspektData extends BaseKonspekt {
   
   final TextEditingController titleController;
   final List<TextEditingController> additionalSearchPhraseControllers;
+  KonspektCategory category;
   KonspektType type;
   final Map<KonspektSphere, KonspektSphereDetails?> spheres;
 
@@ -160,7 +182,6 @@ class KonspektData extends BaseKonspekt {
   String get name => titleAsFileName;
   String get title => titleController.text;
   List<String> get additionalSearchPhrases => additionalSearchPhraseControllers.map((e) => e.text).toList();
-  KonspektCategory get category => KonspektCategory.harcerskie;
   String get coverAuthor => coverAuthorController.text;
   List<String> get aims => aimControllers.map((e) => e.text).toList();
   String get summary => summaryController.text;
@@ -173,6 +194,7 @@ class KonspektData extends BaseKonspekt {
   KonspektData({
     required this.titleController,
     required this.additionalSearchPhraseControllers,
+    required this.category,
     required this.type,
     required this.spheres,
     required this.metos,
@@ -193,6 +215,7 @@ class KonspektData extends BaseKonspekt {
   static KonspektData empty() => KonspektData(
     titleController: TextEditingController(),
     additionalSearchPhraseControllers: [],
+    category: KonspektCategory.harcerskie,
     type: KonspektType.zajecia,
     spheres: {},
     metos: [],
@@ -240,6 +263,8 @@ class KonspektData extends BaseKonspekt {
     List<TextEditingController> additionalSearchPhraseControllers = (coreData["additionalSearchPhrases"]??(throw MissingDecodeParamError('additionalSearchPhrases')))
         .map((phrase) => TextEditingController(text: phrase)).toList().cast<TextEditingController>();
 
+    KonspektCategory category = KonspektCategory.fromApiParam(coreData['category']) ?? KonspektCategory.harcerskie;
+
     KonspektType type = KonspektType.fromApiParam(coreData['type'])??(throw MissingDecodeParamError('type'));
 
     Map<KonspektSphere, KonspektSphereDetails?> spheres = (coreData['spheres']??(throw MissingDecodeParamError('spheres')))
@@ -283,6 +308,7 @@ class KonspektData extends BaseKonspekt {
     return KonspektData(
       titleController: titleController,
       additionalSearchPhraseControllers: additionalSearchPhraseControllers,
+      category: category,
       type: type,
       spheres: spheres,
       metos: metos,

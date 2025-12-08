@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_widgets/app_button.dart';
-import 'package:harcapp_core/values/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_bar.dart';
@@ -114,16 +113,19 @@ class TableOfContentWidgetState<T extends KonspektFilters> extends State<TableOf
         child: Consumer<KonspektSearchProvider<T>>(
           builder: (context, prov, _) => ListView.separated(
             padding: (padding??EdgeInsets.zero).add(EdgeInsets.only(top: Dimen.iconFootprint/2)),
-            itemBuilder: (context, index) => SizedBox(
-              height: KonspektTileWidget.defHeight,
-              child: KonspektTileWidget(
-                prov.konspekts[index],
-                radius: AppCard.defRadius,
-                background: prov.konspekts[index] == selectedKonspekt?Colors.grey[300]!:Colors.grey[100]!,
-                elevation: prov.konspekts[index] == selectedKonspekt?AppCard.bigElevation:0,
-                onTap: () => onItemTap?.call(prov.konspekts[index]),
-              ),
-            ),
+            itemBuilder: (context, index) {
+              final isSelected = prov.konspekts[index] == selectedKonspekt;
+              return SizedBox(
+                height: KonspektTileWidget.defHeight,
+                child: KonspektTileWidget(
+                  prov.konspekts[index],
+                  radius: AppCard.defRadius,
+                  background: isSelected ? backgroundIcon_(context) : cardEnab_(context),
+                  elevation: isSelected ? AppCard.bigElevation : 0,
+                  onTap: () => onItemTap?.call(prov.konspekts[index]),
+                ),
+              );
+            },
             separatorBuilder: (context, index) => SizedBox(height: Dimen.defMarg),
             itemCount: prov.konspekts.length,
           ),
@@ -168,11 +170,11 @@ class TableOfContentWidgetState<T extends KonspektFilters> extends State<TableOf
 
                   Expanded(
                     child: TextField(
-                      style: AppTextStyle(color: AppColors.textDefEnab),
+                      style: AppTextStyle(color: textEnab_(context)),
                       controller: controller,
                       decoration: InputDecoration(
                           hintText: 'Szukaj',
-                          hintStyle: AppTextStyle(color: AppColors.textHintEnab),
+                          hintStyle: AppTextStyle(color: hintEnab_(context)),
                           border: InputBorder.none
                       ),
                       onChanged: (text){

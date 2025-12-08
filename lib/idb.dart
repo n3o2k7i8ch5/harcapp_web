@@ -11,9 +11,11 @@ class IDB{
   static String storeNameNewestSeenLocalId(ArticleSource source) => "newestLocalId_${source.name}";
   static String storeNameOldestSeenLocalId(ArticleSource source) => "oldestLocalId_${source.name}";
   static String storeNameIsAllHistoryLoaded(ArticleSource source) => "isAllHistoryLoaded_${source.name}";
+  static const String storeNameKonspektDraft = 'konspekt_draft';
   static const String newestSeenLocalIdKey = 'newestSeenLocalId';
   static const String oldestSeenLocalIdKey = 'oldestSeenLocalId';
   static const String isAllHistoryLoadedKey = 'isAllHistoryLoaded';
+  static const String konspektDraftKey = 'draft';
 
   static late Database database;
 
@@ -22,16 +24,24 @@ class IDB{
 
     database = await idbFactory.open(
         dbName,
-        version: 1,
+        version: 2,
         onUpgradeNeeded: (VersionChangeEvent event) {
           Database db = event.database;
-          for (ArticleSource source in ArticleSource.values){
-            db.createObjectStore(storeNameContent(source), autoIncrement: true);
-            db.createObjectStore(storeNameBigCover(source), autoIncrement: true);
-            db.createObjectStore(storeNameSmallCover(source), autoIncrement: true);
-            db.createObjectStore(storeNameNewestSeenLocalId(source), autoIncrement: true);
-            db.createObjectStore(storeNameOldestSeenLocalId(source), autoIncrement: true);
-            db.createObjectStore(storeNameIsAllHistoryLoaded(source), autoIncrement: true);
+          int oldVersion = event.oldVersion;
+          
+          if (oldVersion < 1) {
+            for (ArticleSource source in ArticleSource.values){
+              db.createObjectStore(storeNameContent(source), autoIncrement: true);
+              db.createObjectStore(storeNameBigCover(source), autoIncrement: true);
+              db.createObjectStore(storeNameSmallCover(source), autoIncrement: true);
+              db.createObjectStore(storeNameNewestSeenLocalId(source), autoIncrement: true);
+              db.createObjectStore(storeNameOldestSeenLocalId(source), autoIncrement: true);
+              db.createObjectStore(storeNameIsAllHistoryLoaded(source), autoIncrement: true);
+            }
+          }
+          
+          if (oldVersion < 2) {
+            db.createObjectStore(storeNameKonspektDraft, autoIncrement: true);
           }
         }
     );
@@ -113,4 +123,14 @@ class IDB{
 
   static Future<Object> saveIsAllHistoryLoaded(ArticleSource source, bool value) => put(storeNameIsAllHistoryLoaded(source), isAllHistoryLoadedKey, value);
   static Future<bool> getIsAllHistoryLoaded(ArticleSource source) async => (await get(storeNameIsAllHistoryLoaded(source), isAllHistoryLoadedKey)) as bool? ?? false;
+
+  // Konspekt draft
+  static Future<Object> saveKonspektDraft(Uint8List bytes) => put(storeNameKonspektDraft, konspektDraftKey, bytes);
+  static Future<Uint8List?> getKonspektDraft() async => (await get(storeNameKonspektDraft, konspektDraftKey)) as Uint8List?;
+  static Future<void> clearKonspektDraft() async {
+    Transaction txn = database.transaction(storeNameKonspektDraft, "readwrite");
+    ObjectStore store = txn.objectStore(storeNameKonspektDraft);
+    await store.delete(konspektDraftKey);
+    await txn.completed;
+  }
 }

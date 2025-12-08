@@ -135,10 +135,24 @@ class DurationSelectorDialogState extends State<DurationSelectorDialog> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
 
-                      DurationPicker(
-                        duration: duration,
-                        baseUnit: baseUnit,
-                        onChange: (value) => setState(() => duration = value),
+                      Theme(
+                        data: Theme.of(context).copyWith(
+                          colorScheme: Theme.of(context).colorScheme.copyWith(
+                            surface: background_(context),
+                            onSurface: textEnab_(context),
+                            primary: iconEnab_(context),
+                            onPrimary: background_(context),
+                          ),
+                          textTheme: Theme.of(context).textTheme.apply(
+                            bodyColor: textEnab_(context),
+                            displayColor: textEnab_(context),
+                          ),
+                        ),
+                        child: DurationPicker(
+                          duration: duration,
+                          baseUnit: baseUnit,
+                          onChange: (value) => setState(() => duration = value),
+                        ),
                       ),
 
                       SizedBox(height: Dimen.sideMarg),

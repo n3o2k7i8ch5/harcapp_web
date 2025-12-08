@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_toast.dart';
 
 import '../top_navigation_bar.dart';
@@ -36,7 +37,7 @@ class BaseScaffold extends StatelessWidget{
         appBar: TopNavigationBar(withMenuIcon: drawer!=null),
         drawer: drawer,
         body: body,
-        backgroundColor: backgroundColor,
+        backgroundColor: backgroundColor ?? background_(context),
         bottomNavigationBar: bottomNavigationBar,
         floatingActionButton: floatingActionButton,
         resizeToAvoidBottomInset: avoidKeyboard,

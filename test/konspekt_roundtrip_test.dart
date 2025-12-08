@@ -60,6 +60,7 @@ KonspektData _buildBaseKonspekt({
     additionalSearchPhraseControllers: [
       TextEditingController(text: 'fraza'),
     ],
+    category: KonspektCategory.harcerskie,
     type: KonspektType.zajecia,
     spheres: spheres,
     metos: Meto.values.isNotEmpty ? [Meto.values.first] : [],
@@ -310,6 +311,7 @@ void main() {
         TextEditingController(text: 'gra terenowa'),
         TextEditingController(text: 'integracja zastępu'),
       ],
+      category: KonspektCategory.harcerskie,
       type: KonspektType.zajecia,
       spheres: {
         KonspektSphere.cialo: cialoDetails,
@@ -572,5 +574,75 @@ void main() {
     final Map pickedUrls = map['pickedUrls'] as Map;
 
     expect(pickedUrls[FileFormat.urlPdf.apiParam], 'https://example.com/file.pdf');
+  });
+
+  test('AttachmentData.toJson/fromJson roundtrip preserves all fields', () {
+    final Uint8List pngBytes = Uint8List.fromList([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
+
+    final AttachmentData original = AttachmentData(
+      name: 'test_attachment',
+      title: 'Test Attachment Title',
+      fileData: {FileFormat.png: pngBytes},
+      urlData: {FileFormat.urlPdf: 'https://example.com/doc.pdf'},
+      printInfoEnabled: true,
+      printSide: KonspektAttachmentPrintSide.double,
+      printColor: KonspektAttachmentPrintColor.color,
+    );
+
+    final Map<String, dynamic> json = original.toJson();
+
+    // Verify JSON contains all required fields
+    expect(json['name'], 'test_attachment');
+    expect(json['title'], 'Test Attachment Title');
+    expect(json['formats'], isNotNull);
+    expect(json['files'], isNotNull);
+    expect(json['urls'], isNotNull);
+    expect(json['printInfoEnabled'], true);
+    expect(json['printSide'], 'double');
+    expect(json['printColor'], 'color');
+
+    // Verify roundtrip
+    final AttachmentData restored = AttachmentData.fromJson(json);
+
+    expect(restored.name, original.name);
+    expect(restored.title, original.title);
+    expect(restored.fileData.keys, contains(FileFormat.png));
+    expect(restored.fileData[FileFormat.png], pngBytes);
+    expect(restored.urlData[FileFormat.urlPdf], 'https://example.com/doc.pdf');
+    expect(restored.printInfoEnabled, original.printInfoEnabled);
+    expect(restored.printSide, original.printSide);
+    expect(restored.printColor, original.printColor);
+  });
+
+  test('AttachmentData.toJson/fromJson roundtrip with empty title', () {
+    final AttachmentData original = AttachmentData(
+      name: 'no_title_attachment',
+      title: '',
+      fileData: const {},
+      urlData: const {},
+    );
+
+    final Map<String, dynamic> json = original.toJson();
+    expect(json['title'], '');
+
+    final AttachmentData restored = AttachmentData.fromJson(json);
+    expect(restored.name, 'no_title_attachment');
+    expect(restored.title, '');
+  });
+
+  test('AttachmentData.toJson includes formats field', () {
+    final AttachmentData attachment = AttachmentData(
+      name: 'formats_test',
+      title: 'Formats Test',
+      fileData: {FileFormat.png: Uint8List.fromList([1, 2, 3])},
+      urlData: {FileFormat.urlPdf: 'https://example.com'},
+    );
+
+    final Map<String, dynamic> json = attachment.toJson();
+
+    expect(json['formats'], isA<List>());
+    final List formats = json['formats'] as List;
+    expect(formats, contains('png'));
+    expect(formats, contains('urlPdf'));
   });
 }

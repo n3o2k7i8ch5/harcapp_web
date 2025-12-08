@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:harcapp_web/idb.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_classes/meto.dart';
@@ -49,7 +51,10 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
   KonspektData get konspektData => widget.konspektData??_konspektData!;
 
   bool _hasScrolled = false;
+  bool _hasUnsavedChanges = false;
   late final ScrollController _scrollController;
+  Timer? _debounceSaveTimer;
+  static const _debounceDuration = Duration(seconds: 2);
 
   @override
   void initState() {
@@ -59,7 +64,74 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
     _scrollController = ScrollController();
     _scrollController.addListener(_handleScrollChanged);
 
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkForDraft());
+
     super.initState();
+  }
+
+  void _markUnsaved() {
+    if (!_hasUnsavedChanges) {
+      setState(() => _hasUnsavedChanges = true);
+    }
+    _scheduleSaveDraft();
+  }
+
+  void _scheduleSaveDraft() {
+    _debounceSaveTimer?.cancel();
+    _debounceSaveTimer = Timer(_debounceDuration, _saveDraft);
+  }
+
+  void _setStateAndSave(VoidCallback fn) {
+    setState(fn);
+    _markUnsaved();
+  }
+
+  Future<void> _saveDraft() async {
+    try {
+      final bytes = konspektData.toHrcpknspktData().toBytes();
+      await IDB.saveKonspektDraft(bytes);
+    } catch (_) {}
+  }
+
+  Future<void> _checkForDraft() async {
+    final draftBytes = await IDB.getKonspektDraft();
+    if (draftBytes == null || draftBytes.isEmpty) return;
+    if (!mounted) return;
+
+    try {
+      final draftData = HrcpknspktData.fromBytes(draftBytes);
+      final draftKonspekt = KonspektData.fromHrcpknspktData(draftData);
+      
+      // Sprawdź czy draft ma jakąś treść (np. tytuł)
+      if (draftKonspekt.title.isEmpty) {
+        await IDB.clearKonspektDraft();
+        return;
+      }
+
+      if (!mounted) return;
+      _showDraftRecoveryDialog(draftData, draftKonspekt);
+    } catch (e) {
+      debugPrint('Error loading draft: $e');
+      await IDB.clearKonspektDraft();
+    }
+  }
+
+  void _showDraftRecoveryDialog(HrcpknspktData draftData, KonspektData draftKonspekt) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => _DraftRecoveryDialog(
+        draftKonspekt: draftKonspekt,
+        onRestore: () {
+          setState(() => _konspektData = draftKonspekt);
+          Navigator.of(context).pop();
+        },
+        onDiscard: () async {
+          await IDB.clearKonspektDraft();
+          Navigator.of(context).pop();
+        },
+      ),
+    );
   }
 
   void _handleScrollChanged() {
@@ -71,6 +143,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
   @override
   void dispose() {
+    _debounceSaveTimer?.cancel();
     _scrollController.removeListener(_handleScrollChanged);
     _scrollController.dispose();
     super.dispose();
@@ -78,7 +151,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
   @override
   Widget build(BuildContext context) => BaseScaffold(
-      backgroundColor: backgroundIcon_(context),
+      backgroundColor: cardEnab_(context),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -120,9 +193,11 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                           ),
                           child: _TopActions(
                             konspektData: konspektData,
+                            hasUnsavedChanges: _hasUnsavedChanges,
                             onLoaded: (data) => setState(
                                     () => _konspektData =
                                     KonspektData.fromHrcpknspktData(data)),
+                            onSaved: () => setState(() => _hasUnsavedChanges = false),
                           ),
                         ),
                       ),
@@ -132,7 +207,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                           delegate: SliverChildListDelegate([
 
                             // Cover image picker + preview + author
-                            _CoverWidget(konspektData: konspektData),
+                            _CoverWidget(konspektData: konspektData, onChanged: _markUnsaved),
 
                             SizedBox(height: Dimen.sideMarg),
 
@@ -142,6 +217,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                               hintStyle: TitleShortcutRowWidget.style.copyWith(color: hintEnab_(context)),
                               textCapitalization: TextCapitalization.sentences,
                               controller: konspektData.titleController,
+                              onChanged: (_, __) => _markUnsaved(),
                             ),
 
                             const SizedBox(height: Dimen.sideMarg),
@@ -155,21 +231,52 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                               textCapitalization: TextCapitalization.sentences,
                               controller: konspektData.summaryController,
                               maxLines: null,
+                              onChanged: (_, __) => _markUnsaved(),
+                            ),
+
+                            const SizedBox(height: Dimen.defMarg),
+
+                            TitleShortcutRowWidget(
+                              title: 'Kategoria:',
+                              textAlign: TextAlign.left,
+                            ),
+                            Row(
+                              children: [
+                                _CategoryToggleButton(
+                                  label: 'Harcerski',
+                                  isSelected: konspektData.category == KonspektCategory.harcerskie,
+                                  onTap: () => _setStateAndSave(() {
+                                    konspektData.category = KonspektCategory.harcerskie;
+                                    konspektData.metos.clear();
+                                  }),
+                                ),
+                                const SizedBox(width: Dimen.defMarg),
+                                _CategoryToggleButton(
+                                  label: 'Kształceniowy',
+                                  isSelected: konspektData.category == KonspektCategory.ksztalcenie,
+                                  onTap: () => _setStateAndSave(() {
+                                    konspektData.category = KonspektCategory.ksztalcenie;
+                                    konspektData.metos.clear();
+                                  }),
+                                ),
+                              ],
                             ),
 
                             const SizedBox(height: Dimen.sideMarg),
 
                             TitleShortcutRowWidget(
-                              title: 'Metodyki',
+                              title: konspektData.category == KonspektCategory.harcerskie ? 'Metodyki' : 'Poziom',
                               textAlign: TextAlign.left,
                             ),
 
                             LevelSelectableGridWidget(
-                              Set.from(Meto.values),
+                              konspektData.category == KonspektCategory.harcerskie
+                                  ? {Meto.zuch, Meto.harc, Meto.hs, Meto.wedro}
+                                  : {Meto.kadra},
                               konspektData.metos.toSet(),
                               oneLine: true,
                               onLevelTap: (Meto meto, bool checked) {
-                                setState(() {
+                                _setStateAndSave(() {
                                   if (checked) konspektData.metos.remove(meto);
                                   else konspektData.metos.add(meto);
                                 });
@@ -193,7 +300,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                                     type: konspektData.type,
                                     onChanged: (KonspektType? type) {
                                       if(type == null) return;
-                                      setState(() => konspektData.type = type);
+                                      _setStateAndSave(() => konspektData.type = type);
                                     }
                                 ),
 
@@ -211,7 +318,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                               onChanged: (Map<KonspektSphere, KonspektSphereDetails?> newSpheres){
                                 konspektData.spheres.clear();
                                 konspektData.spheres.addAll(newSpheres);
-                                setState((){});
+                                _setStateAndSave((){});
                               },
                             ),
 
@@ -230,7 +337,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
                                 SelectTimeButton(
                                   konspektData.customDuration,
-                                  onChanged: (Duration? newDuration) => setState(() => konspektData.customDuration = newDuration),
+                                  onChanged: (Duration? newDuration) => _setStateAndSave(() => konspektData.customDuration = newDuration),
                                   fontSize: TitleShortcutRowWidget.style.fontSize,
                                 )
                               ],
@@ -268,6 +375,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                                             hint: 'Cel:',
                                             controller: controller,
                                             textCapitalization: TextCapitalization.sentences,
+                                            onChanged: (_, __) => _markUnsaved(),
                                           ),
                                         ),
 
@@ -286,7 +394,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                                           textColor: Colors.red,
                                           icon: MdiIcons.trashCanOutline,
                                           iconColor: Colors.red,
-                                          onTap: () => setState(() {
+                                          onTap: () => _setStateAndSave(() {
                                             konspektData.aimControllers.removeAt(index);
                                           }),
                                         ),
@@ -305,7 +413,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                                   margin: EdgeInsets.zero,
                                   textColor: iconEnab_(context),
                                   text: 'Dodaj cel',
-                                  onTap: () => setState(() {
+                                  onTap: () => _setStateAndSave(() {
                                     konspektData.aimControllers.add(TextEditingController());
                                   }),
                                 ),
@@ -391,9 +499,17 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
 class _TopActions extends StatelessWidget {
   final KonspektData konspektData;
+  final bool hasUnsavedChanges;
   final void Function(HrcpknspktData data) onLoaded;
+  final VoidCallback onSaved;
 
-  const _TopActions({super.key, required this.konspektData, required this.onLoaded});
+  const _TopActions({
+    super.key,
+    required this.konspektData,
+    required this.hasUnsavedChanges,
+    required this.onLoaded,
+    required this.onSaved,
+  });
 
   @override
   Widget build(BuildContext context) => Material(
@@ -403,34 +519,37 @@ class _TopActions extends StatelessWidget {
     child: Row(
       children: [
         Expanded(
-          child: SimpleButton.from(
+          child: SimpleButton(
               radius: 0,
-              context: context,
               color: cardEnab_(context),
               margin: EdgeInsets.zero,
-              icon: MdiIcons.eyeOutline,
-              text: 'Podgląd',
               onTap: () {
-                Map json = konspektData.toJsonMap();
-                Konspekt konspekt = Konspekt.fromJsonMap(json);
-                showDialog(
-                    context: context,
-                    builder: (context) => Center(
-                      child: Container(
-                        constraints:
-                        BoxConstraints(maxWidth: defPageWidth),
-                        child: Padding(
-                          padding: EdgeInsets.all(Dimen.sideMarg),
-                          child: Material(
-                            child: BaseKonspektWidget(
-                              konspekt,
-                              onDuchLevelInfoTap: null,
-                            ),
-                          ),
-                        ),
+                downloadFileFromBytes(
+                    fileName: '${konspektData.titleAsFileName}.hrcpknspkt',
+                    bytes: konspektData.toHrcpknspktData().toBytes()
+                );
+                onSaved();
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height: Dimen.iconFootprint),
+                  Icon(MdiIcons.contentSave, color: iconEnab_(context)),
+                  SizedBox(width: Dimen.iconMarg),
+                  Text('Zapisz', style: AppTextStyle(color: textEnab_(context))),
+                  if (hasUnsavedChanges) ...[
+                    SizedBox(width: 6),
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                        shape: BoxShape.circle,
                       ),
-                    ));
-              }),
+                    ),
+                  ],
+                ],
+              )),
         ),
 
         Expanded(
@@ -471,12 +590,29 @@ class _TopActions extends StatelessWidget {
               context: context,
               color: cardEnab_(context),
               margin: EdgeInsets.zero,
-              icon: MdiIcons.contentSave,
-              text: 'Zapisz',
-              onTap: () => downloadFileFromBytes(
-                  fileName: '${konspektData.titleAsFileName}.hrcpknspkt',
-                  bytes: konspektData.toHrcpknspktData().toBytes()
-              )),
+              icon: MdiIcons.eyeOutline,
+              text: 'Podgląd',
+              onTap: () {
+                Map json = konspektData.toJsonMap();
+                Konspekt konspekt = Konspekt.fromJsonMap(json);
+                showDialog(
+                    context: context,
+                    builder: (context) => Center(
+                      child: Container(
+                        constraints:
+                        BoxConstraints(maxWidth: defPageWidth),
+                        child: Padding(
+                          padding: EdgeInsets.all(Dimen.sideMarg),
+                          child: Material(
+                            child: BaseKonspektWidget(
+                              konspekt,
+                              onDuchLevelInfoTap: null,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ));
+              }),
         ),
       ],
     ),
@@ -485,14 +621,15 @@ class _TopActions extends StatelessWidget {
 
 class _CoverWidget extends StatelessWidget {
   final KonspektData konspektData;
+  final VoidCallback onChanged;
 
-  const _CoverWidget({super.key, required this.konspektData});
+  const _CoverWidget({super.key, required this.konspektData, required this.onChanged});
 
   @override
   Widget build(BuildContext context) => StatefulBuilder(
     builder: (context, setState) => Material(
       borderRadius: BorderRadius.circular(AppCard.defRadius),
-      color: backgroundIcon_(context),
+      color: cardEnab_(context),
       clipBehavior: Clip.hardEdge,
       child: SizedBox(
         height: 400,
@@ -535,6 +672,7 @@ class _CoverWidget extends StatelessWidget {
                       );
                       if (result != null && result.files.isNotEmpty) {
                         setState(() => konspektData.coverImageBytes = result.files.first.bytes);
+                        onChanged();
                       }
                     },
                   ),
@@ -550,7 +688,10 @@ class _CoverWidget extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: Dimen.defMarg, vertical: 8),
                       icon: MdiIcons.delete,
                       text: 'Usuń',
-                      onTap: () => setState(() => konspektData.coverImageBytes = null),
+                      onTap: () {
+                        setState(() => konspektData.coverImageBytes = null);
+                        onChanged();
+                      },
                     ),
                 ],
               ),
@@ -569,6 +710,7 @@ class _CoverWidget extends StatelessWidget {
                   hintTop: 'Autor okładki',
                   textCapitalization: TextCapitalization.sentences,
                   controller: konspektData.coverAuthorController,
+                  onChanged: (_, __) => onChanged(),
                   leading: Padding(
                     padding: EdgeInsets.all(Dimen.iconMarg),
                     child: Icon(MdiIcons.account, color: hintEnab_(context)),
@@ -634,4 +776,189 @@ class _KonspektTypeButton extends StatelessWidget{
       ).toList()
   );
 
+}
+
+class _CategoryToggleButton extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _CategoryToggleButton({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) => SimpleButton.from(
+    context: context,
+    radius: AppCard.defRadius,
+    padding: EdgeInsets.symmetric(horizontal: Dimen.defMarg * 1.5, vertical: Dimen.defMarg),
+    color: isSelected ? iconEnab_(context) : backgroundIcon_(context),
+    textColor: isSelected ? background_(context) : hintEnab_(context),
+    fontWeight: isSelected ? weightBold : weightNormal,
+    margin: EdgeInsets.zero,
+    text: label,
+    onTap: onTap,
+  );
+}
+
+class _DraftRecoveryDialog extends StatelessWidget {
+  final KonspektData draftKonspekt;
+  final VoidCallback onRestore;
+  final VoidCallback onDiscard;
+
+  const _DraftRecoveryDialog({
+    required this.draftKonspekt,
+    required this.onRestore,
+    required this.onDiscard,
+  });
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: Container(
+      constraints: BoxConstraints(maxWidth: 500),
+      margin: EdgeInsets.all(Dimen.sideMarg),
+      child: Material(
+        borderRadius: BorderRadius.circular(AppCard.bigRadius),
+        color: cardEnab_(context),
+        clipBehavior: Clip.hardEdge,
+        child: Padding(
+          padding: EdgeInsets.all(Dimen.sideMarg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Icon(MdiIcons.fileRestoreOutline, color: iconEnab_(context), size: 32),
+                  SizedBox(width: Dimen.defMarg),
+                  Expanded(
+                    child: Text(
+                      'Niezapisane zmiany',
+                      style: AppTextStyle(
+                        fontSize: Dimen.textSizeAppBar,
+                        fontWeight: weightBold,
+                        color: textEnab_(context),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: Dimen.sideMarg),
+
+              Text(
+                'Widzę, że masz tu jakieś niezapisane zmiany. Czy chcesz je przywrócić?',
+                style: AppTextStyle(color: textEnab_(context)),
+              ),
+
+              SizedBox(height: Dimen.defMarg),
+
+              Material(
+                borderRadius: BorderRadius.circular(AppCard.defRadius),
+                color: backgroundIcon_(context),
+                child: Padding(
+                  padding: EdgeInsets.all(Dimen.defMarg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Tytuł: ${draftKonspekt.title.isNotEmpty ? draftKonspekt.title : "(brak)"}',
+                        style: AppTextStyle(
+                          fontWeight: weightBold,
+                          color: textEnab_(context),
+                        ),
+                      ),
+                      if (draftKonspekt.summary.isNotEmpty) ...[
+                        SizedBox(height: Dimen.defMarg / 2),
+                        Text(
+                          draftKonspekt.summary,
+                          style: AppTextStyle(color: hintEnab_(context)),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                      SizedBox(height: Dimen.defMarg / 2),
+                      Text(
+                        'Kategoria: ${draftKonspekt.category.displayName}',
+                        style: AppTextStyle(color: hintEnab_(context), fontSize: Dimen.textSizeSmall),
+                      ),
+                      Text(
+                        'Kroki: ${draftKonspekt.stepsData.length}',
+                        style: AppTextStyle(color: hintEnab_(context), fontSize: Dimen.textSizeSmall),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              SizedBox(height: Dimen.sideMarg),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: SimpleButton.from(
+                      context: context,
+                      color: backgroundIcon_(context),
+                      textColor: textEnab_(context),
+                      margin: EdgeInsets.zero,
+                      text: 'Odrzuć',
+                      icon: MdiIcons.deleteOutline,
+                      onTap: onDiscard,
+                    ),
+                  ),
+                  SizedBox(width: Dimen.defMarg),
+                  Expanded(
+                    child: SimpleButton.from(
+                      context: context,
+                      color: iconEnab_(context),
+                      textColor: background_(context),
+                      fontWeight: weightBold,
+                      margin: EdgeInsets.zero,
+                      text: 'Przywróć',
+                      icon: MdiIcons.check,
+                      onTap: onRestore,
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: Dimen.defMarg),
+
+              SimpleButton.from(
+                context: context,
+                color: Colors.transparent,
+                textColor: hintEnab_(context),
+                margin: EdgeInsets.zero,
+                text: 'Podgląd',
+                icon: MdiIcons.eyeOutline,
+                onTap: () {
+                  Map json = draftKonspekt.toJsonMap();
+                  Konspekt konspekt = Konspekt.fromJsonMap(json);
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => Center(
+                      child: Container(
+                        constraints: BoxConstraints(maxWidth: defPageWidth),
+                        child: Padding(
+                          padding: EdgeInsets.all(Dimen.sideMarg),
+                          child: Material(
+                            child: BaseKonspektWidget(
+                              konspekt,
+                              onDuchLevelInfoTap: null,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
 }

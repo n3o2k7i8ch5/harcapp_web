@@ -74,7 +74,11 @@ class _FamilyCard extends StatelessWidget {
                       height: 52.5,
                       child: it.iconPath.isEmpty
                           ? Icon(Icons.verified, color: iconEnab_(context))
-                          : SvgPicture.asset(it.iconPath, fit: BoxFit.contain),
+                          : SvgPicture.asset(
+                              it.iconPath,
+                              fit: BoxFit.contain,
+                              colorFilter: ColorFilter.mode(iconEnab_(context), BlendMode.srcIn),
+                            ),
                     ),
                 ],
               ),

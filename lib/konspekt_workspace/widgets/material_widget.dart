@@ -523,17 +523,15 @@ class _AttachmentFieldState extends State<_AttachmentField> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    if (hasValue) ...[
-                      Text(
-                        'Załącznik',
-                        style: AppTextStyle(
-                          fontSize: AppTextFieldHint.topHintFontSize,
-                          fontWeight: AppTextFieldHint.topHintFontWeight,
-                          color: AppTextFieldHint.topHintColor(context),
-                        ),
+                    Text(
+                      hasValue ? 'Załącznik' : '',
+                      style: AppTextStyle(
+                        fontSize: AppTextFieldHint.topHintFontSize,
+                        fontWeight: AppTextFieldHint.topHintFontWeight,
+                        color: AppTextFieldHint.topHintColor(context),
                       ),
-                      const SizedBox(height: 4),
-                    ],
+                    ),
+                    const SizedBox(height: 4),
                     Text(
                       displayText ?? 'Załącznik (opcjonalnie)',
                       style: AppTextStyle(
@@ -543,8 +541,7 @@ class _AttachmentFieldState extends State<_AttachmentField> {
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (hasValue)
-                      const SizedBox(height: AppTextFieldHint.topHintFontSize),
+                    const SizedBox(height: AppTextFieldHint.topHintFontSize),
                   ],
                 ),
               ),
