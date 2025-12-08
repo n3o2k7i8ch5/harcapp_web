@@ -131,39 +131,10 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                         sliver: SliverList(
                           delegate: SliverChildListDelegate([
 
-                            Container(
-                                height: 50,
-                                width: double.infinity,
-                                color: Colors.red[700]!,
-                                child: Center(
-                                  child: Text(
-                                    'To jeszcze nie działa. W budowie. Prosze sobie pójść gdzie indziej :)',
-                                    style: AppTextStyle(
-                                      fontSize: Dimen.textSizeAppBar,
-                                      color: background_(context),
-                                      fontWeight: weightBold,
-                                    ),
-                                  ),
-                                )
-                            ),
-
-                            SizedBox(height: Dimen.sideMarg),
-
-                            // Cover image picker + preview
+                            // Cover image picker + preview + author
                             _CoverWidget(konspektData: konspektData),
 
-                            const SizedBox(height: Dimen.sideMarg),
-
-                            // Cover author
-                            TitleShortcutRowWidget(
-                              title: 'Autor okładki',
-                              textAlign: TextAlign.left,
-                            ),
-                            AppTextFieldHint(
-                              hint: 'Autor okładki (jeśli dotyczy):',
-                              textCapitalization: TextCapitalization.sentences,
-                              controller: konspektData.coverAuthorController,
-                            ),
+                            SizedBox(height: Dimen.sideMarg),
 
                             AppTextFieldHint(
                               hint: 'Nazwa konspektu:',
@@ -522,7 +493,7 @@ class _CoverWidget extends StatelessWidget {
       color: backgroundIcon_(context),
       clipBehavior: Clip.hardEdge,
       child: SizedBox(
-        height: 300,
+        height: 400,
         width: double.infinity,
         child: Stack(
           fit: StackFit.expand,
@@ -540,6 +511,7 @@ class _CoverWidget extends StatelessWidget {
                 ),
               ),
 
+            // Przyciski góra-prawo
             Positioned(
               top: Dimen.defMarg,
               right: Dimen.defMarg,
@@ -580,7 +552,28 @@ class _CoverWidget extends StatelessWidget {
                     ),
                 ],
               ),
-            )
+            ),
+
+            // Autor okładki - dół
+            Positioned(
+              bottom: Dimen.defMarg,
+              right: Dimen.defMarg,
+              left: Dimen.defMarg,
+              child: Material(
+                color: background_(context),
+                borderRadius: BorderRadius.circular(AppCard.defRadius),
+                child: AppTextFieldHint(
+                  hint: 'Autor okładki:',
+                  hintTop: 'Autor okładki',
+                  textCapitalization: TextCapitalization.sentences,
+                  controller: konspektData.coverAuthorController,
+                  leading: Padding(
+                    padding: EdgeInsets.all(Dimen.iconMarg),
+                    child: Icon(MdiIcons.account, color: hintEnab_(context)),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

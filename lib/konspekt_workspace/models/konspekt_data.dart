@@ -189,7 +189,10 @@ class KonspektData extends BaseKonspekt {
     attachments: []
   );
 
-  String get titleAsFileName => simplifyString(titleController.text);
+  String get titleAsFileName {
+    final simplified = simplifyString(titleController.text);
+    return simplified.isEmpty ? 'bez_nazwy' : simplified;
+  }
 
   @override
   Map toJsonMap() {

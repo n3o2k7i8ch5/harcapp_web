@@ -13,8 +13,9 @@ void downloadFileFromString({
 void downloadFileFromBytes({
   required String fileName,
   required Uint8List bytes,
+  String mimeType = 'application/octet-stream',
 }){
-  final Blob blob = Blob([bytes]);
+  final Blob blob = Blob([bytes], mimeType);
   final String url = Url.createObjectUrlFromBlob(blob);
   final AnchorElement anchor = document.createElement('a') as AnchorElement
     ..href = url

@@ -476,7 +476,7 @@ packages:
     source: hosted
     version: "11.5.0"
   flutter_quill_delta_from_html:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: flutter_quill_delta_from_html
       sha256: "0eb801ea8dd498cadc057507af5da794d4c9599ce58b2569cb3d4bb53ba8bed2"
@@ -602,12 +602,12 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "308e749e5e9c893b6aec30a1da0df854ce150941"
+      resolved-ref: e1af6cc479c40b57f046b51c9b27394a59931b97
       url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"
   html:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: html
       sha256: "6d1264f2dffa1b1101c25a91dff0dc2daee4c18e87cd8538729773c073dbf602"
@@ -842,10 +842,10 @@ packages:
     dependency: transitive
     description:
       name: native_device_orientation
-      sha256: "39249012f4d80c620ab1b01e3e814e0f71958c34ba9432f0033e5d8dba2d2cc7"
+      sha256: "711aabfd7c67396f6562437cba078d17291f8b7c454c2fbc9739c9d7141b041d"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.5"
+    version: "2.1.0"
   nested:
     dependency: transitive
     description:
@@ -1475,14 +1475,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "15.0.2"
-  vsc_quill_delta_to_html:
-    dependency: "direct main"
-    description:
-      name: vsc_quill_delta_to_html
-      sha256: "9aca60d53ed1b700e922dabff8cd8b3490daecbf99c258f19eb45820b794fa45"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.5"
   wakelock_plus:
     dependency: transitive
     description:

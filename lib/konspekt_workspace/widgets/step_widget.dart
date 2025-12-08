@@ -7,6 +7,7 @@ import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/harcthought/konspekts/widgets/step_widget.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_step_data.dart';
+import 'package:harcapp_web/konspekt_workspace/widgets/opis_html_editor.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/select_time_button.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -94,10 +95,7 @@ class StepWidgetState extends State<StepWidget> {
 
           SizedBox(height: Dimen.sideMarg),
 
-          AppTextFieldHint(
-            hint: 'Opis kroku ${widget.index + 1}:',
-            textCapitalization: TextCapitalization.sentences,
-            maxLines: null,
+          OpisHtmlEditor(
             controller: stepData.contentController,
           ),
 
