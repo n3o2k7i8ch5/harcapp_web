@@ -637,17 +637,35 @@ class _TopActions extends StatelessWidget {
 }
 
 class _CoverWidget extends StatelessWidget {
+
+  static const double buttonsCollapseMaxWidth = 550;
+
   final KonspektData konspektData;
   final VoidCallback onChanged;
 
   const _CoverWidget({super.key, required this.konspektData, required this.onChanged});
 
+  Future<void> setCover(Function setState) async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['png', 'jpg', 'jpeg', 'webp'],
+      withData: true,
+    );
+    if (result != null && result.files.isNotEmpty) {
+      setState(() => konspektData.coverImageBytes = result.files.first.bytes);
+      onChanged();
+    }
+  }
+
   @override
   Widget build(BuildContext context) => StatefulBuilder(
-    builder: (context, setState) => Material(
+    builder: (context, setState) => SimpleButton(
       borderRadius: BorderRadius.circular(AppCard.defRadius),
       color: cardEnab_(context),
       clipBehavior: Clip.hardEdge,
+      onTap: konspektData.coverImageBytes == null?
+      () => setCover(setState):
+      null,
       child: SizedBox(
         height: 400,
         width: double.infinity,
@@ -661,77 +679,85 @@ class _CoverWidget extends StatelessWidget {
               )
             else
               Center(
-                child: Text(
-                  'Brak okładki',
-                  style: AppTextStyle(color: hintEnab_(context)),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      MdiIcons.imagePlusOutline,
+                      size: 72,
+                      color: hintEnab_(context),
+                    ),
+                    const SizedBox(height: Dimen.sideMarg),
+                    Text(
+                      'Dodaj okładkę',
+                      style: AppTextStyle(
+                        color: hintEnab_(context),
+                        fontSize: Dimen.textSizeAppBar,
+                        fontWeight: weightHalfBold
+                      ),
+                    ),
+                  ],
                 ),
               ),
-
-            // Przyciski góra-prawo
-            Positioned(
-              top: Dimen.defMarg,
-              right: Dimen.defMarg,
-              child: Row(
-                children: [
-                  SimpleButton.from(
-                    context: context,
-                    color: background_(context),
-                    margin: EdgeInsets.zero,
-                    radius: AppCard.defRadius,
-                    padding: EdgeInsets.symmetric(horizontal: Dimen.defMarg, vertical: 8),
-                    icon: MdiIcons.imagePlus,
-                    text: konspektData.coverImageBytes == null ? 'Dodaj obraz' : 'Zmień obraz',
-                    onTap: () async {
-                      FilePickerResult? result = await FilePicker.platform.pickFiles(
-                        type: FileType.custom,
-                        allowedExtensions: ['png', 'jpg', 'jpeg', 'webp'],
-                        withData: true,
-                      );
-                      if (result != null && result.files.isNotEmpty) {
-                        setState(() => konspektData.coverImageBytes = result.files.first.bytes);
-                        onChanged();
-                      }
-                    },
-                  ),
-
-                  if (konspektData.coverImageBytes != null)
-                    SizedBox(width: Dimen.defMarg),
-                  if (konspektData.coverImageBytes != null)
-                    SimpleButton.from(
-                      context: context,
-                      color: background_(context),
-                      margin: EdgeInsets.zero,
-                      radius: AppCard.defRadius,
-                      padding: EdgeInsets.symmetric(horizontal: Dimen.defMarg, vertical: 8),
-                      icon: MdiIcons.delete,
-                      text: 'Usuń',
-                      onTap: () {
-                        setState(() => konspektData.coverImageBytes = null);
-                        onChanged();
-                      },
-                    ),
-                ],
-              ),
-            ),
 
             // Autor okładki - dół
             Positioned(
               bottom: Dimen.defMarg,
               right: Dimen.defMarg,
               left: Dimen.defMarg,
-              child: Material(
-                color: background_(context),
-                borderRadius: BorderRadius.circular(AppCard.defRadius),
-                child: AppTextFieldHint(
-                  hint: 'Autor okładki:',
-                  hintTop: 'Autor okładki',
-                  textCapitalization: TextCapitalization.sentences,
-                  controller: konspektData.coverAuthorController,
-                  onChanged: (_, __) => onChanged(),
-                  leading: Padding(
-                    padding: EdgeInsets.all(Dimen.iconMarg),
-                    child: Icon(MdiIcons.account, color: hintEnab_(context)),
-                  ),
+              child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) => Row(
+                  children: [
+
+                    Expanded(
+                      child: Material(
+                        color: background_(context),
+                        borderRadius: BorderRadius.circular(AppCard.defRadius),
+                        child: AppTextFieldHint(
+                          hint: 'Autor okładki:',
+                          hintTop: 'Autor okładki',
+                          textCapitalization: TextCapitalization.sentences,
+                          controller: konspektData.coverAuthorController,
+                          onChanged: (_, __) => onChanged(),
+                          leading: Padding(
+                            padding: EdgeInsets.all(Dimen.iconMarg),
+                            child: Icon(MdiIcons.account, color: hintEnab_(context)),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(width: Dimen.defMarg),
+
+                    if(konspektData.coverImageBytes != null)
+                      SimpleButton.from(
+                        context: context,
+                        color: background_(context),
+                        margin: EdgeInsets.zero,
+                        radius: AppCard.defRadius,
+                        icon: MdiIcons.imageEditOutline,
+                        text: constraints.maxWidth < buttonsCollapseMaxWidth ? null : (konspektData.coverImageBytes == null ? 'Dodaj obraz' : 'Zmień obraz'),
+                        onTap: () => setCover(setState),
+                      ),
+
+                    if (konspektData.coverImageBytes != null)
+                      SizedBox(width: Dimen.defMarg),
+
+                    if (konspektData.coverImageBytes != null)
+                      SimpleButton.from(
+                        context: context,
+                        color: background_(context),
+                        margin: EdgeInsets.zero,
+                        radius: AppCard.defRadius,
+                        icon: MdiIcons.deleteOffOutline,
+                        text: constraints.maxWidth < buttonsCollapseMaxWidth ? null : 'Usuń',
+                        onTap: () {
+                          setState(() => konspektData.coverImageBytes = null);
+                          onChanged();
+                        },
+                      ),
+
+                  ],
                 ),
               ),
             ),
