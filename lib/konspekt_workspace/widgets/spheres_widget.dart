@@ -95,58 +95,87 @@ class SphereNonDuchWidgetState extends State<SphereNonDuchWidget>{
     super.initState();
   }
 
+  static const Duration _animDuration = Duration(milliseconds: 200);
+  static const Curve _animCurve = Curves.easeIn;
+
   @override
-  Widget build(BuildContext context) => Material(
-    borderRadius: BorderRadius.circular(AppCard.defRadius),
-    color: cardEnab_(context),
-    child: Padding(
-      padding: EdgeInsets.all(Dimen.sideMarg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget build(BuildContext context) => AnimatedSize(
+    duration: _animDuration,
+    curve: _animCurve,
+    alignment: Alignment.topCenter,
+    child: Material(
+      borderRadius: BorderRadius.circular(AppCard.defRadius),
+      color: cardEnab_(context),
+      child: Row(
         children: [
-
-          KonspektSphereTitleWidget(sphere),
-
-          SizedBox(height: controller.length==0?Dimen.iconMarg:0),
-
-          AppTextFieldHint(
-            multiController: controller,
-            hint: 'Elemenet sfery ${sphere.displayNameDopelniacz.toLowerCase()}:',
-            hintTop: '',
-            multiHintTop: '',
-            textFieldHintPadding: EdgeInsets.zero,
-            onAnyChanged: (values) => widget.onChanged?.call(
-              (values.isEmpty)? null : KonspektSphereDetails(
-                levels: {
-                  KonspektSphereLevel.other: KonspektSphereFields(
-                    fields: { for(var v in values) v: null }
-                  )
-                }
-              )
+          Expanded(
+              child: Padding(
+            padding: EdgeInsets.only(
+                top: Dimen.sideMarg,
+                bottom: Dimen.sideMarg,
+                left: Dimen.sideMarg,
             ),
-            multi: true,
-            multiAllowZeroFields: true,
-            multiLayout: LayoutMode.column,
-            multiItemBuilder: (index, key, widget) => Row(
-              key: key,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Because when having more than one item, the close button appears adding height.
-                SizedBox(height: Dimen.iconFootprint),
 
-                SizedBox(width: Dimen.iconMarg),
-                Icon(MdiIcons.circleMedium),
-                SizedBox(width: Dimen.iconMarg),
-                Expanded(child: widget)
+                KonspektSphereTitleWidget(sphere),
+
+                if (controller.length > 0)
+                  AppTextFieldHint(
+                    multiController: controller,
+                    hint: 'Elemenet sfery ${sphere.displayNameDopelniacz.toLowerCase()}:',
+                    hintTop: '',
+                    multiHintTop: '',
+                    textFieldHintPadding: EdgeInsets.zero,
+                    animationDuration: _animDuration,
+                    onAnyChanged: (values) => widget.onChanged?.call(
+                        (values.isEmpty)? null : KonspektSphereDetails(
+                            levels: {
+                              KonspektSphereLevel.other: KonspektSphereFields(
+                                  fields: { for(var v in values) v: null }
+                              )
+                            }
+                        )
+                    ),
+                    multi: true,
+                    multiAllowZeroFields: true,
+                    multiLayout: LayoutMode.column,
+                    multiItemBuilder: (index, key, widget) => Row(
+                      key: key,
+                      children: [
+                        // Because when having more than one item, the close button appears adding height.
+                        SizedBox(height: Dimen.iconFootprint),
+
+                        SizedBox(width: Dimen.iconSize + Dimen.iconMarg),
+                        Icon(MdiIcons.circleMedium),
+                        SizedBox(width: Dimen.iconMarg),
+                        Expanded(child: widget)
+                      ],
+                    ),
+                    multiAddButtonBuilder: (bool tappable, void Function() onTap) => Padding(
+                      padding: EdgeInsets.only(
+                        right: Dimen.sideMarg,
+                        left: Dimen.iconSize + Dimen.iconMarg
+                      ),
+                      child: MultiTextFieldAddButton(
+                        tappable: tappable,
+                        text: 'Element rozwoju ${sphere.displayNameDopelniacz.toLowerCase()}',
+                        onTap: onTap,
+                      ),
+                    ),
+                    multiIsCollapsed: true,
+                  ),
+
               ],
             ),
-            multiAddButtonBuilder: (bool tappable, void Function() onTap) => MultiTextFieldAddButton(
-              tappable: tappable,
-              text: 'Element rozwoju ${sphere.displayNameDopelniacz.toLowerCase()}',
-              onTap: onTap,
-            ),
-            multiIsCollapsed: true,
+      )
           ),
-
+          if (controller.length == 0)
+            AppButton(
+              icon: Icon(MdiIcons.plus, color: hintEnab_(context)),
+              onTap: () => setState(() => controller.texts = ['']),
+            ),
         ],
       ),
     ),

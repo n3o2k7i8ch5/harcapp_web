@@ -157,7 +157,7 @@ class _ActiveFormButton extends StatelessWidget{
   final KonspektStepActiveForm activeForm;
   final void Function(KonspektStepActiveForm activeForm)? onChanged;
 
-  const _ActiveFormButton({required this.activeForm, this.onChanged, super.key});
+  const _ActiveFormButton({required this.activeForm, this.onChanged});
 
   @override
   Widget build(BuildContext context) => PopupMenuButton<KonspektStepActiveForm>(
@@ -216,7 +216,7 @@ class _RequiredButton extends StatelessWidget{
   final bool required;
   final void Function(bool optional)? onChanged;
 
-  const _RequiredButton({required this.required, this.onChanged, super.key});
+  const _RequiredButton({required this.required, this.onChanged});
 
   @override
   Widget build(BuildContext context) => PopupMenuButton<bool>(

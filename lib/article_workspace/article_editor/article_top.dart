@@ -99,7 +99,7 @@ class ArticleTop extends StatelessWidget{
                 );
 
                 if(dateTime != null)
-                  page.setState(() => articleDate = dateTime);
+                  page.setArticleDate(dateTime);
 
               },
               child: Text(

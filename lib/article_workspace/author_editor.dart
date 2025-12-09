@@ -415,5 +415,5 @@ Future<void> loadImage(BuildContext context, AuthorEditorPageState state) async 
   if(image.width != image.height)
     AppScaffold.showMessage(context, text: "Obraz musi być kwadratowy.");
 
-  state.setState(() => state.imageBytes = imageBytes);
+  state.setImage(imageBytes);
 }

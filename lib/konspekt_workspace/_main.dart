@@ -317,21 +317,6 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
                             const SizedBox(height: Dimen.sideMarg),
 
-                            TitleShortcutRowWidget(
-                              title: 'Sfery rozwoju',
-                              textAlign: TextAlign.left,
-                            ),
-                            SpheresWidget(
-                              spheres: konspektData.spheres,
-                              onChanged: (Map<KonspektSphere, KonspektSphereDetails?> newSpheres){
-                                konspektData.spheres.clear();
-                                konspektData.spheres.addAll(newSpheres);
-                                _setStateAndSave((){});
-                              },
-                            ),
-
-                            const SizedBox(height: Dimen.sideMarg),
-
                             Row(
                               children: [
                                 IntrinsicWidth(
@@ -432,6 +417,21 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                             const SizedBox(height: Dimen.sideMarg),
 
                             TitleShortcutRowWidget(
+                              title: 'Sfery rozwoju',
+                              textAlign: TextAlign.left,
+                            ),
+                            SpheresWidget(
+                              spheres: konspektData.spheres,
+                              onChanged: (Map<KonspektSphere, KonspektSphereDetails?> newSpheres){
+                                konspektData.spheres.clear();
+                                konspektData.spheres.addAll(newSpheres);
+                                _setStateAndSave((){});
+                              },
+                            ),
+
+                            const SizedBox(height: Dimen.sideMarg),
+
+                            TitleShortcutRowWidget(
                               title: 'Załączniki',
                               textAlign: TextAlign.left,
                             ),
@@ -515,7 +515,6 @@ class _TopActions extends StatelessWidget {
   final VoidCallback onSaved;
 
   const _TopActions({
-    super.key,
     required this.konspektData,
     required this.hasUnsavedChanges,
     required this.onLoaded,
@@ -637,7 +636,7 @@ class _CoverWidget extends StatelessWidget {
   final KonspektData konspektData;
   final VoidCallback onChanged;
 
-  const _CoverWidget({super.key, required this.konspektData, required this.onChanged});
+  const _CoverWidget({required this.konspektData, required this.onChanged});
 
   Future<void> setCover(Function setState) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -775,7 +774,7 @@ class _KonspektTypeButton extends StatelessWidget{
   final KonspektType type;
   final void Function(KonspektType type)? onChanged;
 
-  const _KonspektTypeButton({required this.type, this.onChanged, super.key});
+  const _KonspektTypeButton({required this.type, this.onChanged});
 
   @override
   Widget build(BuildContext context) => PopupMenuButton<KonspektType>(

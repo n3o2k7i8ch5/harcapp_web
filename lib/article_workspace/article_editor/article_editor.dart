@@ -358,6 +358,8 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
 
   void setImage(Uint8List? imageBytes) => imageBytes==null?null:setState(() => this.imageBytes = imageBytes);
 
+  void setArticleDate(DateTime? date) => date==null?null:setState(() => articleDate = date);
+
 }
 
 Uint8List resize(Uint8List? imageBytes) {

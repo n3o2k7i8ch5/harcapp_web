@@ -158,7 +158,7 @@ class _MoreButton extends StatelessWidget{
 
   final SongRaw song;
 
-  const _MoreButton({required this.song, super.key});
+  const _MoreButton({required this.song});
 
   void switchConfidential(BuildContext context){
     if(song.isConfid) song.id = 'o!_' + song.id.substring(4);
