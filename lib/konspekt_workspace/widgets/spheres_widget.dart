@@ -42,22 +42,22 @@ class SpheresWidgetState extends State<SpheresWidget> {
   @override
   Widget build(BuildContext context) => ListView.separated(
     itemBuilder: (context, index) =>
-      spheres.keys.elementAt(index) == KonspektSphere.duch?
-      SphereDuchWidget(
-        spheres.values.elementAt(index),
-        onChanged: (details) {
-          setState(() => spheres[KonspektSphere.duch] = details);
-          widget.onChanged(spheres);
-        },
-      ):
-      SphereNonDuchWidget(
-        spheres.keys.elementAt(index),
-        spheres.values.elementAt(index),
-        onChanged: (details) {
-          setState(() => spheres[spheres.keys.elementAt(index)] = details);
-          widget.onChanged(spheres);
-        },
-      ),
+    spheres.keys.elementAt(index) == KonspektSphere.duch?
+    SphereDuchWidget(
+      spheres.values.elementAt(index),
+      onChanged: (details) {
+        setState(() => spheres[KonspektSphere.duch] = details);
+        widget.onChanged(spheres);
+      },
+    ):
+    SphereNonDuchWidget(
+      spheres.keys.elementAt(index),
+      spheres.values.elementAt(index),
+      onChanged: (details) {
+        setState(() => spheres[spheres.keys.elementAt(index)] = details);
+        widget.onChanged(spheres);
+      },
+    ),
     separatorBuilder: (context, index) => SizedBox(height: Dimen.defMarg),
     itemCount: spheres.length,
     shrinkWrap: true,
@@ -89,8 +89,8 @@ class SphereNonDuchWidgetState extends State<SphereNonDuchWidget>{
   @override
   void initState() {
     controller = MultiTextFieldController(
-      texts: details?.levels[KonspektSphereLevel.other]?.fields.keys.toList()??[],
-      minCount: 0
+        texts: details?.levels[KonspektSphereLevel.other]?.fields.keys.toList()??[],
+        minCount: 0
     );
     super.initState();
   }
@@ -110,70 +110,70 @@ class SphereNonDuchWidgetState extends State<SphereNonDuchWidget>{
         children: [
           Expanded(
               child: Padding(
-            padding: EdgeInsets.only(
-                top: Dimen.sideMarg,
-                bottom: Dimen.sideMarg,
-                left: Dimen.sideMarg,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+                padding: EdgeInsets.only(
+                  top: Dimen.sideMarg,
+                  bottom: Dimen.sideMarg,
+                  left: Dimen.sideMarg,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
 
-                KonspektSphereTitleWidget(sphere),
+                    KonspektSphereTitleWidget(sphere),
 
-                if (controller.length > 0)
-                  AppTextFieldHint(
-                    multiController: controller,
-                    hint: 'Elemenet sfery ${sphere.displayNameDopelniacz.toLowerCase()}:',
-                    hintTop: '',
-                    multiHintTop: '',
-                    textFieldHintPadding: EdgeInsets.zero,
-                    animationDuration: _animDuration,
-                    onAnyChanged: (values) => widget.onChanged?.call(
-                        (values.isEmpty)? null : KonspektSphereDetails(
-                            levels: {
-                              KonspektSphereLevel.other: KonspektSphereFields(
-                                  fields: { for(var v in values) v: null }
-                              )
-                            }
-                        )
-                    ),
-                    multi: true,
-                    multiAllowZeroFields: true,
-                    multiLayout: LayoutMode.column,
-                    multiItemBuilder: (index, key, widget) => Row(
-                      key: key,
-                      children: [
-                        // Because when having more than one item, the close button appears adding height.
-                        SizedBox(height: Dimen.iconFootprint),
+                    if (controller.length > 0)
+                      AppTextFieldHint(
+                        multiController: controller,
+                        hint: 'Elemenet sfery ${sphere.displayNameDopelniacz.toLowerCase()}:',
+                        hintTop: '',
+                        multiHintTop: '',
+                        textFieldHintPadding: EdgeInsets.zero,
+                        animationDuration: _animDuration,
+                        onAnyChanged: (values) => widget.onChanged?.call(
+                            (values.isEmpty)? null : KonspektSphereDetails(
+                                levels: {
+                                  KonspektSphereLevel.other: KonspektSphereFields(
+                                      fields: { for(var v in values) v: null }
+                                  )
+                                }
+                            )
+                        ),
+                        multi: true,
+                        multiAllowZeroFields: true,
+                        multiLayout: LayoutMode.column,
+                        multiItemBuilder: (index, key, widget) => Row(
+                          key: key,
+                          children: [
+                            // Because when having more than one item, the close button appears adding height.
+                            SizedBox(height: Dimen.iconFootprint),
 
-                        SizedBox(width: Dimen.iconSize + Dimen.iconMarg),
-                        Icon(MdiIcons.circleMedium),
-                        SizedBox(width: Dimen.iconMarg),
-                        Expanded(child: widget)
-                      ],
-                    ),
-                    multiAddButtonBuilder: (bool tappable, void Function() onTap) => Padding(
-                      padding: EdgeInsets.only(
-                        right: Dimen.sideMarg,
-                        left: Dimen.iconSize + Dimen.iconMarg
+                            SizedBox(width: Dimen.iconSize + Dimen.iconMarg),
+                            Icon(MdiIcons.circleMedium),
+                            SizedBox(width: Dimen.iconMarg),
+                            Expanded(child: widget)
+                          ],
+                        ),
+                        multiAddButtonBuilder: (bool tappable, void Function() onTap) => Padding(
+                          padding: EdgeInsets.only(
+                              right: Dimen.sideMarg,
+                              left: Dimen.iconSize + Dimen.iconMarg
+                          ),
+                          child: MultiTextFieldAddButton(
+                            tappable: tappable,
+                            text: 'Element rozwoju ${sphere.displayNameDopelniacz.toLowerCase()}',
+                            onTap: onTap,
+                          ),
+                        ),
+                        multiIsCollapsed: true,
                       ),
-                      child: MultiTextFieldAddButton(
-                        tappable: tappable,
-                        text: 'Element rozwoju ${sphere.displayNameDopelniacz.toLowerCase()}',
-                        onTap: onTap,
-                      ),
-                    ),
-                    multiIsCollapsed: true,
-                  ),
 
-              ],
-            ),
-      )
+                  ],
+                ),
+              )
           ),
           if (controller.length == 0)
             AppButton(
-              icon: Icon(MdiIcons.plus, color: hintEnab_(context)),
+              icon: Icon(MdiIcons.plus),
               onTap: () => setState(() => controller.texts = ['']),
             ),
         ],
@@ -199,56 +199,60 @@ class SphereDuchWidget extends StatefulWidget{
 
 }
 
+typedef _DuchLevelController = (MultiTextFieldController, List<Set<KonspektSphereFactor>?>);
+
 class SphereDuchWidgetState extends State<SphereDuchWidget>{
 
   KonspektSphereDetails? get details => widget.details;
   void Function(KonspektSphereDetails? details)? get onChanged => widget.onChanged;
 
-  late (MultiTextFieldController, List<Set<KonspektSphereFactor>?>) postawyController;
-  late (MultiTextFieldController, List<Set<KonspektSphereFactor>?>) wartosciController;
-  late (MultiTextFieldController, List<Set<KonspektSphereFactor>?>) aksjomatyController;
-  late (MultiTextFieldController, List<Set<KonspektSphereFactor>?>) silaCharakteruController;
-  late (MultiTextFieldController, List<Set<KonspektSphereFactor>?>) zdolnoscRefleksyjnaController;
-  
+  bool _isExpanded = false;
+
+  late _DuchLevelController postawyController;
+  late _DuchLevelController wartosciController;
+  late _DuchLevelController aksjomatyController;
+  late _DuchLevelController silaCharakteruController;
+  late _DuchLevelController zdolnoscRefleksyjnaController;
+
   @override
   void initState() {
     postawyController = (
-      MultiTextFieldController(
+    MultiTextFieldController(
         texts: details?.levels[KonspektSphereLevel.duchPostawy]?.fields.keys.toList()??[],
         minCount: 0
-      ),
-      details?.levels[KonspektSphereLevel.duchPostawy]?.fields.values.toList()??[{}]
+    ),
+    details?.levels[KonspektSphereLevel.duchPostawy]?.fields.values.toList()??[{}]
     );
     wartosciController = (
-      MultiTextFieldController(
+    MultiTextFieldController(
         texts: details?.levels[KonspektSphereLevel.duchWartosci]?.fields.keys.toList()??[],
         minCount: 0
-      ),
-      details?.levels[KonspektSphereLevel.duchWartosci]?.fields.values.toList()??[{}]
+    ),
+    details?.levels[KonspektSphereLevel.duchWartosci]?.fields.values.toList()??[{}]
     );
 
     aksjomatyController = (
-      MultiTextFieldController(
+    MultiTextFieldController(
         texts: details?.levels[KonspektSphereLevel.duchAksjomaty]?.fields.keys.toList()??[],
         minCount: 0
-      ),
-      details?.levels[KonspektSphereLevel.duchAksjomaty]?.fields.values.toList()??[{}]
+    ),
+    details?.levels[KonspektSphereLevel.duchAksjomaty]?.fields.values.toList()??[{}]
     );
 
     silaCharakteruController = (
-      MultiTextFieldController(
+    MultiTextFieldController(
         texts: details?.levels[KonspektSphereLevel.duchSilaCharakteru]?.fields.keys.toList()??[],
         minCount: 0
-      ),
-      details?.levels[KonspektSphereLevel.duchSilaCharakteru]?.fields.values.toList()??[{}]
+    ),
+    details?.levels[KonspektSphereLevel.duchSilaCharakteru]?.fields.values.toList()??[{}]
     );
 
     zdolnoscRefleksyjnaController = (
-      MultiTextFieldController(
+    MultiTextFieldController(
         texts: details?.levels[KonspektSphereLevel.duchZdolnoscRefleksyjna]?.fields.keys.toList()??[],
         minCount: 0
-      ),
-      details?.levels[KonspektSphereLevel.duchZdolnoscRefleksyjna]?.fields.values.toList()??[{}]
+    ),
+    details?.levels[KonspektSphereLevel.duchZdolnoscRefleksyjna]?.fields.values.toList()??[{}]
     );
 
     super.initState();
@@ -258,198 +262,192 @@ class SphereDuchWidgetState extends State<SphereDuchWidget>{
   Widget build(BuildContext context) => Material(
     borderRadius: BorderRadius.circular(AppCard.defRadius),
     color: cardEnab_(context),
-    child: Padding(
-      padding: EdgeInsets.all(Dimen.sideMarg),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+
+        Row(
+          children: [
+            Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    top: Dimen.sideMarg,
+                    bottom: Dimen.sideMarg,
+                    left: Dimen.sideMarg,
+                  ),
+                  child: KonspektSphereTitleWidget(KonspektSphere.duch),
+                )
+            ),
+            AppButton(
+              icon: AnimatedRotation(
+                turns: _isExpanded ? 0 : -0.5,
+                duration: SphereNonDuchWidgetState._animDuration,
+                curve: SphereNonDuchWidgetState._animCurve,
+                child: Icon(MdiIcons.chevronDown),
+              ),
+              onTap: () => setState(() => _isExpanded = !_isExpanded),
+            ),
+          ],
+        ),
+
+        Padding(
+          padding: EdgeInsets.only(
+            left: Dimen.sideMarg,
+          ),
+          child: AnimatedSize(
+            duration: SphereNonDuchWidgetState._animDuration,
+            curve: SphereNonDuchWidgetState._animCurve,
+            alignment: Alignment.topCenter,
+            child: _isExpanded
+                ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildLevelSection(
+                  context,
+                  level: KonspektSphereLevel.duchPostawy,
+                  controller: postawyController,
+                  hint: 'Postawa:',
+                  addButtonText: 'Dodaj postawę',
+                ),
+
+                _buildLevelSection(
+                  context,
+                  level: KonspektSphereLevel.duchWartosci,
+                  controller: wartosciController,
+                  hint: 'Wartość:',
+                  addButtonText: 'Dodaj wartość',
+                ),
+
+                _buildLevelSection(
+                  context,
+                  level: KonspektSphereLevel.duchAksjomaty,
+                  controller: aksjomatyController,
+                  hint: 'Aksjomat:',
+                  addButtonText: 'Dodaj aksjomat',
+                ),
+
+                _buildLevelSection(
+                  context,
+                  level: KonspektSphereLevel.duchSilaCharakteru,
+                  controller: silaCharakteruController,
+                  hint: 'Siła charakteru:',
+                  addButtonText: 'Dodaj siłę charakteru',
+                ),
+
+                _buildLevelSection(
+                  context,
+                  level: KonspektSphereLevel.duchZdolnoscRefleksyjna,
+                  controller: zdolnoscRefleksyjnaController,
+                  hint: 'Zdolność refleksyjna:',
+                  addButtonText: 'Dodaj zdolność refleksyjną',
+                ),
+              ],
+            )
+            : const SizedBox.shrink(),
+          ),
+        ),
+
+      ],
+    ),
+  );
+
+  Widget _buildLevelSection(
+      BuildContext context, {
+        required KonspektSphereLevel level,
+        required _DuchLevelController controller,
+        required String hint,
+        required String addButtonText,
+      }) {
+    final isEmpty = controller.$1.length == 0;
+
+    return AnimatedSize(
+      duration: SphereNonDuchWidgetState._animDuration,
+      curve: SphereNonDuchWidgetState._animCurve,
+      alignment: Alignment.topCenter,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            children: [
+              SizedBox(height: Dimen.iconFootprint),
+              Expanded(
+                  child: Row(
+                    children: [
 
-          KonspektSphereTitleWidget(KonspektSphere.duch),
+                      SizedBox(width: Dimen.iconSize + Dimen.iconMarg),
 
-          SizedBox(height: Dimen.sideMarg),
-          KonspektSphereLevel.duchPostawy.textWidget,
-          SizedBox(height: postawyController.$1.length==0?Dimen.iconMarg:0),
+                      Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(AppCard.defRadius),
+                            color: level.color.withValues(alpha: 0.1)
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(
+                            Dimen.defMarg,
+                          ),
+                          child: level.getTextWidget(Dimen.textSizeBig),
+                        ),
+                      ),
 
-          AppTextFieldHint(
-            multiController: postawyController.$1,
-            hint: 'Postawa:',
-            hintTop: '',
-            multiHintTop: '',
-            textFieldHintPadding: EdgeInsets.zero,
-            onAnyChanged: (values) => callUpdate(KonspektSphereLevel.duchPostawy, values),
-            multi: true,
-            multiAllowZeroFields: true,
-            multiLayout: LayoutMode.column,
-            multiItemBuilder: (index, key, widget) => DuchLevelItemWidget(
-              index,
-              widget,
-              onChanged: (selectedKeywords) {
-                setState(() => postawyController.$2[index] = Set.of(selectedKeywords));
-                callUpdate(KonspektSphereLevel.duchPostawy, postawyController.$1.texts);
-              },
-              factors: postawyController.$2[index],
-              key: key,
-            ),
-            multiAddButtonBuilder: (bool tappable, void Function() onTap) => MultiTextFieldAddButton(
-              tappable: tappable,
-              text: 'Dodaj postawę',
-              onTap: (){
-                onTap.call();
-                postawyController.$2.add({});
-              },
-            ),
-            multiOnRemoved: (int index) => postawyController.$2.removeAt(index),
-            multiIsCollapsed: true,
+                    ],
+                  )
+
+              ),
+              if (isEmpty)
+                AppButton(
+                  icon: Icon(MdiIcons.plus),
+                  onTap: () => setState(() {
+                    controller.$1.texts = [''];
+                    controller.$2.add({});
+                  }),
+                ),
+            ],
           ),
 
-          SizedBox(height: Dimen.sideMarg),
-          KonspektSphereLevel.duchWartosci.textWidget,
-          SizedBox(height: wartosciController.$1.length==0?Dimen.iconMarg:0),
-
-          AppTextFieldHint(
-            multiController: wartosciController.$1,
-            hint: 'Wartość:',
-            hintTop: '',
-            multiHintTop: '',
-            textFieldHintPadding: EdgeInsets.zero,
-            onAnyChanged: (values) => callUpdate(KonspektSphereLevel.duchWartosci, values),
-            multi: true,
-            multiAllowZeroFields: true,
-            multiLayout: LayoutMode.column,
-            multiItemBuilder: (index, key, widget) => DuchLevelItemWidget(
-              index,
-              widget,
-              onChanged: (selectedKeywords) {
-                setState(() => wartosciController.$2[index] = Set.of(selectedKeywords));
-                callUpdate(KonspektSphereLevel.duchWartosci, wartosciController.$1.texts);
-              },
-              factors: wartosciController.$2[index],
-              key: key,
+          if (!isEmpty)
+            AppTextFieldHint(
+              multiController: controller.$1,
+              hint: hint,
+              hintTop: '',
+              multiHintTop: '',
+              textFieldHintPadding: EdgeInsets.zero,
+              animationDuration: SphereNonDuchWidgetState._animDuration,
+              onAnyChanged: (values) => callUpdate(level, values),
+              multi: true,
+              multiAllowZeroFields: true,
+              multiLayout: LayoutMode.column,
+              multiItemBuilder: (index, key, widget) => DuchLevelItemWidget(
+                index,
+                widget,
+                onChanged: (selectedKeywords) {
+                  setState(() => controller.$2[index] = Set.of(selectedKeywords));
+                  callUpdate(level, controller.$1.texts);
+                },
+                factors: controller.$2[index],
+                key: key,
+              ),
+              multiAddButtonBuilder: (bool tappable, void Function() onTap) => Padding(
+                padding: EdgeInsets.only(
+                  right: Dimen.sideMarg,
+                  left: Dimen.iconSize + Dimen.iconMarg,
+                ),
+                child: MultiTextFieldAddButton(
+                  tappable: tappable,
+                  text: addButtonText,
+                  onTap: () {
+                    onTap.call();
+                    controller.$2.add({});
+                  },
+                ),
+              ),
+              multiOnRemoved: (int index) => controller.$2.removeAt(index),
+              multiIsCollapsed: true,
             ),
-            multiAddButtonBuilder: (bool tappable, void Function() onTap) => MultiTextFieldAddButton(
-              tappable: tappable,
-              text: 'Dodaj wartość',
-              onTap: (){
-                onTap.call();
-                wartosciController.$2.add({});
-              },
-            ),
-            multiOnRemoved: (int index) => wartosciController.$2.removeAt(index),
-            multiIsCollapsed: true,
-          ),
-
-          SizedBox(height: Dimen.sideMarg),
-          KonspektSphereLevel.duchAksjomaty.textWidget,
-          SizedBox(height: aksjomatyController.$1.length==0?Dimen.iconMarg:0),
-
-          AppTextFieldHint(
-            multiController: aksjomatyController.$1,
-            hint: 'Aksjomat:',
-            hintTop: '',
-            multiHintTop: '',
-            textFieldHintPadding: EdgeInsets.zero,
-            onAnyChanged: (values) => callUpdate(KonspektSphereLevel.duchAksjomaty, values),
-            multi: true,
-            multiAllowZeroFields: true,
-            multiLayout: LayoutMode.column,
-            multiItemBuilder: (index, key, widget) => DuchLevelItemWidget(
-              index,
-              widget,
-              onChanged: (selectedKeywords) {
-                setState(() => aksjomatyController.$2[index] = Set.of(selectedKeywords));
-                callUpdate(KonspektSphereLevel.duchAksjomaty, aksjomatyController.$1.texts);
-              },
-              factors: aksjomatyController.$2[index],
-              key: key,
-            ),
-            multiAddButtonBuilder: (bool tappable, void Function() onTap) => MultiTextFieldAddButton(
-              tappable: tappable,
-              text: 'Dodaj aksjomat',
-              onTap: (){
-                onTap.call();
-                aksjomatyController.$2.add({});
-              },
-            ),
-            multiOnRemoved: (int index) => aksjomatyController.$2.removeAt(index),
-            multiIsCollapsed: true,
-          ),
-
-          SizedBox(height: Dimen.sideMarg),
-          KonspektSphereLevel.duchSilaCharakteru.textWidget,
-          SizedBox(height: silaCharakteruController.$1.length==0?Dimen.iconMarg:0),
-
-          AppTextFieldHint(
-            multiController: silaCharakteruController.$1,
-            hint: 'Siła charakteru:',
-            hintTop: '',
-            multiHintTop: '',
-            textFieldHintPadding: EdgeInsets.zero,
-            onAnyChanged: (values) => callUpdate(KonspektSphereLevel.duchSilaCharakteru, values),
-            multi: true,
-            multiAllowZeroFields: true,
-            multiLayout: LayoutMode.column,
-            multiItemBuilder: (index, key, widget) => DuchLevelItemWidget(
-              index,
-              widget,
-              onChanged: (selectedKeywords) {
-                setState(() => silaCharakteruController.$2[index] = Set.of(selectedKeywords));
-                callUpdate(KonspektSphereLevel.duchSilaCharakteru, silaCharakteruController.$1.texts);
-              },
-              factors: silaCharakteruController.$2[index],
-              key: key,
-            ),
-            multiAddButtonBuilder: (bool tappable, void Function() onTap) => MultiTextFieldAddButton(
-              tappable: tappable,
-              text: 'Dodaj siłę charakteru',
-              onTap: (){
-                onTap.call();
-                silaCharakteruController.$2.add({});
-              },
-            ),
-            multiOnRemoved: (int index) => silaCharakteruController.$2.removeAt(index),
-            multiIsCollapsed: true,
-          ),
-
-          SizedBox(height: Dimen.sideMarg),
-          KonspektSphereLevel.duchZdolnoscRefleksyjna.textWidget,
-          SizedBox(height: zdolnoscRefleksyjnaController.$1.length==0?Dimen.iconMarg:0),
-
-          AppTextFieldHint(
-            multiController: zdolnoscRefleksyjnaController.$1,
-            hint: 'Zdolność refleksyjna:',
-            hintTop: '',
-            multiHintTop: '',
-            textFieldHintPadding: EdgeInsets.zero,
-            onAnyChanged: (values) => callUpdate(KonspektSphereLevel.duchZdolnoscRefleksyjna, values),
-            multi: true,
-            multiAllowZeroFields: true,
-            multiLayout: LayoutMode.column,
-            multiItemBuilder: (index, key, widget) => DuchLevelItemWidget(
-              index,
-              widget,
-              onChanged: (selectedKeywords) {
-                setState(() => zdolnoscRefleksyjnaController.$2[index] = Set.of(selectedKeywords));
-                callUpdate(KonspektSphereLevel.duchZdolnoscRefleksyjna, zdolnoscRefleksyjnaController.$1.texts);
-              },
-              factors: zdolnoscRefleksyjnaController.$2[index],
-              key: key,
-            ),
-            multiAddButtonBuilder: (bool tappable, void Function() onTap) => MultiTextFieldAddButton(
-              tappable: tappable,
-              text: 'Dodaj zdolność refleksyjną',
-              onTap: (){
-                onTap.call();
-                zdolnoscRefleksyjnaController.$2.add({});
-              },
-            ),
-            multiOnRemoved: (int index) => zdolnoscRefleksyjnaController.$2.removeAt(index),
-            multiIsCollapsed: true,
-          ),
-
         ],
       ),
-    ),
-  );
+
+    );
+  }
 
   void callUpdate(KonspektSphereLevel level, List<String> values){
 
@@ -490,17 +488,17 @@ class DuchLevelItemWidget extends StatelessWidget{
       this.index,
       this.textFieldWidget,
       { this.onChanged,
-       this.factors,
-       super.key
+        this.factors,
+        super.key
       }
-  );
+      );
 
   @override
   Widget build(BuildContext context) => Row(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       // Because when having more than one item, the close button appears adding height.
-      SizedBox(width: Dimen.iconMarg),
+      SizedBox(width: Dimen.iconSize + Dimen.iconMarg),
       SizedBox(
           child: Icon(MdiIcons.circleMedium),
           height: Dimen.iconFootprint
@@ -543,31 +541,31 @@ class DuchLevelItemWidget extends StatelessWidget{
                 iconSize: 20.0,
                 text: 'Edytuj metody',
                 onTap: () => showDialog(
-                  context: context,
-                  builder: (context) =>
-                    Center(
-                      child: KeywordSelectorDialog<KonspektSphereFactor>(
-                        maxDialogWidth: songDialogWidth,
-                        allKeywords: KonspektSphereFactor.values,
-                        selectedKeywords: factors??[],
-                        childBuilder: (context, index, selected, toggle) => ListTile(
-                          onTap: toggle,
-                          leading: Icon(
-                              selected? MdiIcons.checkboxMarkedCircleOutline : MdiIcons.checkboxBlankCircleOutline
-                          ),
-                          title: Text(
-                            KonspektSphereFactor.values[index].displayName,
-                            style: AppTextStyle(
-                                decoration: TextDecoration.underline,
-                                fontSize: Dimen.textSizeBig
+                    context: context,
+                    builder: (context) =>
+                        Center(
+                          child: KeywordSelectorDialog<KonspektSphereFactor>(
+                            maxDialogWidth: songDialogWidth,
+                            allKeywords: KonspektSphereFactor.values,
+                            selectedKeywords: factors??[],
+                            childBuilder: (context, index, selected, toggle) => ListTile(
+                              onTap: toggle,
+                              leading: Icon(
+                                  selected? MdiIcons.checkboxMarkedCircleOutline : MdiIcons.checkboxBlankCircleOutline
+                              ),
+                              title: Text(
+                                KonspektSphereFactor.values[index].displayName,
+                                style: AppTextStyle(
+                                    decoration: TextDecoration.underline,
+                                    fontSize: Dimen.textSizeBig
+                                ),
+                              ),
                             ),
+                            separatorBuilder: (context, index) => SizedBox(height: Dimen.defMarg),
+                            title: 'Wybierz metody',
+                            onSaved: onChanged,
                           ),
-                        ),
-                        separatorBuilder: (context, index) => SizedBox(height: Dimen.defMarg),
-                        title: 'Wybierz metody',
-                        onSaved: onChanged,
-                      ),
-                    )
+                        )
                 )
             ),
           ),
@@ -600,23 +598,23 @@ class KeywordSelectorWidget<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-    Wrap(
-      spacing: Dimen.defMarg,
-      runSpacing: Dimen.defMarg,
-      children: [
-        if(leadingChildBuilder != null)
-          leadingChildBuilder!.call(context),
+      Wrap(
+        spacing: Dimen.defMarg,
+        runSpacing: Dimen.defMarg,
+        children: [
+          if(leadingChildBuilder != null)
+            leadingChildBuilder!.call(context),
 
-        ...selectedKeywords.map((keyword) => childBuilder.call(
-          context,
-          keyword,
-        )),
+          ...selectedKeywords.map((keyword) => childBuilder.call(
+            context,
+            keyword,
+          )),
 
-        if(trailingChildBuilder != null)
-          trailingChildBuilder!.call(context),
+          if(trailingChildBuilder != null)
+            trailingChildBuilder!.call(context),
 
-      ],
-    );
+        ],
+      );
 
 }
 
@@ -681,18 +679,18 @@ class KeywordSelectorDialogState<T> extends State<KeywordSelectorDialog<T>>{
             ],
           ),
           Flexible(
-            child: ListView.separated(
-              itemBuilder: (context, index) =>
-                widget.childBuilder.call(
-                  context,
-                  index,
-                  selectedKeywords.contains(widget.allKeywords[index]),
-                  getOnSelected(index)
-                ),
-              shrinkWrap: true,
-              separatorBuilder: (context, index) => widget.separatorBuilder?.call(context, index)??Container(),
-              itemCount: widget.allKeywords.length,
-            )
+              child: ListView.separated(
+                itemBuilder: (context, index) =>
+                    widget.childBuilder.call(
+                        context,
+                        index,
+                        selectedKeywords.contains(widget.allKeywords[index]),
+                        getOnSelected(index)
+                    ),
+                shrinkWrap: true,
+                separatorBuilder: (context, index) => widget.separatorBuilder?.call(context, index)??Container(),
+                itemCount: widget.allKeywords.length,
+              )
           )
         ],
       ),
@@ -724,17 +722,17 @@ class FactorWidget extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) => Material(
-    borderRadius: BorderRadius.circular(AppCard.defRadius),
-    // color: backgroundIcon_(context),
-    child: Padding(
-      padding: EdgeInsets.all(0), // Dimen.defMarg),
-      child: Text(
-        keyword,
-        style: AppTextStyle(
-          decoration: TextDecoration.underline,
+      borderRadius: BorderRadius.circular(AppCard.defRadius),
+      // color: backgroundIcon_(context),
+      child: Padding(
+        padding: EdgeInsets.all(0), // Dimen.defMarg),
+        child: Text(
+          keyword,
+          style: AppTextStyle(
+            decoration: TextDecoration.underline,
+          ),
         ),
-      ),
-    )
+      )
   );
 
 }
