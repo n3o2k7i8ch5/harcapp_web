@@ -343,6 +343,10 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                               textAlign: TextAlign.left,
                             ),
 
+                            _SectionHintText(
+                              'Jakie są założone skutki dla uczestników, którzy wezmą udział?',
+                            ),
+
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
@@ -420,6 +424,11 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                               title: 'Sfery rozwoju',
                               textAlign: TextAlign.left,
                             ),
+
+                            _SectionHintText(
+                              'Które sfery zostaną rozwinięte (i w jaki sposób) wśród uczestników, którzy wezmą udział?',
+                            ),
+
                             SpheresWidget(
                               spheres: konspektData.spheres,
                               onChanged: (Map<KonspektSphere, KonspektSphereDetails?> newSpheres){
@@ -435,6 +444,9 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                               title: 'Załączniki',
                               textAlign: TextAlign.left,
                             ),
+                            _SectionHintText(
+                              'Gotowe dokumenty, grafiki, pliki, etc., które są wykorzystywane w konspekcie i do których odwołują się niektóre materiały.',
+                            ),
                             AttachmentsWidget(konspektData.attachments),
 
                             const SizedBox(height: Dimen.sideMarg),
@@ -442,6 +454,9 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                             TitleShortcutRowWidget(
                               title: 'Materiały',
                               textAlign: TextAlign.left,
+                            ),
+                            _SectionHintText(
+                              'Wszystkie materiały niezbędne do przeprowadzenia konspektu.',
                             ),
                             MaterialsWidget(
                               materials: konspektData.materials,
@@ -454,7 +469,9 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                               title: 'Opis',
                               textAlign: TextAlign.left,
                             ),
-
+                            _SectionHintText(
+                              'Opis konspektu - można go wykorzystać jako uzupełnienie lub zamiennik "planu" (sekcja niżej), gdy ciężko jest wydzielić konkretne kroki.',
+                            ),
                             OpisHtmlEditor(
                               controller: konspektData.descriptionController,
                               attachments: konspektData.attachments,
@@ -465,6 +482,9 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                             TitleShortcutRowWidget(
                               title: 'Plan',
                               textAlign: TextAlign.left,
+                            ),
+                            _SectionHintText(
+                              'Spis kroków do wykonania w konspekcie.',
                             ),
                             StepsWidget(
                               steps: konspektData.stepsData,
@@ -505,6 +525,26 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
           ),
         ],
       ));
+
+}
+
+class _SectionHintText extends StatelessWidget {
+
+  final String text;
+
+  const _SectionHintText(this.text);
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.only(bottom: Dimen.iconMarg),
+    child: Text(
+      text,
+      style: AppTextStyle(
+        fontStyle: FontStyle.italic,
+        color: hintEnab_(context),
+      ),
+    ),
+  );
 
 }
 
