@@ -79,6 +79,9 @@ class KonspektsPageState extends State<KonspektsPage>{
     if(!openDrawerIfCollapsed || MediaQuery.of(context).size.width>collapseWidth)
       return;
 
+    if(selectedKonspekt != null)
+      return;
+
     await Future.delayed(Duration.zero);
 
     scaffoldKey.currentState?.openDrawer();

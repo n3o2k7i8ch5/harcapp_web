@@ -50,7 +50,6 @@ TableOfContentHarcerskieWidget tableOfContentHarcerskieWidget(BuildContext conte
   padding: const EdgeInsets.all(Dimen.defMarg),
   onItemTap: (Konspekt konspekt){
     context.go(pathKonspektyHarcerskieItem.replaceAll(":name", konspekt.name));
-    if(isDrawer) Navigator.pop(context);
   },
   withBackButton: isDrawer,
 );
@@ -60,7 +59,6 @@ TableOfContentKsztalcenieWidget tableOfContentKsztalcenieWidget(BuildContext con
   padding: const EdgeInsets.all(Dimen.defMarg),
   onItemTap: (Konspekt konspekt){
     context.go(pathKonspektyKsztalcenieItem.replaceAll(":name", konspekt.name));
-    if(isDrawer) Navigator.pop(context);
   },
   withBackButton: isDrawer,
 );
@@ -70,7 +68,6 @@ TableOfContentPoradnikWidget tableOfContentPoradnikWidget(BuildContext context, 
   padding: const EdgeInsets.all(Dimen.defMarg),
   onItemTap: (Poradnik poradnik){
     context.go(pathPoradnikItem.replaceAll(":name", poradnik.name));
-    if(isDrawer) Navigator.pop(context);
   },
   withBackButton: isDrawer,
 );
@@ -126,7 +123,7 @@ GoRouter router = GoRouter(
                               isDrawer,
                               selectedKonspekt
                           ),
-                          key: ValueKey('konspekty harcerskie')
+                          key: ValueKey('konspekty harcerskie $name')
                       )
                   );
                 }
@@ -166,7 +163,7 @@ GoRouter router = GoRouter(
                               isDrawer,
                               selectedKonspekt
                           ),
-                          key: ValueKey('konspekty ksztalcenie')
+                          key: ValueKey('konspekty ksztalcenie $name')
                       )
                   );
                 }

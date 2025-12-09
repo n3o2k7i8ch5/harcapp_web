@@ -586,7 +586,14 @@ class _TopActions extends StatelessWidget {
                   SizedBox(height: Dimen.iconFootprint),
                   Icon(MdiIcons.contentSave, color: iconEnab_(context)),
                   SizedBox(width: Dimen.iconMarg),
-                  Text('Zapisz', style: AppTextStyle(color: textEnab_(context))),
+                  Text(
+                    'Zapisz',
+                    style: AppTextStyle(
+                      color: textEnab_(context),
+                      fontSize: Dimen.textSizeBig,
+                      fontWeight: weightHalfBold
+                    )
+                  ),
                   if (hasUnsavedChanges) ...[
                     SizedBox(width: 6),
                     Container(
