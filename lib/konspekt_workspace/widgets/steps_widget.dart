@@ -67,7 +67,8 @@ class _StepsWidgetState extends State<StepsWidget> {
         exitTransition: [SlideInDown(), FadeIn()],
       ),
 
-      SizedBox(height: Dimen.defMarg),
+      if(steps.isNotEmpty)
+        SizedBox(height: Dimen.defMarg),
 
       SimpleButton.from(
         context: context,
