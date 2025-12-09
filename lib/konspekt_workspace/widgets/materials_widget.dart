@@ -56,7 +56,8 @@ class _MaterialsWidgetState extends State<MaterialsWidget> {
             exitTransition: [SlideInDown(), FadeIn()],
           ),
 
-          const SizedBox(height: Dimen.defMarg),
+          if(materials.isNotEmpty)
+            const SizedBox(height: Dimen.defMarg),
 
           SimpleButton.from(
             context: context,

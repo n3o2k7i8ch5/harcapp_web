@@ -237,13 +237,13 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                             const SizedBox(height: Dimen.defMarg),
 
                             TitleShortcutRowWidget(
-                              title: 'Kategoria:',
+                              title: 'Kategoria',
                               textAlign: TextAlign.left,
                             ),
                             Row(
                               children: [
                                 _CategoryToggleButton(
-                                  label: 'Harcerski',
+                                  label: 'Dla harcerzy',
                                   isSelected: konspektData.category == KonspektCategory.harcerskie,
                                   onTap: () => _setStateAndSave(() {
                                     konspektData.category = KonspektCategory.harcerskie;
@@ -252,7 +252,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                                 ),
                                 const SizedBox(width: Dimen.defMarg),
                                 _CategoryToggleButton(
-                                  label: 'Kształceniowy',
+                                  label: 'Kształceniowe',
                                   isSelected: konspektData.category == KonspektCategory.ksztalcenie,
                                   onTap: () => _setStateAndSave(() {
                                     konspektData.category = KonspektCategory.ksztalcenie;
@@ -418,7 +418,8 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                                   );
                                 }),
 
-                                SizedBox(height: Dimen.defMarg),
+                                if(konspektData.aimControllers.isNotEmpty)
+                                  SizedBox(height: Dimen.defMarg),
 
                                 SimpleButton.from(
                                   color: backgroundIcon_(context),
