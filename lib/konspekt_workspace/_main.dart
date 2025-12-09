@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:harcapp_core/comm_widgets/blur.dart';
 import 'package:harcapp_web/idb.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
@@ -20,7 +21,6 @@ import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/common/download_file.dart';
 import 'package:harcapp_web/konspekts/konspekty_tabs_row.dart';
-import 'package:harcapp_web/konspekts/_main.dart' show KonspektsPage;
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/materials_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/select_time_button.dart';
@@ -157,14 +157,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
         children: [
 
           // Trzy główne przyciski konspektów – tak samo jak na stronach listy konspektów
-          Padding(
-            padding: EdgeInsets.only(
-              top: Dimen.defMarg,
-              left: KonspektsPage.defPaddingVal,
-              right: KonspektsPage.defPaddingVal,
-            ),
-            child: const KonspektyTabsRow(),
-          ),
+          const KonspektyTabsRow(),
 
           // Reszta treści przewijana poniżej, z treścią edytora
           Expanded(
@@ -639,7 +632,7 @@ class _TopActions extends StatelessWidget {
 
 class _CoverWidget extends StatelessWidget {
 
-  static const double buttonsCollapseMaxWidth = 550;
+  static const double _hideButtonLabelsWidth = 550;
 
   final KonspektData konspektData;
   final VoidCallback onChanged;
@@ -711,51 +704,59 @@ class _CoverWidget extends StatelessWidget {
                   children: [
 
                     Expanded(
-                      child: Material(
-                        color: background_(context),
-                        borderRadius: BorderRadius.circular(AppCard.defRadius),
-                        child: AppTextFieldHint(
-                          hint: 'Autor okładki:',
-                          hintTop: 'Autor okładki',
-                          textCapitalization: TextCapitalization.sentences,
-                          controller: konspektData.coverAuthorController,
-                          onChanged: (_, __) => onChanged(),
-                          leading: Padding(
-                            padding: EdgeInsets.all(Dimen.iconMarg),
-                            child: Icon(MdiIcons.account, color: hintEnab_(context)),
-                          ),
-                        ),
+                      child: Blur(
+                          borderRadius: BorderRadius.circular(AppCard.defRadius),
+                          child: Container(
+                            color: background_(context).withValues(alpha: 0.7),
+                            child: AppTextFieldHint(
+                              hint: 'Autor okładki:',
+                              hintTop: 'Autor okładki',
+                              textCapitalization: TextCapitalization.sentences,
+                              controller: konspektData.coverAuthorController,
+                              onChanged: (_, __) => onChanged(),
+                              leading: Padding(
+                                padding: EdgeInsets.all(Dimen.iconMarg),
+                                child: Icon(MdiIcons.account, color: hintEnab_(context)),
+                              ),
+                            ),
+                          )
                       ),
                     ),
 
                     SizedBox(width: Dimen.defMarg),
 
                     if(konspektData.coverImageBytes != null)
-                      SimpleButton.from(
-                        context: context,
-                        color: background_(context),
-                        margin: EdgeInsets.zero,
-                        radius: AppCard.defRadius,
-                        icon: MdiIcons.imageEditOutline,
-                        text: constraints.maxWidth < buttonsCollapseMaxWidth ? null : (konspektData.coverImageBytes == null ? 'Dodaj obraz' : 'Zmień obraz'),
-                        onTap: () => setCover(setState),
+                      Blur(
+                          child: SimpleButton.from(
+                            borderRadius: BorderRadius.circular(AppCard.defRadius),
+                            context: context,
+                            color: background_(context).withValues(alpha: 0.7),
+                            margin: EdgeInsets.zero,
+                            radius: AppCard.defRadius,
+                            icon: MdiIcons.imageEditOutline,
+                            text: constraints.maxWidth < _hideButtonLabelsWidth ? null : (konspektData.coverImageBytes == null ? 'Dodaj obraz' : 'Zmień obraz'),
+                            onTap: () => setCover(setState),
+                          )
                       ),
 
                     if (konspektData.coverImageBytes != null)
                       SizedBox(width: Dimen.defMarg),
 
                     if (konspektData.coverImageBytes != null)
-                      SimpleButton.from(
-                        context: context,
-                        color: background_(context),
-                        margin: EdgeInsets.zero,
-                        radius: AppCard.defRadius,
-                        icon: MdiIcons.deleteOffOutline,
-                        text: constraints.maxWidth < buttonsCollapseMaxWidth ? null : 'Usuń',
-                        onTap: () {
-                          setState(() => konspektData.coverImageBytes = null);
-                          onChanged();
-                        },
+                      Blur(
+                        borderRadius: BorderRadius.circular(AppCard.defRadius),
+                        child: SimpleButton.from(
+                          context: context,
+                          color: background_(context).withValues(alpha: 0.7),
+                          margin: EdgeInsets.zero,
+                          radius: AppCard.defRadius,
+                          icon: MdiIcons.deleteOffOutline,
+                          text: constraints.maxWidth < _hideButtonLabelsWidth ? null : 'Usuń',
+                          onTap: () {
+                            setState(() => konspektData.coverImageBytes = null);
+                            onChanged();
+                          },
+                        ),
                       ),
 
                   ],

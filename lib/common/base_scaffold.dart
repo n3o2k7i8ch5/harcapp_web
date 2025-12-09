@@ -30,7 +30,10 @@ class BaseScaffold extends StatelessWidget{
   });
 
   @override
-  Widget build(BuildContext context) => MediaQuery.removePadding(
+  Widget build(BuildContext context) {
+    final showBottomNav = MainBottomNavBar.shouldShow(context);
+    
+    return MediaQuery.removePadding(
       context: context,
       child: Scaffold(
         key: scaffoldKey,
@@ -38,12 +41,13 @@ class BaseScaffold extends StatelessWidget{
         drawer: drawer,
         body: body,
         backgroundColor: backgroundColor ?? background_(context),
-        bottomNavigationBar: bottomNavigationBar,
+        bottomNavigationBar: bottomNavigationBar ?? (showBottomNav ? const MainBottomNavBar() : null),
         floatingActionButton: floatingActionButton,
         resizeToAvoidBottomInset: avoidKeyboard,
         extendBody: extendBody,
-      )
-  );
+      ),
+    );
+  }
 
   static void showMessage(
       BuildContext context,

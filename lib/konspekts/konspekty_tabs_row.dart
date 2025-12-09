@@ -18,6 +18,7 @@ class KonspektyTabsRow extends StatelessWidget {
 
     Widget buildTab(String text, String path, IconData icon) {
       final bool selected = uri.startsWith(path);
+
       return GestureDetector(
         onTap: () {
           if (!selected) context.go(path);
@@ -63,11 +64,13 @@ class KonspektyTabsRow extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
+          SizedBox(width: Dimen.sideMarg),
           buildTab('Dla harcerzy', pathKonspektyHarcerskie, MdiIcons.tent),
-          SizedBox(width: 2),
+          SizedBox(width: 1),
           buildTab('Kształceniowe', pathKonspektyKsztalcenie, MdiIcons.schoolOutline),
-          SizedBox(width: 2),
+          SizedBox(width: 1),
           buildTab('Edytor konspektu', pathWarsztatKonspektow, MdiIcons.fileDocumentEditOutline),
+          SizedBox(width: Dimen.sideMarg),
         ],
       ),
     );

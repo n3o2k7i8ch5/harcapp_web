@@ -232,6 +232,7 @@ class SongEditorPanelState extends State<SongEditorPanel>{
             SizedBox(height: SEPARATOR_HEIGHT),
 
             RefrenTemplate(
+                accentColor: iconEnab_(context),
                 onPartTap: () async {
 
                   String _text = currItemProv.song.refrenPart.getText();

@@ -6,6 +6,7 @@ import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/harc_app.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
+import 'package:harcapp_web/common/responsive_breakpoints.dart';
 import 'package:harcapp_web/router.dart';
 import 'package:harcapp_web/theme_mode_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -14,7 +15,7 @@ import 'package:provider/provider.dart';
 
 class TopNavigationBar extends StatefulWidget implements PreferredSizeWidget{
 
-  static const denseMaxWidth = 1074;
+  static const denseMaxWidth = ResponsiveBreakpoints.topNavDense;
 
   final bool withMenuIcon;
 
@@ -62,84 +63,81 @@ class TopNavigationBarState extends State<TopNavigationBar>{
                 radius: 0,
                 icon: MdiIcons.menu,
                 onTap: () => Scaffold.of(context).openDrawer(),
-              ),
-
-            if(withMenuIcon && constraints.maxWidth < TopNavigationBar.denseMaxWidth)
-              InkWell(
-                child: HarcApp(size: 24.0),
-                hoverColor: Colors.transparent,
-                splashColor: Colors.transparent,
-                onTap: () => context.go(pathHome),
               )
             else
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('', style: AppTextStyle(fontSize: Dimen.textSizeSmall)),
-                    InkWell(
-                      child: HarcApp(size: 24.0),
-                      hoverColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      onTap: () => context.go(pathHome),
-                    ),
-                    Text(version??'', style: AppTextStyle(fontSize: Dimen.textSizeSmall)),
-                  ],
-                ),
+              SizedBox(width: Dimen.sideMarg - Dimen.iconMarg),
+
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: Dimen.iconMarg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('', style: AppTextStyle(fontSize: Dimen.textSizeSmall)),
+                  InkWell(
+                    child: HarcApp(size: 24.0),
+                    hoverColor: Colors.transparent,
+                    splashColor: Colors.transparent,
+                    onTap: () => context.go(pathHome),
+                  ),
+                  Text(version??'', style: AppTextStyle(fontSize: Dimen.textSizeSmall)),
+                ],
               ),
+            ),
+
             const _ThemeModeButton(),
 
             Expanded(child: Container()),
 
-            PageNavItem(
-              icon: MdiIcons.music,
-              title: 'Warsztat\npiosenki',
-              contextInfo: 'Twórz i dodawaj piosenki do HarcAppki!',
-              path: pathSong,
-              dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
-            ),
+            if (constraints.maxWidth >= ResponsiveBreakpoints.topNavToBottom) ...[
+              PageNavItem(
+                icon: MdiIcons.music,
+                title: 'Warsztat\npiosenki',
+                contextInfo: 'Twórz i dodawaj piosenki do HarcAppki!',
+                path: pathSong,
+                dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
+              ),
 
-            // PageNavItem(
-            //   icon: MdiIcons.textBoxEditOutline,
-            //   title: 'Warsztat\nartykułów',
-            //   contextInfo: 'Twórz i dodawaj artykuły do HarcAppki!',
-            //   path: pathArticlesWorkspace,
-            //   dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
-            // ),
+              // PageNavItem(
+              //   icon: MdiIcons.textBoxEditOutline,
+              //   title: 'Warsztat\nartykułów',
+              //   contextInfo: 'Twórz i dodawaj artykuły do HarcAppki!',
+              //   path: pathArticlesWorkspace,
+              //   dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
+              // ),
 
-            PageNavItem(
-              icon: MdiIcons.textBoxMultiple,
-              title: 'Artykuły\nharcerskie',
-              contextInfo: 'Bądź na bieżąco z harcerską myślą!',
-              path: pathArticles,
-              dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
-            ),
+              PageNavItem(
+                icon: MdiIcons.textBoxMultiple,
+                title: 'Artykuły\nharcerskie',
+                contextInfo: 'Bądź na bieżąco z harcerską myślą!',
+                path: pathArticles,
+                dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
+              ),
 
-            PageNavItem(
-              icon: MdiIcons.notebook,
-              title: 'Konspekty',
-              contextInfo: 'Konspekty dla harcerzy, kształceniowe i edytor',
-              path: pathKonspektyHarcerskie,
-              dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
-              isSelected: (uri) => uri.startsWith('/konspekty'),
-            ),
+              PageNavItem(
+                icon: MdiIcons.notebook,
+                title: 'Konspekty',
+                contextInfo: 'Konspekty dla harcerzy, kształceniowe i edytor',
+                path: pathKonspektyHarcerskie,
+                dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
+                isSelected: (uri) => uri.startsWith('/konspekty'),
+              ),
 
-            PageNavItem(
-              icon: MdiIcons.school,
-              title: 'Poradniki\ninstruktorskie',
-              contextInfo: 'Dobre rady harcerskie!',
-              path: pathPoradnik,
-              dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
-            ),
+              PageNavItem(
+                icon: MdiIcons.school,
+                title: 'Poradniki\ninstruktorskie',
+                contextInfo: 'Dobre rady harcerskie!',
+                path: pathPoradnik,
+                dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
+              ),
 
-            PageNavItem(
-              icon: MdiIcons.trophy,
-              title: 'Sprawności',
-              contextInfo: 'Zdobądź sprawności!',
-              path: pathSprawnosci,
-              dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
-            ),
+              PageNavItem(
+                icon: MdiIcons.trophy,
+                title: 'Sprawności',
+                contextInfo: 'Zdobądź sprawności!',
+                path: pathSprawnosci,
+                dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
+              ),
+            ],
 
           ],
         ),
@@ -256,6 +254,71 @@ class _ThemeModeButton extends StatelessWidget {
       child: IconButton(
         icon: Icon(icon, color: iconEnab_(context)),
         onPressed: themeProv.toggle,
+      ),
+    );
+  }
+}
+
+class MainBottomNavBar extends StatelessWidget {
+  const MainBottomNavBar({super.key});
+
+  static bool shouldShow(BuildContext context) =>
+      ResponsiveBreakpoints.shouldShowTopNavAtBottom(context);
+
+  @override
+  Widget build(BuildContext context) {
+    if (!shouldShow(context)) {
+      return const SizedBox.shrink();
+    }
+
+    final String uri = GoRouterState.of(context).uri.toString();
+
+    Widget buildItem(IconData icon, String label, String path, {bool Function(String)? isSelected}) {
+      final bool selected = isSelected != null ? isSelected(uri) : uri == path;
+      return Expanded(
+        child: GestureDetector(
+          onTap: () => context.go(path),
+          child: Container(
+            color: selected ? backgroundIcon_(context) : Colors.transparent,
+            padding: EdgeInsets.symmetric(vertical: Dimen.defMarg),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: Dimen.iconSize,
+                  color: selected ? iconEnab_(context) : hintEnab_(context),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyle(
+                    fontSize: Dimen.textSizeSmall,
+                    color: selected ? iconEnab_(context) : hintEnab_(context),
+                    fontWeight: selected ? weightBold : weightHalfBold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Material(
+      color: cardEnab_(context),
+      child: SafeArea(
+        top: false,
+        child: Row(
+          children: [
+            buildItem(MdiIcons.music, 'Piosenki', pathSong),
+            buildItem(MdiIcons.textBoxMultiple, 'Artykuły', pathArticles),
+            buildItem(MdiIcons.notebook, 'Konspekty', pathKonspektyHarcerskie, isSelected: (uri) => uri.startsWith('/konspekty')),
+            buildItem(MdiIcons.school, 'Poradniki', pathPoradnik),
+            buildItem(MdiIcons.trophy, 'Sprawności', pathSprawnosci),
+          ],
+        ),
       ),
     );
   }

@@ -602,7 +602,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: d804b4684fbb19b56b26929c5d01ae4b2f49497e
+      resolved-ref: "3a64856d85f2d4d9dd2fca534f12ba08cb2eda1d"
       url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"
@@ -1146,10 +1146,10 @@ packages:
     dependency: "direct main"
     description:
       name: shared_preferences
-      sha256: "6e8bf70b7fef813df4e9a36f658ac46d107db4b4cfe1048b477d4e453a8159f5"
+      sha256: "2939ae520c9024cb197fc20dee269cd8cdbf564c8b5746374ec6cacdc5169e64"
       url: "https://pub.dev"
     source: hosted
-    version: "2.5.3"
+    version: "2.5.4"
   shared_preferences_android:
     dependency: transitive
     description:

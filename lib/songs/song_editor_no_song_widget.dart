@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_widgets/blur.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/songs/left_panel/song_list_view.dart';
@@ -39,7 +40,9 @@ class SongEditorNoSongWidget extends StatelessWidget{
         ),
       ),
 
-      ClickHereWidget(workspaceAlwaysVisible),
+      Blur(
+        child: ClickHereWidget(workspaceAlwaysVisible)
+      ),
 
     ],
   );
@@ -157,90 +160,68 @@ class ClickHereWidget extends StatelessWidget {
       Center(
         child: SizedBox(
           width: width,
-          child: Padding(
+          child: ListView(
             padding: EdgeInsets.all(NoSongsWidget.paddingVal),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+            shrinkWrap: true,
+            children: [
 
-                Align(
-                    alignment: Alignment.topCenter,
-                    child: Text(
-                      'Pierwszy raz dodajesz piosenkę'
-                          '\ndo śpiewnika HarcAppki?',
-                      textAlign: TextAlign.center,
+              Align(
+                  alignment: Alignment.topCenter,
+                  child: Text(
+                    'Pierwszy raz dodajesz piosenkę'
+                        '\ndo śpiewnika HarcAppki?',
+                    textAlign: TextAlign.center,
+                    style: AppTextStyle(
+                      fontSize: 20.0,
+                      color: textDisab_(context),
+                      fontWeight: weightHalfBold,
+                    ),
+                  )
+              ),
+
+              SizedBox(height: NoSongsWidget.paddingVal),
+
+              NewEmptySongButton(),
+
+              SizedBox(height: 20.0),
+
+              NewExampleSongButton(),
+
+              SizedBox(height: 20.0),
+              Icon(MdiIcons.circleMedium, color: textDisab_(context)),
+              SizedBox(height: 20.0),
+
+              if(leftPanelAlwaysVisible)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(width: 7.0),
+                    Icon(MdiIcons.arrowLeft, color: textDisab_(context)),
+                    SizedBox(width: 7.0),
+
+                    Text(
+                      'Po wszystkie dostępne opcje, zerknij tam',
                       style: AppTextStyle(
-                          fontSize: 20.0,
-                          color: textDisab_(context),
-                          fontWeight: weightHalfBold,
+                        fontSize: 14.0,
+                        color: textDisab_(context),
+                        fontWeight: weightHalfBold,
                       ),
-                    )
-                ),
+                    ),
+                  ],
+                )
 
-                SizedBox(height: NoSongsWidget.paddingVal),
+              else
+                SimpleButton.from(
+                  context: context,
+                  onTap: () => Scaffold.of(context).openDrawer(),
+                  text: 'Kliknij, po więcej opcji',
+                  color: backgroundIcon_(context),
+                  icon: MdiIcons.menu,
+                  iconSize: 32.0,
+                  direction: Axis.vertical,
+                )
 
-                Text(
-                  'Jeśli chcesz dodać nową piosenkę "od zera":',
-                  style: AppTextStyle(
-                      fontSize: 14.0,
-                      color: textDisab_(context),
-                      fontWeight: weightHalfBold,
-                  ),
-                ),
-                SizedBox(height: 6.0),
-                NewEmptySongButton(),
-
-                SizedBox(height: 20.0),
-
-                Text(
-                  'Jeśli chcesz zobaczyć przykładową piosenkę:',
-                  style: AppTextStyle(
-                      fontSize: 14.0,
-                      color: textDisab_(context),
-                      fontWeight: weightHalfBold,
-                  ),
-                ),
-                SizedBox(height: 6.0),
-                NewExampleSongButton(),
-
-                SizedBox(height: 20.0),
-                Icon(MdiIcons.circleMedium, color: textDisab_(context)),
-                SizedBox(height: 20.0),
-
-                if(leftPanelAlwaysVisible)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(width: 7.0),
-                      Icon(MdiIcons.arrowLeft, color: textDisab_(context)),
-                      SizedBox(width: 7.0),
-
-                      Text(
-                        'Po wszystkie dostępne opcje, zerknij tam',
-                        style: AppTextStyle(
-                            fontSize: 14.0,
-                            color: textDisab_(context),
-                            fontWeight: weightHalfBold,
-                        ),
-                      ),
-                    ],
-                  )
-
-                else
-                  SimpleButton.from(
-                    context: context,
-                    onTap: () => Scaffold.of(context).openDrawer(),
-                    text: 'Kliknij, po więcej opcji',
-                    color: backgroundIcon_(context),
-                    icon: MdiIcons.menu,
-                    iconSize: 32.0,
-                    direction: Axis.vertical,
-                  )
-
-              ],
-            ),
+            ],
           ),
         ),
       );

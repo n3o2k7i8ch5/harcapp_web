@@ -266,12 +266,10 @@ class NoSongsWidget extends StatelessWidget{
   const NoSongsWidget();
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.all(paddingVal),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.center,
+  Widget build(BuildContext context) => Center(
+    child: ListView(
+      padding: const EdgeInsets.all(paddingVal),
+      shrinkWrap: true,
       children: [
 
         ImportSongsButton(),

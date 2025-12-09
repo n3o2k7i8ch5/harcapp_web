@@ -154,14 +154,7 @@ class KonspektsPageState extends State<KonspektsPage>{
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Padding(
-                padding: EdgeInsets.only(
-                  top: Dimen.defMarg,
-                  left: KonspektsPage.defPaddingVal,
-                  right: KonspektsPage.defPaddingVal,
-                ),
-                child: const KonspektyTabsRow(),
-              ),
+              const KonspektyTabsRow(),
               Expanded(
                 child: Stack(
                   children: [
