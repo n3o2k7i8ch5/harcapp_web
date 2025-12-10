@@ -30,6 +30,7 @@ import 'package:harcapp_web/konspekt_workspace/widgets/bullet_list_editor_widget
 import 'package:harcapp_web/konspekt_workspace/widgets/attachments_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/html_editor.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/plain_text_editor.dart';
+import 'package:harcapp_web/konspekt_workspace/widgets/author_editor_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../consts.dart';
@@ -233,6 +234,17 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                             ),
 
                             const SizedBox(height: Dimen.defMarg),
+
+                            TitleShortcutRowWidget(
+                              title: 'Autor konspektu',
+                              textAlign: TextAlign.left,
+                            ),
+                            AuthorEditorWidget(
+                              author: konspektData.author,
+                              onChanged: (author) => _setStateAndSave(() => konspektData.author = author),
+                            ),
+
+                            const SizedBox(height: Dimen.sideMarg),
 
                             TitleShortcutRowWidget(
                               title: 'Kategoria',

@@ -164,7 +164,7 @@ class KonspektData extends BaseKonspekt {
   final List<Meto> metos;
   final TextEditingController coverAuthorController;
   Uint8List? coverImageBytes;
-  final Person? author;
+  Person? author;
   Duration? customDuration;
   final List<TextEditingController> aimControllers;
   final List<KonspektMaterialData> materials;

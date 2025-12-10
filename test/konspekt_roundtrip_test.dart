@@ -10,7 +10,10 @@ import 'package:harcapp_core/comm_classes/text_utils.dart';
 import 'package:harcapp_core/harcthought/common/file_format.dart';
 import 'package:harcapp_core/harcthought/konspekts/hrcpknspkt_data.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
+import 'package:harcapp_core/values/org.dart';
 import 'package:harcapp_core/values/people/person.dart';
+import 'package:harcapp_core/values/rank_harc.dart';
+import 'package:harcapp_core/values/rank_instr.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_material_data.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_step_data.dart';
@@ -673,5 +676,63 @@ void main() {
     final KonspektData restored = _roundtrip(original);
     
     expect(restored.introController.text, original.introController.text);
+  });
+
+  test('KonspektData author field roundtrip with full Person details', () {
+    final KonspektData original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+    
+    // Set author with all possible fields
+    original.author = const Person(
+      name: 'pwd. Anna Kowalska',
+      rankHarc: RankHarc.zhpWywiadowca,
+      rankInstr: RankInstr.pwd,
+      druzyna: '123 WDH "Leśne Tropiciele"',
+      hufiec: 'Hufiec Warszawa-Śródmieście',
+      org: Org.zhp,
+      comment: 'Specjalizacja: gry terenowe',
+      email: ['anna.kowalska@example.com'],
+    );
+    
+    final KonspektData restored = _roundtrip(original);
+    
+    expect(restored.author, isNotNull);
+    expect(restored.author!.name, 'pwd. Anna Kowalska');
+    expect(restored.author!.rankHarc, RankHarc.zhpWywiadowca);
+    expect(restored.author!.rankInstr, RankInstr.pwd);
+    expect(restored.author!.druzyna, '123 WDH "Leśne Tropiciele"');
+    expect(restored.author!.hufiec, 'Hufiec Warszawa-Śródmieście');
+    expect(restored.author!.org, Org.zhp);
+    expect(restored.author!.comment, 'Specjalizacja: gry terenowe');
+    expect(restored.author!.email, ['anna.kowalska@example.com']);
+  });
+
+  test('KonspektData author field roundtrip with minimal Person', () {
+    final KonspektData original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+    
+    // Set author with only required name field
+    original.author = const Person(name: 'Jan Nowak');
+    
+    final KonspektData restored = _roundtrip(original);
+    
+    expect(restored.author, isNotNull);
+    expect(restored.author!.name, 'Jan Nowak');
+    expect(restored.author!.rankHarc, isNull);
+    expect(restored.author!.rankInstr, isNull);
+    expect(restored.author!.druzyna, isNull);
+    expect(restored.author!.hufiec, isNull);
+    expect(restored.author!.org, isNull);
+    expect(restored.author!.comment, isNull);
+    expect(restored.author!.email, isEmpty);
+  });
+
+  test('KonspektData author field roundtrip with null author', () {
+    final KonspektData original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+    
+    // Explicitly set author to null
+    original.author = null;
+    
+    final KonspektData restored = _roundtrip(original);
+    
+    expect(restored.author, isNull);
   });
 }

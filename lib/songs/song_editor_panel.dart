@@ -51,6 +51,59 @@ class SongEditorPanelState extends State<SongEditorPanel>{
     super.dispose();
   }
 
+  void _updateBindingIfNeeded(BuildContext context) {
+    final bindProv = BindTitleFileNameProvider.of(context);
+    if (bindProv.bindTitle) {
+      CurrentItemProvider.of(context).setLclIdFromTitleAndPerformer(withPerformer: bindProv.bindPerformer);
+      SongFileNameDupErrProvider.of(context).checkAllDups(context);
+    }
+  }
+
+  Future<void> _editPart({
+    required BuildContext context,
+    required dynamic part,
+    required VoidCallback onAfterChange,
+    bool barrierDismissible = true,
+  }) async {
+    String text = part.getText();
+    String chords = part.chords;
+    bool shifted = part.shift;
+    bool isError = part.isError;
+
+    await showDialog(
+      context: context,
+      barrierDismissible: barrierDismissible,
+      builder: (dialogContext) => Center(
+        child: SizedBox(
+          width: songDialogWidth,
+          child: SongPartEditor(
+            initText: text,
+            initChords: chords,
+            initShifted: shifted,
+            isRefren: part.isRefren(dialogContext),
+            onTextChanged: (newText, errCount) {
+              text = newText;
+              isError = errCount != 0;
+            },
+            onChordsChanged: (newChords, errCount) {
+              chords = newChords;
+              isError = errCount != 0;
+            },
+            onShiftedChanged: (newShifted) {
+              shifted = newShifted;
+            },
+          ),
+        ),
+      ),
+    );
+
+    part.setText(text);
+    part.chords = chords;
+    part.shift = shifted;
+    part.isError = isError;
+    onAfterChange();
+  }
+
   @override
   Widget build(BuildContext context) => Consumer2<SongEditorPanelProvider, SongPreviewProvider>(
     builder: (context, prov, showSongProv, child){
@@ -66,41 +119,12 @@ class SongEditorPanelState extends State<SongEditorPanel>{
       return SongPartsListWidget(
         // shrinkWrap: true,
         onPartTap: (index) async {
-
-          String _text = currItemProv.song.songParts[index].getText();
-          String _chords = currItemProv.song.songParts[index].chords;
-          bool _shifted = currItemProv.song.songParts[index].shift;
-          bool _isError = currItemProv.song.songParts[index].isError;
-
-          await showDialog(context: context, builder: (_) => Center(
-            child: SizedBox(
-              width: songDialogWidth,
-              child: SongPartEditor(
-                initText: _text,
-                initChords: _chords,
-                initShifted: _shifted,
-                isRefren: currItemProv.song.songParts[index].isRefren(context),
-                onTextChanged: (text, errCount){
-                  _text = text;
-                  _isError = errCount != 0;
-                },
-                onChordsChanged: (text, errCount){
-                  _chords = text;
-                  _isError = errCount != 0;
-                },
-                onShiftedChanged: (shifted){
-                  _shifted = shifted;
-                },
-              ),
-            ),
-          ));
-
-          currItemProv.song.songParts[index].setText(_text);
-          currItemProv.song.songParts[index].chords = _chords;
-          currItemProv.song.songParts[index].shift = _shifted;
-          currItemProv.song.songParts[index].isError = _isError;
-          currItemProv.notify();
-
+          final part = currItemProv.song.songParts[index];
+          await _editPart(
+            context: context,
+            part: part,
+            onAfterChange: () => currItemProv.notify(),
+          );
         },
         controller: scrollController,
         header: Column(
@@ -122,12 +146,9 @@ class SongEditorPanelState extends State<SongEditorPanel>{
                   value: prov.bindTitle,
                   onChanged: (value){
                     prov.bindTitle = value;
-
                     if(prov.bindTitle)
                       CurrentItemProvider.of(context).setLclIdFromTitleAndPerformer(withPerformer: prov.bindPerformer);
-
                     SongFileNameDupErrProvider.of(context).checkAllDups(context);
-
                   },
                   title: Text(
                     'Powiąż identyfikator piosenki z tytułem',
@@ -192,26 +213,13 @@ class SongEditorPanelState extends State<SongEditorPanel>{
             SizedBox(height: Dimen.defMarg),
 
             BasicDataWidget(
-              onChangedTitle: (String text){
-                BindTitleFileNameProvider bindTitleFileNameProv = BindTitleFileNameProvider.of(context);
-                if(bindTitleFileNameProv.bindTitle){
-                  CurrentItemProvider.of(context).setLclIdFromTitleAndPerformer(withPerformer: bindTitleFileNameProv.bindPerformer);
-                  SongFileNameDupErrProvider.of(context).checkAllDups(context);
-                }
-
-              },
+              onChangedTitle: (String text) => _updateBindingIfNeeded(context),
               onChangedHiddenTitles: (List<String> texts) => currItemProv.notify(),
               onChangedAuthor: (List<String> texts) => currItemProv.notify(),
               onChangedComposer: (List<String> texts) => currItemProv.notify(),
               onChangedPerformer: (List<String> texts){
-
                 currItemProv.notify();
-
-                BindTitleFileNameProvider bindTitleFileNameProv = BindTitleFileNameProvider.of(context);
-                if(bindTitleFileNameProv.bindTitle){
-                  CurrentItemProvider.of(context).setLclIdFromTitleAndPerformer(withPerformer: bindTitleFileNameProv.bindPerformer);
-                  SongFileNameDupErrProvider.of(context).checkAllDups(context);
-                }
+                _updateBindingIfNeeded(context);
               },
               onChangedYT: (String? text) => currItemProv.notify(),
             ),
@@ -234,46 +242,16 @@ class SongEditorPanelState extends State<SongEditorPanel>{
             RefrenTemplate(
                 accentColor: iconEnab_(context),
                 onPartTap: () async {
-
-                  String _text = currItemProv.song.refrenPart.getText();
-                  String _chords = currItemProv.song.refrenPart.chords;
-                  bool _shifted = currItemProv.song.refrenPart.shift;
-                  bool _isError = currItemProv.song.refrenPart.isError;
-
-                  await showDialog(
-                      barrierDismissible: false,
-                      context: context,
-                      builder: (context) => Center(
-                        child: SizedBox(
-                          width: songDialogWidth,
-                          child: SongPartEditor(
-                            initText: _text,
-                            initChords: _chords,
-                            initShifted: _shifted,
-                            isRefren: currItemProv.song.refrenPart.isRefren(context),
-                            onTextChanged: (text, errCount){
-                              _text = text;
-                              _isError = errCount != 0;
-                            },
-                            onChordsChanged: (text, errCount){
-                              _chords = text;
-                              _isError = errCount != 0;
-                            },
-                            onShiftedChanged: (shifted){
-                              _shifted = shifted;
-                            },
-                          ),
-                        ),
-                      )
+                  final part = currItemProv.song.refrenPart;
+                  await _editPart(
+                    context: context,
+                    part: part,
+                    onAfterChange: () {
+                      currItemProv.notify();
+                      Provider.of<RefrenPartProvider>(context, listen: false).notify();
+                    },
+                    barrierDismissible: false,
                   );
-
-                  currItemProv.song.refrenPart.setText(_text);
-                  currItemProv.song.refrenPart.chords = _chords;
-                  currItemProv.song.refrenPart.shift = _shifted;
-                  currItemProv.song.refrenPart.isError = _isError;
-                  currItemProv.notify();
-                  Provider.of<RefrenPartProvider>(context, listen: false).notify();
-
                 }
             ),
 

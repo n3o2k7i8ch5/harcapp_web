@@ -72,6 +72,92 @@ TableOfContentPoradnikWidget tableOfContentPoradnikWidget(BuildContext context, 
   withBackButton: isDrawer,
 );
 
+List<RouteBase> _buildKonspektyRoutes({
+  required String listPath,
+  required String itemPath,
+  required List<Konspekt> allKonspekts,
+  required String keyBase,
+  required Widget Function(BuildContext context, bool isDrawer, Konspekt? selectedKonspekt) tableOfContentBuilder,
+}) => [
+  GoRoute(
+    path: listPath,
+    pageBuilder: (context, state) => NoTransitionPage(
+      child: KonspektsPage(
+        itemPath,
+        allKonspekts,
+        tableOfContentBuilder: (bool isDrawer, Konspekt? selectedKonspekt) =>
+            tableOfContentBuilder(context, isDrawer, selectedKonspekt),
+        key: ValueKey(keyBase),
+      ),
+    ),
+  ),
+  GoRoute(
+    path: itemPath,
+    pageBuilder: (context, state) {
+      final name = state.pathParameters['name'];
+
+      Konspekt? selectedKonspekt;
+      try {
+        selectedKonspekt = allKonspekts.firstWhere((konspekt) => konspekt.name == name);
+      } on StateError {}
+
+      return NoTransitionPage(
+        child: KonspektsPage(
+          itemPath,
+          allKonspekts,
+          selectedKonspekt: selectedKonspekt,
+          tableOfContentBuilder: (bool isDrawer, Konspekt? selectedKonspekt) =>
+              tableOfContentBuilder(context, isDrawer, selectedKonspekt),
+          key: ValueKey('$keyBase $name'),
+        ),
+      );
+    },
+  ),
+];
+
+List<RouteBase> _buildPoradnikRoutes({
+  required String listPath,
+  required String itemPath,
+  required List<Poradnik> allPoradniks,
+  required String keyBase,
+  required Widget Function(BuildContext context, bool isDrawer, Poradnik? selectedPoradnik) tableOfContentBuilder,
+}) => [
+  GoRoute(
+    path: listPath,
+    pageBuilder: (context, state) => NoTransitionPage(
+      child: PoradniksPage(
+        itemPath,
+        allPoradniks,
+        tableOfContentBuilder: (bool isDrawer, Poradnik? selectedPoradnik) =>
+            tableOfContentBuilder(context, isDrawer, selectedPoradnik),
+        key: ValueKey(keyBase),
+      ),
+    ),
+  ),
+  GoRoute(
+    path: itemPath,
+    pageBuilder: (context, state) {
+      final name = state.pathParameters['name'];
+
+      Poradnik? selectedPoradnik;
+      try {
+        selectedPoradnik = allPoradniks.firstWhere((poradnik) => poradnik.name == name);
+      } on StateError {}
+
+      return NoTransitionPage(
+        child: PoradniksPage(
+          itemPath,
+          allPoradniks,
+          selectedPoradnik: selectedPoradnik,
+          tableOfContentBuilder: (bool isDrawer, Poradnik? selectedPoradnik) =>
+              tableOfContentBuilder(context, isDrawer, selectedPoradnik),
+          key: ValueKey('$keyBase $name'),
+        ),
+      );
+    },
+  ),
+];
+
 GoRouter router = GoRouter(
     initialLocation: pathHome,
     routes: [
@@ -89,124 +175,28 @@ GoRouter router = GoRouter(
                     )
                 )
             ),
-            GoRoute(
-                path: pathKonspektyHarcerskie,
-                pageBuilder: (context, state) => NoTransitionPage(
-                    child: KonspektsPage(
-                        pathKonspektyHarcerskieItem,
-                        allHarcerskieKonspekts,
-                        tableOfContentBuilder: (bool isDrawer, Konspekt? selectedKonspekt) => tableOfContentHarcerskieWidget(
-                          context,
-                          isDrawer,
-                          selectedKonspekt,
-                        ),
-                        key: ValueKey('konspekty harcerskie')
-                    )
-                )
-            ),
-            GoRoute(
-                path: pathKonspektyHarcerskieItem,
-                pageBuilder: (context, state){
-                  final name = state.pathParameters['name'];
-
-                  Konspekt? selectedKonspekt = null;
-                  try {
-                    selectedKonspekt = allHarcerskieKonspekts.firstWhere((konspekt) => konspekt.name == name);
-                  } on StateError {}
-                  return NoTransitionPage(
-                      child: KonspektsPage(
-                          pathKonspektyHarcerskieItem,
-                          allHarcerskieKonspekts,
-                          selectedKonspekt: selectedKonspekt,
-                          tableOfContentBuilder: (bool isDrawer, Konspekt? selectedKonspekt) => tableOfContentHarcerskieWidget(
-                              context,
-                              isDrawer,
-                              selectedKonspekt
-                          ),
-                          key: ValueKey('konspekty harcerskie $name')
-                      )
-                  );
-                }
+            ..._buildKonspektyRoutes(
+              listPath: pathKonspektyHarcerskie,
+              itemPath: pathKonspektyHarcerskieItem,
+              allKonspekts: allHarcerskieKonspekts,
+              keyBase: 'konspekty harcerskie',
+              tableOfContentBuilder: tableOfContentHarcerskieWidget,
             ),
 
-            GoRoute(
-                path: pathKonspektyKsztalcenie,
-                pageBuilder: (context, state) => NoTransitionPage(
-                    child: KonspektsPage(
-                        pathKonspektyKsztalcenieItem,
-                        allKsztalcenieKonspekts,
-                        tableOfContentBuilder: (bool isDrawer, Konspekt? selectedKonspekt) => tableOfContentKsztalcenieWidget(
-                            context,
-                            isDrawer,
-                            selectedKonspekt
-                        ),
-                        key: ValueKey('konspekty ksztalcenie')
-                    )
-                )
-            ),
-            GoRoute(
-                path: pathKonspektyKsztalcenieItem,
-                pageBuilder: (context, state){
-                  final name = state.pathParameters['name'];
-
-                  Konspekt? selectedKonspekt = null;
-                  try {
-                    selectedKonspekt = allKsztalcenieKonspekts.firstWhere((konspekt) => konspekt.name == name);
-                  } on StateError {}
-                  return NoTransitionPage(
-                      child: KonspektsPage(
-                          pathKonspektyKsztalcenieItem,
-                          allKsztalcenieKonspekts,
-                          selectedKonspekt: selectedKonspekt,
-                          tableOfContentBuilder: (bool isDrawer, Konspekt? selectedKonspekt) => tableOfContentKsztalcenieWidget(
-                              context,
-                              isDrawer,
-                              selectedKonspekt
-                          ),
-                          key: ValueKey('konspekty ksztalcenie $name')
-                      )
-                  );
-                }
+            ..._buildKonspektyRoutes(
+              listPath: pathKonspektyKsztalcenie,
+              itemPath: pathKonspektyKsztalcenieItem,
+              allKonspekts: allKsztalcenieKonspekts,
+              keyBase: 'konspekty ksztalcenie',
+              tableOfContentBuilder: tableOfContentKsztalcenieWidget,
             ),
 
-            GoRoute(
-                path: pathPoradnik,
-                pageBuilder: (context, state) => NoTransitionPage(
-                    child: PoradniksPage(
-                        pathPoradnikItem,
-                        allPoradniks,
-                        tableOfContentBuilder: (bool isDrawer, Poradnik? selectedPoradnik) => tableOfContentPoradnikWidget(
-                            context,
-                            isDrawer,
-                            selectedPoradnik
-                        ),
-                        key: ValueKey('poradnik')
-                    )
-                )
-            ),
-            GoRoute(
-                path: pathPoradnikItem,
-                pageBuilder: (context, state){
-                  final name = state.pathParameters['name'];
-
-                  Poradnik? selectedPoradnik = null;
-                  try {
-                    selectedPoradnik = allPoradniks.firstWhere((poradnik) => poradnik.name == name);
-                  } on StateError {}
-                  return NoTransitionPage(
-                      child: PoradniksPage(
-                          pathPoradnikItem,
-                          allPoradniks,
-                          selectedPoradnik: selectedPoradnik,
-                          tableOfContentBuilder: (bool isDrawer, Poradnik? selectedPoradnik) => tableOfContentPoradnikWidget(
-                              context,
-                              isDrawer,
-                              selectedPoradnik
-                          ),
-                          key: ValueKey('poradnik')
-                      )
-                  );
-                }
+            ..._buildPoradnikRoutes(
+              listPath: pathPoradnik,
+              itemPath: pathPoradnikItem,
+              allPoradniks: allPoradniks,
+              keyBase: 'poradnik',
+              tableOfContentBuilder: tableOfContentPoradnikWidget,
             ),
 
             GoRoute(

@@ -29,6 +29,121 @@ class SpheresWidget extends StatefulWidget{
 
 }
 
+class _DuchLevelSection extends StatelessWidget {
+
+  final KonspektSphereLevel level;
+  final MultiTextFieldController controller;
+  final List<Set<KonspektSphereFactor>?> factors;
+  final String hint;
+  final String addButtonText;
+  final bool isEmpty;
+  final VoidCallback onCreateFirstItem;
+  final void Function(List<String> values) onValuesChanged;
+  final void Function(int index, List<KonspektSphereFactor> selectedKeywords) onItemKeywordsChanged;
+  final VoidCallback onAddItem;
+  final void Function(int index) onRemoveItem;
+
+  const _DuchLevelSection({
+    required this.level,
+    required this.controller,
+    required this.factors,
+    required this.hint,
+    required this.addButtonText,
+    required this.isEmpty,
+    required this.onCreateFirstItem,
+    required this.onValuesChanged,
+    required this.onItemKeywordsChanged,
+    required this.onAddItem,
+    required this.onRemoveItem,
+  });
+
+  @override
+  Widget build(BuildContext context) => AnimatedSize(
+    duration: SphereNonDuchWidgetState._animDuration,
+    curve: SphereNonDuchWidgetState._animCurve,
+    alignment: Alignment.topCenter,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            SizedBox(height: Dimen.iconFootprint),
+            Expanded(
+                child: Row(
+                  children: [
+
+                    SizedBox(width: Dimen.iconSize + Dimen.iconMarg),
+
+                    Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(AppCard.defRadius),
+                          color: level.color.withValues(alpha: 0.1)
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(
+                          Dimen.defMarg,
+                        ),
+                        child: level.getTextWidget(Dimen.textSizeBig),
+                      ),
+                    ),
+
+                  ],
+                )
+
+            ),
+            if (isEmpty)
+              AppButton(
+                icon: Icon(MdiIcons.plus),
+                onTap: onCreateFirstItem,
+              ),
+          ],
+        ),
+
+        if (!isEmpty)
+          Padding(
+            padding: EdgeInsets.only(bottom: Dimen.iconMarg),
+            child: AppTextFieldHint(
+              multiController: controller,
+              hint: hint,
+              hintTop: '',
+              multiHintTop: '',
+              textFieldHintPadding: EdgeInsets.zero,
+              animationDuration: SphereNonDuchWidgetState._animDuration,
+              onAnyChanged: onValuesChanged,
+              multi: true,
+              multiAllowZeroFields: true,
+              multiLayout: LayoutMode.column,
+              multiItemBuilder: (index, key, widget) => DuchLevelItemWidget(
+                index,
+                widget,
+                onChanged: (selectedKeywords) =>
+                    onItemKeywordsChanged(index, selectedKeywords),
+                factors: factors[index],
+                key: key,
+              ),
+              multiAddButtonBuilder: (bool tappable, void Function() onTap) => Padding(
+                padding: EdgeInsets.only(
+                  right: Dimen.iconMarg,
+                  left: Dimen.iconSize + Dimen.iconMarg,
+                ),
+                child: MultiTextFieldAddButton(
+                  tappable: tappable,
+                  text: addButtonText,
+                  onTap: () {
+                    onTap.call();
+                    onAddItem();
+                  },
+                ),
+              ),
+              multiOnRemoved: (int index) => onRemoveItem(index),
+              multiIsCollapsed: true,
+            ),
+          ),
+      ],
+    ),
+  );
+}
+
 class SpheresWidgetState extends State<SpheresWidget> {
 
   Map<KonspektSphere, KonspektSphereDetails?> get spheres => {
@@ -358,97 +473,28 @@ class SphereDuchWidgetState extends State<SphereDuchWidget>{
         required String hint,
         required String addButtonText,
       }) {
-    final isEmpty = controller.$1.length == 0;
+    final textsController = controller.$1;
+    final factors = controller.$2;
+    final isEmpty = textsController.length == 0;
 
-    return AnimatedSize(
-      duration: SphereNonDuchWidgetState._animDuration,
-      curve: SphereNonDuchWidgetState._animCurve,
-      alignment: Alignment.topCenter,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              SizedBox(height: Dimen.iconFootprint),
-              Expanded(
-                  child: Row(
-                    children: [
-
-                      SizedBox(width: Dimen.iconSize + Dimen.iconMarg),
-
-                      Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(AppCard.defRadius),
-                            color: level.color.withValues(alpha: 0.1)
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(
-                            Dimen.defMarg,
-                          ),
-                          child: level.getTextWidget(Dimen.textSizeBig),
-                        ),
-                      ),
-
-                    ],
-                  )
-
-              ),
-              if (isEmpty)
-                AppButton(
-                  icon: Icon(MdiIcons.plus),
-                  onTap: () => setState(() {
-                    controller.$1.texts = [''];
-                    controller.$2.add({});
-                  }),
-                ),
-            ],
-          ),
-
-          if (!isEmpty)
-            Padding(
-              padding: EdgeInsets.only(bottom: Dimen.iconMarg),
-              child: AppTextFieldHint(
-                multiController: controller.$1,
-                hint: hint,
-                hintTop: '',
-                multiHintTop: '',
-                textFieldHintPadding: EdgeInsets.zero,
-                animationDuration: SphereNonDuchWidgetState._animDuration,
-                onAnyChanged: (values) => callUpdate(level, values),
-                multi: true,
-                multiAllowZeroFields: true,
-                multiLayout: LayoutMode.column,
-                multiItemBuilder: (index, key, widget) => DuchLevelItemWidget(
-                  index,
-                  widget,
-                  onChanged: (selectedKeywords) {
-                    setState(() => controller.$2[index] = Set.of(selectedKeywords));
-                    callUpdate(level, controller.$1.texts);
-                  },
-                  factors: controller.$2[index],
-                  key: key,
-                ),
-                multiAddButtonBuilder: (bool tappable, void Function() onTap) => Padding(
-                  padding: EdgeInsets.only(
-                    right: Dimen.iconMarg,
-                    left: Dimen.iconSize + Dimen.iconMarg,
-                  ),
-                  child: MultiTextFieldAddButton(
-                    tappable: tappable,
-                    text: addButtonText,
-                    onTap: () {
-                      onTap.call();
-                      controller.$2.add({});
-                    },
-                  ),
-                ),
-                multiOnRemoved: (int index) => controller.$2.removeAt(index),
-                multiIsCollapsed: true,
-              ),
-            ),
-        ],
-      ),
-
+    return _DuchLevelSection(
+      level: level,
+      controller: textsController,
+      factors: factors,
+      hint: hint,
+      addButtonText: addButtonText,
+      isEmpty: isEmpty,
+      onCreateFirstItem: () => setState(() {
+        textsController.texts = [''];
+        factors.add({});
+      }),
+      onValuesChanged: (values) => callUpdate(level, values),
+      onItemKeywordsChanged: (index, selectedKeywords) {
+        setState(() => factors[index] = Set.of(selectedKeywords));
+        callUpdate(level, textsController.texts);
+      },
+      onAddItem: () => setState(() => factors.add({})),
+      onRemoveItem: (index) => setState(() => factors.removeAt(index)),
     );
   }
 
