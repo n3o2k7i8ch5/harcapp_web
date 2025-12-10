@@ -645,4 +645,33 @@ void main() {
     expect(formats, contains('png'));
     expect(formats, contains('urlPdf'));
   });
+
+  test('KonspektData intro field roundtrip preserves content', () {
+    final KonspektData original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+    
+    // Verify original intro value
+    expect(original.introController.text, 'Wstęp');
+    
+    final KonspektData restored = _roundtrip(original);
+    
+    expect(restored.introController.text, original.introController.text);
+  });
+
+  test('KonspektData intro field roundtrip with empty value', () {
+    final KonspektData original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+    original.introController.text = '';
+    
+    final KonspektData restored = _roundtrip(original);
+    
+    expect(restored.introController.text, '');
+  });
+
+  test('KonspektData intro field roundtrip with HTML content', () {
+    final KonspektData original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+    original.introController.text = '<p>Wstęp z <strong>formatowaniem</strong> i <em>kursywą</em>.</p>';
+    
+    final KonspektData restored = _roundtrip(original);
+    
+    expect(restored.introController.text, original.introController.text);
+  });
 }

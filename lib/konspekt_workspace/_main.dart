@@ -26,8 +26,10 @@ import 'package:harcapp_web/konspekt_workspace/widgets/materials_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/select_time_button.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/spheres_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/steps_widget.dart';
+import 'package:harcapp_web/konspekt_workspace/widgets/bullet_list_editor_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/attachments_widget.dart';
-import 'package:harcapp_web/konspekt_workspace/widgets/opis_html_editor.dart';
+import 'package:harcapp_web/konspekt_workspace/widgets/html_editor.dart';
+import 'package:harcapp_web/konspekt_workspace/widgets/plain_text_editor.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../consts.dart';
@@ -219,12 +221,17 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
                             const SizedBox(height: Dimen.sideMarg),
 
-                            AppTextFieldHint(
-                              hint: 'W skrócie:',
-                              textCapitalization: TextCapitalization.sentences,
+                            TitleShortcutRowWidget(
+                              title: 'W skrócie',
+                              textAlign: TextAlign.left,
+                            ),
+                            _SectionHintText(
+                              'Króciutki opis, widoczny na karcie konspektu jako "zachęta" przed jego otwarciem.',
+                            ),
+                            PlainTextEditor(
                               controller: konspektData.summaryController,
-                              maxLines: null,
-                              onChanged: (_, __) => _markUnsaved(),
+                              placeholder: 'W skrócie:',
+                              onChanged: _markUnsaved,
                             ),
 
                             const SizedBox(height: Dimen.defMarg),
@@ -347,75 +354,11 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                               'Jakie są założone skutki dla uczestników, którzy wezmą udział?',
                             ),
 
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                ...List.generate(konspektData.aimControllers.length, (index) {
-                                  final controller = konspektData.aimControllers[index];
-                                  return Padding(
-                                    padding: EdgeInsets.only(
-                                      bottom: index < konspektData.aimControllers.length - 1
-                                          ? Dimen.defMarg
-                                          : 0,
-                                    ),
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        SizedBox(height: Dimen.iconFootprint),
-
-                                        SizedBox(width: Dimen.iconMarg),
-                                        Icon(MdiIcons.circleMedium),
-                                        SizedBox(width: Dimen.iconMarg),
-
-                                        Expanded(
-                                          child: AppTextFieldHint(
-                                            hint: 'Cel:',
-                                            controller: controller,
-                                            textCapitalization: TextCapitalization.sentences,
-                                            onChanged: (_, __) => _markUnsaved(),
-                                          ),
-                                        ),
-
-                                        SizedBox(width: Dimen.defMarg),
-
-                                        SimpleButton.from(
-                                          context: context,
-                                          radius: AppCard.defRadius,
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: Dimen.defMarg * 1.5,
-                                            vertical: Dimen.defMarg,
-                                          ),
-                                          color: Colors.red.withValues(alpha: 0.3),
-                                          margin: EdgeInsets.zero,
-                                          text: 'Usuń',
-                                          textColor: Colors.red,
-                                          icon: MdiIcons.trashCanOutline,
-                                          iconColor: Colors.red,
-                                          onTap: () => _setStateAndSave(() {
-                                            konspektData.aimControllers.removeAt(index);
-                                          }),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }),
-
-                                if(konspektData.aimControllers.isNotEmpty)
-                                  SizedBox(height: Dimen.defMarg),
-
-                                SimpleButton.from(
-                                  color: backgroundIcon_(context),
-                                  radius: AppCard.defRadius,
-                                  context: context,
-                                  icon: MdiIcons.plus,
-                                  margin: EdgeInsets.zero,
-                                  textColor: iconEnab_(context),
-                                  text: 'Dodaj cel',
-                                  onTap: () => _setStateAndSave(() {
-                                    konspektData.aimControllers.add(TextEditingController());
-                                  }),
-                                ),
-                              ],
+                            BulletListEditorWidget(
+                              controllers: konspektData.aimControllers,
+                              itemHint: 'Cel:',
+                              addButtonText: 'Dodaj cel',
+                              onChanged: _markUnsaved,
                             ),
 
                             const SizedBox(height: Dimen.sideMarg),
@@ -466,14 +409,30 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                             const SizedBox(height: Dimen.sideMarg),
 
                             TitleShortcutRowWidget(
+                              title: 'Wstęp',
+                              textAlign: TextAlign.left,
+                            ),
+                            _SectionHintText(
+                              'Wstęp - ewentualne przygotowanie uczestników przed rozpoczęciem konspektu.',
+                            ),
+                            HtmlEditor(
+                              controller: konspektData.introController,
+                              placeholder: 'Wstęp:',
+                              attachments: konspektData.attachments,
+                            ),
+
+                            const SizedBox(height: Dimen.sideMarg),
+
+                            TitleShortcutRowWidget(
                               title: 'Opis',
                               textAlign: TextAlign.left,
                             ),
                             _SectionHintText(
                               'Opis konspektu - można go wykorzystać jako uzupełnienie lub zamiennik "planu" (sekcja niżej), gdy ciężko jest wydzielić konkretne kroki.',
                             ),
-                            OpisHtmlEditor(
+                            HtmlEditor(
                               controller: konspektData.descriptionController,
+                              placeholder: 'Opis:',
                               attachments: konspektData.attachments,
                             ),
 
@@ -489,6 +448,22 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                             StepsWidget(
                               steps: konspektData.stepsData,
                               attachments: konspektData.attachments,
+                            ),
+
+                            const SizedBox(height: Dimen.sideMarg),
+
+                            TitleShortcutRowWidget(
+                              title: 'Jak to spartolić',
+                              textAlign: TextAlign.left,
+                            ),
+                            _SectionHintText(
+                              'Lista typowych błędów, które mogą zepsuć konspekt.',
+                            ),
+                            BulletListEditorWidget(
+                              controllers: konspektData.howToFailControllers,
+                              itemHint: 'Błąd:',
+                              addButtonText: 'Dodaj błąd',
+                              onChanged: _markUnsaved,
                             ),
 
                           ]),

@@ -15,19 +15,21 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'attachment_embed.dart';
 import 'quill_html_converter.dart';
 
-class OpisHtmlEditor extends StatefulWidget {
+class HtmlEditor extends StatefulWidget {
   final double? radius;
   final Color? background;
   final TextEditingController controller;
+  final String? placeholder;
   final List<KonspektAttachmentData>? attachments;
+  final bool showToolbar;
 
-  const OpisHtmlEditor({super.key, this.radius, this.background, required this.controller, this.attachments});
+  const HtmlEditor({super.key, this.radius, this.background, required this.controller, this.placeholder, this.attachments, this.showToolbar = true});
 
   @override
-  State<OpisHtmlEditor> createState() => _OpisHtmlEditorState();
+  State<HtmlEditor> createState() => _HtmlEditorState();
 }
 
-class _OpisHtmlEditorState extends State<OpisHtmlEditor> {
+class _HtmlEditorState extends State<HtmlEditor> {
   static const _editorMinHeight = 100.0;
   static const _editorMaxHeight = 500.0;
 
@@ -45,7 +47,7 @@ class _OpisHtmlEditorState extends State<OpisHtmlEditor> {
   }
 
   @override
-  void didUpdateWidget(covariant OpisHtmlEditor oldWidget) {
+  void didUpdateWidget(covariant HtmlEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller) {
       _quillController.document = _parseHtml(widget.controller.text);
@@ -106,8 +108,10 @@ class _OpisHtmlEditorState extends State<OpisHtmlEditor> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildToolbar(context),
-              const SizedBox(height: Dimen.defMarg),
+              if (widget.showToolbar) ...[
+                _buildToolbar(context),
+                const SizedBox(height: Dimen.defMarg),
+              ],
               _buildEditor(context),
             ],
           ),
@@ -209,8 +213,18 @@ class _OpisHtmlEditorState extends State<OpisHtmlEditor> {
           scrollController: _scrollController,
           focusNode: _focusNode,
           config: QuillEditorConfig(
-            placeholder: 'Opis:',
+            placeholder: widget.placeholder,
             customStyles: DefaultStyles(
+              paragraph: DefaultTextBlockStyle(
+                AppTextStyle(
+                  fontSize: Dimen.textSizeBig,
+                  color: textEnab_(context),
+                ),
+                HorizontalSpacing.zero,
+                VerticalSpacing.zero,
+                VerticalSpacing.zero,
+                null,
+              ),
               placeHolder: DefaultTextBlockStyle(
                 AppTextStyle(
                   fontSize: Dimen.textSizeBig,
