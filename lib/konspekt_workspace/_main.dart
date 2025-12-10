@@ -221,17 +221,15 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
                             const SizedBox(height: Dimen.sideMarg),
 
-                            TitleShortcutRowWidget(
+                            _FormSection(
                               title: 'W skrócie',
-                              textAlign: TextAlign.left,
-                            ),
-                            _SectionHintText(
-                              'Króciutki opis, widoczny na karcie konspektu jako "zachęta" przed jego otwarciem.',
-                            ),
-                            PlainTextEditor(
-                              controller: konspektData.summaryController,
-                              placeholder: 'W skrócie:',
-                              onChanged: _markUnsaved,
+                              hint: 'Króciutki opis, widoczny na karcie konspektu jako "zachęta" przed jego otwarciem.',
+                              addBottomSpacing: false,
+                              child: PlainTextEditor(
+                                controller: konspektData.summaryController,
+                                placeholder: 'W skrócie:',
+                                onChanged: _markUnsaved,
+                              ),
                             ),
 
                             const SizedBox(height: Dimen.defMarg),
@@ -345,125 +343,84 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
                             const SizedBox(height: Dimen.sideMarg),
 
-                            TitleShortcutRowWidget(
+                            _FormSection(
                               title: 'Cele',
-                              textAlign: TextAlign.left,
+                              hint: 'Jakie są założone skutki dla uczestników, którzy wezmą udział?',
+                              child: BulletListEditorWidget(
+                                controllers: konspektData.aimControllers,
+                                itemHint: 'Cel:',
+                                addButtonText: 'Dodaj cel',
+                                onChanged: _markUnsaved,
+                              ),
                             ),
 
-                            _SectionHintText(
-                              'Jakie są założone skutki dla uczestników, którzy wezmą udział?',
-                            ),
-
-                            BulletListEditorWidget(
-                              controllers: konspektData.aimControllers,
-                              itemHint: 'Cel:',
-                              addButtonText: 'Dodaj cel',
-                              onChanged: _markUnsaved,
-                            ),
-
-                            const SizedBox(height: Dimen.sideMarg),
-
-                            TitleShortcutRowWidget(
+                            _FormSection(
                               title: 'Sfery rozwoju',
-                              textAlign: TextAlign.left,
+                              hint: 'Które sfery zostaną rozwinięte (i w jaki sposób) wśród uczestników, którzy wezmą udział?',
+                              child: SpheresWidget(
+                                spheres: konspektData.spheres,
+                                onChanged: (Map<KonspektSphere, KonspektSphereDetails?> newSpheres){
+                                  konspektData.spheres.clear();
+                                  konspektData.spheres.addAll(newSpheres);
+                                  _setStateAndSave((){});
+                                },
+                              ),
                             ),
 
-                            _SectionHintText(
-                              'Które sfery zostaną rozwinięte (i w jaki sposób) wśród uczestników, którzy wezmą udział?',
-                            ),
-
-                            SpheresWidget(
-                              spheres: konspektData.spheres,
-                              onChanged: (Map<KonspektSphere, KonspektSphereDetails?> newSpheres){
-                                konspektData.spheres.clear();
-                                konspektData.spheres.addAll(newSpheres);
-                                _setStateAndSave((){});
-                              },
-                            ),
-
-                            const SizedBox(height: Dimen.sideMarg),
-
-                            TitleShortcutRowWidget(
+                            _FormSection(
                               title: 'Załączniki',
-                              textAlign: TextAlign.left,
+                              hint: 'Gotowe dokumenty, grafiki, pliki, etc., które są wykorzystywane w konspekcie i do których odwołują się niektóre materiały.',
+                              child: AttachmentsWidget(konspektData.attachments),
                             ),
-                            _SectionHintText(
-                              'Gotowe dokumenty, grafiki, pliki, etc., które są wykorzystywane w konspekcie i do których odwołują się niektóre materiały.',
-                            ),
-                            AttachmentsWidget(konspektData.attachments),
 
-                            const SizedBox(height: Dimen.sideMarg),
-
-                            TitleShortcutRowWidget(
+                            _FormSection(
                               title: 'Materiały',
-                              textAlign: TextAlign.left,
-                            ),
-                            _SectionHintText(
-                              'Wszystkie materiały niezbędne do przeprowadzenia konspektu.',
-                            ),
-                            MaterialsWidget(
-                              materials: konspektData.materials,
-                              attachments: konspektData.attachments,
+                              hint: 'Wszystkie materiały niezbędne do przeprowadzenia konspektu.',
+                              child: MaterialsWidget(
+                                materials: konspektData.materials,
+                                attachments: konspektData.attachments,
+                              ),
                             ),
 
-                            const SizedBox(height: Dimen.sideMarg),
-
-                            TitleShortcutRowWidget(
+                            _FormSection(
                               title: 'Wstęp',
-                              textAlign: TextAlign.left,
-                            ),
-                            _SectionHintText(
-                              'Wstęp - ewentualne przygotowanie uczestników przed rozpoczęciem konspektu.',
-                            ),
-                            HtmlEditor(
-                              controller: konspektData.introController,
-                              placeholder: 'Wstęp:',
-                              attachments: konspektData.attachments,
+                              hint: 'Wstęp - ewentualne przygotowanie uczestników przed rozpoczęciem konspektu.',
+                              child: HtmlEditor(
+                                controller: konspektData.introController,
+                                placeholder: 'Wstęp:',
+                                attachments: konspektData.attachments,
+                              ),
                             ),
 
-                            const SizedBox(height: Dimen.sideMarg),
-
-                            TitleShortcutRowWidget(
+                            _FormSection(
                               title: 'Opis',
-                              textAlign: TextAlign.left,
-                            ),
-                            _SectionHintText(
-                              'Opis konspektu - można go wykorzystać jako uzupełnienie lub zamiennik "planu" (sekcja niżej), gdy ciężko jest wydzielić konkretne kroki.',
-                            ),
-                            HtmlEditor(
-                              controller: konspektData.descriptionController,
-                              placeholder: 'Opis:',
-                              attachments: konspektData.attachments,
+                              hint: 'Opis konspektu - można go wykorzystać jako uzupełnienie lub zamiennik "planu" (sekcja niżej), gdy ciężko jest wydzielić konkretne kroki.',
+                              child: HtmlEditor(
+                                controller: konspektData.descriptionController,
+                                placeholder: 'Opis:',
+                                attachments: konspektData.attachments,
+                              ),
                             ),
 
-                            const SizedBox(height: Dimen.sideMarg),
-
-                            TitleShortcutRowWidget(
+                            _FormSection(
                               title: 'Plan',
-                              textAlign: TextAlign.left,
-                            ),
-                            _SectionHintText(
-                              'Spis kroków do wykonania w konspekcie.',
-                            ),
-                            StepsWidget(
-                              steps: konspektData.stepsData,
-                              attachments: konspektData.attachments,
+                              hint: 'Spis kroków do wykonania w konspekcie.',
+                              child: StepsWidget(
+                                steps: konspektData.stepsData,
+                                attachments: konspektData.attachments,
+                              ),
                             ),
 
-                            const SizedBox(height: Dimen.sideMarg),
-
-                            TitleShortcutRowWidget(
+                            _FormSection(
                               title: 'Jak to spartolić',
-                              textAlign: TextAlign.left,
-                            ),
-                            _SectionHintText(
-                              'Lista typowych błędów, które mogą zepsuć konspekt.',
-                            ),
-                            BulletListEditorWidget(
-                              controllers: konspektData.howToFailControllers,
-                              itemHint: 'Błąd:',
-                              addButtonText: 'Dodaj błąd',
-                              onChanged: _markUnsaved,
+                              hint: 'Lista typowych błędów, które mogą zepsuć konspekt.',
+                              addBottomSpacing: false,
+                              child: BulletListEditorWidget(
+                                controllers: konspektData.howToFailControllers,
+                                itemHint: 'Błąd:',
+                                addButtonText: 'Dodaj błąd',
+                                onChanged: _markUnsaved,
+                              ),
                             ),
 
                           ]),
@@ -503,24 +460,43 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
 }
 
-class _SectionHintText extends StatelessWidget {
+class _FormSection extends StatelessWidget {
+  final String title;
+  final String? hint;
+  final Widget child;
+  final bool addBottomSpacing;
 
-  final String text;
-
-  const _SectionHintText(this.text);
+  const _FormSection({
+    required this.title,
+    this.hint,
+    required this.child,
+    this.addBottomSpacing = true,
+  });
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: EdgeInsets.only(bottom: Dimen.iconMarg),
-    child: Text(
-      text,
-      style: AppTextStyle(
-        fontStyle: FontStyle.italic,
-        color: hintEnab_(context),
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      TitleShortcutRowWidget(
+        title: title,
+        textAlign: TextAlign.left,
       ),
-    ),
+      if (hint != null)
+        Padding(
+          padding: EdgeInsets.only(bottom: Dimen.iconMarg),
+          child: Text(
+            hint!,
+            style: AppTextStyle(
+              fontStyle: FontStyle.italic,
+              color: hintEnab_(context),
+            ),
+          ),
+        ),
+      child,
+      if (addBottomSpacing)
+        const SizedBox(height: Dimen.sideMarg),
+    ],
   );
-
 }
 
 class _TopActions extends StatelessWidget {

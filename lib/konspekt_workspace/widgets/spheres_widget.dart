@@ -111,9 +111,9 @@ class SphereNonDuchWidgetState extends State<SphereNonDuchWidget>{
           Expanded(
               child: Padding(
                 padding: EdgeInsets.only(
-                  top: Dimen.sideMarg,
-                  bottom: Dimen.sideMarg,
-                  left: Dimen.sideMarg,
+                  top: Dimen.iconMarg,
+                  bottom: Dimen.iconMarg,
+                  left: Dimen.iconMarg,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,7 +155,7 @@ class SphereNonDuchWidgetState extends State<SphereNonDuchWidget>{
                         ),
                         multiAddButtonBuilder: (bool tappable, void Function() onTap) => Padding(
                           padding: EdgeInsets.only(
-                              right: Dimen.sideMarg,
+                              right: Dimen.iconMarg,
                               left: Dimen.iconSize + Dimen.iconMarg
                           ),
                           child: MultiTextFieldAddButton(
@@ -271,9 +271,9 @@ class SphereDuchWidgetState extends State<SphereDuchWidget>{
             Expanded(
                 child: Padding(
                   padding: EdgeInsets.only(
-                    top: Dimen.sideMarg,
-                    bottom: Dimen.sideMarg,
-                    left: Dimen.sideMarg,
+                    top: Dimen.iconMarg,
+                    bottom: Dimen.iconMarg,
+                    left: Dimen.iconMarg,
                   ),
                   child: KonspektSphereTitleWidget(KonspektSphere.duch),
                 )
@@ -405,43 +405,46 @@ class SphereDuchWidgetState extends State<SphereDuchWidget>{
           ),
 
           if (!isEmpty)
-            AppTextFieldHint(
-              multiController: controller.$1,
-              hint: hint,
-              hintTop: '',
-              multiHintTop: '',
-              textFieldHintPadding: EdgeInsets.zero,
-              animationDuration: SphereNonDuchWidgetState._animDuration,
-              onAnyChanged: (values) => callUpdate(level, values),
-              multi: true,
-              multiAllowZeroFields: true,
-              multiLayout: LayoutMode.column,
-              multiItemBuilder: (index, key, widget) => DuchLevelItemWidget(
-                index,
-                widget,
-                onChanged: (selectedKeywords) {
-                  setState(() => controller.$2[index] = Set.of(selectedKeywords));
-                  callUpdate(level, controller.$1.texts);
-                },
-                factors: controller.$2[index],
-                key: key,
-              ),
-              multiAddButtonBuilder: (bool tappable, void Function() onTap) => Padding(
-                padding: EdgeInsets.only(
-                  right: Dimen.sideMarg,
-                  left: Dimen.iconSize + Dimen.iconMarg,
-                ),
-                child: MultiTextFieldAddButton(
-                  tappable: tappable,
-                  text: addButtonText,
-                  onTap: () {
-                    onTap.call();
-                    controller.$2.add({});
+            Padding(
+              padding: EdgeInsets.only(bottom: Dimen.iconMarg),
+              child: AppTextFieldHint(
+                multiController: controller.$1,
+                hint: hint,
+                hintTop: '',
+                multiHintTop: '',
+                textFieldHintPadding: EdgeInsets.zero,
+                animationDuration: SphereNonDuchWidgetState._animDuration,
+                onAnyChanged: (values) => callUpdate(level, values),
+                multi: true,
+                multiAllowZeroFields: true,
+                multiLayout: LayoutMode.column,
+                multiItemBuilder: (index, key, widget) => DuchLevelItemWidget(
+                  index,
+                  widget,
+                  onChanged: (selectedKeywords) {
+                    setState(() => controller.$2[index] = Set.of(selectedKeywords));
+                    callUpdate(level, controller.$1.texts);
                   },
+                  factors: controller.$2[index],
+                  key: key,
                 ),
+                multiAddButtonBuilder: (bool tappable, void Function() onTap) => Padding(
+                  padding: EdgeInsets.only(
+                    right: Dimen.iconMarg,
+                    left: Dimen.iconSize + Dimen.iconMarg,
+                  ),
+                  child: MultiTextFieldAddButton(
+                    tappable: tappable,
+                    text: addButtonText,
+                    onTap: () {
+                      onTap.call();
+                      controller.$2.add({});
+                    },
+                  ),
+                ),
+                multiOnRemoved: (int index) => controller.$2.removeAt(index),
+                multiIsCollapsed: true,
               ),
-              multiOnRemoved: (int index) => controller.$2.removeAt(index),
-              multiIsCollapsed: true,
             ),
         ],
       ),
