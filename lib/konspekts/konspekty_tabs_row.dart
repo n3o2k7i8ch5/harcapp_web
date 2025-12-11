@@ -59,6 +59,7 @@ class KonspektyTabsRow extends StatelessWidget {
     }
 
     return SingleChildScrollView(
+      key: PageStorageKey<String>('konspekty_tabs_scroll'),
       scrollDirection: Axis.horizontal,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,

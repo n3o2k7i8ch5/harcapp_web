@@ -62,6 +62,7 @@ class _DuchLevelSection extends StatelessWidget {
     duration: SphereNonDuchWidgetState._animDuration,
     curve: SphereNonDuchWidgetState._animCurve,
     alignment: Alignment.topCenter,
+    clipBehavior: Clip.hardEdge,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -218,6 +219,7 @@ class SphereNonDuchWidgetState extends State<SphereNonDuchWidget>{
     duration: _animDuration,
     curve: _animCurve,
     alignment: Alignment.topCenter,
+    clipBehavior: Clip.hardEdge,
     child: Material(
       borderRadius: BorderRadius.circular(AppCard.defRadius),
       color: cardEnab_(context),
@@ -413,6 +415,7 @@ class SphereDuchWidgetState extends State<SphereDuchWidget>{
             duration: SphereNonDuchWidgetState._animDuration,
             curve: SphereNonDuchWidgetState._animCurve,
             alignment: Alignment.topCenter,
+            clipBehavior: Clip.hardEdge,
             child: _isExpanded
                 ? Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -177,27 +177,17 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                   child: Center(
                     child: Container(
                       constraints: BoxConstraints(maxWidth: defPageWidth),
-                      child: CustomScrollView(
-                        controller: _scrollController,
-                        clipBehavior: Clip.none,
-                        physics: BouncingScrollPhysics(),
-                        slivers: [
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: Dimen.sideMarg,
-                          ),
-                          child: _TopActions(
-                            konspektData: konspektData,
-                            hasUnsavedChanges: _hasUnsavedChanges,
-                            onLoaded: (data) => setState(
-                                    () => _konspektData =
-                                    KonspektData.fromHrcpknspktData(data)),
-                            onSaved: () => setState(() => _hasUnsavedChanges = false),
-                          ),
-                        ),
-                      ),
-                      SliverPadding(
+                      child: Stack(
+                        children: [
+                          CustomScrollView(
+                            controller: _scrollController,
+                            clipBehavior: Clip.none,
+                            physics: BouncingScrollPhysics(),
+                            slivers: [
+                              SliverToBoxAdapter(
+                                child: SizedBox(height: kToolbarHeight + 2 * Dimen.sideMarg),
+                              ),
+                              SliverPadding(
                         padding: EdgeInsets.only(
                           top: Dimen.sideMarg,
                           left: Dimen.sideMarg,
@@ -250,26 +240,35 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                               title: 'Kategoria',
                               textAlign: TextAlign.left,
                             ),
-                            Row(
-                              children: [
-                                _CategoryToggleButton(
-                                  label: 'Dla harcerzy',
-                                  isSelected: konspektData.category == KonspektCategory.harcerskie,
-                                  onTap: () => _setStateAndSave(() {
-                                    konspektData.category = KonspektCategory.harcerskie;
-                                    konspektData.metos.clear();
-                                  }),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(AppCard.defRadius),
                                 ),
-                                const SizedBox(width: Dimen.defMarg),
-                                _CategoryToggleButton(
-                                  label: 'Kształceniowe',
-                                  isSelected: konspektData.category == KonspektCategory.ksztalcenie,
-                                  onTap: () => _setStateAndSave(() {
-                                    konspektData.category = KonspektCategory.ksztalcenie;
-                                    konspektData.metos.clear();
-                                  }),
+                                clipBehavior: Clip.antiAlias,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    _CategoryToggleButton(
+                                      label: 'Dla harcerzy',
+                                      isSelected: konspektData.category == KonspektCategory.harcerskie,
+                                      onTap: () => _setStateAndSave(() {
+                                        konspektData.category = KonspektCategory.harcerskie;
+                                        konspektData.metos.clear();
+                                      }),
+                                    ),
+                                    _CategoryToggleButton(
+                                      label: 'Kształceniowe',
+                                      isSelected: konspektData.category == KonspektCategory.ksztalcenie,
+                                      onTap: () => _setStateAndSave(() {
+                                        konspektData.category = KonspektCategory.ksztalcenie;
+                                        konspektData.metos.clear();
+                                      }),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
 
                             const SizedBox(height: Dimen.sideMarg),
@@ -438,6 +437,29 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                           ]),
                         ),
                       ),
+                            ],
+                          ),
+
+                          // Sticky top actions bar
+                          Positioned(
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            height: Dimen.iconFootprint + 2*Dimen.sideMarg,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                vertical: Dimen.sideMarg,
+                              ),
+                              child: _TopActions(
+                                konspektData: konspektData,
+                                hasUnsavedChanges: _hasUnsavedChanges,
+                                onLoaded: (data) => setState(
+                                        () => _konspektData =
+                                        KonspektData.fromHrcpknspktData(data)),
+                                onSaved: () => setState(() => _hasUnsavedChanges = false),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -510,7 +532,6 @@ class _FormSection extends StatelessWidget {
     ],
   );
 }
-
 class _TopActions extends StatelessWidget {
   final KonspektData konspektData;
   final bool hasUnsavedChanges;
@@ -669,9 +690,8 @@ class _CoverWidget extends StatelessWidget {
       onTap: konspektData.coverImageBytes == null?
       () => setCover(setState):
       null,
-      child: SizedBox(
-        height: 400,
-        width: double.infinity,
+      child: AspectRatio(
+        aspectRatio: 16/9,
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -846,8 +866,7 @@ class _CategoryToggleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SimpleButton.from(
     context: context,
-    radius: AppCard.defRadius,
-    padding: EdgeInsets.symmetric(horizontal: Dimen.defMarg * 1.5, vertical: Dimen.defMarg),
+    radius: 0,
     color: isSelected ? iconEnab_(context) : backgroundIcon_(context),
     textColor: isSelected ? background_(context) : hintEnab_(context),
     fontWeight: isSelected ? weightBold : weightNormal,

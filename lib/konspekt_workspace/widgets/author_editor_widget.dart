@@ -66,16 +66,16 @@ class _AuthorEditorWidgetState extends State<AuthorEditorWidget> {
             SimpleButton(
               onTap: () => _showEditDialog(context),
               child: Padding(
-                padding: const EdgeInsets.all(Dimen.defMarg),
+                padding: const EdgeInsets.all(Dimen.iconMarg),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(MdiIcons.accountPlusOutline, color: hintEnab_(context)),
+                    Icon(MdiIcons.accountPlusOutline, color: iconEnab_(context)),
                     const SizedBox(width: Dimen.iconMarg),
                     Text(
                       'Dodaj autora konspektu',
                       style: AppTextStyle(
-                        color: hintEnab_(context),
+                        color: iconEnab_(context),
                         fontSize: Dimen.textSizeBig,
                       ),
                     ),
