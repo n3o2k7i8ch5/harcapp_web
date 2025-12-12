@@ -825,7 +825,11 @@ class _KonspektTypeButton extends StatelessWidget{
       child: SimpleButton.from(
         context: context,
         radius: AppCard.defRadius,
-        padding: EdgeInsets.all(Dimen.defMarg),
+        padding: EdgeInsets.only(
+          top: Dimen.defMarg,
+          bottom: Dimen.defMarg,
+          right: Dimen.defMarg,
+        ),
         textColor: iconEnab_(context),
         color: backgroundIcon_(context),
         margin: EdgeInsets.zero,
