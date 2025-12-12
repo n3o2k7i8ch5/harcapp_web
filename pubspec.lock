@@ -593,10 +593,10 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: c92d18e1fe994cb06d48aa786c46b142a5633067e8297cff6b5a3ac742620104
+      sha256: eff94d2a6fc79fa8b811dde79c7549808c2346037ee107a1121b4a644c745f2a
       url: "https://pub.dev"
     source: hosted
-    version: "17.0.0"
+    version: "17.0.1"
   google_fonts:
     dependency: "direct main"
     description:
@@ -610,7 +610,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "1e6cdae05be41a9a34aea9b040254bdbce752a69"
+      resolved-ref: "8677cde5b4ae685c0c6eb8c57fa0c300f362ebb6"
       url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"

@@ -231,7 +231,15 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                             ),
                             AuthorEditorWidget(
                               author: konspektData.author,
-                              onChanged: (author) => _setStateAndSave(() => konspektData.author = author),
+                              onChanged: (author){
+                                if(author == null || author.isEmpty)
+                                  setState(() => konspektData.author = null);
+                                else
+                                  _setStateAndSave(() => konspektData.author = author);
+
+                                _markUnsaved();
+
+                              },
                             ),
 
                             const SizedBox(height: Dimen.sideMarg),
@@ -337,7 +345,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                               children: [
                                 IntrinsicWidth(
                                   child: TitleShortcutRowWidget(
-                                    title: 'Czas:',
+                                    title: 'Czas',
                                     textAlign: TextAlign.left,
                                   ),
                                 ),
@@ -822,6 +830,8 @@ class _KonspektTypeButton extends StatelessWidget{
         color: backgroundIcon_(context),
         margin: EdgeInsets.zero,
         text: type.displayName,
+        textSize: Dimen.textSizeAppBar,
+        fontWeight: weightNormal,
         onTap: null,
         icon: MdiIcons.circleMedium,
         iconColor: type.color(context),
@@ -832,7 +842,7 @@ class _KonspektTypeButton extends StatelessWidget{
       constraints: BoxConstraints(),
       elevation: AppCard.bigElevation,
       itemBuilder: (BuildContext context) => KonspektType.values.map(
-              (value) => PopupMenuItem<KonspektType>(
+          (value) => PopupMenuItem<KonspektType>(
             value: value,
             padding: EdgeInsets.zero,
             child: SimpleButton.from(
@@ -840,6 +850,8 @@ class _KonspektTypeButton extends StatelessWidget{
               context: context,
               textColor: iconEnab_(context),
               text: value.displayName,
+              textSize: Dimen.textSizeAppBar,
+              fontWeight: weightNormal,
               margin: EdgeInsets.zero,
               onTap: null,
               icon: MdiIcons.circleMedium,
