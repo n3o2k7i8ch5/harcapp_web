@@ -115,13 +115,16 @@ class TableOfContentWidgetState<T extends KonspektFilters> extends State<TableOf
             padding: (padding??EdgeInsets.zero).add(EdgeInsets.only(top: Dimen.iconFootprint/2)),
             itemBuilder: (context, index) {
               final isSelected = prov.konspekts[index] == selectedKonspekt;
-              return SizedBox(
+              return Container(
                 height: KonspektTileWidget.defHeight,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppCard.defRadius),
+                ),
                 child: KonspektTileWidget(
                   prov.konspekts[index],
                   radius: AppCard.defRadius,
-                  background: isSelected ? backgroundIcon_(context) : cardEnab_(context),
-                  elevation: isSelected ? AppCard.bigElevation : 0,
+                  background: isSelected?cardEnab_(context):cardEnab_(context).withValues(alpha: 0.5),
+                  elevation: isSelected?AppCard.bigElevation:0,
                   onTap: () => onItemTap?.call(prov.konspekts[index]),
                 ),
               );
