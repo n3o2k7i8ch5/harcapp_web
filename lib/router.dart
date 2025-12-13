@@ -24,6 +24,9 @@ import 'konspekt_workspace/_main.dart';
 import 'konspekts/table_of_content_harcerskie_widget.dart';
 import 'konspekts/table_of_content_ksztalcenie_widget.dart';
 
+final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>();
+
 String pathHome = '/';
 String pathWarsztatKonspektow = '/konspekty/warsztat';
 String pathKonspektyHarcerskie = '/konspekty/harcerskie';
@@ -159,21 +162,45 @@ List<RouteBase> _buildPoradnikRoutes({
 ];
 
 GoRouter router = GoRouter(
+    navigatorKey: _rootNavigatorKey,
     initialLocation: pathHome,
     routes: [
       ShellRoute(
+          navigatorKey: _shellNavigatorKey,
           routes: [
             GoRoute(
                 path: pathHome,
                 pageBuilder: (context, state) => NoTransitionPage(child: HomePage())
             ),
             GoRoute(
+                name: 'konspektWorkspace',
                 path: pathWarsztatKonspektow,
                 pageBuilder: (context, state) => NoTransitionPage(
                     child: KonspektWorkspacePage(
                         key: ValueKey('warsztat konspektów')
                     )
-                )
+                ),
+                routes: [
+                  GoRoute(
+                    name: 'konspektWorkspacePreview',
+                    path: 'preview',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    pageBuilder: (context, state) {
+                      final Konspekt? konspekt = state.extra as Konspekt?;
+
+                      return CustomTransitionPage(
+                        opaque: false,
+                        barrierDismissible: true,
+                        barrierColor: Colors.black54,
+                        child: konspekt == null
+                            ? const SizedBox.shrink()
+                            : KonspektPreviewRoutePage(konspekt: konspekt),
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+                            FadeTransition(opacity: animation, child: child),
+                      );
+                    },
+                  ),
+                ],
             ),
             ..._buildKonspektyRoutes(
               listPath: pathKonspektyHarcerskie,

@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/comm_widgets/blur.dart';
+import 'package:harcapp_core/comm_widgets/empty_message_widget.dart';
 import 'package:harcapp_web/idb.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
@@ -644,23 +646,7 @@ class _TopActions extends StatelessWidget {
               onTap: () {
                 Map json = konspektData.toJsonMap();
                 Konspekt konspekt = Konspekt.fromJsonMap(json);
-                showDialog(
-                    context: context,
-                    builder: (context) => Center(
-                      child: Container(
-                        constraints:
-                        BoxConstraints(maxWidth: defPageWidth),
-                        child: Padding(
-                          padding: EdgeInsets.all(Dimen.sideMarg),
-                          child: Material(
-                            child: BaseKonspektWidget(
-                              konspekt,
-                              onDuchLevelInfoTap: null,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ));
+                context.pushNamed('konspektWorkspacePreview', extra: konspekt);
               }),
         ),
       ],
@@ -709,26 +695,19 @@ class _CoverWidget extends StatelessWidget {
                 fit: BoxFit.cover,
               )
             else
-              Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      MdiIcons.imagePlusOutline,
-                      size: 72,
-                      color: hintEnab_(context),
-                    ),
-                    const SizedBox(height: Dimen.sideMarg),
-                    Text(
-                      'Dodaj okładkę',
-                      style: AppTextStyle(
-                        color: hintEnab_(context),
-                        fontSize: Dimen.textSizeAppBar,
-                        fontWeight: weightHalfBold
+              Column(
+                children: [
+                  Expanded(
+                    child: Center(
+                      child: EmptyMessageWidget(
+                        text: 'Dodaj okładkę',
+                        icon: MdiIcons.imagePlusOutline,
+                        size: 72,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  SizedBox(height: Dimen.iconFootprint + 2*Dimen.defMarg)
+                ],
               ),
 
             // Autor okładki - dół
@@ -743,20 +722,18 @@ class _CoverWidget extends StatelessWidget {
                     Expanded(
                       child: Blur(
                           borderRadius: BorderRadius.circular(AppCard.defRadius),
-                          child: Container(
-                            color: background_(context).withValues(alpha: 0.7),
-                            child: AppTextFieldHint(
-                              hint: 'Autor okładki:',
-                              hintTop: 'Autor okładki',
-                              textCapitalization: TextCapitalization.sentences,
-                              controller: konspektData.coverAuthorController,
-                              onChanged: (_, __) => onChanged(),
-                              leading: Padding(
-                                padding: EdgeInsets.all(Dimen.iconMarg),
-                                child: Icon(MdiIcons.account, color: hintEnab_(context)),
-                              ),
+                          color: background_(context).withValues(alpha: 0.7),
+                          child: AppTextFieldHint(
+                            hint: 'Autor okładki:',
+                            hintTop: 'Autor okładki',
+                            textCapitalization: TextCapitalization.sentences,
+                            controller: konspektData.coverAuthorController,
+                            onChanged: (_, __) => onChanged(),
+                            leading: Padding(
+                              padding: EdgeInsets.all(Dimen.iconMarg),
+                              child: Icon(MdiIcons.account, color: hintEnab_(context)),
                             ),
-                          )
+                          ),
                       ),
                     ),
 
@@ -1025,26 +1002,33 @@ class _DraftRecoveryDialog extends StatelessWidget {
                 onTap: () {
                   Map json = draftKonspekt.toJsonMap();
                   Konspekt konspekt = Konspekt.fromJsonMap(json);
-                  showDialog(
-                    context: context,
-                    builder: (ctx) => Center(
-                      child: Container(
-                        constraints: BoxConstraints(maxWidth: defPageWidth),
-                        child: Padding(
-                          padding: EdgeInsets.all(Dimen.sideMarg),
-                          child: Material(
-                            child: BaseKonspektWidget(
-                              konspekt,
-                              onDuchLevelInfoTap: null,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
+                  context.pushNamed('konspektWorkspacePreview', extra: konspekt);
                 },
               ),
             ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+class KonspektPreviewRoutePage extends StatelessWidget {
+
+  final Konspekt konspekt;
+
+  const KonspektPreviewRoutePage({required this.konspekt, super.key});
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: Container(
+      constraints: BoxConstraints(maxWidth: defPageWidth),
+      child: Padding(
+        padding: EdgeInsets.all(Dimen.sideMarg),
+        child: Material(
+          child: BaseKonspektWidget(
+            konspekt,
+            onDuchLevelInfoTap: null,
           ),
         ),
       ),
