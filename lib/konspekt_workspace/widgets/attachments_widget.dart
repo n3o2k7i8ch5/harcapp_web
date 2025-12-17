@@ -6,7 +6,7 @@ import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
-import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
+import 'package:harcapp_web/konspekt_workspace/models/konspekt_attachment_data.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/attachment_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 

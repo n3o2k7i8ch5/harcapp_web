@@ -58,4 +58,14 @@ class KonspektStepData extends BaseKonspektStep{
     materials: (map['materials'] as List<dynamic>?)?.map((e) => KonspektMaterialData.fromJsonMap(e as Map<String, dynamic>)).toList(),
   );
 
+  static KonspektStepData fromKonspektStep(KonspektStep s) => KonspektStepData(
+    titleController: TextEditingController(text: s.title),
+    duration: s.duration,
+    activeForm: s.activeForm,
+    required: s.required,
+    contentController: TextEditingController(text: s.content ?? ''),
+    aimControllers: (s.aims ?? []).map((a) => TextEditingController(text: a)).toList(),
+    materials: s.materials?.map((m) => KonspektMaterialData.fromKonspektMaterial(m)).toList(),
+  );
+
 }

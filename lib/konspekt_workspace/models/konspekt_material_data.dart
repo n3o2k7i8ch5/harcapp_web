@@ -79,4 +79,13 @@ class KonspektMaterialData extends BaseKonspektMaterial{
     ),
   );
 
+  static KonspektMaterialData fromKonspektMaterial(KonspektMaterial m) => KonspektMaterialData(
+    nameController: TextEditingController(text: m.name),
+    commentController: TextEditingController(text: m.comment),
+    additionalPreparationController: TextEditingController(text: m.additionalPreparation),
+    attachmentNameController: TextEditingController(text: m.attachmentName),
+    amountController: TextEditingController(text: m.amount?.toString() ?? ''),
+    amountAttendantFactorController: TextEditingController(text: m.amountAttendantFactor?.toString() ?? ''),
+  );
+
 }

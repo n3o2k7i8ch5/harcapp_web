@@ -122,7 +122,7 @@ class KonspektsPageState extends State<KonspektsPage>{
             text: 'Pobierz surowe dane',
             onTap: () async => downloadFileFromBytes(
                 fileName: 'konspekt_${selectedKonspekt!.name}.hrcpknspkt',
-                bytes: (await selectedKonspekt!.toHrcpknspktData()).toBytes()
+                bytes: (await selectedKonspekt!.toHrcpknspktData()).toTarBytes()
             )
         );
 

@@ -8,8 +8,8 @@ import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/harcthought/common/file_format.dart';
 import 'package:harcapp_core/harcthought/common/file_format_selector_row_widget.dart';
 import 'package:harcapp_core/values/dimen.dart';
+import 'package:harcapp_web/konspekt_workspace/models/konspekt_attachment_data.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_material_data.dart';
 
 class MaterialWidget extends StatefulWidget {
@@ -434,7 +434,7 @@ class _AttachmentFieldState extends State<_AttachmentField> {
                                         color: backgroundIcon_(dialogContext),
                                         radius: AppCard.defRadius,
                                         clipBehavior: Clip.hardEdge,
-                                        onTap: () => Navigator.of(dialogContext).pop(att.effectiveId),
+                                        onTap: () => Navigator.of(dialogContext).pop(att.name),
                                         child: Padding(
                                           padding: EdgeInsets.all(Dimen.defMarg),
                                           child: Column(
@@ -452,10 +452,10 @@ class _AttachmentFieldState extends State<_AttachmentField> {
                                                       : FontStyle.italic,
                                                 ),
                                               ),
-                                              if (att.effectiveId.isNotEmpty) ...[
+                                              if (att.name.isNotEmpty) ...[
                                                 const SizedBox(height: 2),
                                                 Text(
-                                                  att.effectiveId,
+                                                  att.name,
                                                   style: AppTextStyle(
                                                     color: hintEnab_(dialogContext),
                                                     fontSize: Dimen.textSizeSmall,
@@ -505,7 +505,7 @@ class _AttachmentFieldState extends State<_AttachmentField> {
     final text = widget.controller?.text.trim() ?? '';
     final bool hasValue = text.isNotEmpty;
     final String? displayText = hasValue
-        ? KonspektAttachmentData.findTitleById(widget.attachments, text)
+        ? KonspektAttachmentData.findTitleByName(widget.attachments, text)
         : null;
 
     return Material(

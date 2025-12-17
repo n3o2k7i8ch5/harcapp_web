@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_web/common/download_file.dart';
+import 'package:harcapp_web/konspekt_workspace/models/konspekt_attachment_data.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
@@ -16,7 +17,6 @@ import 'package:harcapp_core/harcthought/common/file_format.dart';
 import 'package:harcapp_core/harcthought/common/file_format_selector_row_widget.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/values/dimen.dart';
-import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
 import 'package:harcapp_core/comm_classes/text_utils.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -35,13 +35,8 @@ class AttachmentWidget extends StatefulWidget{
 
 class _AttachmentWidgetState extends State<AttachmentWidget>{
 
+  TextEditingController get nameController => widget.data.nameController;
   TextEditingController get titleController => widget.data.titleController;
-  TextEditingController get idController {
-    if (widget.data.idController == null) {
-      widget.data.idController = TextEditingController();
-    }
-    return widget.data.idController!;
-  }
   Map<FileFormat, PlatformFile?> get pickedFiles => widget.data.pickedFiles;
   Map<FileFormat, String?> get pickedUrls => widget.data.pickedUrls;
 
@@ -67,8 +62,8 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
   void _syncIdFromTitle() {
     if (!autoIdFromTitle) return;
     final slug = simplifyString(titleController.text);
-    if (idController.text != slug) {
-      idController.text = slug;
+    if (nameController.text != slug) {
+      nameController.text = slug;
     }
   }
 
@@ -153,7 +148,7 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
               Expanded(
                 child: AppTextFieldHint(
                   hint: 'Id załącznika:',
-                  controller: idController,
+                  controller: nameController,
                   enabled: !autoIdFromTitle,
                   style: autoIdFromTitle
                       ? TextStyle(color: hintEnab_(context))

@@ -93,7 +93,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
   Future<void> _saveDraft() async {
     try {
-      final bytes = konspektData.toHrcpknspktData().toBytes();
+      final bytes = konspektData.toHrcpknspktData().toTarBytes();
       await IDB.saveKonspektDraft(bytes);
     } catch (_) {}
   }
@@ -104,7 +104,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
     if (!mounted) return;
 
     try {
-      final draftData = HrcpknspktData.fromBytes(draftBytes);
+      final draftData = HrcpknspktData.fromTarBytes(draftBytes);
       final draftKonspekt = KonspektData.fromHrcpknspktData(draftData);
       
       // Sprawdź czy draft ma jakąś treść (np. tytuł)
@@ -570,7 +570,7 @@ class _TopActions extends StatelessWidget {
               onTap: () {
                 downloadFileFromBytes(
                     fileName: '${konspektData.titleAsFileName}.hrcpknspkt',
-                    bytes: konspektData.toHrcpknspktData().toBytes()
+                    bytes: konspektData.toHrcpknspktData().toTarBytes()
                 );
                 onSaved();
               },
@@ -628,7 +628,7 @@ class _TopActions extends StatelessWidget {
                   return;
                 }
 
-                HrcpknspktData hrcpknspktData = HrcpknspktData.fromBytes(bytes);
+                HrcpknspktData hrcpknspktData = HrcpknspktData.fromTarBytes(bytes);
 
                 onLoaded(hrcpknspktData);
               }

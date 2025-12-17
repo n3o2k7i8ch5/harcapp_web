@@ -9,7 +9,7 @@ import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/harcthought/common/file_format.dart';
 import 'package:harcapp_core/harcthought/common/file_format_selector_row_widget.dart';
 import 'package:harcapp_core/values/dimen.dart';
-import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
+import 'package:harcapp_web/konspekt_workspace/models/konspekt_attachment_data.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import 'attachment_embed.dart';
@@ -189,7 +189,7 @@ class _HtmlEditorState extends State<HtmlEditor> {
     final index = selection.baseOffset;
     final length = selection.extentOffset - selection.baseOffset;
 
-    final embed = AttachmentEmbed(id: attachment.effectiveId, title: attachment.displayTitle);
+    final embed = AttachmentEmbed(id: attachment.name, title: attachment.displayTitle);
     _quillController.replaceText(
       index,
       length,
@@ -358,10 +358,10 @@ class _AttachmentButton extends StatelessWidget {
                                                     : FontStyle.italic,
                                               ),
                                             ),
-                                            if (att.effectiveId.isNotEmpty) ...[
+                                            if (att.name.isNotEmpty) ...[
                                               const SizedBox(height: 2),
                                               Text(
-                                                att.effectiveId,
+                                                att.name,
                                                 style: AppTextStyle(
                                                   color: hintEnab_(dialogContext),
                                                   fontSize: Dimen.textSizeSmall,

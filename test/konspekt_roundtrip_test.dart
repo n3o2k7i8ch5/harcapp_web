@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -6,7 +5,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:harcapp_core/comm_classes/meto.dart';
-import 'package:harcapp_core/comm_classes/text_utils.dart';
 import 'package:harcapp_core/harcthought/common/file_format.dart';
 import 'package:harcapp_core/harcthought/konspekts/hrcpknspkt_data.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
@@ -14,6 +12,7 @@ import 'package:harcapp_core/values/org.dart';
 import 'package:harcapp_core/values/people/person.dart';
 import 'package:harcapp_core/values/rank_harc.dart';
 import 'package:harcapp_core/values/rank_instr.dart';
+import 'package:harcapp_web/konspekt_workspace/models/konspekt_attachment_data.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_material_data.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_step_data.dart';
@@ -47,9 +46,8 @@ KonspektData _buildBaseKonspekt({
   );
 
   final KonspektAttachmentData attachment = KonspektAttachmentData(
-    name: 'zalacznik',
+    nameController: TextEditingController(text: 'zalacznik'),
     titleController: TextEditingController(text: 'Załącznik'),
-    idController: TextEditingController(text: 'zalacznik_id'),
     pickedFiles: const {},
     pickedUrls: const {},
     printInfoEnabled: false,
@@ -163,14 +161,117 @@ Map<String, Map<KonspektSphere, KonspektSphereDetails?>> _buildSphereVariants() 
 };
 
 KonspektData _roundtrip(KonspektData original) {
-  final HrcpknspktData hrcp1 = HrcpknspktData(
-    coverImage: original.coverImageBytes,
-    attachments: const [],
-    konspektCoreData: jsonEncode(original.toJsonMap()),
-  );
-  final Uint8List bytes = hrcp1.toBytes();
-  final HrcpknspktData hrcp2 = HrcpknspktData.fromBytes(bytes);
+  final HrcpknspktData hrcp1 = original.toHrcpknspktData();
+  final Uint8List bytes = hrcp1.toTarBytes();
+  final HrcpknspktData hrcp2 = HrcpknspktData.fromTarBytes(bytes);
   return KonspektData.fromHrcpknspktData(hrcp2);
+}
+
+// ============================================================================
+// Helper functions for comparing objects
+// ============================================================================
+
+void _expectMaterialDataEqual(KonspektMaterialData restored, KonspektMaterialData original, {String? reason}) {
+  expect(restored.nameController.text, original.nameController.text, reason: reason);
+  expect(restored.commentController?.text, original.commentController?.text, reason: reason);
+  expect(restored.additionalPreparationController?.text, original.additionalPreparationController?.text, reason: reason);
+  expect(restored.attachmentNameController?.text, original.attachmentNameController?.text, reason: reason);
+  expect(restored.amountController?.text, original.amountController?.text, reason: reason);
+  expect(restored.amountAttendantFactorController?.text, original.amountAttendantFactorController?.text, reason: reason);
+}
+
+void _expectStepDataEqual(KonspektStepData restored, KonspektStepData original, {String? reason}) {
+  expect(restored.titleController.text, original.titleController.text, reason: reason);
+  expect(restored.duration, original.duration, reason: reason);
+  expect(restored.activeForm, original.activeForm, reason: reason);
+  expect(restored.required, original.required, reason: reason);
+  expect(restored.contentController.text, original.contentController.text, reason: reason);
+  expect(restored.aims, original.aims, reason: reason);
+  
+  if (original.materials != null) {
+    expect(restored.materials, isNotNull, reason: reason);
+    expect(restored.materials!.length, original.materials!.length, reason: reason);
+    for (int i = 0; i < original.materials!.length; i++) {
+      _expectMaterialDataEqual(restored.materials![i], original.materials![i], reason: '$reason/material[$i]');
+    }
+  }
+}
+
+void _expectAttachmentDataEqual(KonspektAttachmentData restored, KonspektAttachmentData original, {String? reason}) {
+  expect(restored.titleController.text, original.titleController.text, reason: reason);
+  expect(restored.nameController.text, original.nameController.text, reason: reason);
+  expect(restored.printInfoEnabled, original.printInfoEnabled, reason: reason);
+  expect(restored.printSide, original.printSide, reason: reason);
+  expect(restored.printColor, original.printColor, reason: reason);
+  // Note: autoIdFromTitle is not preserved in roundtrip (not part of KonspektAttachment)
+}
+
+void _expectSpheresEqual(
+  Map<KonspektSphere, KonspektSphereDetails?> restored,
+  Map<KonspektSphere, KonspektSphereDetails?> original,
+  {String? reason}
+) {
+  expect(restored.keys.toSet(), original.keys.toSet(), reason: reason);
+  for (final sphere in original.keys) {
+    final originalDetails = original[sphere];
+    final restoredDetails = restored[sphere];
+    if (originalDetails == null) {
+      expect(restoredDetails, isNull, reason: '$reason/$sphere');
+    } else {
+      expect(restoredDetails, isNotNull, reason: '$reason/$sphere');
+      expect(restoredDetails!.levels.keys.toSet(), originalDetails.levels.keys.toSet(), reason: '$reason/$sphere');
+      for (final level in originalDetails.levels.keys) {
+        final originalFields = originalDetails.levels[level]!.fields.keys.toSet();
+        final restoredFields = restoredDetails.levels[level]!.fields.keys.toSet();
+        expect(restoredFields, originalFields, reason: '$reason/$sphere/$level');
+      }
+    }
+  }
+}
+
+void _expectKonspektDataEqual(KonspektData restored, KonspektData original, {String? reason}) {
+  expect(restored.titleController.text, original.titleController.text, reason: reason);
+  expect(restored.additionalSearchPhrases, original.additionalSearchPhrases, reason: reason);
+  expect(restored.category, original.category, reason: reason);
+  expect(restored.type, original.type, reason: reason);
+  expect(restored.metos, original.metos, reason: reason);
+  expect(restored.coverAuthorController.text, original.coverAuthorController.text, reason: reason);
+  expect(restored.coverImageBytes, original.coverImageBytes, reason: reason);
+  expect(restored.customDuration, original.customDuration, reason: reason);
+  expect(restored.aims, original.aims, reason: reason);
+  expect(restored.summaryController.text, original.summaryController.text, reason: reason);
+  expect(restored.introController.text, original.introController.text, reason: reason);
+  expect(restored.descriptionController.text, original.descriptionController.text, reason: reason);
+  expect(restored.howToFail, original.howToFail, reason: reason);
+  
+  // Author
+  if (original.author == null) {
+    expect(restored.author, isNull, reason: reason);
+  } else {
+    expect(restored.author, isNotNull, reason: reason);
+    expect(restored.author!.toApiJsonMap(), original.author!.toApiJsonMap(), reason: reason);
+  }
+  
+  // Steps
+  expect(restored.stepsData.length, original.stepsData.length, reason: reason);
+  for (int i = 0; i < original.stepsData.length; i++) {
+    _expectStepDataEqual(restored.stepsData[i], original.stepsData[i], reason: '$reason/step[$i]');
+  }
+  
+  // Materials
+  expect(restored.materials.length, original.materials.length, reason: reason);
+  for (int i = 0; i < original.materials.length; i++) {
+    _expectMaterialDataEqual(restored.materials[i], original.materials[i], reason: '$reason/material[$i]');
+  }
+  
+  // Attachments
+  expect(restored.attachments.length, original.attachments.length, reason: reason);
+  for (int i = 0; i < original.attachments.length; i++) {
+    _expectAttachmentDataEqual(restored.attachments[i], original.attachments[i], reason: '$reason/attachment[$i]');
+  }
+  
+  // Spheres
+  _expectSpheresEqual(restored.spheres, original.spheres, reason: reason);
 }
 
 void main() {
@@ -252,29 +353,6 @@ void main() {
       materials: [material2],
     );
 
-    final KonspektAttachmentData attachment1 = KonspektAttachmentData(
-      name: 'zalacznik_swieczka',
-      titleController: TextEditingController(text: 'Instrukcja bezpieczeństwa przy ogniu'),
-      idController: TextEditingController(text: 'instr_bezpieczenstwo_ogien'),
-      pickedFiles: const {},
-      pickedUrls: const {},
-      printInfoEnabled: true,
-      printSide: KonspektAttachmentPrintSide.single,
-      printColor: KonspektAttachmentPrintColor.monochrome,
-      autoIdFromTitle: false,
-    );
-
-    final KonspektAttachmentData attachment2 = KonspektAttachmentData(
-      name: 'zalacznik_mapa',
-      titleController: TextEditingController(text: 'Mapa terenu gry'),
-      idController: TextEditingController(text: 'mapa_gry'),
-      pickedFiles: const {},
-      pickedUrls: const {},
-      printInfoEnabled: false,
-      printSide: KonspektAttachmentPrintSide.double,
-      printColor: KonspektAttachmentPrintColor.color,
-      autoIdFromTitle: true,
-    );
 
     final KonspektSphereDetails cialoDetails = KonspektSphereDetails(
       levels: {
@@ -345,21 +423,15 @@ void main() {
         TextEditingController(text: 'Nieprzekazanie zasad bezpieczeństwa przed wyjściem w teren'),
       ],
       stepsData: [step1, step2],
-      attachments: [attachment1, attachment2],
+      attachments: [],
     );
 
     // Pierwsze przejście: KonspektData -> HrcpknspktData -> bytes.
-    // Konstruujemy HrcpknspktData ręcznie z pustą listą załączników binarnych,
-    // żeby skupić się na poprawności konspektCoreData (czyli tego, co trafia do edytora).
-    final HrcpknspktData hrcp1 = HrcpknspktData(
-      coverImage: original.coverImageBytes,
-      attachments: const [],
-      konspektCoreData: jsonEncode(original.toJsonMap()),
-    );
-    final Uint8List bytes = hrcp1.toBytes();
+    final HrcpknspktData hrcp1 = original.toHrcpknspktData();
+    final Uint8List bytes = hrcp1.toTarBytes();
 
     // Drugie przejście: bytes -> HrcpknspktData -> KonspektData.
-    final HrcpknspktData hrcp2 = HrcpknspktData.fromBytes(bytes);
+    final HrcpknspktData hrcp2 = HrcpknspktData.fromTarBytes(bytes);
     final KonspektData restored = KonspektData.fromHrcpknspktData(hrcp2);
 
     // Sprawdzenie najważniejszych pól i struktur.
@@ -410,7 +482,7 @@ void main() {
       final o = original.attachments[i];
       final r = restored.attachments[i];
       expect(r.titleController.text, o.titleController.text);
-      expect(r.idController?.text, o.idController?.text);
+      expect(r.nameController.text, o.nameController.text);
       expect(r.printInfoEnabled, o.printInfoEnabled);
       expect(r.printSide, o.printSide);
       expect(r.printColor, o.printColor);
@@ -449,9 +521,8 @@ void main() {
     final webpBytes = webpFile.readAsBytesSync();
 
     final KonspektAttachmentData konspektAttachment = KonspektAttachmentData(
-      name: 'example_attachments',
+      nameController: TextEditingController(text: 'example_attachments'),
       titleController: TextEditingController(text: 'Przykładowe załączniki'),
-      idController: TextEditingController(text: 'example_attachments'),
       pickedFiles: {
         FileFormat.pdf: PlatformFile(
           name: 'example.pdf',
@@ -479,12 +550,11 @@ void main() {
       autoIdFromTitle: false,
     );
 
-    final AttachmentData attachmentData = konspektAttachment.toAttachmentData();
-
-    expect(attachmentData.fileData.keys.toSet(), {FileFormat.pdf, FileFormat.docx, FileFormat.webp});
-    expect(attachmentData.fileData[FileFormat.pdf]!.isNotEmpty, true);
-    expect(attachmentData.fileData[FileFormat.docx]!.isNotEmpty, true);
-    expect(attachmentData.fileData[FileFormat.webp]!.isNotEmpty, true);
+    // Test that pickedFiles contains the expected formats
+    expect(konspektAttachment.pickedFiles.keys.toSet(), {FileFormat.pdf, FileFormat.docx, FileFormat.webp});
+    expect(konspektAttachment.pickedFiles[FileFormat.pdf]!.bytes!.isNotEmpty, true);
+    expect(konspektAttachment.pickedFiles[FileFormat.docx]!.bytes!.isNotEmpty, true);
+    expect(konspektAttachment.pickedFiles[FileFormat.webp]!.bytes!.isNotEmpty, true);
   });
   
   test('KonspektData.toHrcpknspktData uses coverImageBytes and toJsonMap', () {
@@ -493,8 +563,7 @@ void main() {
     final HrcpknspktData data = konspekt.toHrcpknspktData();
 
     expect(data.coverImage, konspekt.coverImageBytes);
-    expect(data.attachments.length, konspekt.attachments.length);
-    expect(data.konspektCoreData, jsonEncode(konspekt.toJsonMap()));
+    expect(data.konspektCore.title, konspekt.title);
   });
 
   test('KonspektData.empty provides sane defaults', () {
@@ -511,11 +580,10 @@ void main() {
     expect(empty.steps.length, 1);
   });
 
-  test('KonspektAttachmentData.toAttachmentData generates id from title when missing', () {
-    final KonspektAttachmentData attachmentTitleOnly = KonspektAttachmentData(
-      name: 'internal_name',
+  test('KonspektAttachmentData.name returns nameController text', () {
+    final KonspektAttachmentData attachment = KonspektAttachmentData(
+      nameController: TextEditingController(text: 'my_attachment'),
       titleController: TextEditingController(text: 'Moja załączka'),
-      idController: TextEditingController(),
       pickedFiles: const {},
       pickedUrls: const {},
       printInfoEnabled: false,
@@ -524,45 +592,13 @@ void main() {
       autoIdFromTitle: true,
     );
 
-    final AttachmentData dataTitleOnly = attachmentTitleOnly.toAttachmentData();
-    expect(dataTitleOnly.name, simplifyString('Moja załączka'));
-
-    final KonspektAttachmentData attachmentWithId = KonspektAttachmentData(
-      name: 'internal_name',
-      titleController: TextEditingController(text: 'Moja załączka'),
-      idController: TextEditingController(text: 'custom_id'),
-      pickedFiles: const {},
-      pickedUrls: const {},
-      printInfoEnabled: false,
-      printSide: KonspektAttachmentPrintSide.single,
-      printColor: KonspektAttachmentPrintColor.monochrome,
-      autoIdFromTitle: true,
-    );
-
-    final AttachmentData dataWithId = attachmentWithId.toAttachmentData();
-    expect(dataWithId.name, 'custom_id');
-
-    final KonspektAttachmentData attachmentNoTitle = KonspektAttachmentData(
-      name: 'internal_name',
-      titleController: TextEditingController(text: ''),
-      idController: TextEditingController(),
-      pickedFiles: const {},
-      pickedUrls: const {},
-      printInfoEnabled: false,
-      printSide: KonspektAttachmentPrintSide.single,
-      printColor: KonspektAttachmentPrintColor.monochrome,
-      autoIdFromTitle: true,
-    );
-
-    final AttachmentData dataNoTitle = attachmentNoTitle.toAttachmentData();
-    expect(dataNoTitle.name, 'internal_name');
+    expect(attachment.name, 'my_attachment');
   });
 
   test('KonspektAttachmentData.toJsonMap encodes pickedUrls with apiParam keys', () {
     final KonspektAttachmentData attachment = KonspektAttachmentData(
-      name: 'urls',
+      nameController: TextEditingController(text: 'urls'),
       titleController: TextEditingController(text: 'Linki'),
-      idController: TextEditingController(text: 'urls'),
       pickedFiles: const {},
       pickedUrls: {
         FileFormat.urlPdf: 'https://example.com/file.pdf',
@@ -579,74 +615,32 @@ void main() {
     expect(pickedUrls[FileFormat.urlPdf.apiParam], 'https://example.com/file.pdf');
   });
 
-  test('AttachmentData.toJson/fromJson roundtrip preserves all fields', () {
-    final Uint8List pngBytes = Uint8List.fromList([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
-
-    final AttachmentData original = AttachmentData(
-      name: 'test_attachment',
-      title: 'Test Attachment Title',
-      fileData: {FileFormat.png: pngBytes},
-      urlData: {FileFormat.urlPdf: 'https://example.com/doc.pdf'},
+  test('KonspektAttachmentData.fromJsonMap/toJsonMap roundtrip preserves pickedUrls', () {
+    final KonspektAttachmentData original = KonspektAttachmentData(
+      nameController: TextEditingController(text: 'urls_test'),
+      titleController: TextEditingController(text: 'Test załącznik'),
+      pickedFiles: const {},
+      pickedUrls: {
+        FileFormat.urlPdf: 'https://example.com/doc.pdf',
+        FileFormat.urlPng: 'https://example.com/image.png',
+      },
       printInfoEnabled: true,
       printSide: KonspektAttachmentPrintSide.double,
       printColor: KonspektAttachmentPrintColor.color,
+      autoIdFromTitle: false,
     );
 
-    final Map<String, dynamic> json = original.toJson();
-
-    // Verify JSON contains all required fields
-    expect(json['name'], 'test_attachment');
-    expect(json['title'], 'Test Attachment Title');
-    expect(json['formats'], isNotNull);
-    expect(json['files'], isNotNull);
-    expect(json['urls'], isNotNull);
-    expect(json['printInfoEnabled'], true);
-    expect(json['printSide'], 'double');
-    expect(json['printColor'], 'color');
-
-    // Verify roundtrip
-    final AttachmentData restored = AttachmentData.fromJson(json);
+    final Map<String, dynamic> json = original.toJsonMap().cast<String, dynamic>();
+    final KonspektAttachmentData restored = KonspektAttachmentData.fromJsonMap(json);
 
     expect(restored.name, original.name);
-    expect(restored.title, original.title);
-    expect(restored.fileData.keys, contains(FileFormat.png));
-    expect(restored.fileData[FileFormat.png], pngBytes);
-    expect(restored.urlData[FileFormat.urlPdf], 'https://example.com/doc.pdf');
+    expect(restored.titleController.text, original.titleController.text);
+    expect(restored.nameController.text, original.nameController.text);
+    expect(restored.pickedUrls[FileFormat.urlPdf], 'https://example.com/doc.pdf');
+    expect(restored.pickedUrls[FileFormat.urlPng], 'https://example.com/image.png');
     expect(restored.printInfoEnabled, original.printInfoEnabled);
     expect(restored.printSide, original.printSide);
     expect(restored.printColor, original.printColor);
-  });
-
-  test('AttachmentData.toJson/fromJson roundtrip with empty title', () {
-    final AttachmentData original = AttachmentData(
-      name: 'no_title_attachment',
-      title: '',
-      fileData: const {},
-      urlData: const {},
-    );
-
-    final Map<String, dynamic> json = original.toJson();
-    expect(json['title'], '');
-
-    final AttachmentData restored = AttachmentData.fromJson(json);
-    expect(restored.name, 'no_title_attachment');
-    expect(restored.title, '');
-  });
-
-  test('AttachmentData.toJson includes formats field', () {
-    final AttachmentData attachment = AttachmentData(
-      name: 'formats_test',
-      title: 'Formats Test',
-      fileData: {FileFormat.png: Uint8List.fromList([1, 2, 3])},
-      urlData: {FileFormat.urlPdf: 'https://example.com'},
-    );
-
-    final Map<String, dynamic> json = attachment.toJson();
-
-    expect(json['formats'], isA<List>());
-    final List formats = json['formats'] as List;
-    expect(formats, contains('png'));
-    expect(formats, contains('urlPdf'));
   });
 
   test('KonspektData intro field roundtrip preserves content', () {
@@ -734,5 +728,201 @@ void main() {
     final KonspektData restored = _roundtrip(original);
     
     expect(restored.author, isNull);
+  });
+
+  test('KonspektData category field roundtrip', () {
+    final KonspektData original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+    
+    // Test ksztalcenie category (different from default harcerskie)
+    original.category = KonspektCategory.ksztalcenie;
+    
+    final KonspektData restored = _roundtrip(original);
+    
+    expect(restored.category, KonspektCategory.ksztalcenie);
+  });
+
+  test('KonspektAttachmentData roundtrip with URLs via fromKonspektAttachment', () {
+    // Test the conversion path: KonspektAttachmentData -> toJsonMap -> KonspektAttachment.fromJsonMap -> fromKonspektAttachment
+    final KonspektAttachmentData original = KonspektAttachmentData(
+      nameController: TextEditingController(text: 'attachment_with_url'),
+      titleController: TextEditingController(text: 'Załącznik z URL'),
+      pickedFiles: const {},
+      pickedUrls: {FileFormat.urlPdf: 'https://example.com/doc.pdf'},
+      printInfoEnabled: true,
+      printSide: KonspektAttachmentPrintSide.double,
+      printColor: KonspektAttachmentPrintColor.color,
+      autoIdFromTitle: false,
+    );
+    
+    // Convert to KonspektAttachment format (what goes into Konspekt)
+    final fullJson = original.toJsonMap();
+    final printMap = fullJson['print'] as Map?;
+    final Map<String, dynamic> json = {
+      'name': original.name,
+      'title': original.titleController.text,
+      'assets': (fullJson['assets'] as Map).cast<String, dynamic>(),
+      'print': printMap?.cast<String, dynamic>(),
+    };
+    
+    final KonspektAttachment konspektAttachment = KonspektAttachment.fromJsonMap(json);
+    final KonspektAttachmentData restored = KonspektAttachmentData.fromKonspektAttachment(konspektAttachment);
+    
+    expect(restored.name, original.name);
+    expect(restored.titleController.text, original.titleController.text);
+    expect(restored.pickedUrls[FileFormat.urlPdf], 'https://example.com/doc.pdf');
+    expect(restored.printInfoEnabled, true);
+    expect(restored.printSide, KonspektAttachmentPrintSide.double);
+    expect(restored.printColor, KonspektAttachmentPrintColor.color);
+  });
+
+  test('KonspektStepData materials roundtrip', () {
+    final KonspektData original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+    
+    // Verify step has materials
+    expect(original.stepsData[0].materials, isNotNull);
+    expect(original.stepsData[0].materials!.length, 1);
+    
+    final KonspektData restored = _roundtrip(original);
+    
+    expect(restored.stepsData[0].materials, isNotNull);
+    expect(restored.stepsData[0].materials!.length, 1);
+    expect(restored.stepsData[0].materials![0].nameController.text, 'Materiał');
+    expect(restored.stepsData[0].materials![0].commentController?.text, 'Komentarz');
+    expect(restored.stepsData[0].materials![0].additionalPreparationController?.text, 'Przygotowanie');
+    expect(restored.stepsData[0].materials![0].attachmentNameController?.text, 'zalacznik');
+  });
+
+  test('KonspektAttachmentData pickedFiles roundtrip with real files', () {
+    final pdfFile = _exampleFile('example.pdf');
+    final pdfBytes = pdfFile.readAsBytesSync();
+
+    final KonspektAttachmentData original = KonspektAttachmentData(
+      nameController: TextEditingController(text: 'file_attachment'),
+      titleController: TextEditingController(text: 'Załącznik z plikiem'),
+      pickedFiles: {
+        FileFormat.pdf: PlatformFile(
+          name: 'example.pdf',
+          path: pdfFile.path,
+          size: pdfBytes.length,
+          bytes: pdfBytes,
+        ),
+      },
+      pickedUrls: const {},
+      printInfoEnabled: false,
+      printSide: KonspektAttachmentPrintSide.single,
+      printColor: KonspektAttachmentPrintColor.monochrome,
+      autoIdFromTitle: true,
+    );
+
+    final Map<String, dynamic> json = original.toJsonMap().cast<String, dynamic>();
+    final KonspektAttachmentData restored = KonspektAttachmentData.fromJsonMap(json);
+
+    expect(restored.name, original.name);
+    expect(restored.titleController.text, original.titleController.text);
+    expect(restored.pickedFiles.keys, contains(FileFormat.pdf));
+    expect(restored.pickedFiles[FileFormat.pdf], isNotNull);
+    expect(restored.pickedFiles[FileFormat.pdf]!.bytes, pdfBytes);
+  });
+
+  // ============================================================================
+  // Edge case tests
+  // ============================================================================
+
+  group('KonspektData edge cases', () {
+    test('type roundtrip with different values', () {
+      for (final type in KonspektType.values) {
+        final original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+        original.type = type;
+        
+        final restored = _roundtrip(original);
+        
+        expect(restored.type, type, reason: 'type: ${type.name}');
+      }
+    });
+
+    test('customDuration null roundtrip', () {
+      final original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+      original.customDuration = null;
+      
+      final restored = _roundtrip(original);
+      
+      expect(restored.customDuration, isNull);
+    });
+
+    test('howToFail empty list roundtrip', () {
+      final original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+      original.howToFailControllers.clear();
+      
+      final restored = _roundtrip(original);
+      
+      expect(restored.howToFail, isEmpty);
+    });
+
+    test('description empty roundtrip', () {
+      final original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+      original.descriptionController.text = '';
+      
+      final restored = _roundtrip(original);
+      
+      expect(restored.descriptionController.text, '');
+    });
+
+    test('aims empty list roundtrip', () {
+      final original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+      original.aimControllers.clear();
+      
+      final restored = _roundtrip(original);
+      
+      expect(restored.aims, isEmpty);
+    });
+
+    test('materials empty list roundtrip', () {
+      final original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+      original.materials.clear();
+      
+      final restored = _roundtrip(original);
+      
+      expect(restored.materials, isEmpty);
+    });
+
+    test('attachments with URLs full roundtrip through HrcpknspktData', () {
+      final original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+      original.attachments.clear();
+      original.attachments.add(KonspektAttachmentData(
+        nameController: TextEditingController(text: 'url_attachment'),
+        titleController: TextEditingController(text: 'Załącznik z URL'),
+        pickedFiles: const {},
+        pickedUrls: {FileFormat.urlPdf: 'https://example.com/doc.pdf'},
+        printInfoEnabled: true,
+        printSide: KonspektAttachmentPrintSide.double,
+        printColor: KonspektAttachmentPrintColor.color,
+        autoIdFromTitle: false,
+      ));
+      
+      final restored = _roundtrip(original);
+      
+      expect(restored.attachments.length, 1);
+      expect(restored.attachments[0].name, 'url_attachment');
+      expect(restored.attachments[0].titleController.text, 'Załącznik z URL');
+      expect(restored.attachments[0].printInfoEnabled, true);
+      expect(restored.attachments[0].printSide, KonspektAttachmentPrintSide.double);
+      expect(restored.attachments[0].printColor, KonspektAttachmentPrintColor.color);
+    });
+
+    test('full roundtrip uses helper function', () {
+      final original = _buildBaseKonspekt(spheres: _buildSphereVariants()['cialo_other_only']!);
+      final restored = _roundtrip(original);
+      
+      _expectKonspektDataEqual(restored, original, reason: 'full roundtrip');
+    });
+
+    test('step with required = false roundtrip', () {
+      final original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+      original.stepsData[0].required = false;
+      
+      final restored = _roundtrip(original);
+      
+      expect(restored.stepsData[0].required, false);
+    });
   });
 }
