@@ -61,6 +61,27 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
   Timer? _debounceSaveTimer;
   static const _debounceDuration = Duration(seconds: 2);
 
+  bool _hasDraftContent(KonspektData data) {
+    if (data.title.trim().isNotEmpty) return true;
+    if (data.summary.trim().isNotEmpty) return true;
+    if (data.intro.trim().isNotEmpty) return true;
+    if (data.description.trim().isNotEmpty) return true;
+    if (data.coverAuthor.trim().isNotEmpty) return true;
+    if (data.coverImageBytes != null) return true;
+    if ((data.aims).any((e) => e.trim().isNotEmpty)) return true;
+    if ((data.howToFail).any((e) => e.trim().isNotEmpty)) return true;
+    if (data.attachments.isNotEmpty) return true;
+    if (data.materials.isNotEmpty) return true;
+    if (data.stepsData.any((s) {
+      if (s.title.trim().isNotEmpty) return true;
+      if (s.content.trim().isNotEmpty) return true;
+      if (s.aims.any((e) => e.trim().isNotEmpty)) return true;
+      if ((s.materials?.isNotEmpty ?? false)) return true;
+      return false;
+    })) return true;
+    return false;
+  }
+
   @override
   void initState() {
     if(widget.konspektData == null)
@@ -106,9 +127,8 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
     try {
       final draftData = HrcpknspktData.fromTarBytes(draftBytes);
       final draftKonspekt = KonspektData.fromHrcpknspktData(draftData);
-      
-      // Sprawdź czy draft ma jakąś treść (np. tytuł)
-      if (draftKonspekt.title.isEmpty) {
+
+      if (!_hasDraftContent(draftKonspekt)) {
         await IDB.clearKonspektDraft();
         return;
       }
@@ -149,6 +169,9 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
   @override
   void dispose() {
     _debounceSaveTimer?.cancel();
+    if (_hasUnsavedChanges) {
+      _saveDraft();
+    }
     _scrollController.removeListener(_handleScrollChanged);
     _scrollController.dispose();
     super.dispose();
@@ -482,7 +505,14 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                                 onLoaded: (data) => setState(
                                         () => _konspektData =
                                         KonspektData.fromHrcpknspktData(data)),
-                                onSaved: () => setState(() => _hasUnsavedChanges = false),
+                                onSaved: () async {
+                                  _debounceSaveTimer?.cancel();
+                                  try {
+                                    await IDB.clearKonspektDraft();
+                                  } catch (_) {}
+                                  if (!mounted) return;
+                                  setState(() => _hasUnsavedChanges = false);
+                                },
                               ),
                             ),
                           ),
@@ -562,7 +592,7 @@ class _TopActions extends StatelessWidget {
   final KonspektData konspektData;
   final bool hasUnsavedChanges;
   final void Function(HrcpknspktData data) onLoaded;
-  final VoidCallback onSaved;
+  final Future<void> Function() onSaved;
 
   const _TopActions({
     required this.konspektData,
@@ -583,12 +613,12 @@ class _TopActions extends StatelessWidget {
               radius: 0,
               color: cardEnab_(context),
               margin: EdgeInsets.zero,
-              onTap: () {
+              onTap: () async {
                 downloadFileFromBytes(
                     fileName: '${konspektData.titleAsFileName}.hrcpknspkt',
                     bytes: konspektData.toHrcpknspktData().toTarBytes()
                 );
-                onSaved();
+                await onSaved();
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

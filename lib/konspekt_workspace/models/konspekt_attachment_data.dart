@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/missing_decode_param_error.dart';
+import 'package:harcapp_core/comm_classes/text_utils.dart';
 import 'package:harcapp_core/harcthought/common/file_format.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_web/konspekt_workspace/models/platform_file_utils.dart';
@@ -114,6 +115,9 @@ class KonspektAttachmentData extends BaseKonspektAttachment{
       if (entry.key.isUrl)
         urlAssets[entry.key] = entry.value;
 
+    final String slugFromTitle = simplifyString(a.title);
+    final bool autoIdFromTitle = slugFromTitle.isEmpty || a.name == slugFromTitle;
+
     return KonspektAttachmentData(
       nameController: TextEditingController(text: a.name),
       titleController: TextEditingController(text: a.title),
@@ -122,7 +126,7 @@ class KonspektAttachmentData extends BaseKonspektAttachment{
       printInfoEnabled: a.print != null,
       printSide: a.print?.side ?? KonspektAttachmentPrintSide.single,
       printColor: a.print?.color ?? KonspektAttachmentPrintColor.monochrome,
-      autoIdFromTitle: false,
+      autoIdFromTitle: autoIdFromTitle,
     );
   }
 

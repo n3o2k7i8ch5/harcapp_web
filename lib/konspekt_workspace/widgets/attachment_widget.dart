@@ -62,6 +62,7 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
   void _syncIdFromTitle() {
     if (!autoIdFromTitle) return;
     final slug = simplifyString(titleController.text);
+    if (slug.isEmpty) return;
     if (nameController.text != slug) {
       nameController.text = slug;
     }
