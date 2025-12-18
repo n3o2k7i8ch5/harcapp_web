@@ -19,8 +19,9 @@ class StepWidget extends StatefulWidget{
   final List<KonspektAttachmentData>? attachments;
   final Widget? nameTrailing;
   final VoidCallback? onRemove;
+  final VoidCallback? onChanged;
 
-  const StepWidget({super.key, required this.index, required this.stepData, this.attachments, this.nameTrailing, this.onRemove});
+  const StepWidget({super.key, required this.index, required this.stepData, this.attachments, this.nameTrailing, this.onRemove, this.onChanged});
 
   @override
   State<StatefulWidget> createState() => StepWidgetState();
@@ -116,8 +117,9 @@ class StepWidgetState extends State<StepWidget> {
           radius: 0,
           background: Colors.transparent,
           controller: stepData.contentController,
-          placeholder: 'Opis kroku ${widget.index+1}:',
+          placeholder: 'Opis kroku ${widget.index+1}: (np.: "Prowadzący pyta uczestników...", "Uczestnicy rozpoczynają grę w...")',
           attachments: widget.attachments,
+          onChanged: widget.onChanged,
         ),
 
         if (onRemove != null) ...[

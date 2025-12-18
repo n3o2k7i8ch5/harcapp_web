@@ -14,12 +14,14 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 class StepsWidget extends StatefulWidget {
   final List<KonspektStepData> steps;
   final List<KonspektAttachmentData>? attachments;
+  final VoidCallback? onChanged;
   // final Function() onReordered;
 
   const StepsWidget({
     Key? key,
     required this.steps,
     this.attachments,
+    this.onChanged,
     // required this.onReordered,
   }) : super(key: key);
 
@@ -49,7 +51,7 @@ class _StepsWidgetState extends State<StepsWidget> {
         onReorder: (int oldIndex, int newIndex){
           final KonspektStepData stepData = steps.removeAt(oldIndex);
           steps.insert(newIndex, stepData);
-          // widget.onReordered.call();
+          widget.onChanged?.call();
         },
         itemBuilder: (BuildContext context, int index) => Padding(
           key: ValueKey("song_part_${steps[index].hashCode}"),
@@ -58,7 +60,11 @@ class _StepsWidgetState extends State<StepsWidget> {
             index: index,
             stepData: steps[index],
             attachments: widget.attachments,
-            onRemove: () => setState(() => steps.removeAt(index)),
+            onRemove: () {
+              setState(() => steps.removeAt(index));
+              widget.onChanged?.call();
+            },
+            onChanged: widget.onChanged,
           ),
         ),
 
@@ -77,7 +83,10 @@ class _StepsWidgetState extends State<StepsWidget> {
         icon: MdiIcons.plus,
         margin: EdgeInsets.zero,
         text: 'Dodaj krok',
-        onTap: () => setState(() => steps.add(KonspektStepData.empty())),
+        onTap: () {
+          setState(() => steps.add(KonspektStepData.empty()));
+          widget.onChanged?.call();
+        },
       )
 
     ],

@@ -427,6 +427,7 @@ class _AttachmentFieldState extends State<_AttachmentField> {
                                       ...att.pickedFiles.keys,
                                       ...att.pickedUrls.keys,
                                     };
+                                    final bool hasName = att.name.isNotEmpty;
 
                                     return Padding(
                                       padding: EdgeInsets.only(bottom: Dimen.defMarg),
@@ -434,7 +435,7 @@ class _AttachmentFieldState extends State<_AttachmentField> {
                                         color: backgroundIcon_(dialogContext),
                                         radius: AppCard.defRadius,
                                         clipBehavior: Clip.hardEdge,
-                                        onTap: () => Navigator.of(dialogContext).pop(att.name),
+                                        onTap: hasName ? () => Navigator.of(dialogContext).pop(att.name) : null,
                                         child: Padding(
                                           padding: EdgeInsets.all(Dimen.defMarg),
                                           child: Column(
@@ -444,7 +445,7 @@ class _AttachmentFieldState extends State<_AttachmentField> {
                                               Text(
                                                 att.displayTitle,
                                                 style: AppTextStyle(
-                                                  color: iconEnab_(dialogContext),
+                                                  color: hasName ? iconEnab_(dialogContext) : hintEnab_(dialogContext),
                                                   fontSize: Dimen.textSizeBig,
                                                   fontWeight: weightHalfBold,
                                                   fontStyle: att.hasTitle
@@ -452,6 +453,17 @@ class _AttachmentFieldState extends State<_AttachmentField> {
                                                       : FontStyle.italic,
                                                 ),
                                               ),
+                                              if (!hasName) ...[
+                                                const SizedBox(height: 2),
+                                                Text(
+                                                  'Nadaj nazwę załącznikowi, aby go wybrać',
+                                                  style: AppTextStyle(
+                                                    color: hintEnab_(dialogContext),
+                                                    fontSize: Dimen.textSizeSmall,
+                                                    fontStyle: FontStyle.italic,
+                                                  ),
+                                                ),
+                                              ],
                                               if (att.name.isNotEmpty) ...[
                                                 const SizedBox(height: 2),
                                                 Text(

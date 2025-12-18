@@ -33,6 +33,7 @@ class SelectTimeButton extends StatelessWidget {
     clipBehavior: Clip.hardEdge,
     color: backgroundIcon_(context),
     child: Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
 
         SimpleButton(

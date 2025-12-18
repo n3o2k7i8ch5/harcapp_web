@@ -22,8 +22,9 @@ class HtmlEditor extends StatefulWidget {
   final String? placeholder;
   final List<KonspektAttachmentData>? attachments;
   final bool showToolbar;
+  final VoidCallback? onChanged;
 
-  const HtmlEditor({super.key, this.radius, this.background, required this.controller, this.placeholder, this.attachments, this.showToolbar = true});
+  const HtmlEditor({super.key, this.radius, this.background, required this.controller, this.placeholder, this.attachments, this.showToolbar = true, this.onChanged});
 
   @override
   State<HtmlEditor> createState() => _HtmlEditorState();
@@ -43,7 +44,10 @@ class _HtmlEditorState extends State<HtmlEditor> {
     _quillController = _createQuillController(widget.controller.text);
     _scrollController = ScrollController();
     _focusNode = FocusNode();
-    _quillController.document.changes.listen((_) => _syncToTextController());
+    _quillController.document.changes.listen((_) {
+      _syncToTextController();
+      widget.onChanged?.call();
+    });
   }
 
   @override
@@ -82,6 +86,16 @@ class _HtmlEditorState extends State<HtmlEditor> {
     );
   }
 
+  KeyEventResult? _handleKeyPressed(KeyEvent event, Node? node) {
+    final shiftEnter = _handleShiftEnter(event, node);
+    if (shiftEnter != null) return shiftEnter;
+
+    final backspaceUnlist = _handleBackspaceUnlist(event, node);
+    if (backspaceUnlist != null) return backspaceUnlist;
+
+    return null;
+  }
+
   KeyEventResult? _handleShiftEnter(KeyEvent event, Node? node) {
     final isShiftEnter = event is KeyDownEvent &&
         event.logicalKey == LogicalKeyboardKey.enter &&
@@ -96,6 +110,45 @@ class _HtmlEditorState extends State<HtmlEditor> {
       softLineBreak,
       TextSelection.collapsed(offset: selection.baseOffset + 1),
     );
+    return KeyEventResult.handled;
+  }
+
+  /// Handles Backspace at the start of a list item to remove list formatting.
+  KeyEventResult? _handleBackspaceUnlist(KeyEvent event, Node? node) {
+    if (event is! KeyDownEvent || event.logicalKey != LogicalKeyboardKey.backspace) return null;
+
+    final selection = _quillController.selection;
+    if (!selection.isCollapsed || selection.baseOffset <= 0) return null;
+
+    // Find the current line
+    Line? line = node is Line ? node : null;
+    if (line == null) {
+      final childNode = _quillController.document.queryChild(selection.baseOffset).node;
+      if (childNode is Line) line = childNode;
+    }
+    if (line == null) return null;
+
+    // Handle boundary case: queryChild may return previous line
+    int posInLine = selection.baseOffset - line.documentOffset;
+    if (posInLine == line.length) {
+      line = line.nextLine;
+      if (line == null) return null;
+      posInLine = selection.baseOffset - line.documentOffset;
+    }
+
+    // Only handle if cursor is at start of a list item
+    if (posInLine != 0) return null;
+    final listAttr = line.style.attributes[Attribute.list.key];
+    if (listAttr == null) return null;
+
+    // Remove list (and indent if present) from this line only
+    _quillController.document.format(line.documentOffset, 0, Attribute.clone(listAttr, null));
+    final indentAttr = line.style.attributes[Attribute.indent.key];
+    if (indentAttr != null) {
+      _quillController.document.format(line.documentOffset, 0, Attribute.clone(indentAttr, null));
+    }
+
+    _quillController.updateSelection(selection, ChangeSource.local);
     return KeyEventResult.handled;
   }
 
@@ -240,7 +293,7 @@ class _HtmlEditorState extends State<HtmlEditor> {
             scrollable: true,
             padding: EdgeInsets.zero,
             autoFocus: false,
-            onKeyPressed: _handleShiftEnter,
+            onKeyPressed: _handleKeyPressed,
             onLaunchUrl: (_) {},
             embedBuilders: [
               AttachmentEmbedBuilder(),

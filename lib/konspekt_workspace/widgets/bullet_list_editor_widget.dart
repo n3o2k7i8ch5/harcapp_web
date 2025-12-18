@@ -38,7 +38,7 @@ class _BulletListEditorWidgetState extends State<BulletListEditorWidget> {
             bottom: index < controllers.length - 1 ? Dimen.defMarg : 0,
           ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: Dimen.iconFootprint),
 
@@ -51,6 +51,7 @@ class _BulletListEditorWidgetState extends State<BulletListEditorWidget> {
                   hint: widget.itemHint,
                   controller: controller,
                   textCapitalization: TextCapitalization.sentences,
+                  maxLines: null,
                   onChanged: (_, __) => widget.onChanged?.call(),
                 ),
               ),

@@ -55,6 +55,7 @@ Map<String, dynamic> _newlineOp([Map<String, dynamic>? attrs]) {
 
 class _HtmlToDeltaConverter {
   final List<Map<String, dynamic>> ops;
+  int _listIndent = 0;
 
   _HtmlToDeltaConverter(this.ops);
 
@@ -118,14 +119,24 @@ class _HtmlToDeltaConverter {
   }
 
   void _processListItem(dom.Element li, String listType) {
-    final itemConverter = _ListItemConverter();
+    final itemConverter = _ListItemConverter(_listIndent);
     itemConverter.processNodes(li.nodes);
 
     final content = itemConverter.ops;
     _trimTrailingSoftBreaks(content);
 
+    // Add the main content of this list item
     ops.addAll(content);
-    _addNewline(listType: listType, align: itemConverter.alignment);
+    _addNewline(listType: listType, align: itemConverter.alignment, indent: _listIndent > 0 ? _listIndent : null);
+
+    // Process nested lists
+    for (final child in li.nodes) {
+      if (child is dom.Element && (child.localName == 'ul' || child.localName == 'ol')) {
+        _listIndent++;
+        _processList(child, child.localName == 'ul' ? 'bullet' : 'ordered');
+        _listIndent--;
+      }
+    }
   }
 
   void _processWithAttr(
@@ -162,20 +173,25 @@ class _HtmlToDeltaConverter {
     }
   }
 
-  void _addNewline({String? listType, String? align}) {
+  void _addNewline({String? listType, String? align, int? indent}) {
     final attrs = <String, dynamic>{};
     if (listType != null) attrs['list'] = listType;
     if (align != null) attrs['align'] = align;
+    if (indent != null && indent > 0) attrs['indent'] = indent;
     ops.add(_newlineOp(attrs));
   }
 }
 
 /// Processes content inside a `<li>` element.
 /// Multiple `<p>` tags are joined with soft breaks instead of creating separate list items.
+/// Nested lists are skipped here and handled by the parent converter.
 class _ListItemConverter {
   final List<Map<String, dynamic>> ops = [];
+  final int _currentIndent;
   String? alignment;
   bool _isFirstParagraph = true;
+
+  _ListItemConverter(this._currentIndent);
 
   void processNodes(List<dom.Node> nodes, [Map<String, dynamic>? inlineAttrs]) {
     for (final node in nodes) {
@@ -209,6 +225,9 @@ class _ListItemConverter {
         _processWithAttr(element, inlineAttrs, 'strike', true);
       case 'a':
         _processLink(element, inlineAttrs);
+      case 'ul' || 'ol':
+        // Skip nested lists - they are handled by the parent converter
+        break;
       default:
         processNodes(element.nodes, inlineAttrs);
     }
@@ -273,8 +292,8 @@ class _DeltaToHtmlConverter {
   final List<dynamic> ops;
   final StringBuffer _buffer = StringBuffer();
 
-  bool _inList = false;
-  String _currentListType = '';
+  /// Stack of list types at each nesting level (e.g., ['ordered', 'bullet'])
+  final List<String> _listStack = [];
   bool _paragraphOpen = false;
 
   _DeltaToHtmlConverter(this.ops);
@@ -283,7 +302,7 @@ class _DeltaToHtmlConverter {
     for (int i = 0; i < ops.length; i++) {
       _processOp(i);
     }
-    _closeList();
+    _closeAllLists();
     _closeParagraph();
     return _buffer.toString();
   }
@@ -323,42 +342,82 @@ class _DeltaToHtmlConverter {
 
   void _handleLineEnd(Map<String, dynamic>? attrs, int index) {
     final listType = attrs?['list'] as String?;
+    final indent = (attrs?['indent'] as int?) ?? 0;
 
     if (listType != null) {
-      _handleListLineEnd(listType, index);
+      _handleListLineEnd(listType, indent, index);
     } else {
-      _closeList();
+      _closeAllLists();
       _closeParagraph();
     }
   }
 
-  void _handleListLineEnd(String listType, int index) {
-    if (!_inList || _currentListType != listType) {
-      _closeList();
+  void _handleListLineEnd(String listType, int indent, int index) {
+    final targetDepth = indent + 1; // indent 0 = depth 1, indent 1 = depth 2, etc.
+    
+    _closeParagraph();
+    
+    // Close lists if we're going to a shallower level
+    while (_listStack.length > targetDepth) {
+      _buffer.write('</li>');
+      final closingType = _listStack.removeLast();
+      _buffer.write(closingType == 'bullet' ? '</ul>' : '</ol>');
+    }
+    
+    // Close and reopen if list type changed at current level
+    if (_listStack.length == targetDepth && _listStack.last != listType) {
+      _buffer.write('</li>');
+      final closingType = _listStack.removeLast();
+      _buffer.write(closingType == 'bullet' ? '</ul>' : '</ol>');
+    }
+    
+    // Open new lists to reach target depth
+    while (_listStack.length < targetDepth) {
       _buffer.write(listType == 'bullet' ? '<ul>' : '<ol>');
       _buffer.write('<li>');
-      _inList = true;
-      _currentListType = listType;
+      _listStack.add(listType);
     }
-    _closeParagraph();
 
-    final nextListType = _peekNextListType(index + 1);
-    if (nextListType == listType) {
+    // Check what comes next
+    final nextAttrs = _peekNextLineAttrs(index + 1);
+    final nextListType = nextAttrs?['list'] as String?;
+    final nextIndent = (nextAttrs?['indent'] as int?) ?? 0;
+    
+    if (nextListType != null && nextIndent == indent && nextListType == listType) {
+      // Next item is at same level and type - close current li and open new one
       _buffer.write('</li><li>');
+    } else if (nextListType != null && nextIndent < indent) {
+      // Next item is at shallower level - close this li and close nested lists down to next level
+      _buffer.write('</li>');
+      final nextTargetDepth = nextIndent + 1;
+      while (_listStack.length > nextTargetDepth) {
+        final closingType = _listStack.removeLast();
+        _buffer.write(closingType == 'bullet' ? '</ul>' : '</ol>');
+        _buffer.write('</li>');
+      }
+      _buffer.write('<li>');
+    } else if (nextListType != null && nextIndent > indent) {
+      // Next item is nested - don't close the li yet, nested list will go inside
     }
   }
 
   void _handleText(String text, Map<String, dynamic>? attrs, int index) {
-    final listType = _peekNextListType(index);
-    final align = _peekNextAlign(index);
+    final nextAttrs = _peekNextLineAttrs(index);
+    final listType = nextAttrs?['list'] as String?;
+    final indent = (nextAttrs?['indent'] as int?) ?? 0;
+    final align = nextAttrs?['align'] as String?;
 
-    if (listType != null && !_inList) {
-      _buffer.write(listType == 'bullet' ? '<ul>' : '<ol>');
-      _buffer.write('<li>');
-      _inList = true;
-      _currentListType = listType;
-    } else if (listType == null && _inList) {
-      _closeList();
+    if (listType != null) {
+      final targetDepth = indent + 1;
+      
+      // If we need to go deeper, open nested lists
+      while (_listStack.length < targetDepth) {
+        _buffer.write(listType == 'bullet' ? '<ul>' : '<ol>');
+        _buffer.write('<li>');
+        _listStack.add(listType);
+      }
+    } else if (listType == null && _listStack.isNotEmpty) {
+      _closeAllLists();
     }
 
     _openParagraph(align);
@@ -381,33 +440,27 @@ class _DeltaToHtmlConverter {
     _paragraphOpen = false;
   }
 
-  void _closeList() {
-    if (!_inList) return;
-    _closeParagraph();
-    _buffer.write('</li>');
-    _buffer.write(_currentListType == 'bullet' ? '</ul>' : '</ol>');
-    _inList = false;
-    _currentListType = '';
+  void _closeAllLists() {
+    while (_listStack.isNotEmpty) {
+      _closeParagraph();
+      _buffer.write('</li>');
+      final closingType = _listStack.removeLast();
+      _buffer.write(closingType == 'bullet' ? '</ul>' : '</ol>');
+    }
   }
 
-  String? _peekNextListType(int startIndex) {
+  Map<String, dynamic>? _peekNextLineAttrs(int startIndex) {
     for (int i = startIndex; i < ops.length; i++) {
       final op = ops[i] as Map<String, dynamic>;
       if (op['insert'] == '\n') {
-        return (op['attributes'] as Map<String, dynamic>?)?['list'] as String?;
+        return op['attributes'] as Map<String, dynamic>?;
       }
     }
     return null;
   }
 
   String? _peekNextAlign(int startIndex) {
-    for (int i = startIndex; i < ops.length; i++) {
-      final op = ops[i] as Map<String, dynamic>;
-      if (op['insert'] == '\n') {
-        return (op['attributes'] as Map<String, dynamic>?)?['align'] as String?;
-      }
-    }
-    return null;
+    return _peekNextLineAttrs(startIndex)?['align'] as String?;
   }
 
   void _writeFormattedText(String text, Map<String, dynamic>? attrs) {

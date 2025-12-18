@@ -343,24 +343,37 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
                             const SizedBox(height: Dimen.sideMarg),
 
-                            Row(
-                              children: [
-                                IntrinsicWidth(
-                                  child: TitleShortcutRowWidget(
-                                    title: 'Czas',
-                                    textAlign: TextAlign.left,
-                                  ),
-                                ),
-
-                                SizedBox(width: Dimen.defMarg),
-
-                                SelectTimeButton(
+                            _FormSection(
+                              title: 'Czas',
+                              hint: 'Zostaw "Auto", jeśli chcesz, żeby czas policzył się sam na podstawie kroków planu konspektu.',
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: SelectTimeButton(
                                   konspektData.customDuration,
                                   onChanged: (Duration? newDuration) => _setStateAndSave(() => konspektData.customDuration = newDuration),
                                   fontSize: TitleShortcutRowWidget.style.fontSize,
-                                )
-                              ],
+                                ),
+                              )
                             ),
+
+                            // Row(
+                            //   children: [
+                            //     IntrinsicWidth(
+                            //       child: TitleShortcutRowWidget(
+                            //         title: 'Czas',
+                            //         textAlign: TextAlign.left,
+                            //       ),
+                            //     ),
+                            //
+                            //     SizedBox(width: Dimen.defMarg),
+                            //
+                            //     SelectTimeButton(
+                            //       konspektData.customDuration,
+                            //       onChanged: (Duration? newDuration) => _setStateAndSave(() => konspektData.customDuration = newDuration),
+                            //       fontSize: TitleShortcutRowWidget.style.fontSize,
+                            //     )
+                            //   ],
+                            // ),
 
                             const SizedBox(height: Dimen.sideMarg),
 
@@ -410,6 +423,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                                 controller: konspektData.introController,
                                 placeholder: 'Wstęp:',
                                 attachments: konspektData.attachments,
+                                onChanged: _markUnsaved,
                               ),
                             ),
 
@@ -420,6 +434,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                                 controller: konspektData.descriptionController,
                                 placeholder: 'Opis:',
                                 attachments: konspektData.attachments,
+                                onChanged: _markUnsaved,
                               ),
                             ),
 
@@ -429,6 +444,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                               child: StepsWidget(
                                 steps: konspektData.stepsData,
                                 attachments: konspektData.attachments,
+                                onChanged: _markUnsaved,
                               ),
                             ),
 
