@@ -943,5 +943,113 @@ Co łączy wszystkie hasła?<br><br><i>Odp.: można się od nich uzależnić.</i
       expect(output, isNot(contains('<li></li>')));
     });
     
+    test('text with newline in middle after list creates empty li bug', () {
+      // Bug: text [4] starts with normal text but contains \n in middle
+      // [3] insert: "\n", attrs: {list: ordered}
+      // [4] insert: "Po 15 minutach...\u2028\u2028Zasady higieny cyfrowej:\nKontroluj czas..."
+      // [5] insert: "\n", attrs: {list: ordered}
+      // The \n in [4] before "Kontroluj" should close the list, not create empty li
+      final ops = [
+        {'insert': 'Pytania:\nQuestion 1?'},
+        {'insert': '\n', 'attributes': {'list': 'ordered'}},
+        {'insert': 'Question 2?'},
+        {'insert': '\n', 'attributes': {'list': 'ordered'}},
+        {'insert': 'After list text\u2028\u2028New section:\nNew list item 1'},
+        {'insert': '\n', 'attributes': {'list': 'ordered'}},
+        {'insert': 'New list item 2'},
+        {'insert': '\n', 'attributes': {'list': 'ordered'}},
+      ];
+      
+      final output = deltaOpsToHtml(ops);
+      print('TEXT WITH NEWLINE IN MIDDLE: $output');
+      
+      // Should have exactly 4 list items (2 + 2), not 5
+      expect('<li>'.allMatches(output).length, 4);
+      
+      // Should NOT have empty list items
+      expect(output, isNot(contains('<li></li>')));
+    });
+    
+    test('intentionally empty list item should be preserved', () {
+      // User creates an empty list item by pressing Enter twice in a list
+      // This is represented as two consecutive \n with list attribute
+      final ops = [
+        {'insert': 'Item 1'},
+        {'insert': '\n', 'attributes': {'list': 'ordered'}},
+        {'insert': '\n', 'attributes': {'list': 'ordered'}},  // Empty item
+        {'insert': 'Item 3'},
+        {'insert': '\n', 'attributes': {'list': 'ordered'}},
+      ];
+      
+      final output = deltaOpsToHtml(ops);
+      print('INTENTIONALLY EMPTY LIST ITEM: $output');
+      
+      // Should have exactly 3 list items
+      expect('<li>'.allMatches(output).length, 3);
+      
+      // Should contain an empty list item (with just <p></p> inside)
+      expect(output, contains('Item 1'));
+      expect(output, contains('Item 3'));
+    });
+    
+    test('empty list item followed by text with newline in middle', () {
+      // Exact user case:
+      // 1. Question 1
+      // 2. Question 2
+      // 3. (empty)
+      // Then text with \n in middle starting new list
+      final ops = [
+        {'insert': 'Pytania:\nQuestion 1?'},
+        {'insert': '\n', 'attributes': {'list': 'ordered'}},
+        {'insert': 'Question 2?'},
+        {'insert': '\n', 'attributes': {'list': 'ordered'}},
+        {'insert': '\n', 'attributes': {'list': 'ordered'}},  // Empty item 3
+        {'insert': 'After list text\u2028\u2028New section:\nNew list item 1'},
+        {'insert': '\n', 'attributes': {'list': 'ordered'}},
+        {'insert': 'New list item 2'},
+        {'insert': '\n', 'attributes': {'list': 'ordered'}},
+      ];
+      
+      final output = deltaOpsToHtml(ops);
+      print('EMPTY ITEM + TEXT WITH NEWLINE: $output');
+      
+      // Should have exactly 5 list items (2 + 1 empty + 2)
+      expect('<li>'.allMatches(output).length, 5);
+      
+      // First list should have 3 items (including empty)
+      expect(output, contains('Question 1?'));
+      expect(output, contains('Question 2?'));
+      
+      // Second list should have 2 items
+      expect(output, contains('New list item 1'));
+      expect(output, contains('New list item 2'));
+    });
+    
+    test('double newline in list attribute creates empty item - exact user case', () {
+      // Exact user Delta:
+      // [3] insert: "\n\n", attrs: {list: ordered}  <- TWO newlines in one op!
+      // This means: end item 2, then empty item 3
+      final ops = [
+        {'insert': 'Pytania:\nQuestion 1?'},
+        {'insert': '\n', 'attributes': {'list': 'ordered'}},
+        {'insert': 'Question 2?'},
+        {'insert': '\n\n', 'attributes': {'list': 'ordered'}},  // TWO newlines = empty item
+        {'insert': 'After list\u2028\u2028New section:\nNew list item 1'},
+        {'insert': '\n', 'attributes': {'list': 'ordered'}},
+        {'insert': 'New list item 2'},
+        {'insert': '\n', 'attributes': {'list': 'ordered'}},
+      ];
+      
+      final output = deltaOpsToHtml(ops);
+      print('DOUBLE NEWLINE IN LIST ATTR: $output');
+      
+      // Should have exactly 5 list items (2 + 1 empty + 2)
+      expect('<li>'.allMatches(output).length, 5);
+      
+      // First list should have 3 items (including empty)
+      expect(output, contains('Question 1?'));
+      expect(output, contains('Question 2?'));
+    });
+    
   });
 }

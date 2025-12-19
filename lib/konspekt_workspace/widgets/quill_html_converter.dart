@@ -249,11 +249,22 @@ class _DeltaToHtmlConverter {
 
     final attrs = op['attributes'] as Map<String, dynamic>?;
 
+    // Handle single or multiple newlines
     if (insert == '\n') {
-      _handleLineEnd(attrs, index);
+      _handleLineEnd(attrs, index, isLastNewlineInOp: true);
+    } else if (_isOnlyNewlines(insert)) {
+      // Multiple newlines with list attribute = multiple list items (some empty)
+      for (int j = 0; j < insert.length; j++) {
+        final isLast = j == insert.length - 1;
+        _handleLineEnd(attrs, index, isLastNewlineInOp: isLast);
+      }
     } else {
       _handleText(insert, attrs, index);
     }
+  }
+
+  bool _isOnlyNewlines(String text) {
+    return text.isNotEmpty && text.replaceAll('\n', '').isEmpty;
   }
 
   void _handleEmbed(Map<String, dynamic> embed, int index) {
@@ -269,19 +280,19 @@ class _DeltaToHtmlConverter {
     }
   }
 
-  void _handleLineEnd(Map<String, dynamic>? attrs, int index) {
+  void _handleLineEnd(Map<String, dynamic>? attrs, int index, {required bool isLastNewlineInOp}) {
     final listType = attrs?['list'] as String?;
     final indent = (attrs?['indent'] as int?) ?? 0;
 
     if (listType != null) {
-      _handleListLineEnd(listType, indent, index);
+      _handleListLineEnd(listType, indent, index, isLastNewlineInOp: isLastNewlineInOp);
     } else {
       _closeAllLists();
       _closeParagraph();
     }
   }
 
-  void _handleListLineEnd(String listType, int indent, int index) {
+  void _handleListLineEnd(String listType, int indent, int index, {required bool isLastNewlineInOp}) {
     final targetDepth = indent + 1; // indent 0 = depth 1, indent 1 = depth 2, etc.
     
     _closeParagraph();
@@ -312,14 +323,18 @@ class _DeltaToHtmlConverter {
     final nextListType = nextAttrs?['list'] as String?;
     final nextIndent = (nextAttrs?['indent'] as int?) ?? 0;
     
-    // Check if next text starts with soft break or newline - if so, don't open new li
-    // because the list will be closed when that text is processed
-    final nextTextStartsWithBreak = _peekNextTextStartsWithBreak(index + 1);
+    // Only check if next text will close the list when this is the last \n in the op
+    // For multi-newline ops like "\n\n", intermediate \n should always open new li
+    final nextTextWillCloseList = isLastNewlineInOp ? _peekNextTextWillCloseList(index + 1) : false;
     
-    if (nextListType != null && nextIndent == indent && nextListType == listType && !nextTextStartsWithBreak) {
+    if (nextListType != null && nextIndent == indent && nextListType == listType && !nextTextWillCloseList) {
       // Next item is at same level and type - close current li and open new one
+      // Check if current li is empty (no paragraph was opened) - if so, add <br> for visibility
+      if (!_paragraphOpen) {
+        _buffer.write('<br>');
+      }
       _buffer.write('</li><li>');
-    } else if (nextListType != null && nextIndent < indent && !nextTextStartsWithBreak) {
+    } else if (nextListType != null && nextIndent < indent && !nextTextWillCloseList) {
       // Next item is at shallower level - close this li and close nested lists down to next level
       _buffer.write('</li>');
       final nextTargetDepth = nextIndent + 1;
@@ -334,15 +349,24 @@ class _DeltaToHtmlConverter {
     }
   }
   
-  bool _peekNextTextStartsWithBreak(int startIndex) {
+  bool _peekNextTextWillCloseList(int startIndex) {
     for (int i = startIndex; i < ops.length; i++) {
       final op = ops[i] as Map<String, dynamic>;
       final insert = op['insert'];
       if (insert is String) {
         if (insert == '\n') return false; // This is a line ending, not text
-        // Only soft break at start should close the list
-        // Hard newline at start is handled separately in _handleText
-        return insert.startsWith(softLineBreak);
+        // Text will close the list if:
+        // 1. It starts with soft break (and has content after)
+        // 2. It contains hard newline in the MIDDLE (not at start)
+        //    Text starting with \n is handled by _handleText which skips the empty first part
+        if (insert.startsWith(softLineBreak)) {
+          final textWithoutLeadingBreaks = insert.replaceAll(RegExp('^$softLineBreak+'), '');
+          if (textWithoutLeadingBreaks.isNotEmpty) return true;
+        }
+        // Check for \n in middle (not at start)
+        final textWithoutLeadingNewlines = insert.replaceAll(RegExp(r'^\n+'), '');
+        if (textWithoutLeadingNewlines.contains('\n')) return true;
+        return false;
       }
     }
     return false;
