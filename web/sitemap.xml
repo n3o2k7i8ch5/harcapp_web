@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SEO: sitemap listing key public routes to help search engines discover and crawl the site. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://harcapp.web.app/</loc>
+  </url>
+  <url>
+    <loc>https://harcapp.web.app/song</loc>
+  </url>
+  <url>
+    <loc>https://harcapp.web.app/song_contribution_rules</loc>
+  </url>
+  <url>
+    <loc>https://harcapp.web.app/articles</loc>
+  </url>
+  <url>
+    <loc>https://harcapp.web.app/konspekty/warsztat</loc>
+  </url>
+  <url>
+    <loc>https://harcapp.web.app/konspekty/harcerskie</loc>
+  </url>
+  <url>
+    <loc>https://harcapp.web.app/konspekty/ksztalcenie</loc>
+  </url>
+  <url>
+    <loc>https://harcapp.web.app/poradnik</loc>
+  </url>
+  <url>
+    <loc>https://harcapp.web.app/sprawnosci</loc>
+  </url>
+  <url>
+    <loc>https://harcapp.web.app/privacy_policy</loc>
+  </url>
+</urlset>

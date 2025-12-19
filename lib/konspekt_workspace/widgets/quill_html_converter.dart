@@ -10,6 +10,69 @@ const String softLineBreak = '\u2028';
 const String _attachmentSuffix = '@attachment';
 
 // =============================================================================
+// Shared HTML→Delta processing mixin
+// =============================================================================
+
+/// Mixin providing common HTML element processing for Delta conversion.
+mixin _HtmlElementProcessor {
+  List<Map<String, dynamic>> get ops;
+
+  void processNodes(List<dom.Node> nodes, [Map<String, dynamic>? inlineAttrs]) {
+    for (final node in nodes) {
+      if (node is dom.Text) {
+        final text = node.text;
+        if (!_isIgnorableWhitespace(text)) {
+          _addText(text.replaceAll('\n', softLineBreak), inlineAttrs);
+        }
+      } else if (node is dom.Element) {
+        _processElement(node, inlineAttrs);
+      }
+    }
+  }
+
+  void _processElement(dom.Element element, Map<String, dynamic>? inlineAttrs);
+
+  void _processFormattingElement(dom.Element element, Map<String, dynamic>? inlineAttrs) {
+    switch (element.localName) {
+      case 'br':
+        _addText(softLineBreak, inlineAttrs);
+      case 'b' || 'strong':
+        processNodes(element.nodes, _mergeAttrs(inlineAttrs, {'bold': true}));
+      case 'i' || 'em':
+        processNodes(element.nodes, _mergeAttrs(inlineAttrs, {'italic': true}));
+      case 'u':
+        processNodes(element.nodes, _mergeAttrs(inlineAttrs, {'underline': true}));
+      case 's' || 'strike':
+        processNodes(element.nodes, _mergeAttrs(inlineAttrs, {'strike': true}));
+      case 'a':
+        _processLink(element, inlineAttrs);
+      default:
+        processNodes(element.nodes, inlineAttrs);
+    }
+  }
+
+  void _processLink(dom.Element element, Map<String, dynamic>? inlineAttrs) {
+    final href = element.attributes['href'];
+    if (href == null) {
+      processNodes(element.nodes, inlineAttrs);
+    } else if (href.endsWith(_attachmentSuffix)) {
+      final id = href.substring(0, href.length - _attachmentSuffix.length);
+      final title = element.text.trim();
+      ops.add({'insert': AttachmentEmbed(id: id, title: title.isNotEmpty ? title : id).toEmbeddable().toJson()});
+    } else {
+      processNodes(element.nodes, _mergeAttrs(inlineAttrs, {'link': href}));
+    }
+  }
+
+  void _addText(String text, [Map<String, dynamic>? attrs]) {
+    if (text.isEmpty) return;
+    ops.add(attrs != null && attrs.isNotEmpty
+        ? {'insert': text, 'attributes': Map<String, dynamic>.from(attrs)}
+        : {'insert': text});
+  }
+}
+
+// =============================================================================
 // HTML → Delta
 // =============================================================================
 
@@ -53,64 +116,30 @@ Map<String, dynamic> _newlineOp([Map<String, dynamic>? attrs]) {
   return {'insert': '\n'};
 }
 
-class _HtmlToDeltaConverter {
+class _HtmlToDeltaConverter with _HtmlElementProcessor {
+  @override
   final List<Map<String, dynamic>> ops;
   int _listIndent = 0;
 
   _HtmlToDeltaConverter(this.ops);
 
-  void processNodes(List<dom.Node> nodes, [Map<String, dynamic>? inlineAttrs]) {
-    for (final node in nodes) {
-      _processNode(node, inlineAttrs);
-    }
-  }
-
-  void _processNode(dom.Node node, Map<String, dynamic>? inlineAttrs) {
-    if (node is dom.Text) {
-      _processTextNode(node, inlineAttrs);
-    } else if (node is dom.Element) {
-      _processElement(node, inlineAttrs);
-    }
-  }
-
-  void _processTextNode(dom.Text node, Map<String, dynamic>? inlineAttrs) {
-    final text = node.text;
-    if (_isIgnorableWhitespace(text)) return;
-    _addText(text, inlineAttrs);
-  }
-
+  @override
   void _processElement(dom.Element element, Map<String, dynamic>? inlineAttrs) {
     switch (element.localName) {
-      case 'br':
-        _addText(softLineBreak);
       case 'p':
-        _processParagraph(element, inlineAttrs);
+        processNodes(element.nodes, inlineAttrs);
+        _addNewline(align: _extractAlignment(element));
       case 'ul':
         _processList(element, 'bullet');
       case 'ol':
         _processList(element, 'ordered');
-      case 'b' || 'strong':
-        _processWithAttr(element, inlineAttrs, 'bold', true);
-      case 'i' || 'em':
-        _processWithAttr(element, inlineAttrs, 'italic', true);
-      case 'u':
-        _processWithAttr(element, inlineAttrs, 'underline', true);
-      case 's' || 'strike':
-        _processWithAttr(element, inlineAttrs, 'strike', true);
-      case 'a':
-        _processLink(element, inlineAttrs);
       default:
-        processNodes(element.nodes, inlineAttrs);
+        _processFormattingElement(element, inlineAttrs);
     }
   }
 
-  void _processParagraph(dom.Element element, Map<String, dynamic>? inlineAttrs) {
-    final align = _extractAlignment(element);
-    processNodes(element.nodes, inlineAttrs);
-    _addNewline(align: align);
-  }
-
   void _processList(dom.Element list, String listType) {
+    _ensurePrecedingNewline();
     for (final child in list.nodes) {
       if (child is dom.Element && child.localName == 'li') {
         _processListItem(child, listType);
@@ -118,15 +147,19 @@ class _HtmlToDeltaConverter {
     }
   }
 
+  void _ensurePrecedingNewline() {
+    if (ops.isEmpty) return;
+    final lastInsert = ops.last['insert'];
+    if (lastInsert is String && !lastInsert.endsWith('\n') && !lastInsert.endsWith(softLineBreak)) {
+      ops.add(_newlineOp());
+    }
+  }
+
   void _processListItem(dom.Element li, String listType) {
-    final itemConverter = _ListItemConverter(_listIndent);
+    final itemConverter = _ListItemConverter();
     itemConverter.processNodes(li.nodes);
 
-    final content = itemConverter.ops;
-    _trimTrailingSoftBreaks(content);
-
-    // Add the main content of this list item
-    ops.addAll(content);
+    ops.addAll(itemConverter.ops);
     _addNewline(listType: listType, align: itemConverter.alignment, indent: _listIndent > 0 ? _listIndent : null);
 
     // Process nested lists
@@ -136,40 +169,6 @@ class _HtmlToDeltaConverter {
         _processList(child, child.localName == 'ul' ? 'bullet' : 'ordered');
         _listIndent--;
       }
-    }
-  }
-
-  void _processWithAttr(
-    dom.Element element,
-    Map<String, dynamic>? inlineAttrs,
-    String attrName,
-    dynamic attrValue,
-  ) {
-    final newAttrs = _mergeAttrs(inlineAttrs, {attrName: attrValue});
-    processNodes(element.nodes, newAttrs);
-  }
-
-  void _processLink(dom.Element element, Map<String, dynamic>? inlineAttrs) {
-    final href = element.attributes['href'];
-    if (href != null && href.endsWith(_attachmentSuffix)) {
-      final id = href.substring(0, href.length - _attachmentSuffix.length);
-      final title = element.text.trim();
-      final embed = AttachmentEmbed(id: id, title: title.isNotEmpty ? title : id);
-      ops.add({'insert': embed.toEmbeddable().toJson()});
-    } else if (href != null) {
-      final newAttrs = _mergeAttrs(inlineAttrs, {'link': href});
-      processNodes(element.nodes, newAttrs);
-    } else {
-      processNodes(element.nodes, inlineAttrs);
-    }
-  }
-
-  void _addText(String text, [Map<String, dynamic>? attrs]) {
-    if (text.isEmpty) return;
-    if (attrs != null && attrs.isNotEmpty) {
-      ops.add({'insert': text, 'attributes': Map<String, dynamic>.from(attrs)});
-    } else {
-      ops.add({'insert': text});
     }
   }
 
@@ -185,94 +184,24 @@ class _HtmlToDeltaConverter {
 /// Processes content inside a `<li>` element.
 /// Multiple `<p>` tags are joined with soft breaks instead of creating separate list items.
 /// Nested lists are skipped here and handled by the parent converter.
-class _ListItemConverter {
+class _ListItemConverter with _HtmlElementProcessor {
+  @override
   final List<Map<String, dynamic>> ops = [];
-  final int _currentIndent;
   String? alignment;
   bool _isFirstParagraph = true;
 
-  _ListItemConverter(this._currentIndent);
-
-  void processNodes(List<dom.Node> nodes, [Map<String, dynamic>? inlineAttrs]) {
-    for (final node in nodes) {
-      _processNode(node, inlineAttrs);
-    }
-  }
-
-  void _processNode(dom.Node node, Map<String, dynamic>? inlineAttrs) {
-    if (node is dom.Text) {
-      final text = node.text;
-      if (_isIgnorableWhitespace(text)) return;
-      _addText(text, inlineAttrs);
-    } else if (node is dom.Element) {
-      _processElement(node, inlineAttrs);
-    }
-  }
-
+  @override
   void _processElement(dom.Element element, Map<String, dynamic>? inlineAttrs) {
     switch (element.localName) {
-      case 'br':
-        _addText(softLineBreak);
       case 'p':
-        _processParagraphInListItem(element, inlineAttrs);
-      case 'b' || 'strong':
-        _processWithAttr(element, inlineAttrs, 'bold', true);
-      case 'i' || 'em':
-        _processWithAttr(element, inlineAttrs, 'italic', true);
-      case 'u':
-        _processWithAttr(element, inlineAttrs, 'underline', true);
-      case 's' || 'strike':
-        _processWithAttr(element, inlineAttrs, 'strike', true);
-      case 'a':
-        _processLink(element, inlineAttrs);
-      case 'ul' || 'ol':
-        // Skip nested lists - they are handled by the parent converter
-        break;
-      default:
+        if (!_isFirstParagraph && ops.isNotEmpty) _addText(softLineBreak);
+        _isFirstParagraph = false;
+        alignment ??= _extractAlignment(element);
         processNodes(element.nodes, inlineAttrs);
-    }
-  }
-
-  void _processParagraphInListItem(dom.Element element, Map<String, dynamic>? inlineAttrs) {
-    if (!_isFirstParagraph && ops.isNotEmpty) {
-      _addText(softLineBreak);
-    }
-    _isFirstParagraph = false;
-    alignment ??= _extractAlignment(element);
-    processNodes(element.nodes, inlineAttrs);
-  }
-
-  void _processWithAttr(
-    dom.Element element,
-    Map<String, dynamic>? inlineAttrs,
-    String attrName,
-    dynamic attrValue,
-  ) {
-    final newAttrs = _mergeAttrs(inlineAttrs, {attrName: attrValue});
-    processNodes(element.nodes, newAttrs);
-  }
-
-  void _processLink(dom.Element element, Map<String, dynamic>? inlineAttrs) {
-    final href = element.attributes['href'];
-    if (href != null && href.endsWith(_attachmentSuffix)) {
-      final id = href.substring(0, href.length - _attachmentSuffix.length);
-      final title = element.text.trim();
-      final embed = AttachmentEmbed(id: id, title: title.isNotEmpty ? title : id);
-      ops.add({'insert': embed.toEmbeddable().toJson()});
-    } else if (href != null) {
-      final newAttrs = _mergeAttrs(inlineAttrs, {'link': href});
-      processNodes(element.nodes, newAttrs);
-    } else {
-      processNodes(element.nodes, inlineAttrs);
-    }
-  }
-
-  void _addText(String text, [Map<String, dynamic>? attrs]) {
-    if (text.isEmpty) return;
-    if (attrs != null && attrs.isNotEmpty) {
-      ops.add({'insert': text, 'attributes': Map<String, dynamic>.from(attrs)});
-    } else {
-      ops.add({'insert': text});
+      case 'ul' || 'ol':
+        break; // Skip nested lists - handled by parent
+      default:
+        _processFormattingElement(element, inlineAttrs);
     }
   }
 }
@@ -383,10 +312,14 @@ class _DeltaToHtmlConverter {
     final nextListType = nextAttrs?['list'] as String?;
     final nextIndent = (nextAttrs?['indent'] as int?) ?? 0;
     
-    if (nextListType != null && nextIndent == indent && nextListType == listType) {
+    // Check if next text starts with soft break or newline - if so, don't open new li
+    // because the list will be closed when that text is processed
+    final nextTextStartsWithBreak = _peekNextTextStartsWithBreak(index + 1);
+    
+    if (nextListType != null && nextIndent == indent && nextListType == listType && !nextTextStartsWithBreak) {
       // Next item is at same level and type - close current li and open new one
       _buffer.write('</li><li>');
-    } else if (nextListType != null && nextIndent < indent) {
+    } else if (nextListType != null && nextIndent < indent && !nextTextStartsWithBreak) {
       // Next item is at shallower level - close this li and close nested lists down to next level
       _buffer.write('</li>');
       final nextTargetDepth = nextIndent + 1;
@@ -400,8 +333,74 @@ class _DeltaToHtmlConverter {
       // Next item is nested - don't close the li yet, nested list will go inside
     }
   }
+  
+  bool _peekNextTextStartsWithBreak(int startIndex) {
+    for (int i = startIndex; i < ops.length; i++) {
+      final op = ops[i] as Map<String, dynamic>;
+      final insert = op['insert'];
+      if (insert is String) {
+        if (insert == '\n') return false; // This is a line ending, not text
+        // Only soft break at start should close the list
+        // Hard newline at start is handled separately in _handleText
+        return insert.startsWith(softLineBreak);
+      }
+    }
+    return false;
+  }
 
   void _handleText(String text, Map<String, dynamic>? attrs, int index) {
+    // If text contains hard newlines, split and process each part separately
+    // The part before the last \n should be in paragraphs, only the last part
+    // should potentially be in a list (based on the next line's attributes)
+    if (text.contains('\n')) {
+      final parts = text.split('\n');
+      for (int i = 0; i < parts.length; i++) {
+        final part = parts[i];
+        final isLastPart = i == parts.length - 1;
+        
+        if (isLastPart) {
+          // Last part - process normally with list detection
+          if (part.isNotEmpty) {
+            _handleTextSegment(part, attrs, index);
+          }
+        } else {
+          // Not last part - this is a complete line
+          // Skip empty parts at the beginning (e.g., text starting with \n)
+          // to avoid creating empty list items or paragraphs
+          if (part.isEmpty && i == 0) {
+            continue;
+          }
+          if (_listStack.isNotEmpty) {
+            _closeAllLists();
+          }
+          if (part.isNotEmpty) {
+            _openParagraph(null);
+            _writeFormattedText(part, attrs);
+          }
+          _closeParagraph();
+        }
+      }
+      return;
+    }
+    
+    _handleTextSegment(text, attrs, index);
+  }
+
+  void _handleTextSegment(String text, Map<String, dynamic>? attrs, int index) {
+    // If text starts with soft break and we're in a list, close the list first
+    // This prevents empty list items when text like "\u2028After list..." follows a list
+    // But only if the text has more content after the soft break(s)
+    if (text.startsWith(softLineBreak) && _listStack.isNotEmpty) {
+      final textWithoutLeadingBreaks = text.replaceAll(RegExp('^$softLineBreak+'), '');
+      if (textWithoutLeadingBreaks.isNotEmpty) {
+        _closeAllLists();
+        _openParagraph(null);
+        _writeFormattedText(text, attrs);
+        return;
+      }
+      // If text is only soft breaks, treat as <br> in current context (list item)
+    }
+    
     final nextAttrs = _peekNextLineAttrs(index);
     final listType = nextAttrs?['list'] as String?;
     final indent = (nextAttrs?['indent'] as int?) ?? 0;
@@ -464,7 +463,8 @@ class _DeltaToHtmlConverter {
   }
 
   void _writeFormattedText(String text, Map<String, dynamic>? attrs) {
-    var result = _escapeHtml(text).replaceAll(softLineBreak, '<br>');
+    // Convert both soft line breaks and literal newlines to <br>
+    var result = _escapeHtml(text).replaceAll(softLineBreak, '<br>').replaceAll('\n', '<br>');
 
     if (attrs == null || attrs.isEmpty) {
       _buffer.write(result);
@@ -495,36 +495,13 @@ Map<String, dynamic> _mergeAttrs(Map<String, dynamic>? base, Map<String, dynamic
   return {...?base, ...extra};
 }
 
-String? _extractAlignment(dom.Element element) {
-  final style = element.attributes['style'] ?? '';
-  if (style.contains('text-align:center') || style.contains('text-align: center')) {
-    return 'center';
-  }
-  if (style.contains('text-align:right') || style.contains('text-align: right')) {
-    return 'right';
-  }
-  if (style.contains('text-align:justify') || style.contains('text-align: justify')) {
-    return 'justify';
-  }
-  return null;
-}
+final _alignmentRegex = RegExp(r'text-align:\s*(center|right|justify)');
 
-void _trimTrailingSoftBreaks(List<Map<String, dynamic>> ops) {
-  while (ops.isNotEmpty) {
-    final last = ops.last['insert'];
-    if (last == softLineBreak || last == '\n') {
-      ops.removeLast();
-    } else if (last is String && last.endsWith(softLineBreak)) {
-      final trimmed = last.substring(0, last.length - 1);
-      if (trimmed.isEmpty) {
-        ops.removeLast();
-      } else {
-        ops.last['insert'] = trimmed;
-      }
-    } else {
-      break;
-    }
-  }
+String? _extractAlignment(dom.Element element) {
+  final style = element.attributes['style'];
+  if (style == null) return null;
+  final match = _alignmentRegex.firstMatch(style);
+  return match?.group(1);
 }
 
 List<Map<String, dynamic>> _mergeAdjacentTextOps(List<Map<String, dynamic>> ops) {
@@ -541,8 +518,12 @@ List<Map<String, dynamic>> _mergeAdjacentTextOps(List<Map<String, dynamic>> ops)
     final lastInsert = last['insert'];
     final currentInsert = op['insert'];
 
+    // Don't merge if either contains a hard newline (line ending)
+    // Soft line breaks (softLineBreak) can be merged
     if (lastInsert is String &&
         currentInsert is String &&
+        !lastInsert.contains('\n') &&
+        !currentInsert.contains('\n') &&
         _attrsEqual(last['attributes'], op['attributes'])) {
       merged.last['insert'] = lastInsert + currentInsert;
     } else {

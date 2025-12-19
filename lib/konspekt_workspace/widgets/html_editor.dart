@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart' as html_widget;
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_bar.dart';
@@ -15,6 +16,8 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'attachment_embed.dart';
 import 'quill_html_converter.dart';
 
+enum _DebugViewMode { editor, delta, html, preview }
+
 class HtmlEditor extends StatefulWidget {
   final double? radius;
   final Color? background;
@@ -22,9 +25,10 @@ class HtmlEditor extends StatefulWidget {
   final String? placeholder;
   final List<KonspektAttachmentData>? attachments;
   final bool showToolbar;
+  final bool showDebugButtons;
   final VoidCallback? onChanged;
 
-  const HtmlEditor({super.key, this.radius, this.background, required this.controller, this.placeholder, this.attachments, this.showToolbar = true, this.onChanged});
+  const HtmlEditor({super.key, this.radius, this.background, required this.controller, this.placeholder, this.attachments, this.showToolbar = true, this.showDebugButtons = true, this.onChanged});
 
   @override
   State<HtmlEditor> createState() => _HtmlEditorState();
@@ -37,6 +41,7 @@ class _HtmlEditorState extends State<HtmlEditor> {
   late final QuillController _quillController;
   late final ScrollController _scrollController;
   late final FocusNode _focusNode;
+  _DebugViewMode _debugViewMode = _DebugViewMode.editor;
 
   @override
   void initState() {
@@ -44,10 +49,130 @@ class _HtmlEditorState extends State<HtmlEditor> {
     _quillController = _createQuillController(widget.controller.text);
     _scrollController = ScrollController();
     _focusNode = FocusNode();
-    _quillController.document.changes.listen((_) {
+    _quillController.document.changes.listen((event) {
+      _handleListFormatChange(event);
       _syncToTextController();
       widget.onChanged?.call();
     });
+    // Sync immediately to normalize HTML (e.g., convert soft breaks to <br>)
+    _syncToTextController();
+  }
+
+  /// When list formatting is applied to a line that contains soft line breaks
+  /// and that line was NOT previously a list item, convert soft breaks to hard
+  /// newlines so only the segment at cursor becomes a list item.
+  void _handleListFormatChange(DocChange event) {
+    final change = event.change;
+    if (change.isEmpty) return;
+    
+    // Check if this change applies list formatting
+    Attribute? listAttribute;
+    for (final op in change.toList()) {
+      final attrs = op.attributes;
+      if (attrs != null && attrs.containsKey('list')) {
+        final listValue = attrs['list'];
+        if (listValue == 'ordered') {
+          listAttribute = Attribute.ol;
+        } else if (listValue == 'bullet') {
+          listAttribute = Attribute.ul;
+        } else if (listValue == 'checked') {
+          listAttribute = Attribute.checked;
+        } else if (listValue == 'unchecked') {
+          listAttribute = Attribute.unchecked;
+        }
+        break;
+      }
+    }
+    if (listAttribute == null) return;
+    
+    // Find the line where list was applied
+    final selection = _quillController.selection;
+    final doc = _quillController.document;
+    
+    final lineResult = doc.queryChild(selection.baseOffset);
+    final line = lineResult.node;
+    if (line is! Line) return;
+    
+    // Get the plain text of this line (without trailing \n)
+    final plainText = line.toPlainText();
+    final textWithoutNewline = plainText.endsWith('\n') 
+        ? plainText.substring(0, plainText.length - 1) 
+        : plainText;
+    
+    // Only process if line contains soft breaks
+    if (!textWithoutNewline.contains(softLineBreak)) return;
+    
+    // Check if this is a pure format change (clicking list button), not a delete/backspace
+    // A format change on existing content uses retain with attributes and NO delete operations
+    bool hasDelete = false;
+    bool hasRetainWithListAttr = false;
+    for (final op in change.toList()) {
+      if (op.isDelete) {
+        hasDelete = true;
+        break;
+      }
+      if (op.isRetain && op.attributes != null && op.attributes!.containsKey('list')) {
+        hasRetainWithListAttr = true;
+      }
+    }
+    // Only process if this is a pure format change (no delete = not backspace)
+    if (hasDelete || !hasRetainWithListAttr) return;
+    
+    // Find which segment the cursor is in
+    final lineStart = line.documentOffset;
+    final cursorOffsetInLine = selection.baseOffset - lineStart;
+    
+    // Split at soft breaks and find cursor segment
+    final parts = textWithoutNewline.split(softLineBreak);
+    if (parts.length <= 1) return;
+    
+    int currentOffset = 0;
+    int cursorSegmentIndex = parts.length - 1; // default to last
+    for (int i = 0; i < parts.length; i++) {
+      final segmentEnd = currentOffset + parts[i].length;
+      if (cursorOffsetInLine <= segmentEnd) {
+        cursorSegmentIndex = i;
+        break;
+      }
+      currentOffset = segmentEnd + 1; // +1 for the soft break
+    }
+    
+    // Build new text: parts before cursor segment, then \n, then cursor segment, then \n, then parts after
+    final beforeCursor = parts.sublist(0, cursorSegmentIndex).join(softLineBreak);
+    final cursorPart = parts[cursorSegmentIndex];
+    final afterCursor = parts.sublist(cursorSegmentIndex + 1).join(softLineBreak);
+    
+    // Remove list attribute first
+    _quillController.document.format(lineStart, 0, Attribute.clone(listAttribute, null));
+    
+    // Build replacement text
+    final buffer = StringBuffer();
+    int listPartStart = 0;
+    
+    if (beforeCursor.isNotEmpty) {
+      buffer.write(beforeCursor);
+      buffer.write('\n');
+      listPartStart = beforeCursor.length + 1;
+    }
+    
+    buffer.write(cursorPart);
+    
+    if (afterCursor.isNotEmpty) {
+      buffer.write('\n');
+      buffer.write(afterCursor);
+    }
+    
+    final newText = buffer.toString();
+    
+    _quillController.replaceText(
+      lineStart,
+      textWithoutNewline.length,
+      newText,
+      TextSelection.collapsed(offset: lineStart + listPartStart + cursorPart.length),
+    );
+    
+    // Apply list to the cursor segment only
+    _quillController.document.format(lineStart + listPartStart, 0, listAttribute);
   }
 
   @override
@@ -118,7 +243,7 @@ class _HtmlEditorState extends State<HtmlEditor> {
     if (event is! KeyDownEvent || event.logicalKey != LogicalKeyboardKey.backspace) return null;
 
     final selection = _quillController.selection;
-    if (!selection.isCollapsed || selection.baseOffset <= 0) return null;
+    if (!selection.isCollapsed) return null;
 
     // Find the current line
     Line? line = node is Line ? node : null;
@@ -165,8 +290,136 @@ class _HtmlEditorState extends State<HtmlEditor> {
                 _buildToolbar(context),
                 const SizedBox(height: Dimen.defMarg),
               ],
-              _buildEditor(context),
+              _buildEditorOrDebugView(context),
+              if (widget.showDebugButtons) ...[
+                const SizedBox(height: Dimen.defMarg),
+                _buildDebugButtons(context),
+              ],
             ],
+          ),
+        ),
+      );
+
+  Widget _buildEditorOrDebugView(BuildContext context) {
+    switch (_debugViewMode) {
+      case _DebugViewMode.editor:
+        return _buildEditor(context);
+      case _DebugViewMode.delta:
+        return _buildDebugDeltaView(context);
+      case _DebugViewMode.html:
+        return _buildDebugHtmlView(context);
+      case _DebugViewMode.preview:
+        return _buildPreviewView(context);
+    }
+  }
+
+  Widget _buildDebugButtons(BuildContext context) => Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          _DebugModeButton(
+            label: 'Edytor',
+            icon: Icons.edit,
+            isSelected: _debugViewMode == _DebugViewMode.editor,
+            onTap: () => setState(() => _debugViewMode = _DebugViewMode.editor),
+          ),
+          const SizedBox(width: Dimen.defMarg),
+          _DebugModeButton(
+            label: 'Delta',
+            icon: MdiIcons.codeBraces,
+            isSelected: _debugViewMode == _DebugViewMode.delta,
+            onTap: () => setState(() => _debugViewMode = _DebugViewMode.delta),
+          ),
+          const SizedBox(width: Dimen.defMarg),
+          _DebugModeButton(
+            label: 'HTML',
+            icon: MdiIcons.languageHtml5,
+            isSelected: _debugViewMode == _DebugViewMode.html,
+            onTap: () => setState(() => _debugViewMode = _DebugViewMode.html),
+          ),
+          const Spacer(),
+          _DebugModeButton(
+            label: 'Podgląd',
+            icon: Icons.visibility,
+            isSelected: _debugViewMode == _DebugViewMode.preview,
+            onTap: () => setState(() => _debugViewMode = _DebugViewMode.preview),
+          ),
+        ],
+      );
+
+  Widget _buildDebugDeltaView(BuildContext context) {
+    final delta = _quillController.document.toDelta().toJson();
+    final buffer = StringBuffer();
+    for (var i = 0; i < delta.length; i++) {
+      final op = delta[i];
+      final insert = op['insert'];
+      final attrs = op['attributes'];
+      
+      String insertStr;
+      if (insert is String) {
+        insertStr = insert
+            .replaceAll('\n', '\\n')
+            .replaceAll(softLineBreak, '\\u2028');
+      } else {
+        insertStr = insert.toString();
+      }
+      
+      buffer.write('[$i] insert: "$insertStr"');
+      if (attrs != null) {
+        buffer.write(', attrs: $attrs');
+      }
+      buffer.writeln();
+    }
+    
+    return _buildDebugTextContainer(context, buffer.toString());
+  }
+
+  Widget _buildDebugHtmlView(BuildContext context) {
+    final html = deltaOpsToHtml(_quillController.document.toDelta().toJson());
+    return _buildDebugTextContainer(context, html);
+  }
+
+  Widget _buildPreviewView(BuildContext context) {
+    final html = deltaOpsToHtml(_quillController.document.toDelta().toJson());
+    return Container(
+      constraints: const BoxConstraints(
+        minHeight: _editorMinHeight,
+        maxHeight: _editorMaxHeight,
+      ),
+      decoration: BoxDecoration(
+        color: background_(context),
+        borderRadius: BorderRadius.circular(AppCard.defRadius),
+      ),
+      padding: EdgeInsets.all(Dimen.defMarg),
+      child: SingleChildScrollView(
+        child: html_widget.HtmlWidget(
+          html,
+          textStyle: TextStyle(
+            fontSize: Dimen.textSizeBig,
+            color: textEnab_(context),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDebugTextContainer(BuildContext context, String text) => Container(
+        constraints: const BoxConstraints(
+          minHeight: _editorMinHeight,
+          maxHeight: _editorMaxHeight,
+        ),
+        decoration: BoxDecoration(
+          color: background_(context),
+          borderRadius: BorderRadius.circular(AppCard.defRadius),
+        ),
+        padding: EdgeInsets.all(Dimen.defMarg),
+        child: SingleChildScrollView(
+          child: SelectableText(
+            text,
+            style: TextStyle(
+              fontSize: Dimen.textSizeSmall,
+              color: textEnab_(context),
+              fontFamily: 'monospace',
+            ),
           ),
         ),
       );
@@ -286,6 +539,17 @@ class _HtmlEditorState extends State<HtmlEditor> {
                 HorizontalSpacing.zero,
                 VerticalSpacing.zero,
                 VerticalSpacing.zero,
+                null,
+              ),
+              lists: DefaultListBlockStyle(
+                AppTextStyle(
+                  fontSize: Dimen.textSizeBig,
+                  color: textEnab_(context),
+                ),
+                HorizontalSpacing.zero,
+                const VerticalSpacing(8, 12),
+                const VerticalSpacing(6, 2),
+                null,
                 null,
               ),
             ),
@@ -456,4 +720,46 @@ class _AttachmentButton extends StatelessWidget {
       onAttachmentSelected(selected);
     }
   }
+}
+
+class _DebugModeButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _DebugModeButton({
+    required this.label,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) => SimpleButton(
+        padding: EdgeInsets.symmetric(
+          horizontal: Dimen.defMarg * 1.5,
+          vertical: Dimen.defMarg,
+        ),
+        color: isSelected ? iconEnab_(context) : backgroundIcon_(context),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected ? background_(context) : textEnab_(context),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: AppTextStyle(
+                fontSize: Dimen.textSizeSmall,
+                color: isSelected ? background_(context) : textEnab_(context),
+              ),
+            ),
+          ],
+        ),
+        onTap: onTap,
+      );
 }

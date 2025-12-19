@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/color_pack_app.dart';
 import 'package:harcapp_core/comm_classes/color_pack_provider.dart';
 import 'package:harcapp_core/comm_classes/sha_pref.dart';
+import 'package:harcapp_core/harcthought/konspekts/initialize.dart';
 import 'package:harcapp_core/song_book/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_editor_app.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
@@ -36,6 +37,7 @@ void main() async {
   initLogger();
   await IDB.init();
   await initArticles();
+  await initKonspekts();
   await ShaPref.init();
   List<SongRaw> loadedSongs = await AllSongsProvider.loadCachedSongs();
   MyApp.lastLoadedSongs = loadedSongs;

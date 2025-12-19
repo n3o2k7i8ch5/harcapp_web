@@ -293,10 +293,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: "7872545770c277236fd32b022767576c562ba28366204ff1a5628853cf8f2200"
+      sha256: d974b6ba2606371ac71dd94254beefb6fa81185bde0b59bdc1df09885da85fde
       url: "https://pub.dev"
     source: hosted
-    version: "10.3.7"
+    version: "10.3.8"
   file_selector_platform_interface:
     dependency: transitive
     description:
@@ -610,7 +610,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "1014f03bde98b9f410561da86349cedc6ae1b6cf"
+      resolved-ref: d7595c7d280a957a8b594dfe212b5c2c3e766251
       url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"
@@ -1447,10 +1447,10 @@ packages:
     dependency: transitive
     description:
       name: video_player_android
-      sha256: "8587f7b1e1ad7a7b8f7a7e153bd6de8607168f865f0bd983ef1f92efd3f4a02c"
+      sha256: ee4fd520b0cafa02e4a867a0f882092e727cdaa1a2d24762171e787f8a502b0a
       url: "https://pub.dev"
     source: hosted
-    version: "2.9.0"
+    version: "2.9.1"
   video_player_avfoundation:
     dependency: transitive
     description:

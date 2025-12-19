@@ -15,6 +15,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 class SelectTimeButton extends StatelessWidget {
 
   final Duration? time;
+  final Duration? autoDuration;
   final void Function(Duration?) onChanged;
   final double? fontSize;
   final bool removable;
@@ -22,6 +23,7 @@ class SelectTimeButton extends StatelessWidget {
   const SelectTimeButton(
       this.time,
       { required this.onChanged,
+        this.autoDuration,
         this.fontSize,
         this.removable = true,
         super.key
@@ -43,7 +45,11 @@ class SelectTimeButton extends StatelessWidget {
             height: Dimen.iconSize,
             child: Center(
               child: Text(
-                time==null?'Auto':durationToString(time),
+                time == null
+                    ? (autoDuration != null && autoDuration! > Duration.zero
+                        ? 'Auto (${durationToString(autoDuration)})'
+                        : 'Auto')
+                    : durationToString(time),
                 style: AppTextStyle(
                   fontSize: fontSize??Dimen.textSizeBig,
                   color: textEnab_(context),

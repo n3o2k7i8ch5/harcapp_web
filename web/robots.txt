@@ -1,0 +1,5 @@
+# SEO: allow crawlers and point them to the sitemap for faster discovery of key routes.
+User-agent: *
+Allow: /
+
+Sitemap: https://harcapp.web.app/sitemap.xml

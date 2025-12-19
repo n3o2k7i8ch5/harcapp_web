@@ -20,8 +20,9 @@ class StepWidget extends StatefulWidget{
   final Widget? nameTrailing;
   final VoidCallback? onRemove;
   final VoidCallback? onChanged;
+  final VoidCallback? onDurationChanged;
 
-  const StepWidget({super.key, required this.index, required this.stepData, this.attachments, this.nameTrailing, this.onRemove, this.onChanged});
+  const StepWidget({super.key, required this.index, required this.stepData, this.attachments, this.nameTrailing, this.onRemove, this.onChanged, this.onDurationChanged});
 
   @override
   State<StatefulWidget> createState() => StepWidgetState();
@@ -99,7 +100,12 @@ class StepWidgetState extends State<StepWidget> {
               SizedBox(width: Dimen.sideMarg),
               SelectTimeButton(
                 stepData.duration,
-                onChanged: (newDuration) => newDuration==null?null:setState(() => stepData.duration = newDuration),
+                onChanged: (newDuration) {
+                  if (newDuration == null) return;
+                  setState(() => stepData.duration = newDuration);
+                  widget.onChanged?.call();
+                  widget.onDurationChanged?.call();
+                },
                 removable: false,
                 fontSize: Dimen.textSizeBig,
               ),

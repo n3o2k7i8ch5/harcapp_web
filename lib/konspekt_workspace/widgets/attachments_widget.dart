@@ -12,7 +12,8 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 
 class AttachmentsWidget extends StatefulWidget {
   final List<KonspektAttachmentData> attachments;
-  const AttachmentsWidget(this.attachments, {super.key});
+  final void Function(String attachmentId)? onRemoveAttachment;
+  const AttachmentsWidget(this.attachments, {super.key, this.onRemoveAttachment});
 
   @override
   State<AttachmentsWidget> createState() => _AttachmentsWidgetState();
@@ -44,7 +45,11 @@ class _AttachmentsWidgetState extends State<AttachmentsWidget> {
               child: AttachmentWidget(
                   data: widget.attachments[index],
                   onChange: () => setState(() {}),
-                  onRemove: () => setState(() => widget.attachments.removeAt(index))
+                  onRemove: () {
+                    final removedId = widget.attachments[index].name;
+                    setState(() => widget.attachments.removeAt(index));
+                    widget.onRemoveAttachment?.call(removedId);
+                  }
               ),
             ),
             shrinkWrap: true,

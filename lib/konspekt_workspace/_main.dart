@@ -24,13 +24,16 @@ import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/common/download_file.dart';
 import 'package:harcapp_web/konspekts/konspekty_tabs_row.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
+import 'package:harcapp_web/konspekt_workspace/models/konspekt_material_data.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/materials_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/select_time_button.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/spheres_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/steps_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/bullet_list_editor_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/attachments_widget.dart';
+import 'package:harcapp_web/konspekt_workspace/widgets/attachment_embed.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/html_editor.dart';
+import 'package:harcapp_web/konspekt_workspace/widgets/quill_html_converter.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/plain_text_editor.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/author_editor_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -110,6 +113,63 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
   void _setStateAndSave(VoidCallback fn) {
     setState(fn);
     _markUnsaved();
+  }
+
+  Duration _stepsTotalDuration() {
+    Duration sum = Duration.zero;
+    for (final step in konspektData.stepsData) {
+      sum += step.duration;
+    }
+    return sum;
+  }
+
+  String _removeAttachmentLinksFromHtml(String html, String attachmentId) {
+    if (attachmentId.trim().isEmpty) return html;
+    final id = attachmentId.trim();
+
+    final ops = htmlToDeltaOps(html);
+    final cleanedOps = <Map<String, dynamic>>[];
+
+    for (final op in ops) {
+      final insert = op['insert'];
+      if (insert is Map && insert.containsKey(attachmentEmbedType)) {
+        final data = insert[attachmentEmbedType];
+        if (data is Map) {
+          final embedId = (data['id'] as String?)?.trim();
+          if (embedId == id) {
+            continue;
+          }
+        }
+      }
+      cleanedOps.add(Map<String, dynamic>.from(op));
+    }
+
+    return deltaOpsToHtml(cleanedOps);
+  }
+
+  void _removeAttachmentReferences(String attachmentId) {
+    if (attachmentId.trim().isEmpty) return;
+    final id = attachmentId.trim();
+
+    void clearMaterialAttachment(KonspektMaterialData m) {
+      final c = m.attachmentNameController;
+      if (c == null) return;
+      if (c.text.trim() == id) c.text = '';
+    }
+
+    for (final m in konspektData.materials) {
+      clearMaterialAttachment(m);
+    }
+
+    for (final step in konspektData.stepsData) {
+      for (final m in step.materials ?? const <KonspektMaterialData>[]) {
+        clearMaterialAttachment(m);
+      }
+      step.contentController.text = _removeAttachmentLinksFromHtml(step.contentController.text, id);
+    }
+
+    konspektData.introController.text = _removeAttachmentLinksFromHtml(konspektData.introController.text, id);
+    konspektData.descriptionController.text = _removeAttachmentLinksFromHtml(konspektData.descriptionController.text, id);
   }
 
   Future<void> _saveDraft() async {
@@ -373,6 +433,9 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                                 alignment: Alignment.centerLeft,
                                 child: SelectTimeButton(
                                   konspektData.customDuration,
+                                  autoDuration: konspektData.customDuration == null
+                                      ? _stepsTotalDuration()
+                                      : null,
                                   onChanged: (Duration? newDuration) => _setStateAndSave(() => konspektData.customDuration = newDuration),
                                   fontSize: TitleShortcutRowWidget.style.fontSize,
                                 ),
@@ -427,7 +490,12 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                             _FormSection(
                               title: 'Załączniki',
                               hint: 'Gotowe dokumenty, grafiki, pliki, etc., które są wykorzystywane w konspekcie i do których odwołują się niektóre materiały.',
-                              child: AttachmentsWidget(konspektData.attachments),
+                              child: AttachmentsWidget(
+                                konspektData.attachments,
+                                onRemoveAttachment: (attachmentId) => _setStateAndSave(
+                                  () => _removeAttachmentReferences(attachmentId),
+                                ),
+                              ),
                             ),
 
                             _FormSection(
@@ -467,7 +535,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                               child: StepsWidget(
                                 steps: konspektData.stepsData,
                                 attachments: konspektData.attachments,
-                                onChanged: _markUnsaved,
+                                onChanged: () => _setStateAndSave(() {}),
                               ),
                             ),
 
