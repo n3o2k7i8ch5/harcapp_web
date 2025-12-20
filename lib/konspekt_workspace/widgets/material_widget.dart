@@ -17,6 +17,7 @@ class MaterialWidget extends StatefulWidget {
   final KonspektMaterialData materialData;
   final Widget? nameTrailing;
   final List<KonspektAttachmentData> attachments;
+  final VoidCallback? onAttachmentChange;
   final VoidCallback? onRemove;
 
   const MaterialWidget({
@@ -25,6 +26,7 @@ class MaterialWidget extends StatefulWidget {
     required this.materialData,
     required this.attachments,
     this.nameTrailing,
+    this.onAttachmentChange,
     this.onRemove,
   });
 
@@ -210,6 +212,7 @@ class _MaterialWidgetState extends State<MaterialWidget> {
               _AttachmentField(
                 controller: materialData.attachmentNameController,
                 attachments: attachments,
+                onChanged: widget.onAttachmentChange,
               ),
 
               SizedBox(height: Dimen.defMarg),
@@ -345,8 +348,9 @@ class _AmountModeButton extends StatelessWidget {
 class _AttachmentField extends StatefulWidget {
   final TextEditingController? controller;
   final List<KonspektAttachmentData> attachments;
+  final void Function()? onChanged;
 
-  const _AttachmentField({required this.controller, required this.attachments});
+  const _AttachmentField({required this.controller, required this.attachments, this.onChanged});
 
   @override
   State<_AttachmentField> createState() => _AttachmentFieldState();
@@ -525,7 +529,10 @@ class _AttachmentFieldState extends State<_AttachmentField> {
       color: backgroundIcon_(context),
       child: InkWell(
         borderRadius: BorderRadius.circular(AppCard.defRadius),
-        onTap: () => _selectAttachment(context),
+        onTap: () async {
+          await _selectAttachment(context);
+          widget.onChanged?.call();
+        },
         child: Padding(
           padding: EdgeInsets.all(Dimen.defMarg),
           child: Row(
@@ -566,6 +573,7 @@ class _AttachmentFieldState extends State<_AttachmentField> {
                     setState(() {
                       widget.controller?.text = '';
                     });
+                    widget.onChanged?.call();
                   },
                 ),
 

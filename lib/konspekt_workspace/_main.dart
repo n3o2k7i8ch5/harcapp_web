@@ -22,6 +22,7 @@ import 'package:harcapp_core/harcthought/konspekts/widgets/level_selectable_grid
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/common/download_file.dart';
+import 'package:harcapp_web/konspekt_workspace/providers.dart';
 import 'package:harcapp_web/konspekts/konspekty_tabs_row.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_material_data.dart';
@@ -238,383 +239,389 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
   }
 
   @override
-  Widget build(BuildContext context) => BaseScaffold(
-      backgroundColor: cardEnab_(context),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+  Widget build(BuildContext context) =>
+      KonspektEditorApp(
+          builder: (context, child) =>
+              BaseScaffold(
+                  backgroundColor: cardEnab_(context),
+                  body: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
 
-          // Trzy główne przyciski konspektów – tak samo jak na stronach listy konspektów
-          const KonspektyTabsRow(),
+                      // Trzy główne przyciski konspektów – tak samo jak na stronach listy konspektów
+                      const KonspektyTabsRow(),
 
-          // Reszta treści przewijana poniżej, z treścią edytora
-          Expanded(
-            child: Stack(
-              children: [
-                // Biały panel z edytorem
-                Material(
-                  color: background_(context),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(AppCard.defRadius),
-                    topRight: Radius.circular(AppCard.defRadius),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: Center(
-                    child: Container(
-                      constraints: BoxConstraints(maxWidth: defPageWidth),
-                      child: Stack(
-                        children: [
-                          CustomScrollView(
-                            controller: _scrollController,
-                            clipBehavior: Clip.none,
-                            physics: BouncingScrollPhysics(),
-                            slivers: [
-                              SliverToBoxAdapter(
-                                child: SizedBox(height: kToolbarHeight + 2 * Dimen.sideMarg),
+                      // Reszta treści przewijana poniżej, z treścią edytora
+                      Expanded(
+                        child: Stack(
+                          children: [
+                            // Biały panel z edytorem
+                            Material(
+                              color: background_(context),
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(AppCard.defRadius),
+                                topRight: Radius.circular(AppCard.defRadius),
                               ),
-                              SliverPadding(
-                        padding: EdgeInsets.only(
-                          top: Dimen.sideMarg,
-                          left: Dimen.sideMarg,
-                          right: Dimen.sideMarg,
-                        ),
-                        sliver: SliverList(
-                          delegate: SliverChildListDelegate([
+                              clipBehavior: Clip.antiAlias,
+                              child: Center(
+                                child: Container(
+                                  constraints: BoxConstraints(maxWidth: defPageWidth),
+                                  child: Stack(
+                                    children: [
+                                      CustomScrollView(
+                                        controller: _scrollController,
+                                        clipBehavior: Clip.none,
+                                        physics: BouncingScrollPhysics(),
+                                        slivers: [
+                                          SliverToBoxAdapter(
+                                            child: SizedBox(height: kToolbarHeight + 2 * Dimen.sideMarg),
+                                          ),
+                                          SliverPadding(
+                                            padding: EdgeInsets.only(
+                                              top: Dimen.sideMarg,
+                                              left: Dimen.sideMarg,
+                                              right: Dimen.sideMarg,
+                                            ),
+                                            sliver: SliverList(
+                                              delegate: SliverChildListDelegate([
 
-                            // Cover image picker + preview + author
-                            _CoverWidget(konspektData: konspektData, onChanged: _markUnsaved),
+                                                // Cover image picker + preview + author
+                                                _CoverWidget(konspektData: konspektData, onChanged: _markUnsaved),
 
-                            SizedBox(height: Dimen.sideMarg),
+                                                SizedBox(height: Dimen.sideMarg),
 
-                            AppTextFieldHint(
-                              hint: 'Nazwa konspektu:',
-                              style: TitleShortcutRowWidget.style,
-                              hintStyle: TitleShortcutRowWidget.style.copyWith(color: hintEnab_(context)),
-                              textCapitalization: TextCapitalization.sentences,
-                              controller: konspektData.titleController,
-                              onChanged: (_, __) => _markUnsaved(),
-                            ),
+                                                AppTextFieldHint(
+                                                  hint: 'Nazwa konspektu:',
+                                                  style: TitleShortcutRowWidget.style,
+                                                  hintStyle: TitleShortcutRowWidget.style.copyWith(color: hintEnab_(context)),
+                                                  textCapitalization: TextCapitalization.sentences,
+                                                  controller: konspektData.titleController,
+                                                  onChanged: (_, __) => _markUnsaved(),
+                                                ),
 
-                            const SizedBox(height: Dimen.sideMarg),
+                                                const SizedBox(height: Dimen.sideMarg),
 
-                            _FormSection(
-                              title: 'W skrócie',
-                              hint: 'Króciutki opis, widoczny na karcie konspektu jako "zachęta" przed jego otwarciem.',
-                              addBottomSpacing: false,
-                              child: PlainTextEditor(
-                                controller: konspektData.summaryController,
-                                placeholder: 'W skrócie:',
-                                onChanged: _markUnsaved,
-                              ),
-                            ),
+                                                _FormSection(
+                                                  title: 'W skrócie',
+                                                  hint: 'Króciutki opis, widoczny na karcie konspektu jako "zachęta" przed jego otwarciem.',
+                                                  addBottomSpacing: false,
+                                                  child: PlainTextEditor(
+                                                    controller: konspektData.summaryController,
+                                                    placeholder: 'W skrócie:',
+                                                    onChanged: _markUnsaved,
+                                                  ),
+                                                ),
 
-                            const SizedBox(height: Dimen.defMarg),
+                                                const SizedBox(height: Dimen.defMarg),
 
-                            TitleShortcutRowWidget(
-                              title: 'Autor konspektu',
-                              textAlign: TextAlign.left,
-                            ),
-                            AuthorEditorWidget(
-                              author: konspektData.author,
-                              onChanged: (author){
-                                if(author == null || author.isEmpty)
-                                  setState(() => konspektData.author = null);
-                                else
-                                  _setStateAndSave(() => konspektData.author = author);
+                                                TitleShortcutRowWidget(
+                                                  title: 'Autor konspektu',
+                                                  textAlign: TextAlign.left,
+                                                ),
+                                                AuthorEditorWidget(
+                                                  author: konspektData.author,
+                                                  onChanged: (author){
+                                                    if(author == null || author.isEmpty)
+                                                      setState(() => konspektData.author = null);
+                                                    else
+                                                      _setStateAndSave(() => konspektData.author = author);
 
-                                _markUnsaved();
+                                                    _markUnsaved();
 
-                              },
-                            ),
+                                                  },
+                                                ),
 
-                            const SizedBox(height: Dimen.sideMarg),
+                                                const SizedBox(height: Dimen.sideMarg),
 
-                            TitleShortcutRowWidget(
-                              title: 'Kategoria',
-                              textAlign: TextAlign.left,
-                            ),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(AppCard.defRadius),
-                                ),
-                                clipBehavior: Clip.antiAlias,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    _CategoryToggleButton(
-                                      label: 'Dla harcerzy',
-                                      isSelected: konspektData.category == KonspektCategory.harcerskie,
-                                      onTap: () => _setStateAndSave(() {
-                                        konspektData.category = KonspektCategory.harcerskie;
-                                        konspektData.metos.clear();
-                                      }),
-                                    ),
-                                    _CategoryToggleButton(
-                                      label: 'Kształceniowe',
-                                      isSelected: konspektData.category == KonspektCategory.ksztalcenie,
-                                      onTap: () => _setStateAndSave(() {
-                                        konspektData.category = KonspektCategory.ksztalcenie;
-                                        konspektData.metos.clear();
-                                      }),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                                                TitleShortcutRowWidget(
+                                                  title: 'Kategoria',
+                                                  textAlign: TextAlign.left,
+                                                ),
+                                                Align(
+                                                  alignment: Alignment.centerLeft,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      borderRadius: BorderRadius.circular(AppCard.defRadius),
+                                                    ),
+                                                    clipBehavior: Clip.antiAlias,
+                                                    child: Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        _CategoryToggleButton(
+                                                          label: 'Dla harcerzy',
+                                                          isSelected: konspektData.category == KonspektCategory.harcerskie,
+                                                          onTap: () => _setStateAndSave(() {
+                                                            konspektData.category = KonspektCategory.harcerskie;
+                                                            konspektData.metos.clear();
+                                                          }),
+                                                        ),
+                                                        _CategoryToggleButton(
+                                                          label: 'Kształceniowe',
+                                                          isSelected: konspektData.category == KonspektCategory.ksztalcenie,
+                                                          onTap: () => _setStateAndSave(() {
+                                                            konspektData.category = KonspektCategory.ksztalcenie;
+                                                            konspektData.metos.clear();
+                                                          }),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
 
-                            const SizedBox(height: Dimen.sideMarg),
+                                                const SizedBox(height: Dimen.sideMarg),
 
-                            TitleShortcutRowWidget(
-                              title: konspektData.category == KonspektCategory.harcerskie ? 'Metodyki' : 'Poziom',
-                              textAlign: TextAlign.left,
-                            ),
+                                                TitleShortcutRowWidget(
+                                                  title: konspektData.category == KonspektCategory.harcerskie ? 'Metodyki' : 'Poziom',
+                                                  textAlign: TextAlign.left,
+                                                ),
 
-                          ]),
-                        ),
-                      ),
+                                              ]),
+                                            ),
+                                          ),
 
-                      // Metodyki - osobny sliver bez zewnętrznego paddingu
-                      SliverToBoxAdapter(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          padding: EdgeInsets.symmetric(horizontal: Dimen.sideMarg),
-                          child: LevelSelectableGridWidget(
-                            konspektData.category == KonspektCategory.harcerskie
-                                ? {Meto.zuch, Meto.harc, Meto.hs, Meto.wedro}
-                                : {Meto.kadra},
-                            konspektData.metos.toSet(),
-                            oneLine: true,
-                            onLevelTap: (Meto meto, bool checked) {
-                              _setStateAndSave(() {
-                                if (checked) konspektData.metos.remove(meto);
-                                else konspektData.metos.add(meto);
-                              });
-                            },
-                          ),
-                        ),
-                      ),
+                                          // Metodyki - osobny sliver bez zewnętrznego paddingu
+                                          SliverToBoxAdapter(
+                                            child: SingleChildScrollView(
+                                              scrollDirection: Axis.horizontal,
+                                              padding: EdgeInsets.symmetric(horizontal: Dimen.sideMarg),
+                                              child: LevelSelectableGridWidget(
+                                                konspektData.category == KonspektCategory.harcerskie
+                                                    ? {Meto.zuch, Meto.harc, Meto.hs, Meto.wedro}
+                                                    : {Meto.kadra},
+                                                konspektData.metos.toSet(),
+                                                oneLine: true,
+                                                onLevelTap: (Meto meto, bool checked) {
+                                                  _setStateAndSave(() {
+                                                    if (checked) konspektData.metos.remove(meto);
+                                                    else konspektData.metos.add(meto);
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                          ),
 
-                      // Kontynuacja listy z paddingiem
-                      SliverPadding(
-                        padding: EdgeInsets.all(Dimen.sideMarg),
-                        sliver: SliverList(
-                          delegate: SliverChildListDelegate([
+                                          // Kontynuacja listy z paddingiem
+                                          SliverPadding(
+                                            padding: EdgeInsets.all(Dimen.sideMarg),
+                                            sliver: SliverList(
+                                              delegate: SliverChildListDelegate([
 
-                            Row(
-                              children: [
-                                IntrinsicWidth(
-                                  child: TitleShortcutRowWidget(
-                                    title: 'Rodzaj',
-                                    textAlign: TextAlign.left,
+                                                Row(
+                                                  children: [
+                                                    IntrinsicWidth(
+                                                      child: TitleShortcutRowWidget(
+                                                        title: 'Rodzaj',
+                                                        textAlign: TextAlign.left,
+                                                      ),
+                                                    ),
+
+                                                    SizedBox(width: Dimen.defMarg),
+
+                                                    _KonspektTypeButton(
+                                                        type: konspektData.type,
+                                                        onChanged: (KonspektType? type) {
+                                                          if(type == null) return;
+                                                          _setStateAndSave(() => konspektData.type = type);
+                                                        }
+                                                    ),
+
+                                                  ],
+                                                ),
+
+                                                const SizedBox(height: Dimen.sideMarg),
+
+                                                _FormSection(
+                                                    title: 'Czas',
+                                                    hint: 'Zostaw "Auto", jeśli chcesz, żeby czas policzył się sam na podstawie kroków planu konspektu.',
+                                                    child: Align(
+                                                      alignment: Alignment.centerLeft,
+                                                      child: SelectTimeButton(
+                                                        konspektData.customDuration,
+                                                        autoDuration: konspektData.customDuration == null
+                                                            ? _stepsTotalDuration()
+                                                            : null,
+                                                        onChanged: (Duration? newDuration) => _setStateAndSave(() => konspektData.customDuration = newDuration),
+                                                        fontSize: TitleShortcutRowWidget.style.fontSize,
+                                                      ),
+                                                    )
+                                                ),
+
+                                                // Row(
+                                                //   children: [
+                                                //     IntrinsicWidth(
+                                                //       child: TitleShortcutRowWidget(
+                                                //         title: 'Czas',
+                                                //         textAlign: TextAlign.left,
+                                                //       ),
+                                                //     ),
+                                                //
+                                                //     SizedBox(width: Dimen.defMarg),
+                                                //
+                                                //     SelectTimeButton(
+                                                //       konspektData.customDuration,
+                                                //       onChanged: (Duration? newDuration) => _setStateAndSave(() => konspektData.customDuration = newDuration),
+                                                //       fontSize: TitleShortcutRowWidget.style.fontSize,
+                                                //     )
+                                                //   ],
+                                                // ),
+
+                                                const SizedBox(height: Dimen.sideMarg),
+
+                                                _FormSection(
+                                                  title: 'Cele',
+                                                  hint: 'Jakie są założone skutki dla uczestników, którzy wezmą udział?',
+                                                  child: BulletListEditorWidget(
+                                                    controllers: konspektData.aimControllers,
+                                                    itemHint: 'Cel:',
+                                                    addButtonText: 'Dodaj cel',
+                                                    onChanged: _markUnsaved,
+                                                  ),
+                                                ),
+
+                                                _FormSection(
+                                                  title: 'Sfery rozwoju',
+                                                  hint: 'Które sfery zostaną rozwinięte (i w jaki sposób) wśród uczestników, którzy wezmą udział?',
+                                                  child: SpheresWidget(
+                                                    spheres: konspektData.spheres,
+                                                    onChanged: (Map<KonspektSphere, KonspektSphereDetails?> newSpheres){
+                                                      konspektData.spheres.clear();
+                                                      konspektData.spheres.addAll(newSpheres);
+                                                      _setStateAndSave((){});
+                                                    },
+                                                  ),
+                                                ),
+
+                                                _FormSection(
+                                                  title: 'Załączniki',
+                                                  hint: 'Gotowe dokumenty, grafiki, pliki, etc., które są wykorzystywane w konspekcie i do których odwołują się niektóre materiały.',
+                                                  child: AttachmentsWidget(
+                                                    konspektData.attachments,
+                                                    konspektData,
+                                                    onRemoveAttachment: (attachmentId) => _setStateAndSave(
+                                                          () => _removeAttachmentReferences(attachmentId),
+                                                    ),
+                                                  ),
+                                                ),
+
+                                                _FormSection(
+                                                  title: 'Materiały',
+                                                  hint: 'Wszystkie materiały niezbędne do przeprowadzenia konspektu.',
+                                                  child: MaterialsWidget(
+                                                    materials: konspektData.materials,
+                                                    attachments: konspektData.attachments,
+                                                  ),
+                                                ),
+
+                                                _FormSection(
+                                                  title: 'Wstęp',
+                                                  hint: 'Wstęp - ewentualne przygotowanie uczestników przed rozpoczęciem konspektu.',
+                                                  child: HtmlEditor(
+                                                    controller: konspektData.introController,
+                                                    placeholder: 'Wstęp:',
+                                                    attachments: konspektData.attachments,
+                                                    onChanged: _markUnsaved,
+                                                  ),
+                                                ),
+
+                                                _FormSection(
+                                                  title: 'Opis',
+                                                  hint: 'Opis konspektu - można go wykorzystać jako uzupełnienie lub zamiennik "planu" (sekcja niżej), gdy ciężko jest wydzielić konkretne kroki.',
+                                                  child: HtmlEditor(
+                                                    controller: konspektData.descriptionController,
+                                                    placeholder: 'Opis:',
+                                                    attachments: konspektData.attachments,
+                                                    onChanged: _markUnsaved,
+                                                  ),
+                                                ),
+
+                                                _FormSection(
+                                                  title: 'Plan',
+                                                  hint: 'Spis kroków do wykonania w konspekcie.',
+                                                  child: StepsWidget(
+                                                    steps: konspektData.stepsData,
+                                                    attachments: konspektData.attachments,
+                                                    onChanged: () => _setStateAndSave(() {}),
+                                                  ),
+                                                ),
+
+                                                _FormSection(
+                                                  title: 'Jak to spartolić',
+                                                  hint: 'Lista typowych błędów, które mogą zepsuć konspekt.',
+                                                  addBottomSpacing: false,
+                                                  child: BulletListEditorWidget(
+                                                    controllers: konspektData.howToFailControllers,
+                                                    itemHint: 'Błąd:',
+                                                    addButtonText: 'Dodaj błąd',
+                                                    onChanged: _markUnsaved,
+                                                  ),
+                                                ),
+
+                                              ]),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+
+                                      // Sticky top actions bar
+                                      Positioned(
+                                        top: 0,
+                                        left: 0,
+                                        right: 0,
+                                        height: Dimen.iconFootprint + 2*Dimen.sideMarg,
+                                        child: Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: Dimen.sideMarg,
+                                          ),
+                                          child: _TopActions(
+                                            konspektData: konspektData,
+                                            hasUnsavedChanges: _hasUnsavedChanges,
+                                            onLoaded: (data) => setState(
+                                                    () => _konspektData =
+                                                    KonspektData.fromHrcpknspktData(data)),
+                                            onSaved: () async {
+                                              _debounceSaveTimer?.cancel();
+                                              try {
+                                                await IDB.clearKonspektDraft();
+                                              } catch (_) {}
+                                              if (!mounted) return;
+                                              setState(() => _hasUnsavedChanges = false);
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-
-                                SizedBox(width: Dimen.defMarg),
-
-                                _KonspektTypeButton(
-                                    type: konspektData.type,
-                                    onChanged: (KonspektType? type) {
-                                      if(type == null) return;
-                                      _setStateAndSave(() => konspektData.type = type);
-                                    }
-                                ),
-
-                              ],
-                            ),
-
-                            const SizedBox(height: Dimen.sideMarg),
-
-                            _FormSection(
-                              title: 'Czas',
-                              hint: 'Zostaw "Auto", jeśli chcesz, żeby czas policzył się sam na podstawie kroków planu konspektu.',
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: SelectTimeButton(
-                                  konspektData.customDuration,
-                                  autoDuration: konspektData.customDuration == null
-                                      ? _stepsTotalDuration()
-                                      : null,
-                                  onChanged: (Duration? newDuration) => _setStateAndSave(() => konspektData.customDuration = newDuration),
-                                  fontSize: TitleShortcutRowWidget.style.fontSize,
-                                ),
-                              )
-                            ),
-
-                            // Row(
-                            //   children: [
-                            //     IntrinsicWidth(
-                            //       child: TitleShortcutRowWidget(
-                            //         title: 'Czas',
-                            //         textAlign: TextAlign.left,
-                            //       ),
-                            //     ),
-                            //
-                            //     SizedBox(width: Dimen.defMarg),
-                            //
-                            //     SelectTimeButton(
-                            //       konspektData.customDuration,
-                            //       onChanged: (Duration? newDuration) => _setStateAndSave(() => konspektData.customDuration = newDuration),
-                            //       fontSize: TitleShortcutRowWidget.style.fontSize,
-                            //     )
-                            //   ],
-                            // ),
-
-                            const SizedBox(height: Dimen.sideMarg),
-
-                            _FormSection(
-                              title: 'Cele',
-                              hint: 'Jakie są założone skutki dla uczestników, którzy wezmą udział?',
-                              child: BulletListEditorWidget(
-                                controllers: konspektData.aimControllers,
-                                itemHint: 'Cel:',
-                                addButtonText: 'Dodaj cel',
-                                onChanged: _markUnsaved,
                               ),
                             ),
 
-                            _FormSection(
-                              title: 'Sfery rozwoju',
-                              hint: 'Które sfery zostaną rozwinięte (i w jaki sposób) wśród uczestników, którzy wezmą udział?',
-                              child: SpheresWidget(
-                                spheres: konspektData.spheres,
-                                onChanged: (Map<KonspektSphere, KonspektSphereDetails?> newSpheres){
-                                  konspektData.spheres.clear();
-                                  konspektData.spheres.addAll(newSpheres);
-                                  _setStateAndSave((){});
-                                },
-                              ),
-                            ),
-
-                            _FormSection(
-                              title: 'Załączniki',
-                              hint: 'Gotowe dokumenty, grafiki, pliki, etc., które są wykorzystywane w konspekcie i do których odwołują się niektóre materiały.',
-                              child: AttachmentsWidget(
-                                konspektData.attachments,
-                                onRemoveAttachment: (attachmentId) => _setStateAndSave(
-                                  () => _removeAttachmentReferences(attachmentId),
+                            // Cień pod tabami – widoczny tylko gdy przewinięto
+                            if (_hasScrolled)
+                              Positioned(
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                child: Container(
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        Colors.black.withValues(alpha: 0.15),
+                                        Colors.transparent,
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-
-                            _FormSection(
-                              title: 'Materiały',
-                              hint: 'Wszystkie materiały niezbędne do przeprowadzenia konspektu.',
-                              child: MaterialsWidget(
-                                materials: konspektData.materials,
-                                attachments: konspektData.attachments,
-                              ),
-                            ),
-
-                            _FormSection(
-                              title: 'Wstęp',
-                              hint: 'Wstęp - ewentualne przygotowanie uczestników przed rozpoczęciem konspektu.',
-                              child: HtmlEditor(
-                                controller: konspektData.introController,
-                                placeholder: 'Wstęp:',
-                                attachments: konspektData.attachments,
-                                onChanged: _markUnsaved,
-                              ),
-                            ),
-
-                            _FormSection(
-                              title: 'Opis',
-                              hint: 'Opis konspektu - można go wykorzystać jako uzupełnienie lub zamiennik "planu" (sekcja niżej), gdy ciężko jest wydzielić konkretne kroki.',
-                              child: HtmlEditor(
-                                controller: konspektData.descriptionController,
-                                placeholder: 'Opis:',
-                                attachments: konspektData.attachments,
-                                onChanged: _markUnsaved,
-                              ),
-                            ),
-
-                            _FormSection(
-                              title: 'Plan',
-                              hint: 'Spis kroków do wykonania w konspekcie.',
-                              child: StepsWidget(
-                                steps: konspektData.stepsData,
-                                attachments: konspektData.attachments,
-                                onChanged: () => _setStateAndSave(() {}),
-                              ),
-                            ),
-
-                            _FormSection(
-                              title: 'Jak to spartolić',
-                              hint: 'Lista typowych błędów, które mogą zepsuć konspekt.',
-                              addBottomSpacing: false,
-                              child: BulletListEditorWidget(
-                                controllers: konspektData.howToFailControllers,
-                                itemHint: 'Błąd:',
-                                addButtonText: 'Dodaj błąd',
-                                onChanged: _markUnsaved,
-                              ),
-                            ),
-
-                          ]),
-                        ),
-                      ),
-                            ],
-                          ),
-
-                          // Sticky top actions bar
-                          Positioned(
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            height: Dimen.iconFootprint + 2*Dimen.sideMarg,
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                vertical: Dimen.sideMarg,
-                              ),
-                              child: _TopActions(
-                                konspektData: konspektData,
-                                hasUnsavedChanges: _hasUnsavedChanges,
-                                onLoaded: (data) => setState(
-                                        () => _konspektData =
-                                        KonspektData.fromHrcpknspktData(data)),
-                                onSaved: () async {
-                                  _debounceSaveTimer?.cancel();
-                                  try {
-                                    await IDB.clearKonspektDraft();
-                                  } catch (_) {}
-                                  if (!mounted) return;
-                                  setState(() => _hasUnsavedChanges = false);
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-
-                // Cień pod tabami – widoczny tylko gdy przewinięto
-                if (_hasScrolled)
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      height: 8,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.black.withValues(alpha: 0.15),
-                            Colors.transparent,
                           ],
                         ),
                       ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ));
+                    ],
+                  )
+              )
+      );
 
 }
 

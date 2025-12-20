@@ -8,6 +8,7 @@ import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_attachment_data.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_material_data.dart';
+import 'package:harcapp_web/konspekt_workspace/providers.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/material_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -48,6 +49,7 @@ class _MaterialsWidgetState extends State<MaterialsWidget> {
                 index: index,
                 materialData: materials[index],
                 attachments: attachments,
+                onAttachmentChange: () => AttachmentsProvider.notify_(context),
                 onRemove: () => setState(() => materials.removeAt(index)),
               ),
             ),
