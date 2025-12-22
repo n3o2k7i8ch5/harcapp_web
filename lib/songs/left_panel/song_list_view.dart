@@ -6,7 +6,6 @@ import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/comm_widgets/app_dropdown.dart';
 import 'package:harcapp_core/comm_widgets/dialog/dialog.dart';
 import 'package:harcapp_core/song_book/import_hrcpsng.dart';
-import 'package:harcapp_core/values/colors.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
@@ -243,10 +242,10 @@ class SearchFieldState extends State<SearchField> {
             Expanded(
               child: TextField(
                 controller: controller,
-                style: AppTextStyle(color: AppColors.textDefEnab),
+                style: AppTextStyle(),
                 decoration: InputDecoration(
                     hintText: 'Szukaj',
-                    hintStyle: AppTextStyle(color: AppColors.textHintEnab),
+                    hintStyle: AppTextStyle(color: hintEnab_(context)),
                     border: InputBorder.none
                 ),
                 onChanged: (text) => prov.changeSearchPhrase(text)

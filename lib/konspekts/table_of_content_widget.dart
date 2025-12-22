@@ -173,7 +173,7 @@ class TableOfContentWidgetState<T extends KonspektFilters> extends State<TableOf
 
                   Expanded(
                     child: TextField(
-                      style: AppTextStyle(color: textEnab_(context)),
+                      style: AppTextStyle(),
                       controller: controller,
                       decoration: InputDecoration(
                           hintText: 'Szukaj',
