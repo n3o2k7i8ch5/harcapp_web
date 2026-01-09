@@ -123,6 +123,75 @@ void main() {
     });
   });
 
+  group('newline handling', () {
+    test('newline in text should produce br tag not new paragraph', () {
+      // When user presses Enter in Quill editor (not Shift+Enter),
+      // the Delta contains a plain \n. This should become <br> in HTML,
+      // not a new <p> tag.
+      //
+      // Delta representing: "Line one\nLine two" (single paragraph with line break)
+      final ops = [
+        {'insert': 'Line one\nLine two'},
+        {'insert': '\n'},
+      ];
+
+      final html = deltaOpsToHtml(ops);
+
+      // Should produce a single paragraph with <br> between lines
+      expect(html, equals('<p>Line one<br>Line two</p>'));
+    });
+
+    test('soft line break should produce br tag', () {
+      // Soft line break (Shift+Enter) uses Unicode \u2028
+      final ops = [
+        {'insert': 'Line one${softLineBreak}Line two'},
+        {'insert': '\n'},
+      ];
+
+      final html = deltaOpsToHtml(ops);
+
+      expect(html, equals('<p>Line one<br>Line two</p>'));
+    });
+  });
+
+  group('list with preceding text and soft breaks', () {
+    test('text ending with soft break before list item should not add extra br after p', () {
+      // This is the problematic case from the user:
+      // Text with soft break at end, followed by list item
+      final ops = [
+        {'insert': 'Intro text:\nSztywniaki$softLineBreak'},
+        {'insert': '\n', 'attributes': {'list': 'bullet'}},
+        {'insert': 'Bardzo dużo papierologii$softLineBreak'},
+        {'insert': '\n', 'attributes': {'list': 'bullet'}},
+      ];
+
+      final html = deltaOpsToHtml(ops);
+
+      // Expected: no <br> AFTER </p> (i.e., </p><br></li> is wrong)
+      // But <br></p></li> is OK - that's trailing soft break inside the paragraph
+      expect(html, isNot(contains('</p><br></li>')));
+      expect(html, contains('<ul>'));
+      expect(html, contains('Intro text:'));
+      expect(html, contains('Sztywniaki'));
+    });
+
+    test('trailing soft break inside list item is preserved as br before closing p', () {
+      final ops = [
+        {'insert': 'Item one$softLineBreak'},
+        {'insert': '\n', 'attributes': {'list': 'bullet'}},
+        {'insert': 'Item two'},
+        {'insert': '\n', 'attributes': {'list': 'bullet'}},
+      ];
+
+      final html = deltaOpsToHtml(ops);
+
+      // Trailing soft break is preserved as <br> inside <p>
+      // <p>Item one<br></p> is correct
+      expect(html, contains('<br></p></li>'));
+      expect(html, contains('<ul>'));
+    });
+  });
+
   group('roundtrip', () {
     test('nested list roundtrip preserves structure', () {
       final originalOps = [

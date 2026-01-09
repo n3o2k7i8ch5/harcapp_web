@@ -295,6 +295,8 @@ class _DeltaToHtmlConverter {
   void _handleListLineEnd(String listType, int indent, int index, {required bool isLastNewlineInOp}) {
     final targetDepth = indent + 1; // indent 0 = depth 1, indent 1 = depth 2, etc.
     
+    // Remember if paragraph was open before closing it
+    final hadParagraph = _paragraphOpen;
     _closeParagraph();
     
     // Close lists if we're going to a shallower level
@@ -330,7 +332,7 @@ class _DeltaToHtmlConverter {
     if (nextListType != null && nextIndent == indent && nextListType == listType && !nextTextWillCloseList) {
       // Next item is at same level and type - close current li and open new one
       // Check if current li is empty (no paragraph was opened) - if so, add <br> for visibility
-      if (!_paragraphOpen) {
+      if (!hadParagraph) {
         _buffer.write('<br>');
       }
       _buffer.write('</li><li>');
@@ -373,10 +375,14 @@ class _DeltaToHtmlConverter {
   }
 
   void _handleText(String text, Map<String, dynamic>? attrs, int index) {
-    // If text contains hard newlines, split and process each part separately
-    // The part before the last \n should be in paragraphs, only the last part
-    // should potentially be in a list (based on the next line's attributes)
-    if (text.contains('\n')) {
+    // Check if this text is followed by a list line ending
+    final nextAttrs = _peekNextLineAttrs(index);
+    final nextListType = nextAttrs?['list'] as String?;
+    
+    // If text contains hard newlines AND is followed by a list,
+    // split and process each part separately - the part before the last \n
+    // should be in paragraphs, only the last part goes into the list.
+    if (text.contains('\n') && nextListType != null) {
       final parts = text.split('\n');
       for (int i = 0; i < parts.length; i++) {
         final part = parts[i];
@@ -388,9 +394,8 @@ class _DeltaToHtmlConverter {
             _handleTextSegment(part, attrs, index);
           }
         } else {
-          // Not last part - this is a complete line
+          // Not last part - this is a complete line before the list
           // Skip empty parts at the beginning (e.g., text starting with \n)
-          // to avoid creating empty list items or paragraphs
           if (part.isEmpty && i == 0) {
             continue;
           }
@@ -407,6 +412,7 @@ class _DeltaToHtmlConverter {
       return;
     }
     
+    // For text NOT followed by a list, newlines become <br> tags
     _handleTextSegment(text, attrs, index);
   }
 
