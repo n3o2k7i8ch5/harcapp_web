@@ -9,14 +9,17 @@ import 'package:harcapp_web/idb.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_classes/meto.dart';
+import 'package:harcapp_core/comm_widgets/app_bar.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/app_text_field_hint.dart';
+import 'package:harcapp_core/comm_widgets/dialog/base.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/harcthought/konspekts/hrcpknspkt_data.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
+import 'package:harcapp_core/harcthought/konspekts/konspekt_to_pdf/konspekt_to_pdf.dart';
 import 'package:harcapp_core/harcthought/konspekts/widgets/base_konspekt_widget.dart';
 import 'package:harcapp_core/harcthought/konspekts/widgets/level_selectable_grid_widget.dart';
 import 'package:harcapp_core/values/dimen.dart';
@@ -40,6 +43,11 @@ import 'package:harcapp_web/konspekt_workspace/widgets/author_editor_widget.dart
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../consts.dart';
+
+enum _SaveFormatChoice {
+  rawOnly,
+  pdfOnly,
+}
 
 
 class KonspektWorkspacePage extends StatefulWidget{
@@ -689,10 +697,180 @@ class _TopActions extends StatelessWidget {
               color: cardEnab_(context),
               margin: EdgeInsets.zero,
               onTap: () async {
-                downloadFileFromBytes(
-                    fileName: '${konspektData.titleAsFileName}.hrcpknspkt',
-                    bytes: konspektData.toHrcpknspktData().toTarBytes()
+                final completer = Completer<_SaveFormatChoice?>();
+
+                await openBaseDialog(
+                  context: context,
+                  builder: (context) => Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      AppBarX(title: 'Zapisz'),
+                      Padding(
+                        padding: const EdgeInsets.all(Dimen.sideMarg),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            SimpleButton(
+                              borderRadius: BorderRadius.circular(AppCard.defRadius),
+                              color: cardEnab_(context),
+                              margin: EdgeInsets.zero,
+                              onTap: () {
+                                completer.complete(_SaveFormatChoice.rawOnly);
+                                Navigator.of(context).pop();
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(Dimen.iconMarg),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(MdiIcons.trayArrowDown, color: iconEnab_(context)),
+                                        const SizedBox(width: Dimen.iconMarg),
+                                        Text(
+                                          'HRCPKNSPKT',
+                                          style: AppTextStyle(
+                                            color: iconEnab_(context),
+                                            fontSize: Dimen.textSizeBig,
+                                            fontWeight: weightHalfBold,
+                                          ),
+                                        ),
+                                        const SizedBox(width: Dimen.iconMarg),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: Dimen.defMarg,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: accent_(context).withValues(alpha: 0.18),
+                                            borderRadius: BorderRadius.circular(999),
+                                          ),
+                                          child: Text(
+                                            'Zalecane',
+                                            style: AppTextStyle(
+                                              color: accent_(context),
+                                              fontSize: Dimen.textSizeSmall,
+                                              fontWeight: weightHalfBold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: Dimen.iconMarg),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: Dimen.iconSize + Dimen.iconMarg),
+                                      child: Text(
+                                        'Zapisz surowy plik konspektu do ponownej edycji i udostępniania.',
+                                        style: AppTextStyle(
+                                          color: hintEnab_(context),
+                                          fontSize: Dimen.textSizeNormal,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: Dimen.defMarg),
+                            SimpleButton(
+                              borderRadius: BorderRadius.circular(AppCard.defRadius),
+                              color: cardEnab_(context),
+                              margin: EdgeInsets.zero,
+                              onTap: () {
+                                completer.complete(_SaveFormatChoice.pdfOnly);
+                                Navigator.of(context).pop();
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(Dimen.iconMarg),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(MdiIcons.printer, color: iconEnab_(context)),
+                                        const SizedBox(width: Dimen.iconMarg),
+                                        Text(
+                                          'PDF',
+                                          style: AppTextStyle(
+                                            color: iconEnab_(context),
+                                            fontSize: Dimen.textSizeBig,
+                                            fontWeight: weightHalfBold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: Dimen.iconMarg),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: Dimen.iconSize + Dimen.iconMarg),
+                                      child: Text(
+                                        'Wygeneruj gotowy plik konspekt do druku lub wysłania. Tego pliku nie można wczytać do ponownej edycji.',
+                                        style: AppTextStyle(
+                                          color: hintEnab_(context),
+                                          fontSize: Dimen.textSizeNormal,
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: Dimen.sideMarg),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                SimpleButton.from(
+                                  context: context,
+                                  icon: MdiIcons.close,
+                                  text: 'Jednak nie',
+                                  margin: EdgeInsets.zero,
+                                  onTap: () => Navigator.of(context).pop(),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  maxWidth: 520,
                 );
+
+                final choice = completer.isCompleted ? await completer.future : null;
+                if (choice == null) return;
+
+                if (choice == _SaveFormatChoice.rawOnly) {
+                  final rawBytes = konspektData.toHrcpknspktData().toTarBytes();
+                  downloadFileFromBytes(
+                    fileName: '${konspektData.titleAsFileName}.hrcpknspkt',
+                    bytes: rawBytes,
+                  );
+                }
+
+                if (choice == _SaveFormatChoice.pdfOnly) {
+                  try {
+                    final Konspekt konspekt = Konspekt.fromJsonMap(konspektData.toJsonMap());
+                    final Uint8List pdfBytes = await konspektToPdf(
+                      konspekt,
+                      withCover: false,
+                      withMetadata: true,
+                      withAims: true,
+                      withMaterials: true,
+                      stepsTimeTable: null,
+                    );
+                    downloadFileFromBytes(
+                      fileName: '${konspektData.titleAsFileName}.pdf',
+                      bytes: pdfBytes,
+                    );
+                  } catch (e) {
+                    AppScaffold.showMessage(
+                      context,
+                      text: 'Nie udało się wygenerować PDF: ${e.toString()}',
+                    );
+                  }
+                }
+
                 await onSaved();
               },
               child: Row(
