@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_navigator.dart';
 import 'package:harcapp_core/comm_classes/sha_pref.dart';
 import 'package:harcapp_core/comm_classes/web_utils_web.dart';
+import 'package:harcapp_core/comm_widgets/dialog/app_dialog.dart';
 import 'package:harcapp_core/song_book/song_contribution_rules.dart';
 import 'package:harcapp_core/comm_widgets/dialog/alert_dialog.dart';
 import 'package:harcapp_web/common/sha_pref.dart';
@@ -27,16 +28,16 @@ class SongContributionRulesAcceptanceManager {
       return;
 
     await showAlertDialog(
-      context,
+      context: context,
       title: 'Kilka formalności...',
       dismissible: false,
       content: 'Znam i akceptuję zasady dodawania piosenek do aplikacji HarcApp.',
-      actionBuilder: (context) => [
-        AlertDialogButton(
+      buttons: [
+        AppDialogButton(
           text: 'Zobacz zasady',
           onTap: () => openPathInNewTab(pathSongContributionRules),
         ),
-        AlertDialogButton(
+        AppDialogButton(
           text: 'Akceptuję',
           onTap: () {
             isAccepted = true;
@@ -44,6 +45,7 @@ class SongContributionRulesAcceptanceManager {
           },
         ),
       ],
+      intrinsicWidth: true
     );
 
     if(!isAccepted)

@@ -4,7 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/comm_widgets/app_dropdown.dart';
-import 'package:harcapp_core/comm_widgets/dialog/dialog.dart';
+import 'package:harcapp_core/comm_widgets/dialog/base.dart';
 import 'package:harcapp_core/song_book/import_hrcpsng.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
@@ -147,7 +147,6 @@ class SongListViewState extends State<SongListView>{
                       child: Tooltip(
                           message: 'Nowa piosenka',
                           child: AppDropdown<NewSongType>(
-                              position: PopupMenuPosition.over,
                               child: SimpleButton.from(
                                   context: context,
                                   margin: EdgeInsets.zero,
@@ -170,10 +169,10 @@ class SongListViewState extends State<SongListView>{
                                     break;
                                 }
                               },
-                              itemBuilder: (context) => [
-                                AppDropdownButton<NewSongType>(context, NewSongType.newSongExample),
-                                AppDropdownButton<NewSongType>(context, NewSongType.newSongFromCode),
-                                AppDropdownButton<NewSongType>(context, NewSongType.newSongEmpty),
+                              items: [
+                                NewSongType.newSongExample,
+                                NewSongType.newSongFromCode,
+                                NewSongType.newSongEmpty,
                               ]
                           )
 
@@ -354,7 +353,7 @@ void handleExampleSongTap(BuildContext context){
 void handleNewSongFromCode(BuildContext context) async {
   SongRaw song = handleNewSongEmptyTap(context);
   bool saved = false;
-  await openDialog(
+  await openBaseDialog(
       context: context,
       builder: (context) => CodeEditorDialog(
         song,

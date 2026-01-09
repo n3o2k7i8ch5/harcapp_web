@@ -1,5 +1,3 @@
-.PHONY: install
-
 deploy:
 	flutter pub get
 	flutter pub upgrade

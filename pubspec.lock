@@ -97,6 +97,46 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.1"
+  camera:
+    dependency: transitive
+    description:
+      name: camera
+      sha256: eefad89f262a873f38d21e5eec853461737ea074d7c9ede39f3ceb135d201cab
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.11.3"
+  camera_android_camerax:
+    dependency: transitive
+    description:
+      name: camera_android_camerax
+      sha256: "474d8355961658d43f1c976e2fa1ca715505bea1adbd56df34c581aaa70ec41f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.26+2"
+  camera_avfoundation:
+    dependency: transitive
+    description:
+      name: camera_avfoundation
+      sha256: "087a9fadef20325cb246b4c13344a3ce8e408acfc3e0c665ebff0ec3144d7163"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.22+8"
+  camera_platform_interface:
+    dependency: transitive
+    description:
+      name: camera_platform_interface
+      sha256: "98cfc9357e04bad617671b4c1f78a597f25f08003089dd94050709ae54effc63"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.12.0"
+  camera_web:
+    dependency: transitive
+    description:
+      name: camera_web
+      sha256: "57f49a635c8bf249d07fb95eb693d7e4dda6796dedb3777f9127fb54847beba7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.5+3"
   characters:
     dependency: transitive
     description:
@@ -113,6 +153,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  charset:
+    dependency: transitive
+    description:
+      name: charset
+      sha256: "27802032a581e01ac565904ece8c8962564b1070690794f0072f6865958ce8b9"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   chewie:
     dependency: transitive
     description:
@@ -265,6 +313,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  equatable:
+    dependency: transitive
+    description:
+      name: equatable
+      sha256: "3e0141505477fd8ad55d6eb4e7776d3fe8430be8e497ccb1521370c3f21a3e2b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.8"
   fake_async:
     dependency: transitive
     description:
@@ -277,10 +333,10 @@ packages:
     dependency: transitive
     description:
       name: ffi
-      sha256: "289279317b4b16eb2bb7e271abccd4bf84ec9bdcbe999e278a94b804f5630418"
+      sha256: d07d37192dbf97461359c1518788f203b0c9102cfd2c35a716b823741219542c
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.4"
+    version: "2.1.5"
   file:
     dependency: transitive
     description:
@@ -610,7 +666,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "04225a3f469b946f62516e4ec6c471907f8e5aa4"
+      resolved-ref: ac132fb200bb197c516f770c83f682da1308b56f
       url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"
@@ -1054,6 +1110,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.2"
+  qr_code_dart_decoder:
+    dependency: transitive
+    description:
+      name: qr_code_dart_decoder
+      sha256: "4044f13a071da6102f7e9bc44a6b1ce577604d7846bcbeb1be412a137b825017"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
+  qr_code_dart_scan:
+    dependency: transitive
+    description:
+      name: qr_code_dart_scan
+      sha256: "81443d940f8f27baaa4b9aeaa8d3d2155ad2c0b9842a9bacb03dab85c111e2f6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.11.5"
+  qr_flutter:
+    dependency: transitive
+    description:
+      name: qr_flutter
+      sha256: "5095f0fc6e3f71d08adef8feccc8cea4f12eec18a2e31c2e8d82cb6019f4b097"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.0"
   quill_native_bridge:
     dependency: transitive
     description:
@@ -1283,6 +1363,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  stream_transform:
+    dependency: transitive
+    description:
+      name: stream_transform
+      sha256: ad47125e588cfd37a9a7f86c7d6356dde8dfe89d071d293f80ca9e9273a33871
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.1"
   string_scanner:
     dependency: transitive
     description:
@@ -1455,10 +1543,10 @@ packages:
     dependency: transitive
     description:
       name: video_player_avfoundation
-      sha256: e4d33b79a064498c6eb3a6a492b6a5012573d4943c28d566caf1a6c0840fe78d
+      sha256: d1eb970495a76abb35e5fa93ee3c58bd76fb6839e2ddf2fbb636674f2b971dd4
       url: "https://pub.dev"
     source: hosted
-    version: "2.8.8"
+    version: "2.8.9"
   video_player_platform_interface:
     dependency: transitive
     description:
@@ -1511,10 +1599,10 @@ packages:
     dependency: transitive
     description:
       name: webview_flutter
-      sha256: c3e4fe614b1c814950ad07186007eff2f2e5dd2935eba7b9a9a1af8e5885f1ba
+      sha256: a3da219916aba44947d3a5478b1927876a09781174b5a2b67fa5be0555154bf9
       url: "https://pub.dev"
     source: hosted
-    version: "4.13.0"
+    version: "4.13.1"
   webview_flutter_android:
     dependency: transitive
     description:
@@ -1587,6 +1675,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "9.1.3"
+  zxing_lib:
+    dependency: transitive
+    description:
+      name: zxing_lib
+      sha256: f9170470b6bc947d21a6783486f88ef48aad66fc1380c8acd02b118418ec0ce0
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.4"
 sdks:
   dart: ">=3.10.0 <4.0.0"
   flutter: ">=3.35.0"

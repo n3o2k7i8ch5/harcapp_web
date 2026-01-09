@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_classes/common.dart';
 import 'package:harcapp_core/comm_widgets/dialog/alert_dialog.dart';
+import 'package:harcapp_core/comm_widgets/dialog/app_dialog.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/main.dart';
 import 'package:harcapp_web/songs/providers.dart';
@@ -47,26 +48,27 @@ class SongsPageState extends State<SongsPage>{
     bool remove = false;
 
     await showAlertDialog(
-        context,
+       context: context,
         title: 'Ostrożnie...',
         content: 'Wygląda na to, że zostały po Tobie niezapisane piosenki.'
             '\n\nCzy chcesz je usunąć?',
-        actionBuilder: (context) => [
-          AlertDialogButton(
+        buttons: [
+          AppDialogButton(
               text: 'Nie, zostaw',
               onTap: (){
                 remove = false;
                 Navigator.pop(context);
               }
           ),
-          AlertDialogButton(
+          AppDialogButton(
               text: 'Tak, usuń',
               onTap: (){
                 remove = true;
                 Navigator.pop(context);
               }
           ),
-        ]
+        ],
+      maxWidth: appDialogMaxWidth
     );
 
     if(remove){

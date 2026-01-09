@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
-import 'package:harcapp_core/comm_widgets/dialog/dialog.dart' as harcapp_dialog;
+import 'package:harcapp_core/comm_widgets/dialog/route.dart' as harcapp_dialog;
 import 'package:harcapp_core/comm_widgets/person_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';

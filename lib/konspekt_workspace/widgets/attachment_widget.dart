@@ -257,7 +257,6 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
             Align(
               alignment: Alignment.centerLeft,
               child: AppDropdown<FileFormat>(
-                position: PopupMenuPosition.over,
                 onSelected: (format) {
                   _pickFor(format).then((picked){
                     if (picked) {
@@ -268,9 +267,8 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
                     }
                   });
                 },
-                itemBuilder: (context) => FileFormat.values
+                items: FileFormat.values
                     .where((f) => !selectedFormats.contains(f))
-                    .map((f) => AppDropdownButton<FileFormat>(context, f))
                     .toList(),
                 child: SimpleButton.from(
                   context: context,
@@ -337,16 +335,11 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
 
                           Expanded(
                             child: AppDropdown<KonspektAttachmentPrintSide>(
-                              position: PopupMenuPosition.over,
                               onSelected: (val){
                                 widget.onChange.call();
                                 setState(() => printSide = val);
                               },
-                              itemBuilder: (context) => KonspektAttachmentPrintSide.values
-                                  .map((value) => AppDropdownButton<KonspektAttachmentPrintSide>(
-                                context,
-                                value,
-                              )).toList(),
+                              items: KonspektAttachmentPrintSide.values.toList(),
                               borderRadius: BorderRadius.circular(AppCard.defRadius),
                               child: SimpleButton.from(
                                 context: context,
@@ -369,13 +362,8 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
 
                           Expanded(
                             child: AppDropdown<KonspektAttachmentPrintColor>(
-                              position: PopupMenuPosition.over,
                               onSelected: (val) => setState(() => printColor = val),
-                              itemBuilder: (context) => KonspektAttachmentPrintColor.values
-                                  .map((value) => AppDropdownButton<KonspektAttachmentPrintColor>(
-                                context,
-                                value,
-                              )).toList(),
+                              items: KonspektAttachmentPrintColor.values.toList(),
                               borderRadius: BorderRadius.circular(AppCard.defRadius),
                               child: SimpleButton.from(
                                 context: context,

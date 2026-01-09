@@ -6,7 +6,7 @@ import 'package:harcapp_core/comm_widgets/app_bar.dart';
 import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
-import 'package:harcapp_core/comm_widgets/dialog/dialog.dart';
+import 'package:harcapp_core/comm_widgets/dialog/base.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/song_book/song_core.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
@@ -154,7 +154,7 @@ class CodeEditorDialogState extends State<CodeEditorDialog> {
 
 }
 
-void showCodeEditorDialog(BuildContext context, SongRaw song) => openDialog(
+void showCodeEditorDialog(BuildContext context, SongRaw song) => openBaseDialog(
   context: context,
   builder: (context) => CodeEditorDialog(song)
 );

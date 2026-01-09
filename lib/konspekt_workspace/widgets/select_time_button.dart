@@ -7,7 +7,7 @@ import 'package:harcapp_core/comm_classes/date_to_str.dart';
 import 'package:harcapp_core/comm_widgets/app_bar.dart';
 import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
-import 'package:harcapp_core/comm_widgets/dialog/dialog.dart';
+import 'package:harcapp_core/comm_widgets/dialog/base.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -211,7 +211,7 @@ Future<Duration?> selectDuration(
   Duration? initialDuration,
 ) async {
   Duration? selectedDuration = initialDuration;
-  await openDialog(
+  await openBaseDialog(
     context: context,
     builder: (context) => DurationSelectorDialog(
       initialDuration,

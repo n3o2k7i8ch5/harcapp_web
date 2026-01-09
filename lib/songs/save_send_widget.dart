@@ -8,11 +8,13 @@ import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/app_text.dart';
+import 'package:harcapp_core/comm_widgets/dialog/app_dialog.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/song_book/contrib_song.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_web/common/download_file.dart';
+import 'package:harcapp_web/consts.dart';
 import 'package:harcapp_web/songs/left_panel/song_tile.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/song_contribution_rules_acceptance_manager.dart';
@@ -133,16 +135,18 @@ class SaveSendWidget extends StatelessWidget{
                       AllSongsProvider.clearCachedSongs();
 
                       await showAlertDialog(
-                        context,
+                        context: context,
                         title: 'Jak wysłać mejla z piosenkami',
                         dismissible: false,
                         contentWidget: HowToSendEmailWidget(),
-                        actionBuilder: (context) => [
-                          AlertDialogButton(
+                        buttons: [
+                          AppDialogButton(
                             text: 'Wszystko jasne!',
                             onTap: () => popPage(context),
                           ),
-                        ]
+                        ],
+                        scrollable: true,
+                        maxWidth: appDialogMaxWidth,
                       );
 
                     }
@@ -166,15 +170,17 @@ class SaveSendWidget extends StatelessWidget{
                     ],
                   ),
                   onTap: () => showAlertDialog(
-                    context,
+                    context: context,
                     title: 'Jak przesłać piosenki do weryfikacji?',
                     contentWidget: HowToContributeDialog(),
-                    actionBuilder: (context) => [
-                      AlertDialogButton(
+                    buttons: [
+                      AppDialogButton(
                         text: 'Wszystko jasne!',
                         onTap: () => popPage(context),
                       ),
-                    ]
+                    ],
+                    scrollable: true,
+                    maxWidth: appDialogMaxWidth,
                   )
               )
           ),
@@ -192,7 +198,7 @@ class SaveSendWidget extends StatelessWidget{
 
     bool goAhead = false;
     await showAlertDialog(
-        context,
+        context: context,
         title: title,
         dismissible: false,
         content: "$content"
@@ -202,23 +208,24 @@ class SaveSendWidget extends StatelessWidget{
           "\n<b><i>${shortSongs.map((song) => song.title.isEmpty?SongTileState.HINT_FILE_TITLE:song.title).join("\n")}"
           "${songs.length > shortSongs.length ? "\n..." : ""}"
           "</i></b>",
-        actionBuilder: (context) =>
-        [
-          AlertDialogButton(text: "Kontynuuj pomimo to",
+        buttons: [
+          AppDialogButton(text: "Kontynuuj pomimo to",
               onTap: (){
                 goAhead = true;
                 Navigator.pop(context);
               },
               textColor: hintEnab_(context)
           ),
-          AlertDialogButton(
+          AppDialogButton(
               text: "Wracam uzupełnić braki!",
               onTap: (){
                 goAhead = false;
                 Navigator.pop(context);
               }
           ),
-        ]
+        ],
+        scrollable: true,
+        maxWidth: appDialogMaxWidth,
     );
 
     return goAhead;
@@ -319,7 +326,7 @@ class HowToContributeDialog extends StatelessWidget{
         'Mejl z piosenkami',
         style: alertDialogTextStyle(context),
       ),
-      SizedBox(height: alertDialogTitleBottomMarginVal),
+      SizedBox(height: appDialogDefMargin),
 
       HowToSendEmailWidget(),
 

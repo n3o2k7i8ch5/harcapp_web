@@ -4,9 +4,11 @@ import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_dropdown.dart';
 import 'package:harcapp_core/comm_widgets/dialog/alert_dialog.dart';
+import 'package:harcapp_core/comm_widgets/dialog/app_dialog.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
+import 'package:harcapp_web/consts.dart';
 import 'package:harcapp_web/songs/left_panel/provider.dart';
 import 'package:harcapp_web/songs/left_panel/song_list_view.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -169,11 +171,11 @@ class _MoreButton extends StatelessWidget{
   }
 
   void deleteSong(BuildContext context) => showAlertDialog(
-    context,
+    context: context,
     content: 'Czy na pewno chcesz <b>usunać</b> piosenkę "<b>${song.title}</b>"?',
     title: 'Ostrożnie...',
-    actionBuilder: (context) => [
-      AlertDialogButton(
+    buttons: [
+      AppDialogButton(
           text: 'Usuń',
           onTap: (){
             AllSongsProvider allSongsProv = AllSongsProvider.of(context);
@@ -197,16 +199,17 @@ class _MoreButton extends StatelessWidget{
             popPage(context);
           }
       ),
-      AlertDialogButton(
+      AppDialogButton(
         text: 'Jednak nie',
         onTap: () => popPage(context),
       ),
     ],
+    maxWidth: appDialogMaxWidth
   );
 
   @override
   Widget build(BuildContext context) => AppDropdown<_MoreButtonItem>(
-    icon: Icon(MdiIcons.dotsVertical),
+    child: Icon(MdiIcons.dotsVertical),
     onSelected: (_MoreButtonItem item) {
       switch(item){
         case _MoreButtonItem.editId:
@@ -227,12 +230,12 @@ class _MoreButton extends StatelessWidget{
           break;
       }
     },
-    itemBuilder: (BuildContext context) => [
-      AppDropdownButton(context, _MoreButtonItem.editId),
-      AppDropdownButton(context, _MoreButtonItem.editCode),
-      AppDropdownButton(context, song.isConfid?_MoreButtonItem.makeNotConfidential:_MoreButtonItem.makeConfidential),
-      AppDropdownButton(context, _MoreButtonItem.confirmContribRules),
-      AppDropdownButton(context, _MoreButtonItem.delete),
+    items: [
+      _MoreButtonItem.editId,
+      _MoreButtonItem.editCode,
+      song.isConfid?_MoreButtonItem.makeNotConfidential:_MoreButtonItem.makeConfidential,
+      _MoreButtonItem.confirmContribRules,
+      _MoreButtonItem.delete,
     ],
   );
 
