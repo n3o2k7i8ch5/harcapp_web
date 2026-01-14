@@ -192,6 +192,65 @@ void main() {
     });
   });
 
+  group('multi-line list items with formatting', () {
+    test('list item with soft breaks and mixed formatting should stay as single li', () {
+      // This is the problematic case:
+      // A single list item that has multiple lines (soft breaks \u2028)
+      // where different parts have different formatting (bold, italic)
+      //
+      // Expected: ONE <li> with <br> tags inside, NOT multiple <li> elements
+      final ops = [
+        {'insert': '[Opcja 1]:', 'attributes': {'italic': true}},
+        {'insert': '${softLineBreak}Pierwsza osoba odpowiada losowo.$softLineBreak${softLineBreak}Detektyw: '},
+        {'insert': 'ile masz lat?', 'attributes': {'bold': true}},
+        {'insert': '${softLineBreak}Odpowiadający: '},
+        {'insert': 'trzynaście.', 'attributes': {'bold': true}},
+        {'insert': '$softLineBreak'},
+        {'insert': '\n', 'attributes': {'list': 'ordered'}},
+        {'insert': '[Opcja 2]:', 'attributes': {'italic': true}},
+        {'insert': '${softLineBreak}Kolejne odpowiedzi zaczynają się na kolejne litery.$softLineBreak'},
+        {'insert': '\n', 'attributes': {'list': 'ordered'}},
+      ];
+
+      final html = deltaOpsToHtml(ops);
+
+      // Should have exactly 2 <li> elements (one per list item)
+      final liCount = '<li>'.allMatches(html).length;
+      expect(liCount, equals(2), reason: 'Should have exactly 2 list items, got: $html');
+
+      // Should NOT have <ol><li> appearing multiple times in sequence for the same logical item
+      // The bold/italic text should be INSIDE the same <li>, not creating new ones
+      expect(html, isNot(contains('</li></ol><p>')), reason: 'Should not close list prematurely');
+      
+      // All content should be within the list
+      expect(html, contains('<ol>'));
+      expect(html, contains('[Opcja 1]:'));
+      expect(html, contains('[Opcja 2]:'));
+      expect(html, contains('ile masz lat?'));
+    });
+
+    test('simplified: single list item with soft break and bold text', () {
+      // Minimal reproduction case
+      final ops = [
+        {'insert': 'Before: '},
+        {'insert': 'bold text', 'attributes': {'bold': true}},
+        {'insert': '$softLineBreak'},
+        {'insert': '\n', 'attributes': {'list': 'ordered'}},
+      ];
+
+      final html = deltaOpsToHtml(ops);
+
+      // Should be ONE list item
+      final liCount = '<li>'.allMatches(html).length;
+      expect(liCount, equals(1), reason: 'Should have exactly 1 list item, got: $html');
+      
+      // Content should be: <ol><li><p>Before: <b>bold text</b><br></p></li></ol>
+      expect(html, contains('<ol>'));
+      expect(html, contains('<b>bold text</b>'));
+      expect(html, contains('Before:'));
+    });
+  });
+
   group('roundtrip', () {
     test('nested list roundtrip preserves structure', () {
       final originalOps = [

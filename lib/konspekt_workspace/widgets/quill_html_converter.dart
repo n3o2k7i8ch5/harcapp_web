@@ -417,10 +417,15 @@ class _DeltaToHtmlConverter {
   }
 
   void _handleTextSegment(String text, Map<String, dynamic>? attrs, int index) {
+    final nextAttrs = _peekNextLineAttrs(index);
+    final listType = nextAttrs?['list'] as String?;
+    
     // If text starts with soft break and we're in a list, close the list first
     // This prevents empty list items when text like "\u2028After list..." follows a list
-    // But only if the text has more content after the soft break(s)
-    if (text.startsWith(softLineBreak) && _listStack.isNotEmpty) {
+    // But only if:
+    // 1. The text has more content after the soft break(s)
+    // 2. The NEXT line ending is NOT a list item (meaning this text doesn't belong to a list)
+    if (text.startsWith(softLineBreak) && _listStack.isNotEmpty && listType == null) {
       final textWithoutLeadingBreaks = text.replaceAll(RegExp('^$softLineBreak+'), '');
       if (textWithoutLeadingBreaks.isNotEmpty) {
         _closeAllLists();
@@ -431,8 +436,6 @@ class _DeltaToHtmlConverter {
       // If text is only soft breaks, treat as <br> in current context (list item)
     }
     
-    final nextAttrs = _peekNextLineAttrs(index);
-    final listType = nextAttrs?['list'] as String?;
     final indent = (nextAttrs?['indent'] as int?) ?? 0;
     final align = nextAttrs?['align'] as String?;
 
