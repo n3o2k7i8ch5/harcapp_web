@@ -79,80 +79,58 @@ TableOfContentPoradnikWidget tableOfContentPoradnikWidget(BuildContext context, 
   withBackButton: isDrawer,
 );
 
- class DownloadRedirectPage extends StatefulWidget{
+class DownloadRedirectPage extends StatelessWidget {
+  const DownloadRedirectPage({super.key});
 
-   const DownloadRedirectPage({super.key});
+  @override
+  Widget build(BuildContext context) {
+    final String ua = html.window.navigator.userAgent.toLowerCase();
+    final bool isAndroid = ua.contains('android');
+    final bool isIos = ua.contains('iphone') || ua.contains('ipad') || ua.contains('ipod');
 
-   @override
-   State<StatefulWidget> createState() => DownloadRedirectPageState();
+    if (isAndroid) {
+      html.window.location.assign(playStoreUrl);
+    } else if (isIos) {
+      html.window.location.assign(appStoreUrl);
+    }
 
- }
+    final bool redirected = isAndroid || isIos;
 
- class DownloadRedirectPageState extends State<DownloadRedirectPage>{
-
-   bool redirected = false;
-
-   @override
-   void initState() {
-     super.initState();
-     _redirectIfPossible();
-   }
-
-   void _redirectIfPossible(){
-     final String ua = html.window.navigator.userAgent.toLowerCase();
-     final bool isAndroid = ua.contains('android');
-     final bool isIos = ua.contains('iphone') || ua.contains('ipad') || ua.contains('ipod');
-
-     final String? targetUrl = isAndroid
-         ? playStoreUrl
-         : isIos
-         ? appStoreUrl
-         : null;
-
-     if(targetUrl == null) return;
-
-     redirected = true;
-     html.window.location.assign(targetUrl);
-   }
-
-   @override
-   Widget build(BuildContext context) => Scaffold(
-     body: Center(
-       child: Padding(
-         padding: const EdgeInsets.all(Dimen.defMarg),
-         child: Column(
-           mainAxisSize: MainAxisSize.min,
-           children: [
-             Text(
-               redirected
-                   ? 'Przekierowywanie...'
-                   : 'Wybierz sklep:',
-               style: Theme.of(context).textTheme.titleMedium,
-               textAlign: TextAlign.center,
-             ),
-             const SizedBox(height: Dimen.defMarg),
-             Wrap(
-               spacing: Dimen.defMarg,
-               runSpacing: Dimen.defMarg,
-               alignment: WrapAlignment.center,
-               children: [
-                 ElevatedButton(
-                   onPressed: () => html.window.location.assign(playStoreUrl),
-                   child: const Text('Google Play'),
-                 ),
-                 ElevatedButton(
-                   onPressed: () => html.window.location.assign(appStoreUrl),
-                   child: const Text('App Store'),
-                 ),
-               ],
-             ),
-           ],
-         ),
-       ),
-     ),
-   );
-
- }
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(Dimen.defMarg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                redirected ? 'Przekierowywanie...' : 'Wybierz sklep:',
+                style: Theme.of(context).textTheme.titleMedium,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: Dimen.defMarg),
+              Wrap(
+                spacing: Dimen.defMarg,
+                runSpacing: Dimen.defMarg,
+                alignment: WrapAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => html.window.location.assign(playStoreUrl),
+                    child: const Text('Google Play'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => html.window.location.assign(appStoreUrl),
+                    child: const Text('App Store'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 List<RouteBase> _buildKonspektyRoutes({
   required String listPath,
