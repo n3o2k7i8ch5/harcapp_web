@@ -42,6 +42,8 @@ import 'package:harcapp_web/konspekt_workspace/widgets/plain_text_editor.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/author_editor_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
+import 'cover/cover_processing.dart';
+
 import '../consts.dart';
 
 enum _SaveFormatChoice {
@@ -962,16 +964,22 @@ class _CoverWidget extends StatelessWidget {
 
   const _CoverWidget({required this.konspektData, required this.onChanged});
 
-  Future<void> setCover(Function setState) async {
+  Future<void> setCover(BuildContext context, StateSetter setState) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['png', 'jpg', 'jpeg', 'webp'],
       withData: true,
     );
-    if (result != null && result.files.isNotEmpty) {
-      setState(() => konspektData.coverImageBytes = result.files.first.bytes);
-      onChanged();
-    }
+    if (result == null || result.files.isEmpty) return;
+
+    final bytes = result.files.first.bytes;
+    if (bytes == null) return;
+
+    final processedBytes = await processCoverImage(context, bytes);
+    if (processedBytes == null) return;
+
+    setState(() => konspektData.coverImageBytes = processedBytes);
+    onChanged();
   }
 
   @override
@@ -981,7 +989,7 @@ class _CoverWidget extends StatelessWidget {
       color: cardEnab_(context),
       clipBehavior: Clip.hardEdge,
       onTap: konspektData.coverImageBytes == null?
-      () => setCover(setState):
+      () => setCover(context, setState):
       null,
       child: AspectRatio(
         aspectRatio: 16/9,
@@ -1048,7 +1056,7 @@ class _CoverWidget extends StatelessWidget {
                             radius: AppCard.defRadius,
                             icon: MdiIcons.imageEditOutline,
                             text: constraints.maxWidth < _hideButtonLabelsWidth ? null : (konspektData.coverImageBytes == null ? 'Dodaj obraz' : 'Zmień obraz'),
-                            onTap: () => setCover(setState),
+                            onTap: () => setCover(context, setState),
                           )
                       ),
 

@@ -147,35 +147,33 @@ class _DuchLevelSection extends StatelessWidget {
 
 class SpheresWidgetState extends State<SpheresWidget> {
 
-  Map<KonspektSphere, KonspektSphereDetails?> get spheres => {
-    KonspektSphere.cialo: widget.spheres[KonspektSphere.cialo],
-    KonspektSphere.umysl: widget.spheres[KonspektSphere.umysl],
-    KonspektSphere.duch: widget.spheres[KonspektSphere.duch],
-    KonspektSphere.emocje: widget.spheres[KonspektSphere.emocje],
-    KonspektSphere.relacje: widget.spheres[KonspektSphere.relacje],
-  };
+  static const _sphereOrder = [
+    KonspektSphere.cialo,
+    KonspektSphere.umysl,
+    KonspektSphere.duch,
+    KonspektSphere.emocje,
+    KonspektSphere.relacje,
+  ];
+
+  void _onSphereChanged(KonspektSphere sphere, KonspektSphereDetails? details) {
+    widget.onChanged({
+      for (final s in _sphereOrder)
+        s: s == sphere ? details : widget.spheres[s],
+    });
+  }
 
   @override
   Widget build(BuildContext context) => ListView.separated(
-    itemBuilder: (context, index) =>
-    spheres.keys.elementAt(index) == KonspektSphere.duch?
-    SphereDuchWidget(
-      spheres.values.elementAt(index),
-      onChanged: (details) {
-        setState(() => spheres[KonspektSphere.duch] = details);
-        widget.onChanged(spheres);
-      },
-    ):
-    SphereNonDuchWidget(
-      spheres.keys.elementAt(index),
-      spheres.values.elementAt(index),
-      onChanged: (details) {
-        setState(() => spheres[spheres.keys.elementAt(index)] = details);
-        widget.onChanged(spheres);
-      },
-    ),
+    itemBuilder: (context, index) {
+      final sphere = _sphereOrder[index];
+      final details = widget.spheres[sphere];
+      
+      return sphere == KonspektSphere.duch
+        ? SphereDuchWidget(details, onChanged: (d) => _onSphereChanged(sphere, d))
+        : SphereNonDuchWidget(sphere, details, onChanged: (d) => _onSphereChanged(sphere, d));
+    },
     separatorBuilder: (context, index) => SizedBox(height: Dimen.defMarg),
-    itemCount: spheres.length,
+    itemCount: _sphereOrder.length,
     shrinkWrap: true,
     physics: NeverScrollableScrollPhysics(),
   );

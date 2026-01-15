@@ -122,10 +122,12 @@ class KonspektData extends BaseKonspekt {
   @override
   Map toJsonMap() {
     final map = super.toJsonMap();
-    // Ensure spheres is always a Map (even empty) for Konspekt.fromJsonMap compatibility
-    if (map['spheres'] == null) {
-      map['spheres'] = <String, dynamic>{};
-    }
+    // Override spheres serialization - BaseKonspekt doesn't see our field
+    map['spheres'] = {
+      for (final entry in spheres.entries)
+        if (entry.value != null)
+          entry.key.name: entry.value!.toJsonMap(),
+    };
     map['attachments'] =
         attachments.map((attachment) => attachment.toJsonMap()).toList();
     return map;
