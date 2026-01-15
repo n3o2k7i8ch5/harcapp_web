@@ -1,6 +1,9 @@
+import 'dart:html' as html;
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/values/dimen.dart';
+import 'package:harcapp_core/values/store_urls.dart';
 import 'package:harcapp_core/harcthought/articles/model/article_source.dart';
 import 'package:harcapp_core/harcthought/konspekts/data/harcerskie/all.dart';
 import 'package:harcapp_core/harcthought/konspekts/data/ksztalcenie/all.dart';
@@ -45,6 +48,7 @@ String pathPrivacyPolicy = '/privacy_policy';
 String pathSprawnosci = '/sprawnosci';
 String pathSprawnosciBook = '/sprawnosci/:bookId';
 String pathSprawnosciBookFamily = '/sprawnosci/:bookId/:familyId';
+ String pathDownload = '/download';
 
 // Removed pathSprawnosciFamily
 
@@ -74,6 +78,81 @@ TableOfContentPoradnikWidget tableOfContentPoradnikWidget(BuildContext context, 
   },
   withBackButton: isDrawer,
 );
+
+ class DownloadRedirectPage extends StatefulWidget{
+
+   const DownloadRedirectPage({super.key});
+
+   @override
+   State<StatefulWidget> createState() => DownloadRedirectPageState();
+
+ }
+
+ class DownloadRedirectPageState extends State<DownloadRedirectPage>{
+
+   bool redirected = false;
+
+   @override
+   void initState() {
+     super.initState();
+     _redirectIfPossible();
+   }
+
+   void _redirectIfPossible(){
+     final String ua = html.window.navigator.userAgent.toLowerCase();
+     final bool isAndroid = ua.contains('android');
+     final bool isIos = ua.contains('iphone') || ua.contains('ipad') || ua.contains('ipod');
+
+     final String? targetUrl = isAndroid
+         ? playStoreUrl
+         : isIos
+         ? appStoreUrl
+         : null;
+
+     if(targetUrl == null) return;
+
+     redirected = true;
+     html.window.location.assign(targetUrl);
+   }
+
+   @override
+   Widget build(BuildContext context) => Scaffold(
+     body: Center(
+       child: Padding(
+         padding: const EdgeInsets.all(Dimen.defMarg),
+         child: Column(
+           mainAxisSize: MainAxisSize.min,
+           children: [
+             Text(
+               redirected
+                   ? 'Przekierowywanie...'
+                   : 'Wybierz sklep:',
+               style: Theme.of(context).textTheme.titleMedium,
+               textAlign: TextAlign.center,
+             ),
+             const SizedBox(height: Dimen.defMarg),
+             Wrap(
+               spacing: Dimen.defMarg,
+               runSpacing: Dimen.defMarg,
+               alignment: WrapAlignment.center,
+               children: [
+                 ElevatedButton(
+                   onPressed: () => html.window.location.assign(playStoreUrl),
+                   child: const Text('Google Play'),
+                 ),
+                 ElevatedButton(
+                   onPressed: () => html.window.location.assign(appStoreUrl),
+                   child: const Text('App Store'),
+                 ),
+               ],
+             ),
+           ],
+         ),
+       ),
+     ),
+   );
+
+ }
 
 List<RouteBase> _buildKonspektyRoutes({
   required String listPath,
@@ -272,6 +351,12 @@ GoRouter router = GoRouter(
                 pageBuilder: (context, state) => NoTransitionPage(
                   child: SprawnosciPage(),
                 )
+            ),
+            GoRoute(
+              path: pathDownload,
+              pageBuilder: (context, state) => const NoTransitionPage(
+                child: DownloadRedirectPage(),
+              ),
             ),
             GoRoute(
               path: pathSprawnosciBook,

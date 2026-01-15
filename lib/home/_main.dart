@@ -7,6 +7,7 @@ import 'package:harcapp_core/comm_classes/common.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
+import 'package:harcapp_core/values/store_urls.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/router.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -279,7 +280,7 @@ class PlayStoreDownloadButton extends StatelessWidget{
               isAntiAlias: true,
               filterQuality: FilterQuality.high,
             ),
-            url: 'https://play.google.com/store/apps/details?id=com.daniwan.harcapp',
+            url: playStoreUrl,
           ),
 
           SizedBox(height: Dimen.defMarg),
@@ -323,7 +324,7 @@ class AppStoreDownloadButton extends StatelessWidget {
             image: SvgPicture.asset(
               'assets/images/app_store_icon.svg',
             ),
-            url: 'https://apps.apple.com/us/app/harcapp/id6754627071',
+            url: appStoreUrl,
           ),
 
         ],
