@@ -1,5 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:js_interop';
 import 'dart:typed_data';
+
+import 'package:web/web.dart' as web;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -49,6 +53,11 @@ import '../consts.dart';
 enum _SaveFormatChoice {
   rawOnly,
   pdfOnly,
+}
+
+enum _LoadSourceChoice {
+  singleFile,
+  folderFiles,
 }
 
 
@@ -732,7 +741,7 @@ class _TopActions extends StatelessWidget {
                                         Icon(MdiIcons.trayArrowDown, color: iconEnab_(context)),
                                         const SizedBox(width: Dimen.iconMarg),
                                         Text(
-                                          'HRCPKNSPKT',
+                                          '.hrcpknspkt',
                                           style: AppTextStyle(
                                             color: iconEnab_(context),
                                             fontSize: Dimen.textSizeBig,
@@ -794,7 +803,7 @@ class _TopActions extends StatelessWidget {
                                         Icon(MdiIcons.printer, color: iconEnab_(context)),
                                         const SizedBox(width: Dimen.iconMarg),
                                         Text(
-                                          'PDF',
+                                          '.pdf',
                                           style: AppTextStyle(
                                             color: iconEnab_(context),
                                             fontSize: Dimen.textSizeBig,
@@ -913,25 +922,231 @@ class _TopActions extends StatelessWidget {
               icon: MdiIcons.folderOpenOutline,
               text: 'Wczytaj',
               onTap: () async {
+                final completer = Completer<_LoadSourceChoice?>();
 
-                FilePickerResult? result = await FilePicker.platform.pickFiles(
-                  type: FileType.custom,
-                  allowedExtensions: ['hrcpknspkt'],
+                await openBaseDialog(
+                  context: context,
+                  builder: (context) => Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      AppBarX(title: 'Wczytaj'),
+                      Padding(
+                        padding: const EdgeInsets.all(Dimen.sideMarg),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            SimpleButton(
+                              borderRadius: BorderRadius.circular(AppCard.defRadius),
+                              color: cardEnab_(context),
+                              margin: EdgeInsets.zero,
+                              onTap: () {
+                                completer.complete(_LoadSourceChoice.singleFile);
+                                Navigator.of(context).pop();
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(Dimen.iconMarg),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(MdiIcons.fileOutline, color: iconEnab_(context)),
+                                        const SizedBox(width: Dimen.iconMarg),
+                                        Text(
+                                          'Plik .hrcpknspkt',
+                                          style: AppTextStyle(
+                                            color: iconEnab_(context),
+                                            fontSize: Dimen.textSizeBig,
+                                            fontWeight: weightHalfBold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: Dimen.iconMarg),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: Dimen.iconSize + Dimen.iconMarg),
+                                      child: Text(
+                                        'Wczytaj pojedynczy plik .hrcpknspkt',
+                                        style: AppTextStyle(
+                                          color: hintEnab_(context),
+                                          fontSize: Dimen.textSizeNormal,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: Dimen.defMarg),
+                            SimpleButton(
+                              borderRadius: BorderRadius.circular(AppCard.defRadius),
+                              color: cardEnab_(context),
+                              margin: EdgeInsets.zero,
+                              onTap: () {
+                                completer.complete(_LoadSourceChoice.folderFiles);
+                                Navigator.of(context).pop();
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(Dimen.iconMarg),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(MdiIcons.folderOpenOutline, color: iconEnab_(context)),
+                                        const SizedBox(width: Dimen.iconMarg),
+                                        Text(
+                                          'Rozpakowany folder',
+                                          style: AppTextStyle(
+                                            color: iconEnab_(context),
+                                            fontSize: Dimen.textSizeBig,
+                                            fontWeight: weightHalfBold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: Dimen.iconMarg),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: Dimen.iconSize + Dimen.iconMarg),
+                                      child: Text(
+                                        'Zaznacz wszystkie pliki z rozpakowanego folderu (konspekt.json, cover.webp, załączniki)',
+                                        style: AppTextStyle(
+                                          color: hintEnab_(context),
+                                          fontSize: Dimen.textSizeNormal,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: Dimen.sideMarg),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                SimpleButton.from(
+                                  context: context,
+                                  icon: MdiIcons.close,
+                                  text: 'Anuluj',
+                                  margin: EdgeInsets.zero,
+                                  onTap: () => Navigator.of(context).pop(),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  maxWidth: 520,
                 );
 
-                if(result == null)
-                  return;
+                final choice = completer.isCompleted ? await completer.future : null;
+                if (choice == null) return;
 
-                final Uint8List? bytes = result.files.single.bytes!;
+                if (choice == _LoadSourceChoice.singleFile) {
+                  FilePickerResult? result = await FilePicker.platform.pickFiles(
+                    type: FileType.custom,
+                    allowedExtensions: ['hrcpknspkt'],
+                  );
 
-                if(bytes == null){
-                  AppScaffold.showMessage(context, text: 'Coś poszło nie tak.');
-                  return;
+                  if (result == null) return;
+
+                  final Uint8List? bytes = result.files.single.bytes;
+
+                  if (bytes == null) {
+                    AppScaffold.showMessage(context, text: 'Coś poszło nie tak.');
+                    return;
+                  }
+
+                  HrcpknspktData hrcpknspktData = HrcpknspktData.fromTarBytes(bytes);
+                  onLoaded(hrcpknspktData);
                 }
 
-                HrcpknspktData hrcpknspktData = HrcpknspktData.fromTarBytes(bytes);
+                if (choice == _LoadSourceChoice.folderFiles) {
+                  final completer = Completer<HrcpknspktData?>();
 
-                onLoaded(hrcpknspktData);
+                  final input = web.HTMLInputElement()
+                    ..type = 'file'
+                    ..multiple = true;
+                  input.setAttribute('webkitdirectory', '');
+
+                  input.onChange.listen((event) async {
+                    final webFiles = input.files;
+                    if (webFiles == null || webFiles.length == 0) {
+                      completer.complete(null);
+                      return;
+                    }
+
+                    final Map<String, Uint8List> fileContents = {};
+
+                    for (int i = 0; i < webFiles.length; i++) {
+                      final webFile = webFiles.item(i);
+                      if (webFile == null) continue;
+
+                      final reader = web.FileReader();
+                      final fileCompleter = Completer<Uint8List?>();
+
+                      reader.onLoadEnd.listen((e) {
+                        final result = reader.result;
+                        if (result != null) {
+                          final arrayBuffer = result as JSArrayBuffer;
+                          fileCompleter.complete(arrayBuffer.toDart.asUint8List());
+                        } else {
+                          fileCompleter.complete(null);
+                        }
+                      });
+
+                      reader.readAsArrayBuffer(webFile);
+                      final bytes = await fileCompleter.future;
+                      if (bytes != null) {
+                        fileContents[webFile.name] = bytes;
+                      }
+                    }
+
+                    final konspektJsonBytes = fileContents['konspekt.json'];
+                    if (konspektJsonBytes == null) {
+                      completer.complete(null);
+                      AppScaffold.showMessage(context, text: 'Nie znaleziono pliku konspekt.json');
+                      return;
+                    }
+
+                    Konspekt konspektCore;
+                    try {
+                      konspektCore = Konspekt.fromJsonMap(
+                        jsonDecode(utf8.decode(konspektJsonBytes)),
+                      );
+                    } catch (e) {
+                      completer.complete(null);
+                      AppScaffold.showMessage(context, text: 'Błąd parsowania konspekt.json: $e');
+                      return;
+                    }
+
+                    final Uint8List? coverImage = fileContents['cover.webp'];
+
+                    final Map<String, Uint8List> attachmentFiles = {};
+                    for (final entry in fileContents.entries) {
+                      if (entry.key.startsWith('attach@')) {
+                        attachmentFiles[entry.key.substring('attach@'.length)] = entry.value;
+                      }
+                    }
+
+                    completer.complete(HrcpknspktData(
+                      coverImage: coverImage,
+                      attachmentFiles: attachmentFiles,
+                      konspektCore: konspektCore,
+                    ));
+                  });
+
+                  input.click();
+
+                  final hrcpknspktData = await completer.future;
+                  if (hrcpknspktData != null) {
+                    onLoaded(hrcpknspktData);
+                  }
+                }
               }
           ),
         ),

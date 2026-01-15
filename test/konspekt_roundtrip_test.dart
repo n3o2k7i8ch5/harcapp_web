@@ -936,5 +936,53 @@ void main() {
       
       expect(restored.stepsData[0].required, false);
     });
+
+    test('description with double newlines roundtrip', () {
+      final original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+      
+      // HTML with two consecutive paragraphs (simulating double newline / empty line between)
+      const htmlWithDoubleNewlines = '<p>Pierwszy akapit</p><p></p><p>Trzeci akapit po pustej linii</p>';
+      original.descriptionController.text = htmlWithDoubleNewlines;
+      
+      final restored = _roundtrip(original);
+      
+      // The restored HTML should preserve the empty paragraph
+      expect(
+        restored.descriptionController.text, 
+        htmlWithDoubleNewlines,
+        reason: 'Double newlines (empty paragraph) should be preserved',
+      );
+    });
+
+    test('intro with multiple empty paragraphs roundtrip', () {
+      final original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+      
+      // HTML with multiple empty paragraphs
+      const htmlWithMultipleEmptyParagraphs = '<p>Start</p><p></p><p></p><p>End after two empty lines</p>';
+      original.introController.text = htmlWithMultipleEmptyParagraphs;
+      
+      final restored = _roundtrip(original);
+      
+      expect(
+        restored.introController.text, 
+        htmlWithMultipleEmptyParagraphs,
+        reason: 'Multiple empty paragraphs should be preserved',
+      );
+    });
+
+    test('step content with double newlines roundtrip', () {
+      final original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+      
+      const htmlWithDoubleNewlines = '<p>Krok pierwszy</p><p></p><p>Po przerwie</p>';
+      original.stepsData[0].contentController.text = htmlWithDoubleNewlines;
+      
+      final restored = _roundtrip(original);
+      
+      expect(
+        restored.stepsData[0].contentController.text, 
+        htmlWithDoubleNewlines,
+        reason: 'Step content double newlines should be preserved',
+      );
+    });
   });
 }

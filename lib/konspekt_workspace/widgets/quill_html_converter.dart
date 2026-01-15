@@ -288,7 +288,13 @@ class _DeltaToHtmlConverter {
       _handleListLineEnd(listType, indent, index, isLastNewlineInOp: isLastNewlineInOp);
     } else {
       _closeAllLists();
-      _closeParagraph();
+      // If paragraph wasn't open, this is an empty paragraph (consecutive newlines)
+      // We need to output an empty <p></p> to preserve it
+      if (!_paragraphOpen) {
+        _buffer.write('<p></p>');
+      } else {
+        _closeParagraph();
+      }
     }
   }
 
@@ -405,14 +411,50 @@ class _DeltaToHtmlConverter {
           if (part.isNotEmpty) {
             _openParagraph(null);
             _writeFormattedText(part, attrs);
+            _closeParagraph();
+          } else {
+            // Empty part in the middle (from \n\n) - create empty paragraph
+            _buffer.write('<p></p>');
           }
-          _closeParagraph();
         }
       }
       return;
     }
     
-    // For text NOT followed by a list, newlines become <br> tags
+    // For text NOT followed by a list but containing newlines,
+    // split into separate paragraphs
+    if (text.contains('\n')) {
+      final parts = text.split('\n');
+      for (int i = 0; i < parts.length; i++) {
+        final part = parts[i];
+        final isLastPart = i == parts.length - 1;
+        
+        if (isLastPart) {
+          // Last part after final \n
+          if (part.isNotEmpty) {
+            _handleTextSegment(part, attrs, index);
+          }
+          // Empty last part - handled by subsequent _handleLineEnd
+        } else {
+          // Complete paragraph
+          if (_listStack.isNotEmpty) {
+            _closeAllLists();
+          }
+          if (part.isNotEmpty) {
+            _openParagraph(null);
+            _writeFormattedText(part, attrs);
+            _closeParagraph();
+          } else if (i > 0) {
+            // Empty part in the middle (from \n\n) - create empty paragraph
+            // Skip empty first part (text starting with \n)
+            _buffer.write('<p></p>');
+          }
+        }
+      }
+      return;
+    }
+    
+    // For text without newlines, process as single segment
     _handleTextSegment(text, attrs, index);
   }
 
@@ -495,9 +537,12 @@ class _DeltaToHtmlConverter {
     return _peekNextLineAttrs(startIndex)?['align'] as String?;
   }
 
-  void _writeFormattedText(String text, Map<String, dynamic>? attrs) {
-    // Convert both soft line breaks and literal newlines to <br>
-    var result = _escapeHtml(text).replaceAll(softLineBreak, '<br>').replaceAll('\n', '<br>');
+  void _writeFormattedText(String text, Map<String, dynamic>? attrs, {bool convertNewlines = true}) {
+    // Convert soft line breaks to <br>, and optionally literal newlines too
+    var result = _escapeHtml(text).replaceAll(softLineBreak, '<br>');
+    if (convertNewlines) {
+      result = result.replaceAll('\n', '<br>');
+    }
 
     if (attrs == null || attrs.isEmpty) {
       _buffer.write(result);

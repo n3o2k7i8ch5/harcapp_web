@@ -165,7 +165,6 @@ void main() {
       
       // Get ops back from Document
       final resultOps = doc.toDelta().toJson();
-      print('QUILL DOC ROUNDTRIP: $resultOps');
       
       // Check if soft line breaks are preserved
       final hasBreaks = resultOps.any((op) {
@@ -173,7 +172,6 @@ void main() {
         return insert is String && insert.contains('\u2028');
       });
       
-      print('HAS SOFT BREAKS: $hasBreaks');
       expect(hasBreaks, isTrue, reason: 'Quill Document should preserve soft line breaks');
     });
     
@@ -183,21 +181,38 @@ void main() {
       
       // HTML -> Delta
       final ops = htmlToDeltaOps(html);
-      print('STEP 1 - HTML to Delta: $ops');
       
       // Delta -> Quill Document
       final doc = Document.fromJson(ops);
       
       // Quill Document -> Delta
       final resultOps = doc.toDelta().toJson();
-      print('STEP 2 - After Quill Document: $resultOps');
       
       // Delta -> HTML
       final resultHtml = deltaOpsToHtml(resultOps);
-      print('STEP 3 - Back to HTML: $resultHtml');
       
       // Should contain <br> tags
       expect(resultHtml, contains('<br>'), reason: 'BR tags should survive full roundtrip');
+    });
+
+    test('empty paragraph (double newline) survives Quill Document roundtrip', () {
+      // This is the user's actual issue - empty paragraph between two text paragraphs
+      const html = '<p>First paragraph.</p><p></p><p>Third paragraph after empty line.</p>';
+      
+      // HTML -> Delta
+      final ops = htmlToDeltaOps(html);
+      
+      // Delta -> Quill Document
+      final doc = Document.fromJson(ops);
+      
+      // Quill Document -> Delta
+      final resultOps = doc.toDelta().toJson();
+      
+      // Delta -> HTML
+      final resultHtml = deltaOpsToHtml(resultOps);
+      
+      // Should have empty paragraph preserved
+      expect(resultHtml, equals(html), reason: 'Empty paragraph should survive full roundtrip through Quill Document');
     });
   });
 }
