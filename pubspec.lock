@@ -682,7 +682,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "8b247df9c09ab9297fe49897228a9248483f9130"
+      resolved-ref: "18aff80586e6c25af5ae65581aa41a22b99ab57f"
       url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"
@@ -707,10 +707,10 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: bbe20924d6d38be55bfd596d602bd3f69cae1c50
+      resolved-ref: f581577d29b6a3be75d7b81f7ecb28fb3ed67619
       url: "https://github.com/n3o2k7i8ch5/htmltopdfwidgets.git"
     source: git
-    version: "0.0.4"
+    version: "0.0.5"
   html_unescape:
     dependency: transitive
     description:
