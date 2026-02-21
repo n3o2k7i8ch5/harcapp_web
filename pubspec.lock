@@ -13,10 +13,10 @@ packages:
     dependency: transitive
     description:
       name: archive
-      sha256: "2fde1607386ab523f7a36bb3e7edb43bd58e6edaf2ffb29d8a6d578b297fdbbd"
+      sha256: a96e8b390886ee8abb49b7bd3ac8df6f451c621619f52a26e815fdcf568959ff
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.7"
+    version: "4.0.9"
   args:
     dependency: transitive
     description:
@@ -682,7 +682,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: a30766004e83719e39a61ff95c05e33fe150a86a
+      resolved-ref: "2494857a6041da3749c8cfdd38fd3e501b300859"
       url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"
@@ -706,10 +706,10 @@ packages:
     dependency: transitive
     description:
       name: html_pdf_widgets
-      sha256: da5c6f66e130b86eb5b5f0638f1faa25ae47834ac40cb9905dbce7403b8a5ee4
+      sha256: "9d7ebe55a47f6821a7af771724f287a915ee3cf91e84746f8c8d82c74740fc56"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.3"
+    version: "0.0.4"
   html_unescape:
     dependency: transitive
     description:
