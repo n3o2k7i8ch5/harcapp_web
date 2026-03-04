@@ -16,7 +16,7 @@ publish_to: 'https://harcapp.web.app' # Remove this line if you wish to publish 
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.21+21
+version: 1.0.22+22
 
 environment:
   sdk: ^3.8.1
@@ -59,6 +59,8 @@ dependencies:
   harcapp_core:
     git:
       url: https://github.com/n3o2k7i8ch5/harcapp_core
+#  harcapp_core:
+#    path: ../harcapp_core
 
   flutter:
     sdk: flutter
