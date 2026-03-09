@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_bar.dart';
 import 'package:harcapp_core/comm_widgets/app_button.dart';
-import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/dialog/base.dart';
 import 'package:harcapp_core/values/dimen.dart';
@@ -47,56 +46,44 @@ class CodeEditorDialogState extends State<CodeEditorDialog> {
   }
 
   @override
-  Widget build(BuildContext context) => Center(
-      child: Padding(
-        padding: EdgeInsets.all(Dimen.sideMarg),
-        child: Container(
-            width: songDialogWidth,
-            child: Material(
-              clipBehavior: Clip.hardEdge,
-              borderRadius: BorderRadius.circular(AppCard.bigRadius),
-              child: Column(
-                children: [
+  Widget build(BuildContext context) => Column(
+    children: [
 
-                  AppBarX(
-                    title: 'Edytor kodu',
-                    actions: [
+      AppBarX(
+        title: 'Edytor kodu',
+        actions: [
 
-                      AppButton(
-                        icon: Icon(MdiIcons.formatIndentIncrease),
-                        onTap: cleanupText
-                      ),
+          AppButton(
+            icon: Icon(MdiIcons.formatIndentIncrease),
+            onTap: cleanupText
+          ),
 
-                      AppButton(
-                        icon: Icon(MdiIcons.check),
-                        onTap: save
-                      ),
+          AppButton(
+            icon: Icon(MdiIcons.check),
+            onTap: save
+          ),
 
-                    ],
-                  ),
+        ],
+      ),
 
-                  Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.only(left: Dimen.defMarg, right: Dimen.defMarg),
-                        child: TextField(
-                          minLines: 10,
-                          maxLines: null,
-                          controller: controller,
-                          style: TextStyle(color: textEnab_(context)),
-                          decoration: InputDecoration(
-                            hintText: 'Wpisz lub wklej kod piosenki',
-                            hintStyle: TextStyle(color: hintEnab_(context)),
-                            border: InputBorder.none
-                          ),
-                        ),
-                      )
-                  ),
-
-                ],
+      Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(left: Dimen.defMarg, right: Dimen.defMarg),
+            child: TextField(
+              minLines: 10,
+              maxLines: null,
+              controller: controller,
+              style: TextStyle(color: textEnab_(context)),
+              decoration: InputDecoration(
+                hintText: 'Wpisz lub wklej kod piosenki',
+                hintStyle: TextStyle(color: hintEnab_(context)),
+                border: InputBorder.none
               ),
-            )
-        ),
-      )
+            ),
+          )
+      ),
+
+    ],
   );
 
   void cleanupText(){
@@ -156,5 +143,6 @@ class CodeEditorDialogState extends State<CodeEditorDialog> {
 
 void showCodeEditorDialog(BuildContext context, SongRaw song) => openBaseDialog(
   context: context,
+  maxWidth: songDialogWidth,
   builder: (context) => CodeEditorDialog(song)
 );

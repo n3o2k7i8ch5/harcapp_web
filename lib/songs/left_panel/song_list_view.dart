@@ -17,6 +17,7 @@ import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_web/songs/left_panel/provider.dart';
 import 'package:harcapp_web/songs/left_panel/song_tile.dart';
+import 'package:harcapp_web/consts.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
@@ -355,6 +356,7 @@ void handleNewSongFromCode(BuildContext context) async {
   bool saved = false;
   await openBaseDialog(
       context: context,
+      maxWidth: songDialogWidth,
       builder: (context) => CodeEditorDialog(
         song,
         showInitCode: false,
