@@ -31,7 +31,7 @@ enum NewSongType implements IconTextEnum{
   newSongExample,
   newSongFromCode,
   newSongEmpty;
-  
+
   IconData get icon{
     switch(this){
       case NewSongType.importSongs: return MdiIcons.trayArrowUp;
@@ -41,7 +41,7 @@ enum NewSongType implements IconTextEnum{
       case NewSongType.newSongEmpty: return MdiIcons.squareRoundedOutline;
     }
   }
-  
+
   String get text{
     switch(this){
       case NewSongType.importSongs: return 'Importuj piosenki';
@@ -65,7 +65,7 @@ class SongListView extends StatefulWidget{
 }
 
 class SongListViewState extends State<SongListView>{
-  
+
   late ScrollController controller;
 
   late BuildContext itemContext;
@@ -226,29 +226,29 @@ class SearchFieldState extends State<SearchField> {
         builder: (context, prov, child) => Row(
           children: [
             AppButton(
-              icon:
-              prov.searchPhrase.isEmpty?
-              Icon(MdiIcons.magnify, color: hintEnab_(context)):
-              Icon(MdiIcons.close),
+                icon:
+                prov.searchPhrase.isEmpty?
+                Icon(MdiIcons.magnify, color: hintEnab_(context)):
+                Icon(MdiIcons.close),
 
-              onTap:
-              prov.searchPhrase.isEmpty?
-              null:
-              (){
-                controller.clear();
-                prov.changeSearchPhrase('');
-              }
+                onTap:
+                prov.searchPhrase.isEmpty?
+                null:
+                    (){
+                  controller.clear();
+                  prov.changeSearchPhrase('');
+                }
             ),
             Expanded(
               child: TextField(
-                controller: controller,
-                style: AppTextStyle(),
-                decoration: InputDecoration(
-                    hintText: 'Szukaj',
-                    hintStyle: AppTextStyle(color: hintEnab_(context)),
-                    border: InputBorder.none
-                ),
-                onChanged: (text) => prov.changeSearchPhrase(text)
+                  controller: controller,
+                  style: AppTextStyle(),
+                  decoration: InputDecoration(
+                      hintText: 'Szukaj',
+                      hintStyle: AppTextStyle(color: hintEnab_(context)),
+                      border: InputBorder.none
+                  ),
+                  onChanged: (text) => prov.changeSearchPhrase(text)
               ),
             )
           ],
@@ -294,8 +294,8 @@ class NoSongsWidget extends StatelessWidget{
 void handleImportSongsTap(BuildContext context) async {
 
   FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['hrcpsng'],
+    type: FileType.custom,
+    allowedExtensions: ['hrcpsng'],
   );
 
   if(result==null)
