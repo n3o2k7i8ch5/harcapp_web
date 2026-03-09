@@ -68,6 +68,7 @@ class SongListTileWidget extends StatelessWidget{
                     ),
                     onLongPress: (){
                       allSongsProv.clear();
+                      SongPreviewProvider.of(context).showSong = false;
                       SongFileNameDupErrProvider.of(context).checkAllDups(context);
                     },
                     icon: MdiIcons.close,
