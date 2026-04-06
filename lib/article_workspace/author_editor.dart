@@ -308,7 +308,7 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
               //     fileExtension: '.hrcpsng'
               // );
 
-              FilePickerResult? result = await FilePicker.platform.pickFiles();
+              FilePickerResult? result = await FilePicker.pickFiles();
 
               //FilePickerCross filePicker = FilePickerCross();
               //await filePicker.pick();

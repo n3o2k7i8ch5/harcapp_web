@@ -245,7 +245,7 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
           children: [
             FloatingButton(Icons.input, Colors.blueGrey, 'Wczytaj artykuł', saving?null: () async {
 
-              FilePickerResult? result = await FilePicker.platform.pickFiles();
+              FilePickerResult? result = await FilePicker.pickFiles();
 
               if(result==null)
                 return;

@@ -1047,7 +1047,7 @@ class _TopActions extends StatelessWidget {
                 if (choice == null) return;
 
                 if (choice == _LoadSourceChoice.singleFile) {
-                  FilePickerResult? result = await FilePicker.platform.pickFiles(
+                  FilePickerResult? result = await FilePicker.pickFiles(
                     type: FileType.custom,
                     allowedExtensions: ['hrcpknspkt'],
                   );
@@ -1180,7 +1180,7 @@ class _CoverWidget extends StatelessWidget {
   const _CoverWidget({required this.konspektData, required this.onChanged});
 
   Future<void> setCover(BuildContext context, StateSetter setState) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
+    FilePickerResult? result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['png', 'jpg', 'jpeg', 'webp'],
       withData: true,

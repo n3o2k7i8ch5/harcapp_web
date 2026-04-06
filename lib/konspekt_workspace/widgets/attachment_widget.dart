@@ -119,7 +119,7 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
 
     // File-based picking
     final String ext = format.extension;
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
+    FilePickerResult? result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: [ext],
       withData: true,

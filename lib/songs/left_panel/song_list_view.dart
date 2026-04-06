@@ -293,7 +293,7 @@ class NoSongsWidget extends StatelessWidget{
 
 void handleImportSongsTap(BuildContext context) async {
 
-  FilePickerResult? result = await FilePicker.platform.pickFiles(
+  FilePickerResult? result = await FilePicker.pickFiles(
     type: FileType.custom,
     allowedExtensions: ['hrcpsng'],
   );
