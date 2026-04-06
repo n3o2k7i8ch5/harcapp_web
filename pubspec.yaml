@@ -56,11 +56,11 @@ dependencies:
   worker_manager: ^7.2.2
   youtube_player_flutter: ^9.1.1
 
-  harcapp_core:
-    git:
-      url: https://github.com/n3o2k7i8ch5/harcapp_core
 #  harcapp_core:
-#    path: ../harcapp_core
+#    git:
+#      url: https://github.com/n3o2k7i8ch5/harcapp_core
+  harcapp_core:
+    path: ../harcapp_core
 
   flutter:
     sdk: flutter
