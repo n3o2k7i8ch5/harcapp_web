@@ -680,11 +680,9 @@ packages:
   harcapp_core:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "3e2b0ec3b0d9bc707dedf859b6e54a12f6892d77"
-      url: "https://github.com/n3o2k7i8ch5/harcapp_core"
-    source: git
+      path: "../harcapp_core"
+      relative: true
+    source: path
     version: "0.0.1"
   hooks:
     dependency: transitive
@@ -705,11 +703,9 @@ packages:
   html_pdf_widgets:
     dependency: transitive
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: f581577d29b6a3be75d7b81f7ecb28fb3ed67619
-      url: "https://github.com/n3o2k7i8ch5/htmltopdfwidgets.git"
-    source: git
+      path: "../htmltopdfwidgets"
+      relative: true
+    source: path
     version: "0.0.5"
   html_unescape:
     dependency: transitive
@@ -739,10 +735,10 @@ packages:
     dependency: "direct main"
     description:
       name: idb_shim
-      sha256: "62b37b2415074f3c104e93b22c3ef24c4adc52890e74c30ed36a09dd0948a2de"
+      sha256: "6cd94b71a33f1223b01ea2b359c3a6fde5980872b23b31d176a64c74d4dede57"
       url: "https://pub.dev"
     source: hosted
-    version: "2.8.5+1"
+    version: "2.8.5+2"
   image:
     dependency: "direct main"
     description:
@@ -1059,10 +1055,10 @@ packages:
     dependency: transitive
     description:
       name: path_provider_android
-      sha256: "914a07484c4380e572998d30486e77e0d9cd2faec72fee268086d07bf7f302c9"
+      sha256: "69cbd515a62b94d32a7944f086b2f82b4ac40a1d45bebfc00813a430ab2dabcd"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.0"
+    version: "2.3.1"
   path_provider_foundation:
     dependency: transitive
     description:
