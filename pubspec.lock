@@ -680,9 +680,11 @@ packages:
   harcapp_core:
     dependency: "direct main"
     description:
-      path: "../harcapp_core"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: bfd8009f96241a209e98127c610265858a22c630
+      url: "https://github.com/n3o2k7i8ch5/harcapp_core"
+    source: git
     version: "0.0.1"
   hooks:
     dependency: transitive
@@ -703,9 +705,11 @@ packages:
   html_pdf_widgets:
     dependency: transitive
     description:
-      path: "../htmltopdfwidgets"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "948751ad4534ea09829a9df51074877181b052f4"
+      url: "https://github.com/n3o2k7i8ch5/htmltopdfwidgets.git"
+    source: git
     version: "0.0.5"
   html_unescape:
     dependency: transitive
