@@ -43,6 +43,7 @@ KonspektData _buildBaseKonspekt({
       TextEditingController(text: 'Cel'),
     ],
     materials: [material],
+    tableOfContent: [],
   );
 
   final KonspektAttachmentData attachment = KonspektAttachmentData(
@@ -187,7 +188,8 @@ void _expectStepDataEqual(KonspektStepData restored, KonspektStepData original, 
   expect(restored.required, original.required, reason: reason);
   expect(restored.contentController.text, original.contentController.text, reason: reason);
   expect(restored.aims, original.aims, reason: reason);
-  
+  expect(restored.tableOfContent, original.tableOfContent, reason: reason);
+
   if (original.materials != null) {
     expect(restored.materials, isNotNull, reason: reason);
     expect(restored.materials!.length, original.materials!.length, reason: reason);
@@ -348,6 +350,7 @@ void main() {
         TextEditingController(text: 'Przedstawienie ramówki spotkania'),
       ],
       materials: [material1],
+      tableOfContent: [],
     );
 
     final KonspektStepData step2 = KonspektStepData(
@@ -361,6 +364,7 @@ void main() {
         TextEditingController(text: 'Ćwiczenie orientacji w terenie'),
       ],
       materials: [material2],
+      tableOfContent: [],
     );
 
 
@@ -972,17 +976,102 @@ void main() {
 
     test('step content with double newlines roundtrip', () {
       final original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
-      
+
       const htmlWithDoubleNewlines = '<p>Krok pierwszy</p><p></p><p>Po przerwie</p>';
       original.stepsData[0].contentController.text = htmlWithDoubleNewlines;
-      
+
       final restored = _roundtrip(original);
-      
+
       expect(
-        restored.stepsData[0].contentController.text, 
+        restored.stepsData[0].contentController.text,
         htmlWithDoubleNewlines,
         reason: 'Step content double newlines should be preserved',
       );
+    });
+  });
+
+  // ============================================================================
+  // KonspektStepData.tableOfContent tests
+  // ============================================================================
+
+  group('KonspektStepData tableOfContent', () {
+    test('fromJsonMap preserves non-empty tableOfContent', () {
+      final map = <String, dynamic>{
+        'title': 'Krok testowy',
+        'duration': 600,
+        'activeForm': 'static',
+        'required': true,
+        'content': 'Treść kroku',
+        'aims': ['Cel 1'],
+        'materials': null,
+        'tableOfContent': ['Punkt A', 'Punkt B', 'Punkt C'],
+      };
+
+      final step = KonspektStepData.fromJsonMap(map);
+
+      expect(step.tableOfContent, ['Punkt A', 'Punkt B', 'Punkt C']);
+    });
+
+    test('fromJsonMap with missing tableOfContent defaults to empty list', () {
+      final map = <String, dynamic>{
+        'title': 'Krok testowy',
+        'duration': 600,
+        'activeForm': 'static',
+        'required': true,
+        'content': 'Treść kroku',
+        'aims': [],
+        'materials': null,
+      };
+
+      final step = KonspektStepData.fromJsonMap(map);
+
+      expect(step.tableOfContent, isEmpty);
+    });
+
+    test('fromJsonMap with empty tableOfContent returns empty list', () {
+      final map = <String, dynamic>{
+        'title': 'Krok testowy',
+        'duration': 600,
+        'activeForm': 'static',
+        'required': true,
+        'content': 'Treść kroku',
+        'aims': [],
+        'materials': null,
+        'tableOfContent': <String>[],
+      };
+
+      final step = KonspektStepData.fromJsonMap(map);
+
+      expect(step.tableOfContent, isEmpty);
+    });
+
+    test('fromKonspektStep maps tableOfContent from KonspektStep', () {
+      final konspektStep = KonspektStep(
+        title: 'Krok z TOC',
+        duration: const Duration(minutes: 30),
+        activeForm: KonspektStepActiveForm.active,
+        required: true,
+        content: 'Treść',
+        tableOfContent: ['Element 1', 'Element 2'],
+      );
+
+      final stepData = KonspektStepData.fromKonspektStep(konspektStep);
+
+      expect(stepData.tableOfContent, ['Element 1', 'Element 2']);
+    });
+
+    test('fromKonspektStep with empty tableOfContent defaults to empty list', () {
+      final konspektStep = KonspektStep(
+        title: 'Krok bez TOC',
+        duration: const Duration(minutes: 15),
+        activeForm: KonspektStepActiveForm.static,
+        required: true,
+        content: 'Treść',
+      );
+
+      final stepData = KonspektStepData.fromKonspektStep(konspektStep);
+
+      expect(stepData.tableOfContent, isEmpty);
     });
   });
 }

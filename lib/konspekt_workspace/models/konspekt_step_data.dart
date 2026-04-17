@@ -12,6 +12,7 @@ class KonspektStepData extends BaseKonspektStep{
   final TextEditingController contentController;
   final List<TextEditingController> aimControllers;
   final List<KonspektMaterialData>? materials;
+  final List<String> tableOfContent;
 
   KonspektStepData({
     required this.titleController,
@@ -21,6 +22,7 @@ class KonspektStepData extends BaseKonspektStep{
     required this.contentController,
     required this.aimControllers,
     required this.materials,
+    required this.tableOfContent,
   });
 
   static KonspektStepData empty() => KonspektStepData(
@@ -30,7 +32,8 @@ class KonspektStepData extends BaseKonspektStep{
     required: true,
     contentController: TextEditingController(),
     aimControllers: [],
-    materials: null
+    materials: null,
+    tableOfContent: []
   );
 
   String get title => titleController.text;
@@ -56,6 +59,7 @@ class KonspektStepData extends BaseKonspektStep{
     contentController: TextEditingController(text: map['content']??(throw MissingDecodeParamError('content'))),
     aimControllers: (map['aims'] as List<dynamic>?)?.map((e) => TextEditingController(text: e as String)).toList()??[],
     materials: (map['materials'] as List<dynamic>?)?.map((e) => KonspektMaterialData.fromJsonMap(e as Map<String, dynamic>)).toList(),
+    tableOfContent: (map['tableOfContent'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
   );
 
   static KonspektStepData fromKonspektStep(KonspektStep s) => KonspektStepData(
@@ -66,6 +70,8 @@ class KonspektStepData extends BaseKonspektStep{
     contentController: TextEditingController(text: s.content ?? ''),
     aimControllers: (s.aims ?? []).map((a) => TextEditingController(text: a)).toList(),
     materials: s.materials?.map((m) => KonspektMaterialData.fromKonspektMaterial(m)).toList(),
+    tableOfContent: s.tableOfContent,
   );
+
 
 }
