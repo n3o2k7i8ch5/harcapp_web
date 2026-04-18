@@ -115,7 +115,7 @@ class TopNavigationBarState extends State<TopNavigationBar>{
 
               PageNavItem(
                 icon: MdiIcons.notebook,
-                title: 'Konspekty',
+                title: 'Konspekty\ni formy',
                 contextInfo: 'Konspekty dla harcerzy, kształceniowe i edytor',
                 path: pathKonspektyHarcerskie,
                 dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,

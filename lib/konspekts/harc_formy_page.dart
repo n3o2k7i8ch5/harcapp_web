@@ -3,11 +3,9 @@ import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_classes/common.dart';
 import 'package:harcapp_core/comm_classes/storage.dart';
-import 'package:harcapp_core/comm_classes/meto.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/gradient_icon.dart';
-import 'package:harcapp_core/comm_widgets/meto.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:harcapp_core/harcthought/harc_forms/base_harc_form_widget.dart';
 import 'package:harcapp_core/harcthought/harc_forms/harc_form.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
@@ -149,37 +147,6 @@ class _FormDetailWidgetState extends State<_FormDetailWidget> {
     if (mounted) setState(() => text = loaded);
   }
 
-  Widget _buildMetoTile(BuildContext context, Meto meto) {
-    final bool enabled = form.metos.contains(meto);
-    return Opacity(
-      opacity: enabled ? 1.0 : 0.5,
-      child: Material(
-        clipBehavior: Clip.hardEdge,
-        color: Colors.transparent,
-        elevation: enabled ? AppCard.bigElevation : 0,
-        borderRadius: BorderRadius.circular(AppCard.defRadius),
-        child: MetoTile(
-          meto: meto,
-          iconSize: 42.0,
-          intrinsicWidth: false,
-          trailing: Padding(
-            padding: const EdgeInsets.all(Dimen.defMarg),
-            child: Container(
-              decoration: BoxDecoration(
-                color: background_(context),
-                borderRadius: BorderRadius.circular(AppCard.defRadius),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(Dimen.defMarg),
-                child: Icon(enabled ? MdiIcons.check : MdiIcons.close),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) => SingleChildScrollView(
     padding: const EdgeInsets.all(Dimen.sideMarg),
@@ -257,30 +224,7 @@ class _FormDetailWidgetState extends State<_FormDetailWidget> {
 
             const SizedBox(height: 2 * Dimen.sideMarg),
 
-            LayoutBuilder(
-              builder: (context, constraints) {
-                const gap = SizedBox(width: Dimen.iconMarg);
-                final tiles = [Meto.zuch, Meto.harc, Meto.hs, Meto.wedro]
-                    .map((m) => Expanded(child: _buildMetoTile(context, m)))
-                    .toList();
-
-                if (constraints.maxWidth >= 720) {
-                  return Row(
-                    children: [
-                      tiles[0], gap, tiles[1], gap, tiles[2], gap, tiles[3],
-                    ],
-                  );
-                }
-
-                return Column(
-                  children: [
-                    Row(children: [tiles[0], gap, tiles[1]]),
-                    const SizedBox(height: Dimen.iconMarg),
-                    Row(children: [tiles[2], gap, tiles[3]]),
-                  ],
-                );
-              },
-            ),
+            MetoResponsiveWidget(form),
 
             const SizedBox(height: Dimen.sideMarg),
 
