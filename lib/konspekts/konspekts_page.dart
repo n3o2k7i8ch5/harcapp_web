@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:typed_data';
 
+
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
@@ -26,7 +27,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 
 import '../common/download_file.dart';
 
-class KonspektsPage extends StatefulWidget{
+class KonspektsPage extends StatefulWidget {
 
   static const double defPaddingVal = 32.0;
 
@@ -39,11 +40,11 @@ class KonspektsPage extends StatefulWidget{
   const KonspektsPage(this.itemPathTemplate, this.allKonspekts, {this.selectedKonspekt, required this.tableOfContentBuilder, this.openDrawerIfCollapsed = true, Key? key}): super(key: key);
 
   @override
-  State<StatefulWidget> createState() => KonspektsPageState();
+  State<StatefulWidget> createState() => _KonspektsPageState();
 
 }
 
-class KonspektsPageState extends State<KonspektsPage>{
+class _KonspektsPageState extends State<KonspektsPage> {
 
   static const double collapseWidth = 920;
 
@@ -111,45 +112,18 @@ class KonspektsPageState extends State<KonspektsPage>{
   Widget build(BuildContext context) => LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints){
 
-        bool workspaceAlwaysVisible = constraints.maxWidth>collapseWidth;
-
-        Widget downloadHrcpknspktButton = SimpleButton.from(
-            context: context,
-            color: cardEnab_(context),
-            radius: AppCard.defRadius,
-            margin: EdgeInsets.zero,
-            icon: MdiIcons.trayArrowDown,
-            text: 'Pobierz surowe dane',
-            onTap: () async => downloadFileFromBytes(
-                fileName: 'konspekt_${selectedKonspekt!.name}.hrcpknspkt',
-                bytes: (await selectedKonspekt!.toHrcpknspktData()).toTarBytes()
-            )
-        );
-
-        Widget downloadPdfButton = SimpleButton.from(
-            context: context,
-            color: cardEnab_(context),
-            radius: AppCard.defRadius,
-            margin: EdgeInsets.zero,
-            icon: MdiIcons.filePdfBox,
-            text: 'Pobierz jako PDF',
-            onTap: () => openDownloadPDFOptionsDialog(
-                context: context,
-                konspekt: selectedKonspekt!,
-                startTime: startTime,
-            ),
-        );
+        final bool workspaceAlwaysVisible = constraints.maxWidth > collapseWidth;
 
         return BaseScaffold(
           scaffoldKey: scaffoldKey,
           backgroundColor: cardEnab_(context),
-          drawer: workspaceAlwaysVisible?
-          null:
-          Drawer(
-            backgroundColor: background_(context),
-            child: tableOfContentBuilder(true, selectedKonspekt),
-            width: drawerWidth,
-          ),
+          drawer: workspaceAlwaysVisible
+              ? null
+              : Drawer(
+                  backgroundColor: background_(context),
+                  width: drawerWidth,
+                  child: tableOfContentBuilder(true, selectedKonspekt),
+                ),
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -159,17 +133,18 @@ class KonspektsPageState extends State<KonspektsPage>{
                   children: [
                     Material(
                       color: background_(context),
-                      borderRadius: BorderRadius.only(
+                      borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(AppCard.defRadius),
                         topRight: Radius.circular(AppCard.defRadius),
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
 
-                          if(workspaceAlwaysVisible)
+                          if (workspaceAlwaysVisible)
                             Padding(
-                              padding: EdgeInsets.only(
+                              padding: const EdgeInsets.only(
                                 top: KonspektsPage.defPaddingVal,
                                 left: KonspektsPage.defPaddingVal,
                               ),
@@ -182,10 +157,10 @@ class KonspektsPageState extends State<KonspektsPage>{
                           Expanded(
                             child: Center(
                               child: Container(
-                                constraints: BoxConstraints(maxWidth: defPageWidth),
-                                child:
-                                selectedKonspekt == null?
-                                ClickHereWidget(workspaceAlwaysVisible):
+                                constraints: const BoxConstraints(maxWidth: defPageWidth),
+                                child: selectedKonspekt == null
+                                    ? _ClickHereWidget(workspaceAlwaysVisible)
+                                    :
                                 BaseKonspektWidget(
                                   selectedKonspekt!,
                                   withAppBar: false,
@@ -193,64 +168,10 @@ class KonspektsPageState extends State<KonspektsPage>{
                                   maxDialogWidth: defPageWidth,
                                   oneLineMultiDuration: true,
                                   controller: scrollController,
-                                  leading: Padding(
-                                      padding: EdgeInsets.only(
-                                        top: KonspektsPage.defPaddingVal,
-                                        left: BaseKonspektWidget.horizontalPadding,
-                                        right: BaseKonspektWidget.horizontalPadding,
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                                        children: [
-
-                                          LayoutBuilder(
-                                            builder: (BuildContext context, BoxConstraints constraints) => AspectRatio(
-                                                aspectRatio: 1000/450,
-                                                child: Material(
-                                                    elevation: AppCard.defElevation,
-                                                    borderRadius: BorderRadius.circular(AppCard.defRadius),
-                                                    clipBehavior: Clip.hardEdge,
-                                                    child: AnimatedBuilder(
-                                                        animation: notifier,
-                                                        child: Stack(
-                                                          fit: StackFit.expand,
-                                                          clipBehavior: Clip.none,
-                                                          children: [
-
-                                                            Positioned(
-                                                                top: 0,
-                                                                left: 0,
-                                                                right: 0,
-                                                                child: AspectRatio(
-                                                                    aspectRatio: 1000/667,
-                                                                    child: KonspektCoverWidget(selectedKonspekt!)
-                                                                )
-                                                            )
-
-                                                          ],
-                                                        ),
-                                                        builder: (BuildContext context, Widget? child) => Transform.translate(
-                                                          offset: Offset(0, -max(0.0, min(notifier.value/1.3, constraints.maxWidth/1000*(667-450)))),
-                                                          child: child,
-                                                        )
-                                                    )
-                                                )
-                                            ),
-                                          ),
-
-                                          SizedBox(height: KonspektsPage.defPaddingVal),
-
-                                          Row(
-                                            children: [
-                                              Expanded(child: Container()),
-                                              downloadHrcpknspktButton,
-                                              SizedBox(width: Dimen.defMarg),
-                                              downloadPdfButton,
-                                            ],
-                                          ),
-
-                                        ],
-                                      )
+                                  leading: _KonspektLeadingWidget(
+                                    konspekt: selectedKonspekt!,
+                                    notifier: notifier,
+                                    startTime: startTime,
                                   ),
                                   oneLineSummary: false,
                                   thumbnailWidth: drawerWidth,
@@ -300,11 +221,105 @@ class KonspektsPageState extends State<KonspektsPage>{
 
 }
 
-class ClickHereWidget extends StatelessWidget{
+class _KonspektLeadingWidget extends StatelessWidget {
+  final Konspekt konspekt;
+  final ValueNotifier<double> notifier;
+  final TimeOfDay? startTime;
+
+  const _KonspektLeadingWidget({
+    required this.konspekt,
+    required this.notifier,
+    required this.startTime,
+  });
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.only(
+      top: KonspektsPage.defPaddingVal,
+      left: BaseKonspektWidget.horizontalPadding,
+      right: BaseKonspektWidget.horizontalPadding,
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+
+        LayoutBuilder(
+          builder: (context, constraints) => AspectRatio(
+            aspectRatio: 1000 / 450,
+            child: Material(
+              elevation: AppCard.defElevation,
+              borderRadius: BorderRadius.circular(AppCard.defRadius),
+              clipBehavior: Clip.hardEdge,
+              child: AnimatedBuilder(
+                animation: notifier,
+                child: Stack(
+                  fit: StackFit.expand,
+                  clipBehavior: Clip.none,
+                  children: [
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: AspectRatio(
+                        aspectRatio: 1000 / 667,
+                        child: KonspektCoverWidget(konspekt),
+                      ),
+                    ),
+                  ],
+                ),
+                builder: (context, child) => Transform.translate(
+                  offset: Offset(0, -max(0.0, min(notifier.value / 1.3, constraints.maxWidth / 1000 * (667 - 450)))),
+                  child: child,
+                ),
+              ),
+            ),
+          ),
+        ),
+
+        SizedBox(height: KonspektsPage.defPaddingVal),
+
+        Row(
+          children: [
+            Spacer(),
+            SimpleButton.from(
+              context: context,
+              color: cardEnab_(context),
+              radius: AppCard.defRadius,
+              margin: EdgeInsets.zero,
+              icon: MdiIcons.trayArrowDown,
+              text: 'Pobierz surowe dane',
+              onTap: () async => downloadFileFromBytes(
+                fileName: 'konspekt_${konspekt.name}.hrcpknspkt',
+                bytes: (await konspekt.toHrcpknspktData()).toTarBytes(),
+              ),
+            ),
+            SizedBox(width: Dimen.defMarg),
+            SimpleButton.from(
+              context: context,
+              color: cardEnab_(context),
+              radius: AppCard.defRadius,
+              margin: EdgeInsets.zero,
+              icon: MdiIcons.filePdfBox,
+              text: 'Pobierz jako PDF',
+              onTap: () => open_DownloadPDFOptionsDialog(
+                context: context,
+                konspekt: konspekt,
+                startTime: startTime,
+              ),
+            ),
+          ],
+        ),
+
+      ],
+    ),
+  );
+}
+
+class _ClickHereWidget extends StatelessWidget {
 
   final bool workspaceAlwaysVisible;
 
-  const ClickHereWidget(this.workspaceAlwaysVisible);
+  const _ClickHereWidget(this.workspaceAlwaysVisible);
 
   @override
   Widget build(BuildContext context) => Center(
@@ -370,19 +385,19 @@ class ClickHereWidget extends StatelessWidget{
 
 }
 
-class DownloadPDFOptionsDialog extends StatefulWidget{
+class _DownloadPDFOptionsDialog extends StatefulWidget{
 
   final Konspekt konspekt;
   final TimeOfDay? startTime;
 
-  const DownloadPDFOptionsDialog(this.konspekt, this.startTime);
+  const _DownloadPDFOptionsDialog(this.konspekt, this.startTime);
 
   @override
-  State<StatefulWidget> createState() => DownloadPDFOptionsDialogState();
+  State<StatefulWidget> createState() => __DownloadPDFOptionsDialogState();
   
 }
 
-class DownloadPDFOptionsDialogState extends State<DownloadPDFOptionsDialog>{
+class __DownloadPDFOptionsDialogState extends State<_DownloadPDFOptionsDialog>{
 
   late bool withCover;
   late bool withMetadata;
@@ -537,13 +552,13 @@ class DownloadPDFOptionsDialogState extends State<DownloadPDFOptionsDialog>{
 
 }
 
-Future<void> openDownloadPDFOptionsDialog({
+Future<void> open_DownloadPDFOptionsDialog({
   required BuildContext context,
   required Konspekt konspekt,
   TimeOfDay? startTime,
 }) => openBaseDialog(
     context: context,
-    builder: (context) => DownloadPDFOptionsDialog(
+    builder: (context) => _DownloadPDFOptionsDialog(
       konspekt,
       startTime,
     ),

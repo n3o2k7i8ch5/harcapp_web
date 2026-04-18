@@ -66,6 +66,8 @@ class KonspektyTabsRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           SizedBox(width: Dimen.sideMarg),
+          buildTab('Formy', pathKonspektyFormy, MdiIcons.creation),
+          SizedBox(width: 1),
           buildTab('Dla harcerzy', pathKonspektyHarcerskie, MdiIcons.tent),
           SizedBox(width: 1),
           buildTab('Kształceniowe', pathKonspektyKsztalcenie, MdiIcons.schoolOutline),

@@ -11,7 +11,7 @@ import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/harcthought/poradnik/data.dart';
 import 'package:harcapp_core/harcthought/poradnik/poradnik.dart';
 import 'package:harcapp_web/article_workspace/_main.dart';
-import 'package:harcapp_web/konspekts/_main.dart';
+import 'package:harcapp_web/konspekts/konspekts_page.dart';
 import 'package:harcapp_web/poradniks/_main.dart';
 import 'package:harcapp_web/poradniks/table_of_content_poradnik_widget.dart';
 import 'package:harcapp_web/privacy_policy/_main.dart';
@@ -24,6 +24,7 @@ import 'articles/_main.dart';
 import 'articles/article_page.dart';
 import 'home/_main.dart';
 import 'konspekt_workspace/_main.dart';
+import 'konspekts/harc_formy_page.dart';
 import 'konspekts/table_of_content_harcerskie_widget.dart';
 import 'konspekts/table_of_content_ksztalcenie_widget.dart';
 
@@ -31,6 +32,7 @@ final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 String pathHome = '/';
+String pathKonspektyFormy = '/konspekty/formy';
 String pathWarsztatKonspektow = '/konspekty/warsztat';
 String pathKonspektyHarcerskie = '/konspekty/harcerskie';
 String pathKonspektyHarcerskieItem = '/konspekty/harcerskie/:name';
@@ -228,6 +230,12 @@ GoRouter router = GoRouter(
             GoRoute(
                 path: pathHome,
                 pageBuilder: (context, state) => NoTransitionPage(child: HomePage())
+            ),
+            GoRoute(
+              path: pathKonspektyFormy,
+              pageBuilder: (context, state) => const NoTransitionPage(
+                child: HarcFormyPage(key: ValueKey('formy')),
+              ),
             ),
             GoRoute(
                 name: 'konspektWorkspace',
