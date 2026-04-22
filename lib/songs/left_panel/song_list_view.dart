@@ -296,6 +296,7 @@ void handleImportSongsTap(BuildContext context) async {
   FilePickerResult? result = await FilePicker.pickFiles(
     type: FileType.custom,
     allowedExtensions: ['hrcpsng'],
+    withData: true,
   );
 
   if(result==null)
@@ -304,16 +305,18 @@ void handleImportSongsTap(BuildContext context) async {
   String code;
   try {
     code = utf8.decode(result.files.single.bytes!);
-  } catch(e){
-    AppScaffold.showMessage(context, text: 'Błąd odczytu pliku (błąd kodowania binarnego)');
+  } catch(e, s){
+    AppScaffold.showMessage(context, text: 'Błąd odczytu pliku (błąd kodowania binarnego): $e');
+    debugPrint('Błąd odczytu pliku: $e\n$s');
     return;
   }
 
   var songsResult;
   try {
     songsResult = importHrcpsng(code);
-  } catch(e){
-    AppScaffold.showMessage(context, text: e.toString());
+  } catch(e, s){
+    AppScaffold.showMessage(context, text: 'Błąd importu piosenek: $e');
+    debugPrint('Błąd importu piosenek: $e\n$s');
     return;
   }
   List<SongRaw> offSongs = songsResult.$1;
