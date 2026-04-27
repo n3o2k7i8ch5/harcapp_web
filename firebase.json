@@ -3,8 +3,28 @@
     "public": "build/web",
     "ignore": [
       "firebase.json",
-      "**/.*",
+      "**/.DS_Store",
       "**/node_modules/**"
+    ],
+    "headers": [
+      {
+        "source": "/.well-known/apple-app-site-association",
+        "headers": [
+          { "key": "Content-Type", "value": "application/json" }
+        ]
+      }
+    ],
+    "redirects": [
+      {
+        "source": "/poradnik/:name",
+        "destination": "https://gitlab.com/n3o2k7i8ch5/harcapp_data/raw/master/poradniki/:name/:name.pdf",
+        "type": 302
+      },
+      {
+        "source": "/poradnik/:name/:ext",
+        "destination": "https://gitlab.com/n3o2k7i8ch5/harcapp_data/raw/master/poradniki/:name/:name.:ext",
+        "type": 302
+      }
     ],
     "rewrites": [
       {

@@ -1,0 +1,16 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["J8VJ6UR5V8.com.daniwan.harcapp"],
+        "components": [
+          { "/": "/poradnik/*" },
+          { "/": "/konspekty/*" },
+          { "/": "/p/*" },
+          { "/": "/k/*" },
+          { "/": "/f/*" }
+        ]
+      }
+    ]
+  }
+}

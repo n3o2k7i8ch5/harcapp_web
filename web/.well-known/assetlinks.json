@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.daniwan.harcapp",
+      "sha256_cert_fingerprints": [
+        "1A:7C:66:5E:45:5C:A9:6E:01:CB:17:A2:8C:E8:C7:92:3E:5D:6B:28:53:33:D2:18:7D:26:7D:E4:C2:CE:B9:22"
+      ]
+    }
+  }
+]

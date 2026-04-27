@@ -7,6 +7,8 @@ import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/gradient_icon.dart';
 import 'package:harcapp_core/harcthought/harc_forms/base_harc_form_widget.dart';
 import 'package:harcapp_core/harcthought/harc_forms/harc_form.dart';
+import 'package:harcapp_core/harcthought/harcapp_links.dart';
+import 'package:harcapp_core/harcthought/harcapp_share_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/consts.dart';
@@ -178,6 +180,10 @@ class _FormDetailWidgetState extends State<_FormDetailWidget> {
                       fontWeight: weightBold,
                     ),
                   ),
+                ),
+                HarcappShareButton(
+                  url: HarcappLinks.formaOf(form),
+                  subject: form.title,
                 ),
               ],
             ),

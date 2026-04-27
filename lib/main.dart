@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/color_pack_app.dart';
 import 'package:harcapp_core/comm_classes/color_pack_provider.dart';
 import 'package:harcapp_core/comm_classes/sha_pref.dart';
+import 'package:harcapp_core/harcthought/harcapp_share_button.dart';
 import 'package:harcapp_core/harcthought/konspekts/initialize.dart';
 import 'package:harcapp_core/song_book/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_editor_app.dart';
@@ -16,6 +17,7 @@ import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/song_preview_widget.dart';
 import 'package:harcapp_web/theme_mode_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_strategy/url_strategy.dart';
 
 import 'articles/models/azymut.dart';
@@ -34,6 +36,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // When changing this, delete the `web` folder.
   setPathUrlStrategy();
+  HarcappShare.register((url, {subject}) =>
+      SharePlus.instance.share(ShareParams(uri: Uri.parse(url), subject: subject)));
   initLogger();
   await IDB.init();
   await initArticles();

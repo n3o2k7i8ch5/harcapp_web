@@ -15,6 +15,8 @@ import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/dialog/base.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
+import 'package:harcapp_core/harcthought/harcapp_links.dart';
+import 'package:harcapp_core/harcthought/harcapp_share_button.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt_sphere_duch_levels_info_dialog.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt_to_pdf/konspekt_to_pdf.dart';
@@ -280,6 +282,10 @@ class _KonspektLeadingWidget extends StatelessWidget {
 
         Row(
           children: [
+            HarcappShareButton(
+              url: HarcappLinks.konspektOf(konspekt),
+              subject: konspekt.title,
+            ),
             Spacer(),
             SimpleButton.from(
               context: context,

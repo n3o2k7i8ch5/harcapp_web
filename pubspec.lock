@@ -682,7 +682,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: e58b5f8c1ec1c65ffa1b8f7977ecd03e2c73b4c0
+      resolved-ref: "676b7597907b93919d811292d1a5bb0853f21c17"
       url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"
@@ -739,10 +739,10 @@ packages:
     dependency: "direct main"
     description:
       name: idb_shim
-      sha256: "6cd94b71a33f1223b01ea2b359c3a6fde5980872b23b31d176a64c74d4dede57"
+      sha256: "86d4045b2ebf19748dfbd166e818406ed74db50e323eb661f9ddc7c9387f616b"
       url: "https://pub.dev"
     source: hosted
-    version: "2.8.5+2"
+    version: "2.9.0"
   image:
     dependency: "direct main"
     description:
@@ -1311,6 +1311,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.8.6"
+  share_plus:
+    dependency: "direct main"
+    description:
+      name: share_plus
+      sha256: "223873d106614442ea6f20db5a038685cc5b32a2fba81cdecaefbbae0523f7fa"
+      url: "https://pub.dev"
+    source: hosted
+    version: "12.0.2"
+  share_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: share_plus_platform_interface
+      sha256: "88023e53a13429bd65d8e85e11a9b484f49d4c190abbd96c7932b74d6927cc9a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.1.0"
   shared_preferences:
     dependency: "direct main"
     description:
