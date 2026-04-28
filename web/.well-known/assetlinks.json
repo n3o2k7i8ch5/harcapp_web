@@ -5,7 +5,9 @@
       "namespace": "android_app",
       "package_name": "com.daniwan.harcapp",
       "sha256_cert_fingerprints": [
-        "1A:7C:66:5E:45:5C:A9:6E:01:CB:17:A2:8C:E8:C7:92:3E:5D:6B:28:53:33:D2:18:7D:26:7D:E4:C2:CE:B9:22"
+        "1A:7C:66:5E:45:5C:A9:6E:01:CB:17:A2:8C:E8:C7:92:3E:5D:6B:28:53:33:D2:18:7D:26:7D:E4:C2:CE:B9:22",
+        "A7:EA:67:40:A9:B6:09:F6:6C:D2:65:34:62:CB:64:CE:DC:B8:03:62:B3:A9:1E:EC:0A:76:51:2E:42:A2:82:70",
+        "92:6B:4B:2C:37:B2:A5:81:4B:9F:7B:42:CD:8C:01:3A:A9:FE:C9:F2:99:A1:84:16:D8:99:B9:81:E9:F8:3F:05"
       ]
     }
   }
