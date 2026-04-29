@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
-import 'package:harcapp_core/comm_widgets/folder_tab.dart';
-import 'package:harcapp_core/comm_widgets/folder_tab_indicator.dart';
 import 'package:harcapp_core/comm_widgets/tab_bar.dart';
+import 'package:harcapp_core/folder/folder_tab.dart';
+import 'package:harcapp_core/folder/folder_tab_indicator.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_persistent_folder.dart';
