@@ -19,34 +19,44 @@ class RozwazaniaEwangelicznePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final folders = ApelEwanPersistentFolder.all;
 
+    final Color barColor = cardEnab_(context);
+    const Color bodyColor = Colors.black;
+
     return DefaultTabController(
       length: folders.length,
       child: BaseScaffold(
-        backgroundColor: background_(context),
+        backgroundColor: bodyColor,
         body: Column(
           children: [
 
             Material(
-              color: background_(context),
-              child: TabBarX(
-                isScrollable: true,
-                indicator: FolderTabIndicator(context: context),
-                indicatorSize: TabBarIndicatorSize.tab,
-                tabs: [
-                  for (final folder in folders)
-                    FolderTab(
-                      iconKey: folder.iconKey,
-                      colorsKey: folder.colorsKey,
-                      folderName: folder.name,
-                      countText: 'Liczba rozważań: ${folder.apelEwans.length}',
-                    ),
-                ],
+              color: barColor,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: defPageWidth),
+                  child: TabBarX(
+                    isScrollable: true,
+                    indicator: FolderTabIndicator(color: bodyColor),
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Colors.white,
+                    tabs: [
+                      for (final folder in folders)
+                        FolderTab(
+                          iconKey: folder.iconKey,
+                          colorsKey: folder.colorsKey,
+                          folderName: folder.name,
+                          countText: 'Liczba rozważań: ${folder.apelEwans.length}',
+                        ),
+                    ],
+                  ),
+                ),
               ),
             ),
 
             Expanded(
               child: Material(
-                color: cardEnab_(context),
+                color: bodyColor,
                 child: TabBarView(
                   children: [
                     for (final folder in folders)
