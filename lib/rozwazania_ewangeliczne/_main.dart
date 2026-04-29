@@ -18,7 +18,6 @@ import 'package:harcapp_core/harcthought/harcapp_links.dart';
 import 'package:harcapp_core/harcthought/harcapp_share_button.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/consts.dart';
-import 'package:harcapp_web/rozwazania_ewangeliczne/apel_ewan_viewer_page.dart';
 import 'package:harcapp_web/router.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -134,8 +133,9 @@ class _RozwazaniaEwangelicznePageState extends State<RozwazaniaEwangelicznePage>
 
 class _ApelEwanGrid extends StatefulWidget {
 
-  static const double thumbnailSize = 180;
+  static const double thumbnailSize = 140;
   static const double spacing = Dimen.sideMarg;
+  static const double gridSpacing = Dimen.iconMarg;
 
   final ApelEwanPersistentFolder folder;
 
@@ -181,16 +181,10 @@ class _ApelEwanGridState extends State<_ApelEwanGrid> {
   }
 
   void _openApel(BuildContext context, ApelEwan apel) {
-    Navigator.of(context).push(PageRouteBuilder(
-      pageBuilder: (_, _, _) => ApelEwanViewerPage(
-        folder: widget.folder,
-        initialApel: apel,
-      ),
-      transitionDuration: const Duration(milliseconds: 200),
-      reverseTransitionDuration: const Duration(milliseconds: 200),
-      transitionsBuilder: (_, animation, _, child) =>
-          FadeTransition(opacity: animation, child: child),
-    ));
+    final url = pathRozwazaniaEwangelicznegoApel
+        .replaceAll(':folder', widget.folder.slug)
+        .replaceAll(':apel', apel.dirName);
+    context.push(url);
   }
 
   void _openPdfBottomSheet(BuildContext context) {
@@ -259,8 +253,8 @@ class _ApelEwanGridState extends State<_ApelEwanGrid> {
                       physics: const BouncingScrollPhysics(),
                       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                         maxCrossAxisExtent: _ApelEwanGrid.thumbnailSize,
-                        crossAxisSpacing: _ApelEwanGrid.spacing,
-                        mainAxisSpacing: _ApelEwanGrid.spacing,
+                        crossAxisSpacing: _ApelEwanGrid.gridSpacing,
+                        mainAxisSpacing: _ApelEwanGrid.gridSpacing,
                         childAspectRatio: 1,
                       ),
                       itemCount: _filtered.length,

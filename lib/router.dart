@@ -16,8 +16,10 @@ import 'package:harcapp_web/poradniks/_main.dart';
 import 'package:harcapp_web/poradniks/poradnik_page.dart';
 import 'package:harcapp_web/poradniks/table_of_content_poradnik_widget.dart';
 import 'package:harcapp_web/privacy_policy/_main.dart';
+import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_persistent_folder.dart';
 import 'package:harcapp_web/rozwazania_ewangeliczne/_main.dart';
+import 'package:harcapp_web/rozwazania_ewangeliczne/apel_ewan_viewer_page.dart';
 import 'package:harcapp_web/songs/_main.dart';
 import 'package:harcapp_web/songs/song_contribution_rules_page.dart';
 import 'package:harcapp_web/sprawnosci_page/_main.dart';
@@ -59,12 +61,45 @@ String pathPrivacyPolicy = '/privacy_policy';
 String pathRozwazaniaEwangeliczne = HarcappLinks.apelEwanFolderListTemplate;
 String pathRozwazaniaEwangelicznegoFolder = HarcappLinks.apelEwanFolderTemplate;
 String pathRozwazaniaEwangelicznegoFolderShort = HarcappLinks.apelEwanFolderTemplateShort;
+String pathRozwazaniaEwangelicznegoApel = HarcappLinks.apelEwanItemTemplate;
+String pathRozwazaniaEwangelicznegoApelShort = HarcappLinks.apelEwanItemTemplateShort;
 String pathSprawnosci = '/sprawnosci';
 String pathSprawnosciBook = '/sprawnosci/:bookId';
 String pathSprawnosciBookFamily = '/sprawnosci/:bookId/:familyId';
  String pathDownload = '/download';
 
 // Removed pathSprawnosciFamily
+
+Page<dynamic> _apelEwanViewerPageBuilder(BuildContext context, GoRouterState state) {
+  final folderSlug = state.pathParameters['folder'];
+  final apelDirName = state.pathParameters['apel'];
+
+  final folder = folderSlug == null ? null : ApelEwanPersistentFolder.bySlug(folderSlug);
+  ApelEwan? apel;
+  if (folder != null && apelDirName != null) {
+    try {
+      apel = folder.apelEwans.firstWhere((a) => a.dirName == apelDirName);
+    } on StateError {
+      apel = null;
+    }
+  }
+
+  if (folder == null || apel == null) {
+    return NoTransitionPage(
+      key: ValueKey('apel_notfound_${folderSlug}_$apelDirName'),
+      child: const Scaffold(body: Center(child: Text('Nie znaleziono rozważania'))),
+    );
+  }
+
+  return CustomTransitionPage(
+    key: ValueKey('apel_${folder.slug}_${apel.dirName}'),
+    transitionDuration: const Duration(milliseconds: 200),
+    reverseTransitionDuration: const Duration(milliseconds: 200),
+    transitionsBuilder: (_, animation, _, child) =>
+        FadeTransition(opacity: animation, child: child),
+    child: ApelEwanViewerPage(folder: folder, initialApel: apel),
+  );
+}
 
 TableOfContentHarcerskieWidget tableOfContentHarcerskieWidget(BuildContext context, bool isDrawer, Konspekt? selectedKonspekt) => TableOfContentHarcerskieWidget(
   selectedKonspekt: selectedKonspekt,
@@ -414,6 +449,14 @@ GoRouter router = GoRouter(
                     child: RozwazaniaEwangelicznePage(folderSlug: slug),
                   );
                 }
+            ),
+            GoRoute(
+                path: pathRozwazaniaEwangelicznegoApel,
+                pageBuilder: _apelEwanViewerPageBuilder,
+            ),
+            GoRoute(
+                path: pathRozwazaniaEwangelicznegoApelShort,
+                pageBuilder: _apelEwanViewerPageBuilder,
             ),
             GoRoute(
               path: pathDownload,
