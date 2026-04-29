@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_widgets/tab_bar.dart';
+import 'package:harcapp_core/folder/folder_tab.dart';
+import 'package:harcapp_core/folder/folder_tab_indicator.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_persistent_folder.dart';
@@ -72,80 +75,87 @@ class _ApelEwanViewerPageState extends State<ApelEwanViewerPage>
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    backgroundColor: background_(context),
-    appBar: AppBar(
-      backgroundColor: cardEnab_(context),
-      foregroundColor: iconEnab_(context),
-      leading: IconButton(
-        icon: Icon(MdiIcons.arrowLeft),
-        onPressed: () => Navigator.of(context).pop(),
-        tooltip: 'Wróć',
-      ),
-      title: Text(
-        widget.folder.name,
-        style: AppTextStyle(
-          fontSize: Dimen.textSizeAppBar,
-          fontWeight: weightBold,
-          color: iconEnab_(context),
+  Widget build(BuildContext context) {
+    final Color barColor = cardEnab_(context);
+    const Color bodyColor = Colors.black;
+
+    return Scaffold(
+      backgroundColor: bodyColor,
+      appBar: AppBar(
+        backgroundColor: barColor,
+        foregroundColor: iconEnab_(context),
+        leading: IconButton(
+          icon: Icon(MdiIcons.arrowLeft),
+          onPressed: () => Navigator.of(context).pop(),
+          tooltip: 'Wróć',
+        ),
+        title: Text(
+          widget.folder.name,
+          style: AppTextStyle(
+            fontSize: Dimen.textSizeAppBar,
+            fontWeight: weightBold,
+            color: iconEnab_(context),
+          ),
         ),
       ),
-    ),
-    body: Column(
-      children: [
+      body: Column(
+        children: [
 
-        Material(
-          color: cardEnab_(context),
-          child: TabBar(
-            controller: tabController,
-            isScrollable: true,
-            labelColor: iconEnab_(context),
-            unselectedLabelColor: hintEnab_(context),
-            indicatorColor: accent_(context),
-            tabs: [
-              for (final apel in apels)
-                Tab(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: Dimen.defMarg),
-                    child: Text(
-                      apel.siglum,
-                      style: const AppTextStyle(
-                        fontSize: Dimen.textSizeNormal,
-                        fontWeight: weightHalfBold,
+          Material(
+            color: barColor,
+            child: LayoutBuilder(
+              builder: (context, constraints) => Center(
+                child: SizedBox(
+                  width: constraints.maxWidth > defPageWidth
+                      ? defPageWidth
+                      : constraints.maxWidth,
+                  child: TabBarX(
+                    controller: tabController,
+                    isScrollable: true,
+                    indicator: FolderTabIndicator(color: bodyColor),
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    splashBorderRadius: FolderTabIndicator.defBorderRadius,
+                    overlayColor: WidgetStateProperty.all(
+                        Colors.white.withValues(alpha: 0.08)),
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Colors.white,
+                    tabs: [
+                      for (final apel in apels)
+                        FolderBaseTab(text: apel.siglum),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          Expanded(
+            child: PageView.builder(
+              controller: pageController,
+              physics: const BouncingScrollPhysics(),
+              itemCount: apels.length,
+              onPageChanged: _handlePageChange,
+              itemBuilder: (context, index) {
+                final apel = apels[index];
+                return SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.all(Dimen.sideMarg),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: defPageWidth),
+                      child: ApelEwanWidget(
+                        apel,
+                        initVariantId: widget.folder.variantId,
                       ),
                     ),
                   ),
-                ),
-            ],
+                );
+              },
+            ),
           ),
-        ),
 
-        Expanded(
-          child: PageView.builder(
-            controller: pageController,
-            physics: const BouncingScrollPhysics(),
-            itemCount: apels.length,
-            onPageChanged: _handlePageChange,
-            itemBuilder: (context, index) {
-              final apel = apels[index];
-              return SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.all(Dimen.sideMarg),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: defPageWidth),
-                    child: ApelEwanWidget(
-                      apel,
-                      initVariantId: widget.folder.variantId,
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
