@@ -40,6 +40,12 @@ String pathKonspektyKsztalcenie = HarcappLinks.konspektCategoryListPath(Konspekt
 String pathKonspektyKsztalcenieItem = HarcappLinks.konspektCategoryItemPath(KonspektCategory.ksztalcenie);
 String pathPoradnik = HarcappLinks.poradnikListTemplate;
 String pathPoradnikItem = HarcappLinks.poradnikItemTemplate;
+String pathPoradnikItemShort = HarcappLinks.poradnikItemTemplateShort;
+String pathKonspektyHarcerskieItemShort =
+    HarcappLinks.konspektItemTemplateShort.replaceFirst(':category', 'h');
+String pathKonspektyKsztalcenieItemShort =
+    HarcappLinks.konspektItemTemplateShort.replaceFirst(':category', 'k');
+String pathFormaItemShort = HarcappLinks.formaItemTemplateShort;
 String pathArticlesWorkspace = '/article_workspace';
 String pathArticles = '/articles';
 String pathArticlesSource = '/articles/:source';
@@ -283,11 +289,37 @@ GoRouter router = GoRouter(
               tableOfContentBuilder: tableOfContentKsztalcenieWidget,
             ),
 
+            // Short item routes — same widgets, just different paths.
+            // List paths stay long-form only.
+            ..._buildKonspektyRoutes(
+              listPath: pathKonspektyHarcerskie,
+              itemPath: pathKonspektyHarcerskieItemShort,
+              allKonspekts: allHarcerskieKonspekts,
+              keyBase: 'konspekty harcerskie short',
+              tableOfContentBuilder: tableOfContentHarcerskieWidget,
+            ),
+
+            ..._buildKonspektyRoutes(
+              listPath: pathKonspektyKsztalcenie,
+              itemPath: pathKonspektyKsztalcenieItemShort,
+              allKonspekts: allKsztalcenieKonspekts,
+              keyBase: 'konspekty ksztalcenie short',
+              tableOfContentBuilder: tableOfContentKsztalcenieWidget,
+            ),
+
             ..._buildPoradnikRoutes(
               listPath: pathPoradnik,
               itemPath: pathPoradnikItem,
               allPoradniks: allPoradniks,
               keyBase: 'poradnik',
+              tableOfContentBuilder: tableOfContentPoradnikWidget,
+            ),
+
+            ..._buildPoradnikRoutes(
+              listPath: pathPoradnik,
+              itemPath: pathPoradnikItemShort,
+              allPoradniks: allPoradniks,
+              keyBase: 'poradnik short',
               tableOfContentBuilder: tableOfContentPoradnikWidget,
             ),
 

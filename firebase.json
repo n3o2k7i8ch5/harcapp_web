@@ -22,6 +22,11 @@
         "source": "/poradnik/:name/:ext",
         "destination": "https://gitlab.com/n3o2k7i8ch5/harcapp_data/raw/master/poradniki/:name/:name.:ext",
         "type": 302
+      },
+      {
+        "source": "/p/:name/:ext",
+        "destination": "https://gitlab.com/n3o2k7i8ch5/harcapp_data/raw/master/poradniki/:name/:name.:ext",
+        "type": 302
       }
     ],
     "rewrites": [

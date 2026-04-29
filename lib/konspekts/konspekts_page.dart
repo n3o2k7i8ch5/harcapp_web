@@ -115,6 +115,7 @@ class _KonspektsPageState extends State<KonspektsPage> {
       builder: (BuildContext context, BoxConstraints constraints){
 
         final bool workspaceAlwaysVisible = constraints.maxWidth > collapseWidth;
+        final bool narrow = constraints.maxWidth < _KonspektLeadingWidget.narrowCoverThreshold;
 
         return BaseScaffold(
           scaffoldKey: scaffoldKey,
@@ -135,10 +136,12 @@ class _KonspektsPageState extends State<KonspektsPage> {
                   children: [
                     Material(
                       color: background_(context),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(AppCard.defRadius),
-                        topRight: Radius.circular(AppCard.defRadius),
-                      ),
+                      borderRadius: narrow
+                          ? BorderRadius.zero
+                          : const BorderRadius.only(
+                              topLeft: Radius.circular(AppCard.defRadius),
+                              topRight: Radius.circular(AppCard.defRadius),
+                            ),
                       clipBehavior: Clip.antiAlias,
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -224,6 +227,8 @@ class _KonspektsPageState extends State<KonspektsPage> {
 }
 
 class _KonspektLeadingWidget extends StatelessWidget {
+  static const double narrowCoverThreshold = 600;
+
   final Konspekt konspekt;
   final ValueNotifier<double> notifier;
   final TimeOfDay? startTime;
@@ -235,91 +240,107 @@ class _KonspektLeadingWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: EdgeInsets.only(
-      top: KonspektsPage.defPaddingVal,
-      left: BaseKonspektWidget.horizontalPadding,
-      right: BaseKonspektWidget.horizontalPadding,
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, parentConstraints) {
+      final bool narrow = parentConstraints.maxWidth < narrowCoverThreshold;
+      final double sidePadding = narrow ? 0 : BaseKonspektWidget.horizontalPadding;
 
-        LayoutBuilder(
-          builder: (context, constraints) => AspectRatio(
-            aspectRatio: 1000 / 450,
-            child: Material(
-              elevation: AppCard.defElevation,
-              borderRadius: BorderRadius.circular(AppCard.defRadius),
-              clipBehavior: Clip.hardEdge,
-              child: AnimatedBuilder(
-                animation: notifier,
-                child: Stack(
-                  fit: StackFit.expand,
-                  clipBehavior: Clip.none,
-                  children: [
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      child: AspectRatio(
-                        aspectRatio: 1000 / 667,
-                        child: KonspektCoverWidget(konspekt),
-                      ),
-                    ),
-                  ],
-                ),
-                builder: (context, child) => Transform.translate(
-                  offset: Offset(0, -max(0.0, min(notifier.value / 1.3, constraints.maxWidth / 1000 * (667 - 450)))),
-                  child: child,
-                ),
-              ),
-            ),
-          ),
-        ),
-
-        SizedBox(height: KonspektsPage.defPaddingVal),
-
-        Row(
+      return Padding(
+        padding: EdgeInsets.only(top: narrow ? 0 : KonspektsPage.defPaddingVal),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            HarcappShareButton(
-              url: HarcappLinks.konspektOf(konspekt),
-              subject: konspekt.title,
-              color: cardEnab_(context),
-              radius: AppCard.defRadius,
-            ),
-            Spacer(),
-            SimpleButton.from(
-              context: context,
-              color: cardEnab_(context),
-              radius: AppCard.defRadius,
-              margin: EdgeInsets.zero,
-              icon: MdiIcons.trayArrowDown,
-              text: 'Pobierz .hrcpknspkt',
-              onTap: () async => downloadFileFromBytes(
-                fileName: 'konspekt_${konspekt.name}.hrcpknspkt',
-                bytes: (await konspekt.toHrcpknspktData()).toTarBytes(),
+
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: sidePadding),
+              child: LayoutBuilder(
+                builder: (context, constraints) => AspectRatio(
+                  aspectRatio: 1000 / 450,
+                  child: Material(
+                    elevation: AppCard.defElevation,
+                    borderRadius: BorderRadius.circular(narrow ? 0 : AppCard.defRadius),
+                    clipBehavior: Clip.hardEdge,
+                    child: AnimatedBuilder(
+                      animation: notifier,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        clipBehavior: Clip.none,
+                        children: [
+                          Positioned(
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            child: AspectRatio(
+                              aspectRatio: 1000 / 667,
+                              child: KonspektCoverWidget(konspekt),
+                            ),
+                          ),
+                        ],
+                      ),
+                      builder: (context, child) => narrow
+                          ? child!
+                          : Transform.translate(
+                              offset: Offset(0, -max(0.0, min(notifier.value / 1.3, constraints.maxWidth / 1000 * (667 - 450)))),
+                              child: child,
+                            ),
+                    ),
+                  ),
+                ),
               ),
             ),
-            SizedBox(width: Dimen.defMarg),
-            SimpleButton.from(
-              context: context,
-              color: cardEnab_(context),
-              radius: AppCard.defRadius,
-              margin: EdgeInsets.zero,
-              icon: MdiIcons.filePdfBox,
-              text: 'Pobierz PDF',
-              onTap: () => open_DownloadPDFOptionsDialog(
-                context: context,
-                konspekt: konspekt,
-                startTime: startTime,
+
+            SizedBox(height: KonspektsPage.defPaddingVal),
+
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: BaseKonspektWidget.horizontalPadding),
+              child: Row(
+                mainAxisAlignment: narrow ? MainAxisAlignment.end : MainAxisAlignment.start,
+                children: [
+                  HarcappShareButton(
+                    url: HarcappLinks.konspektOf(konspekt),
+                    subject: konspekt.title,
+                    color: cardEnab_(context),
+                    radius: AppCard.defRadius,
+                    collapsed: narrow,
+                  ),
+                  if (narrow)
+                    SizedBox(width: Dimen.defMarg)
+                  else
+                    Spacer(),
+                  SimpleButton.from(
+                    context: context,
+                    color: cardEnab_(context),
+                    radius: AppCard.defRadius,
+                    margin: EdgeInsets.zero,
+                    icon: MdiIcons.trayArrowDown,
+                    text: narrow ? null : 'Pobierz .hrcpknspkt',
+                    onTap: () async => downloadFileFromBytes(
+                      fileName: 'konspekt_${konspekt.name}.hrcpknspkt',
+                      bytes: (await konspekt.toHrcpknspktData()).toTarBytes(),
+                    ),
+                  ),
+                  SizedBox(width: Dimen.defMarg),
+                  SimpleButton.from(
+                    context: context,
+                    color: cardEnab_(context),
+                    radius: AppCard.defRadius,
+                    margin: EdgeInsets.zero,
+                    icon: MdiIcons.filePdfBox,
+                    text: narrow ? null : 'Pobierz PDF',
+                    onTap: () => open_DownloadPDFOptionsDialog(
+                      context: context,
+                      konspekt: konspekt,
+                      startTime: startTime,
+                    ),
+                  ),
+                ],
               ),
             ),
+
           ],
         ),
-
-      ],
-    ),
+      );
+    },
   );
 }
 

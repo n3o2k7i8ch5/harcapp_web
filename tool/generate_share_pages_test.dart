@@ -92,7 +92,8 @@ bool _processKonspekt(Konspekt k, String template) {
         'Skipping konspekt "${k.name}": cover not found at ${coverFile.path}');
     return false;
   }
-  final pageUrl = '$_baseUrl/konspekty/${k.category.path}/${k.name}';
+  // Canonical URL points to the short form — that's what new shares use.
+  final pageUrl = '$_baseUrl/k/${k.category.pathShort}/${k.name}';
   final coverUrl = '$_baseUrl/assets/${k.coverPath}';
   final html = _renderPage(
     template: template,
@@ -101,7 +102,9 @@ bool _processKonspekt(Konspekt k, String template) {
     pageDescription: k.summary,
     coverUrl: coverUrl,
   );
+  // Generate at both long and short paths so legacy and new links both work.
   _writePage('konspekty/${k.category.path}/${k.name}', html);
+  _writePage('k/${k.category.pathShort}/${k.name}', html);
   return true;
 }
 
@@ -114,7 +117,7 @@ bool _processPoradnik(Poradnik p, String template) {
         'Skipping poradnik "${p.name}": cover not found at ${coverFile.path}');
     return false;
   }
-  final pageUrl = '$_baseUrl/poradnik/${p.name}';
+  final pageUrl = '$_baseUrl/p/${p.name}';
   final coverUrl = '$_baseUrl/assets/$coverRel';
   final html = _renderPage(
     template: template,
@@ -124,6 +127,7 @@ bool _processPoradnik(Poradnik p, String template) {
     coverUrl: coverUrl,
   );
   _writePage('poradnik/${p.name}', html);
+  _writePage('p/${p.name}', html);
   return true;
 }
 

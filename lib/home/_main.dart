@@ -260,7 +260,7 @@ class PlayStoreDownloadButton extends StatelessWidget{
 
           SizedBox(height: 36.0),
 
-          Text(
+          SelectableText(
             'Pobierz na Androida',
             style: TextStyle(
               fontSize: 20.0,
@@ -283,8 +283,6 @@ class PlayStoreDownloadButton extends StatelessWidget{
             url: playStoreUrl,
           ),
 
-          SizedBox(height: Dimen.defMarg),
-
         ],
       ),
     ),
@@ -306,7 +304,7 @@ class AppStoreDownloadButton extends StatelessWidget {
 
           SizedBox(height: 36.0),
 
-          Text(
+          SelectableText(
               'Pobierz na iOS',
               style: TextStyle(
                 fontSize: 20.0,
