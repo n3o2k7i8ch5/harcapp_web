@@ -16,6 +16,7 @@ import 'package:harcapp_web/poradniks/_main.dart';
 import 'package:harcapp_web/poradniks/poradnik_page.dart';
 import 'package:harcapp_web/poradniks/table_of_content_poradnik_widget.dart';
 import 'package:harcapp_web/privacy_policy/_main.dart';
+import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_persistent_folder.dart';
 import 'package:harcapp_web/rozwazania_ewangeliczne/_main.dart';
 import 'package:harcapp_web/songs/_main.dart';
 import 'package:harcapp_web/songs/song_contribution_rules_page.dart';
@@ -55,7 +56,9 @@ String pathArticlesSourceItem = '/articles/:source/:localId';
 String pathSong = '/song';
 String pathSongContributionRules = '/song_contribution_rules';
 String pathPrivacyPolicy = '/privacy_policy';
-String pathRozwazaniaEwangeliczne = '/rozwazania_ewangeliczne';
+String pathRozwazaniaEwangeliczne = HarcappLinks.apelEwanFolderListTemplate;
+String pathRozwazaniaEwangelicznegoFolder = HarcappLinks.apelEwanFolderTemplate;
+String pathRozwazaniaEwangelicznegoFolderShort = HarcappLinks.apelEwanFolderTemplateShort;
 String pathSprawnosci = '/sprawnosci';
 String pathSprawnosciBook = '/sprawnosci/:bookId';
 String pathSprawnosciBookFamily = '/sprawnosci/:bookId/:familyId';
@@ -387,9 +390,30 @@ GoRouter router = GoRouter(
             ),
             GoRoute(
                 path: pathRozwazaniaEwangeliczne,
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: RozwazaniaEwangelicznePage(),
-                )
+                redirect: (context, state) {
+                  final defaultFolder = ApelEwanPersistentFolder.all.first;
+                  return '$pathRozwazaniaEwangeliczne/${defaultFolder.slug}';
+                },
+            ),
+            GoRoute(
+                path: pathRozwazaniaEwangelicznegoFolder,
+                pageBuilder: (context, state) {
+                  final slug = state.pathParameters['folder'];
+                  return NoTransitionPage(
+                    key: ValueKey('rozwazania_$slug'),
+                    child: RozwazaniaEwangelicznePage(folderSlug: slug),
+                  );
+                }
+            ),
+            GoRoute(
+                path: pathRozwazaniaEwangelicznegoFolderShort,
+                pageBuilder: (context, state) {
+                  final slug = state.pathParameters['folder'];
+                  return NoTransitionPage(
+                    key: ValueKey('rozwazania_short_$slug'),
+                    child: RozwazaniaEwangelicznePage(folderSlug: slug),
+                  );
+                }
             ),
             GoRoute(
               path: pathDownload,

@@ -5,7 +5,7 @@ class ResponsiveBreakpoints {
   ResponsiveBreakpoints._();
 
   /// Width below which top navigation labels are hidden (only icons shown).
-  static const double topNavDense = 920;
+  static const double topNavDense = 980;
 
   /// Width below which top navigation moves to bottom navigation bar.
   static const double topNavToBottom = 520;

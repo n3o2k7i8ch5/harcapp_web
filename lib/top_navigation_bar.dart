@@ -325,7 +325,7 @@ class MainBottomNavBar extends StatelessWidget {
             buildItem(MdiIcons.notebook, 'Konspekty', pathKonspektyHarcerskie, isSelected: (uri) => uri.startsWith('/konspekty')),
             buildItem(MdiIcons.school, 'Poradniki', pathPoradnik),
             buildItem(MdiIcons.trophy, 'Sprawności', pathSprawnosci),
-            buildItem(MdiIcons.cross, 'Ewangelia', pathRozwazaniaEwangeliczne),
+            buildItem(MdiIcons.cross, 'Rozważania', pathRozwazaniaEwangeliczne),
           ],
         ),
       ),

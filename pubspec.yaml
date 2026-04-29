@@ -103,6 +103,19 @@ flutter:
           weight: 700
           style: italic
 
+    - family: PlayfairDisplay
+      fonts:
+        - asset: fonts/PlayfairDisplay-Regular.ttf
+          weight: 400
+        - asset: fonts/PlayfairDisplay-Italic.ttf
+          weight: 400
+          style: italic
+        - asset: fonts/PlayfairDisplay-Bold.ttf
+          weight: 700
+        - asset: fonts/PlayfairDisplay-BoldItalic.ttf
+          weight: 700
+          style: italic
+
     - family: Ubuntu
       fonts:
         - asset: fonts/Ubuntu-B.ttf

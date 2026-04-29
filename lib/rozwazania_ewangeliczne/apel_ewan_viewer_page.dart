@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
-import 'package:harcapp_core/comm_widgets/bottom_sheet.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_persistent_folder.dart';
-import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_print_bottom_sheet.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_widget.dart';
-import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/consts.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -75,21 +72,24 @@ class _ApelEwanViewerPageState extends State<ApelEwanViewerPage>
   }
 
   @override
-  Widget build(BuildContext context) => BaseScaffold(
+  Widget build(BuildContext context) => Scaffold(
     backgroundColor: background_(context),
-    floatingActionButton: FloatingActionButton(
-      backgroundColor: widget.folder.colorsData.avgColor,
-      tooltip: 'Eksportuj do PDF',
-      onPressed: () => showScrollBottomSheet(
-        context: context,
-        builder: (context) => ApelEwanPrintBottomSheet(
-          folder: widget.folder,
-          textColor: widget.folder.colorsData.avgColor,
-          iconColor: widget.folder.colorsData.colorStart,
-          iconEndColor: widget.folder.colorsData.colorEnd,
+    appBar: AppBar(
+      backgroundColor: cardEnab_(context),
+      foregroundColor: iconEnab_(context),
+      leading: IconButton(
+        icon: Icon(MdiIcons.arrowLeft),
+        onPressed: () => Navigator.of(context).pop(),
+        tooltip: 'Wróć',
+      ),
+      title: Text(
+        widget.folder.name,
+        style: AppTextStyle(
+          fontSize: Dimen.textSizeAppBar,
+          fontWeight: weightBold,
+          color: iconEnab_(context),
         ),
       ),
-      child: Icon(MdiIcons.filePdfBox),
     ),
     body: Column(
       children: [
