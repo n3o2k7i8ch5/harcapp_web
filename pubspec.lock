@@ -680,9 +680,11 @@ packages:
   harcapp_core:
     dependency: "direct main"
     description:
-      path: "../harcapp_core"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "917a83184939cc6e870e570d33b09f35be6ea8e4"
+      url: "https://github.com/n3o2k7i8ch5/harcapp_core"
+    source: git
     version: "0.0.1"
   hooks:
     dependency: transitive
@@ -1638,10 +1640,10 @@ packages:
     dependency: transitive
     description:
       name: video_player_platform_interface
-      sha256: "57c5d73173f76d801129d0531c2774052c5a7c11ccb962f1830630decd9f24ec"
+      sha256: "16eaed5268c571c31840dc58ef8da5f0cd4db2a98490c3b8f1cf70122546c6e0"
       url: "https://pub.dev"
     source: hosted
-    version: "6.6.0"
+    version: "6.7.0"
   video_player_web:
     dependency: transitive
     description:
