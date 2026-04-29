@@ -13,6 +13,7 @@ import 'package:harcapp_core/harcthought/poradnik/poradnik.dart';
 import 'package:harcapp_web/article_workspace/_main.dart';
 import 'package:harcapp_web/konspekts/konspekts_page.dart';
 import 'package:harcapp_web/poradniks/_main.dart';
+import 'package:harcapp_web/poradniks/poradnik_page.dart';
 import 'package:harcapp_web/poradniks/table_of_content_poradnik_widget.dart';
 import 'package:harcapp_web/privacy_policy/_main.dart';
 import 'package:harcapp_web/songs/_main.dart';
@@ -212,13 +213,25 @@ List<RouteBase> _buildPoradnikRoutes({
         selectedPoradnik = allPoradniks.firstWhere((poradnik) => poradnik.name == name);
       } on StateError {}
 
-      return NoTransitionPage(
-        child: PoradniksPage(
-          itemPath,
-          allPoradniks,
-          selectedPoradnik: selectedPoradnik,
-          tableOfContentBuilder: (bool isDrawer, Poradnik? selectedPoradnik) =>
-              tableOfContentBuilder(context, isDrawer, selectedPoradnik),
+      if (selectedPoradnik == null) {
+        return NoTransitionPage(
+          child: PoradniksPage(
+            itemPath,
+            allPoradniks,
+            tableOfContentBuilder: (bool isDrawer, Poradnik? selectedPoradnik) =>
+                tableOfContentBuilder(context, isDrawer, selectedPoradnik),
+            key: ValueKey(keyBase),
+          ),
+        );
+      }
+
+      return CustomTransitionPage(
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 350),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(opacity: animation, child: child),
+        child: PoradnikPage(
+          selectedPoradnik,
           key: ValueKey('$keyBase $name'),
         ),
       );

@@ -17,11 +17,10 @@ class PoradniksPage extends StatefulWidget{
 
   final String itemPathTemplate;
   final List<Poradnik> allPoradniks;
-  final Poradnik? selectedPoradnik;
   final Widget Function(bool isDrawer, Poradnik? selectedPoradnik) tableOfContentBuilder;
   final bool openDrawerIfCollapsed;
 
-  const PoradniksPage(this.itemPathTemplate, this.allPoradniks, {this.selectedPoradnik, required this.tableOfContentBuilder, this.openDrawerIfCollapsed = true, Key? key}): super(key: key);
+  const PoradniksPage(this.itemPathTemplate, this.allPoradniks, {required this.tableOfContentBuilder, this.openDrawerIfCollapsed = true, Key? key}): super(key: key);
 
   @override
   State<StatefulWidget> createState() => PoradniksPageState();
@@ -34,7 +33,6 @@ class PoradniksPageState extends State<PoradniksPage>{
 
   String get itemPathTemplate => widget.itemPathTemplate;
   List<Poradnik> get allPoradniks => widget.allPoradniks;
-  Poradnik? get selectedPoradnik => widget.selectedPoradnik;
   Widget Function(bool isDrawer, Poradnik? selectedPoradnik) get tableOfContentBuilder => widget.tableOfContentBuilder;
   bool get openDrawerIfCollapsed => widget.openDrawerIfCollapsed;
 
@@ -42,7 +40,7 @@ class PoradniksPageState extends State<PoradniksPage>{
   late ScrollController scrollController;
   late ValueNotifier<double> notifier;
 
-  void selectPoradnik(Poradnik poradnik) => context.go(itemPathTemplate.replaceAll(":name", poradnik.name));
+  void selectPoradnik(Poradnik poradnik) => context.push(itemPathTemplate.replaceAll(":name", poradnik.name));
 
   Future<void> tryOpenDrawerIfCollapsed() async {
     if(!openDrawerIfCollapsed || MediaQuery.of(context).size.width>collapseWidth)
@@ -82,6 +80,7 @@ class PoradniksPageState extends State<PoradniksPage>{
           width: 100*3,
           height: 141*3,
           elevation: AppCard.bigElevation,
+          onTap: () => selectPoradnik(poradnik),
         )).toList();
 
         return BaseScaffold(
