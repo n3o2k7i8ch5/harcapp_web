@@ -1,11 +1,11 @@
 import 'dart:typed_data';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
-import 'package:image_picker_web/image_picker_web.dart';
 
 import '../article_text_style.dart';
 import 'article_editor.dart';
@@ -33,8 +33,11 @@ class ArticleTop extends StatelessWidget{
         AppButton(
           icon: Icon(Icons.image, color: HEADER_TEXT_COLOR),
           onTap: () async {
-            Uint8List? imageBytes = await ImagePickerWeb.getImageAsBytes();
-            page.setImage(imageBytes);
+            final result = await FilePicker.pickFiles(
+              type: FileType.image,
+              withData: true,
+            );
+            page.setImage(result?.files.single.bytes);
           },
         ),
 

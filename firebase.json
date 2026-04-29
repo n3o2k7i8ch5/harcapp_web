@@ -6,6 +6,9 @@
       "**/.DS_Store",
       "**/node_modules/**"
     ],
+    "predeploy": [
+      "flutter test tool/generate_share_pages_test.dart"
+    ],
     "headers": [
       {
         "source": "/.well-known/apple-app-site-association",

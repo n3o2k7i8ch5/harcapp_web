@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:html' as html;
 import 'dart:ui' as ui;
 
 import 'package:file_picker/file_picker.dart';
@@ -13,9 +12,9 @@ import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
 
 import 'package:image/image.dart' as im;
-import 'package:image_picker_web/image_picker_web.dart';
 
 import '../common/author.dart';
+import '../common/download_file.dart';
 import '../common/float_act_butt.dart';
 import 'article_editor/article_editor.dart';
 import 'article_editor/common.dart';
@@ -365,19 +364,10 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
 
                 String json = jsonEncode(author.toJson());
 
-                final bytes = utf8.encode(json);
-                final blob = html.Blob([bytes]);
-                final url = html.Url.createObjectUrlFromBlob(blob);
-                final anchor = html.document.createElement('a') as html.AnchorElement
-                  ..href = url
-                  ..style.display = 'none'
-                  ..download = '${remSpecChars(remPolChars(author.name!.replaceAll(' ', '_')))}.hrcpathr';
-                html.document.body!.children.add(anchor);
-
-                anchor.click();
-
-                html.document.body!.children.remove(anchor);
-                html.Url.revokeObjectUrl(url);
+                downloadFileFromString(
+                  fileName: '${remSpecChars(remPolChars(author.name!.replaceAll(' ', '_')))}.hrcpathr',
+                  content: json,
+                );
 
                 setState(() => saving = false);
 
@@ -406,7 +396,11 @@ Uint8List resize(Uint8List? imageBytes) {
 }
 
 Future<void> loadImage(BuildContext context, AuthorEditorPageState state) async {
-  Uint8List? imageBytes = await ImagePickerWeb.getImageAsBytes();
+  final result = await FilePicker.pickFiles(
+    type: FileType.image,
+    withData: true,
+  );
+  final Uint8List? imageBytes = result?.files.single.bytes;
 
   if(imageBytes == null) return;
 

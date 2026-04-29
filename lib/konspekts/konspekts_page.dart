@@ -285,6 +285,8 @@ class _KonspektLeadingWidget extends StatelessWidget {
             HarcappShareButton(
               url: HarcappLinks.konspektOf(konspekt),
               subject: konspekt.title,
+              color: cardEnab_(context),
+              radius: AppCard.defRadius,
             ),
             Spacer(),
             SimpleButton.from(
@@ -293,7 +295,7 @@ class _KonspektLeadingWidget extends StatelessWidget {
               radius: AppCard.defRadius,
               margin: EdgeInsets.zero,
               icon: MdiIcons.trayArrowDown,
-              text: 'Pobierz surowe dane',
+              text: 'Pobierz .hrcpknspkt',
               onTap: () async => downloadFileFromBytes(
                 fileName: 'konspekt_${konspekt.name}.hrcpknspkt',
                 bytes: (await konspekt.toHrcpknspktData()).toTarBytes(),
@@ -306,7 +308,7 @@ class _KonspektLeadingWidget extends StatelessWidget {
               radius: AppCard.defRadius,
               margin: EdgeInsets.zero,
               icon: MdiIcons.filePdfBox,
-              text: 'Pobierz jako PDF',
+              text: 'Pobierz PDF',
               onTap: () => open_DownloadPDFOptionsDialog(
                 context: context,
                 konspekt: konspekt,

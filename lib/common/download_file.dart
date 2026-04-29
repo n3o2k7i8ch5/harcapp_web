@@ -1,6 +1,8 @@
 import 'dart:convert';
-import 'dart:html';
+import 'dart:js_interop';
+
 import 'package:flutter/foundation.dart';
+import 'package:web/web.dart' as web;
 
 void downloadFileFromString({
   required String fileName,
@@ -15,17 +17,18 @@ void downloadFileFromBytes({
   required Uint8List bytes,
   String mimeType = 'application/octet-stream',
 }){
-  final Blob blob = Blob([bytes], mimeType);
-  final String url = Url.createObjectUrlFromBlob(blob);
-  final AnchorElement anchor = document.createElement('a') as AnchorElement
+  final blob = web.Blob(
+    <JSAny>[bytes.toJS].toJS,
+    web.BlobPropertyBag(type: mimeType),
+  );
+  final url = web.URL.createObjectURL(blob);
+  final anchor = web.HTMLAnchorElement()
     ..href = url
-    ..style.display = 'none'
     ..download = fileName;
+  anchor.style.display = 'none';
 
-  document.body!.children.add(anchor);
-
+  web.document.body!.append(anchor);
   anchor.click();
-
-  document.body!.children.remove(anchor);
-  Url.revokeObjectUrl(url);
+  anchor.remove();
+  web.URL.revokeObjectURL(url);
 }

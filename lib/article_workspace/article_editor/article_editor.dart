@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:html' as html;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -9,6 +8,7 @@ import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
+import 'package:harcapp_web/common/download_file.dart';
 import 'package:harcapp_web/common/float_act_butt.dart';
 import 'package:image/image.dart' as im;
 
@@ -326,22 +326,13 @@ class ArticleEditorPageState extends State<ArticleEditorPage> with AutomaticKeep
 
                 String json = jsonEncode(article.toJson());
 
-                final bytes = utf8.encode(json);
-                final blob = html.Blob([bytes]);
-                final url = html.Url.createObjectUrlFromBlob(blob);
-                final anchor = html.document.createElement('a') as html.AnchorElement
-                  ..href = url
-                  ..style.display = 'none'
-                  ..download = '${article.date!.year}'
+                downloadFileFromString(
+                  fileName: '${article.date!.year}'
                       '_${article.date!.month}'
                       '_${article.date!.day}_'
-                      '${remSpecChars(remPolChars(article.title!.replaceAll(' ', '_')))}.hrcpartcl';
-                html.document.body!.children.add(anchor);
-
-                anchor.click();
-
-                html.document.body!.children.remove(anchor);
-                html.Url.revokeObjectUrl(url);
+                      '${remSpecChars(remPolChars(article.title!.replaceAll(' ', '_')))}.hrcpartcl',
+                  content: json,
+                );
 
                 setState(() => saving = false);
 

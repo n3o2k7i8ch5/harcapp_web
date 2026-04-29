@@ -1,6 +1,5 @@
-import 'dart:html' as html;
-
 import 'package:flutter/material.dart';
+import 'package:web/web.dart' as web;
 import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/values/store_urls.dart';
@@ -87,14 +86,14 @@ class DownloadRedirectPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String ua = html.window.navigator.userAgent.toLowerCase();
+    final String ua = web.window.navigator.userAgent.toLowerCase();
     final bool isAndroid = ua.contains('android');
     final bool isIos = ua.contains('iphone') || ua.contains('ipad') || ua.contains('ipod');
 
     if (isAndroid) {
-      html.window.location.assign(playStoreUrl);
+      web.window.location.assign(playStoreUrl);
     } else if (isIos) {
-      html.window.location.assign(appStoreUrl);
+      web.window.location.assign(appStoreUrl);
     }
 
     final bool redirected = isAndroid || isIos;
@@ -118,11 +117,11 @@ class DownloadRedirectPage extends StatelessWidget {
                 alignment: WrapAlignment.center,
                 children: [
                   ElevatedButton(
-                    onPressed: () => html.window.location.assign(playStoreUrl),
+                    onPressed: () => web.window.location.assign(playStoreUrl),
                     child: const Text('Google Play'),
                   ),
                   ElevatedButton(
-                    onPressed: () => html.window.location.assign(appStoreUrl),
+                    onPressed: () => web.window.location.assign(appStoreUrl),
                     child: const Text('App Store'),
                   ),
                 ],
