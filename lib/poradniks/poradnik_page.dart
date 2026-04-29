@@ -79,6 +79,7 @@ class PoradnikPage extends StatelessWidget {
                   Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
 
                         PoradnikThumbnailWidget(

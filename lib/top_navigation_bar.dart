@@ -137,6 +137,14 @@ class TopNavigationBarState extends State<TopNavigationBar>{
                 path: pathSprawnosci,
                 dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
               ),
+
+              PageNavItem(
+                icon: MdiIcons.cross,
+                title: 'Rozważania\newangeliczne',
+                contextInfo: 'Rozważania ewangeliczne na każdą niedzielę.',
+                path: pathRozwazaniaEwangeliczne,
+                dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
+              ),
             ],
 
           ],
@@ -317,6 +325,7 @@ class MainBottomNavBar extends StatelessWidget {
             buildItem(MdiIcons.notebook, 'Konspekty', pathKonspektyHarcerskie, isSelected: (uri) => uri.startsWith('/konspekty')),
             buildItem(MdiIcons.school, 'Poradniki', pathPoradnik),
             buildItem(MdiIcons.trophy, 'Sprawności', pathSprawnosci),
+            buildItem(MdiIcons.cross, 'Ewangelia', pathRozwazaniaEwangeliczne),
           ],
         ),
       ),

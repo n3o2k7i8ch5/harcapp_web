@@ -16,6 +16,7 @@ import 'package:harcapp_web/poradniks/_main.dart';
 import 'package:harcapp_web/poradniks/poradnik_page.dart';
 import 'package:harcapp_web/poradniks/table_of_content_poradnik_widget.dart';
 import 'package:harcapp_web/privacy_policy/_main.dart';
+import 'package:harcapp_web/rozwazania_ewangeliczne/_main.dart';
 import 'package:harcapp_web/songs/_main.dart';
 import 'package:harcapp_web/songs/song_contribution_rules_page.dart';
 import 'package:harcapp_web/sprawnosci_page/_main.dart';
@@ -54,6 +55,7 @@ String pathArticlesSourceItem = '/articles/:source/:localId';
 String pathSong = '/song';
 String pathSongContributionRules = '/song_contribution_rules';
 String pathPrivacyPolicy = '/privacy_policy';
+String pathRozwazaniaEwangeliczne = '/rozwazania_ewangeliczne';
 String pathSprawnosci = '/sprawnosci';
 String pathSprawnosciBook = '/sprawnosci/:bookId';
 String pathSprawnosciBookFamily = '/sprawnosci/:bookId/:familyId';
@@ -381,6 +383,12 @@ GoRouter router = GoRouter(
                 path: pathSprawnosci,
                 pageBuilder: (context, state) => NoTransitionPage(
                   child: SprawnosciPage(),
+                )
+            ),
+            GoRoute(
+                path: pathRozwazaniaEwangeliczne,
+                pageBuilder: (context, state) => const NoTransitionPage(
+                  child: RozwazaniaEwangelicznePage(),
                 )
             ),
             GoRoute(
