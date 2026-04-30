@@ -191,6 +191,7 @@ List<RouteBase> _buildKonspektyRoutes({
   GoRoute(
     path: listPath,
     pageBuilder: (context, state) => NoTransitionPage(
+      key: ValueKey(keyBase),
       child: KonspektsPage(
         itemPath,
         allKonspekts,
@@ -211,13 +212,14 @@ List<RouteBase> _buildKonspektyRoutes({
       } on StateError {}
 
       return NoTransitionPage(
+        key: ValueKey(keyBase),
         child: KonspektsPage(
           itemPath,
           allKonspekts,
           selectedKonspekt: selectedKonspekt,
           tableOfContentBuilder: (bool isDrawer, Konspekt? selectedKonspekt) =>
               tableOfContentBuilder(context, isDrawer, selectedKonspekt),
-          key: ValueKey('$keyBase $name'),
+          key: ValueKey(keyBase),
         ),
       );
     },

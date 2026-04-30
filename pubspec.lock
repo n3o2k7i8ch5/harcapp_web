@@ -680,11 +680,9 @@ packages:
   harcapp_core:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "94985c7fde6d5c6eb78203b883d70725590aad8f"
-      url: "https://github.com/n3o2k7i8ch5/harcapp_core"
-    source: git
+      path: "../harcapp_core"
+      relative: true
+    source: path
     version: "0.0.1"
   hooks:
     dependency: transitive
