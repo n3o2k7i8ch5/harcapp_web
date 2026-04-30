@@ -15,6 +15,8 @@ import 'package:harcapp_core/harcthought/articles/source_article_loader.dart';
 import 'package:harcapp_core/harcthought/articles/thumbnail/article_cover_widget.dart';
 import 'package:harcapp_core/harcthought/articles/thumbnail/article_info_widget.dart';
 import 'package:harcapp_core/harcthought/articles/widgets.dart';
+import 'package:harcapp_core/harcthought/harcapp_links.dart';
+import 'package:harcapp_core/harcthought/harcapp_share_button.dart';
 import 'package:harcapp_core/tag/tag.dart';
 import 'package:harcapp_core/tag/tags_widget.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
@@ -141,7 +143,21 @@ class ArticlePageState extends State<ArticlePage>{
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(AppCard.defRadius),
                     ),
-                    child: ArticleCoverWidget(article!, bigResolution: true),
+                    child: Stack(
+                      children: [
+                        ArticleCoverWidget(article!, bigResolution: true),
+                        Positioned(
+                          left: Dimen.sideMarg,
+                          bottom: Dimen.sideMarg,
+                          child: HarcappShareButton(
+                            url: HarcappLinks.articleOf(article!, short: true),
+                            subject: article!.title,
+                            color: cardEnab_(context),
+                            radius: AppCard.defRadius,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
 
                   const SizedBox(height: Dimen.sideMarg),

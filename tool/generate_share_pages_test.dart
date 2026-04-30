@@ -12,9 +12,14 @@
 // Run AFTER `flutter build web` so the cover assets exist under
 // build/web/assets/packages/harcapp_core/assets/...
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:harcapp_core/comm_classes/date_to_str.dart';
+import 'package:harcapp_core/harcthought/articles/model/article_data.dart';
+import 'package:harcapp_core/harcthought/articles/model/article_source.dart';
+import 'package:harcapp_core/harcthought/articles/source_article_loader.dart';
 import 'package:harcapp_core/harcthought/konspekts/data/harcerskie/all.dart';
 import 'package:harcapp_core/harcthought/konspekts/data/ksztalcenie/all.dart';
 import 'package:harcapp_core/harcthought/konspekts/initialize.dart';
@@ -108,6 +113,110 @@ bool _processKonspekt(Konspekt k, String template) {
   return true;
 }
 
+const String _fallbackArticleCoverUrl =
+    '$_baseUrl/icons/icon-512.png';
+
+class _NoOpHarcAppLoader extends BaseArticleHarcAppLoader {
+  @override
+  FutureOr<ArticleData?> getCached(String localId) => null;
+  @override
+  FutureOr<List<String>> getAllCachedIds() => const <String>[];
+  @override
+  FutureOr<void> cache(ArticleData articleData) {}
+  @override
+  FutureOr<void> saveNewestLocalIdSeen(String localId) {}
+  @override
+  FutureOr<String?> getNewestLocalIdSeen() => null;
+  @override
+  FutureOr<void> saveOldestLocalIdSeen(String localId) {}
+  @override
+  FutureOr<String?> getOldestLocalIdSeen() => null;
+  @override
+  FutureOr<void> saveIsAllHistoryLoaded(bool value) {}
+  @override
+  FutureOr<bool> getIsAllHistoryLoaded() => false;
+}
+
+class _NoOpAzymutLoader extends BaseArticleAzymutLoader {
+  const _NoOpAzymutLoader() : super(downloadCoverLinks: true);
+  @override
+  FutureOr<ArticleData?> getCached(String localId) => null;
+  @override
+  FutureOr<List<String>> getAllCachedIds() => const <String>[];
+  @override
+  FutureOr<void> cache(ArticleData articleData) {}
+  @override
+  FutureOr<void> saveNewestLocalIdSeen(String localId) {}
+  @override
+  FutureOr<String?> getNewestLocalIdSeen() => null;
+  @override
+  FutureOr<void> saveOldestLocalIdSeen(String localId) {}
+  @override
+  FutureOr<String?> getOldestLocalIdSeen() => null;
+  @override
+  FutureOr<void> saveIsAllHistoryLoaded(bool value) {}
+  @override
+  FutureOr<bool> getIsAllHistoryLoaded() => false;
+}
+
+class _NoOpPojutrzeLoader extends BaseArticlePojutrzeLoader {
+  const _NoOpPojutrzeLoader() : super(downloadCoverLinks: true);
+  @override
+  FutureOr<ArticleData?> getCached(String localId) => null;
+  @override
+  FutureOr<List<String>> getAllCachedIds() => const <String>[];
+  @override
+  FutureOr<void> cache(ArticleData articleData) {}
+  @override
+  FutureOr<void> saveNewestLocalIdSeen(String localId) {}
+  @override
+  FutureOr<String?> getNewestLocalIdSeen() => null;
+  @override
+  FutureOr<void> saveOldestLocalIdSeen(String localId) {}
+  @override
+  FutureOr<String?> getOldestLocalIdSeen() => null;
+  @override
+  FutureOr<void> saveIsAllHistoryLoaded(bool value) {}
+  @override
+  FutureOr<bool> getIsAllHistoryLoaded() => false;
+}
+
+Future<List<ArticleData>> _downloadAll(BaseSourceArticleLoader loader) async {
+  final List<ArticleData> all = [];
+  await for (final tuple in loader.download(null, null, false)) {
+    all.addAll(tuple.$1.toList());
+  }
+  return all;
+}
+
+bool _isShareableImageUrl(String? url) {
+  if (url == null) return false;
+  final trimmed = url.trim();
+  if (trimmed.isEmpty) return false;
+  // Crawlers want absolute https URLs.
+  return trimmed.startsWith('https://');
+}
+
+bool _processArticle(ArticleData a, String template) {
+  final pageUrl = '$_baseUrl/a/${a.source.name}/${a.localId}';
+  final coverUrl = _isShareableImageUrl(a.imageUrl)
+      ? a.imageUrl!
+      : _fallbackArticleCoverUrl;
+  final dateStr = dateToString(a.date, shortMonth: true, yearAbbr: 'A.D.');
+  final description = '${a.author} · $dateStr';
+  final html = _renderPage(
+    template: template,
+    pageUrl: pageUrl,
+    pageTitle: a.title,
+    pageDescription: description,
+    coverUrl: coverUrl,
+  );
+  // Generate at both long and short paths so legacy and new links both work.
+  _writePage('articles/${a.source.name}/${a.localId}', html);
+  _writePage('a/${a.source.name}/${a.localId}', html);
+  return true;
+}
+
 bool _processPoradnik(Poradnik p, String template) {
   final coverRel =
       'packages/harcapp_core/assets/poradnik/${p.name}/cover_raw.webp';
@@ -147,6 +256,7 @@ void main() {
 
     int konspektCount = 0;
     int poradnikCount = 0;
+    int articleCount = 0;
 
     for (final k in allHarcerskieKonspekts) {
       if (_processKonspekt(k, template)) konspektCount++;
@@ -158,10 +268,26 @@ void main() {
       if (_processPoradnik(p, template)) poradnikCount++;
     }
 
-    stdout.writeln('Generated $konspektCount konspekt pages, '
-        '$poradnikCount poradnik pages.');
+    final Map<ArticleSource, BaseSourceArticleLoader> articleLoaders = {
+      ArticleSource.harcApp: _NoOpHarcAppLoader(),
+      ArticleSource.azymut: const _NoOpAzymutLoader(),
+      ArticleSource.pojutrze: const _NoOpPojutrzeLoader(),
+    };
 
-    expect(konspektCount + poradnikCount, greaterThan(0),
+    final List<List<ArticleData>> perSource = await Future.wait(
+        articleLoaders.values.map(_downloadAll));
+
+    for (final articles in perSource) {
+      for (final a in articles) {
+        if (_processArticle(a, template)) articleCount++;
+      }
+    }
+
+    stdout.writeln('Generated $konspektCount konspekt pages, '
+        '$poradnikCount poradnik pages, '
+        '$articleCount article pages.');
+
+    expect(konspektCount + poradnikCount + articleCount, greaterThan(0),
         reason: 'No share pages generated — check cover paths.');
   });
 }

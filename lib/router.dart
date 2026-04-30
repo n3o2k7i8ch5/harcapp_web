@@ -55,6 +55,7 @@ String pathArticlesWorkspace = '/article_workspace';
 String pathArticles = '/articles';
 String pathArticlesSource = '/articles/:source';
 String pathArticlesSourceItem = '/articles/:source/:localId';
+String pathArticlesSourceItemShort = HarcappLinks.articleItemTemplateShort;
 String pathSong = '/song';
 String pathSongContributionRules = '/song_contribution_rules';
 String pathPrivacyPolicy = '/privacy_policy';
@@ -399,6 +400,19 @@ GoRouter router = GoRouter(
                   if(source == null) return NoTransitionPage(child: ArticlesPage());
 
                   // Get current path
+                  return NoTransitionPage(
+                      child: ArticlePage(source: source, localId: localId)
+                  );
+                }
+            ),
+            GoRoute(
+                path: pathArticlesSourceItemShort,
+                pageBuilder: (context, state){
+                  final String sourceName = state.pathParameters['source']!;
+                  final String localId = state.pathParameters['localId']!;
+                  ArticleSource? source = ArticleSource.fromName(sourceName);
+                  if(source == null) return NoTransitionPage(child: ArticlesPage());
+
                   return NoTransitionPage(
                       child: ArticlePage(source: source, localId: localId)
                   );
