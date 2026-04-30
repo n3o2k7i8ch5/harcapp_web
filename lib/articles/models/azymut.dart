@@ -7,9 +7,8 @@ import 'package:harcapp_core/harcthought/articles/model/article.dart';
 import 'package:harcapp_core/harcthought/articles/source_article_loader.dart';
 
 import '../source_article_loader.dart';
-import 'cache_cover_mixin.dart';
 
-class ArticleAzymut extends CoreArticle with ArticleAzymutMixin, CacheCoverMixin{
+class ArticleAzymut extends CoreArticle with ArticleAzymutMixin{
 
   static List<ArticleAzymut>? all;
   static SplayTreeMap<String, ArticleAzymut>? allMap;

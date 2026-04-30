@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ui_web' as ui_web;
 
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/harcthought/articles/model/article.dart';
 import 'package:harcapp_core/harcthought/articles/model/article_source.dart';
+import 'package:harcapp_core/harcthought/articles/thumbnail/article_cover_widget.dart';
 import 'package:harcapp_core/logger.dart';
-import 'package:harcapp_web/articles/cover_worker.dart';
+import 'package:harcapp_web/articles/web/network_image.dart';
+import 'package:harcapp_web/articles/workers/article_cover_worker.dart';
 import 'package:harcapp_web/idb.dart';
 import 'package:isolate_manager/isolate_manager.dart';
-import 'package:web/web.dart' as web;
 
 IsolateManager<Map, String>? _coverManager;
 
@@ -59,24 +59,21 @@ Future<String?> _resolveCoverUrl(CoreArticle article) async {
   return null;
 }
 
-/// Renders an article cover image on Flutter web by embedding a raw
-/// `<img>` HTMLImageElement via [HtmlElementView]. This bypasses Flutter's
-/// XHR-based image loaders (which would CORS-fail against ZHR servers) and
-/// lets the browser load and decode the image natively, off the main isolate.
+/// Web-specific implementation of an article cover. Asks the cover worker
+/// for the og:image URL (cached in IDB), then renders it via
+/// [WebNetworkImage] (HtmlElementView + `<img>` + Flutter [IgnorePointer]
+/// for click-through to the article card's button).
 class WebCoverImage extends StatefulWidget {
   final CoreArticle article;
-  final bool big;
 
-  const WebCoverImage({super.key, required this.article, required this.big});
+  const WebCoverImage({super.key, required this.article});
 
   @override
   State<WebCoverImage> createState() => _WebCoverImageState();
 }
 
 class _WebCoverImageState extends State<WebCoverImage> {
-  static final Map<String, String> _viewTypeForUrl = {};
-
-  String? _resolvedViewType;
+  String? _resolvedUrl;
   bool _resolveFailed = false;
 
   @override
@@ -92,52 +89,14 @@ class _WebCoverImageState extends State<WebCoverImage> {
       setState(() => _resolveFailed = true);
       return;
     }
-    setState(() => _resolvedViewType = _ensureViewTypeFor(url));
-  }
-
-  String _ensureViewTypeFor(String url) {
-    final existing = _viewTypeForUrl[url];
-    if (existing != null) return existing;
-    final viewType = 'cover-img-${_viewTypeForUrl.length}';
-    _viewTypeForUrl[url] = viewType;
-    ui_web.platformViewRegistry.registerViewFactory(viewType, (int _) {
-      return web.HTMLImageElement()
-        ..src = url
-        ..style.width = '100%'
-        ..style.height = '100%'
-        ..style.objectFit = 'cover'
-        ..style.display = 'block';
-    });
-    return viewType;
+    setState(() => _resolvedUrl = url);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_resolveFailed) {
-      return const _CoverFallbackPlaceholder(failed: true);
-    }
-    final viewType = _resolvedViewType;
-    if (viewType == null) {
-      return const _CoverFallbackPlaceholder(failed: false);
-    }
-    return HtmlElementView(viewType: viewType);
+    if (_resolveFailed) return const CoverProblemWidget();
+    final url = _resolvedUrl;
+    if (url == null) return const WebImageLoadingPlaceholder();
+    return WebNetworkImage(url: url);
   }
-}
-
-class _CoverFallbackPlaceholder extends StatelessWidget {
-  final bool failed;
-  const _CoverFallbackPlaceholder({required this.failed});
-
-  @override
-  Widget build(BuildContext context) => Container(
-        color: failed ? Colors.grey.shade300 : Colors.grey.shade200,
-        alignment: Alignment.center,
-        child: failed
-            ? const Icon(Icons.image_not_supported, color: Colors.grey)
-            : const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-      );
 }

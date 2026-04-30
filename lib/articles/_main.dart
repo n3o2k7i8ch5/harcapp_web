@@ -3,10 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
-import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
-import 'package:harcapp_core/comm_widgets/simple_button.dart';
+import 'package:harcapp_core/comm_widgets/tab_bar.dart';
+import 'package:harcapp_core/folder/folder_tab.dart';
+import 'package:harcapp_core/folder/folder_tab_indicator.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/harcthought/articles/article_loader.dart';
 import 'package:harcapp_core/harcthought/articles/model/article.dart';
@@ -14,6 +15,7 @@ import 'package:harcapp_core/harcthought/articles/model/article_source.dart';
 import 'package:harcapp_core/harcthought/articles/source_article_loader.dart';
 import 'package:harcapp_core/harcthought/articles/thumbnail/article_card_widget.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
+import 'package:harcapp_web/consts.dart';
 import 'package:harcapp_web/router.dart';
 
 import 'article_loader.dart';
@@ -33,9 +35,23 @@ class ArticlesPage extends StatefulWidget{
 
 }
 
-class ArticlePageState extends State<ArticlesPage>{
+class ArticlePageState extends State<ArticlesPage>
+    with SingleTickerProviderStateMixin {
+
+  /// Tab order: index 0 is "all sources", subsequent indices are individual
+  /// sources in [ArticleSource.values] order.
+  static final List<ArticleSource?> _tabSources = <ArticleSource?>[
+    null,
+    ...ArticleSource.values,
+  ];
 
   late ArticleLoaderListener listener;
+  late TabController _tabController;
+
+  int _tabIndexFor(ArticleSource? source) {
+    final idx = _tabSources.indexOf(source);
+    return idx < 0 ? 0 : idx;
+  }
 
   List<CoreArticle>? get displayedArticles{
     switch(widget.source){
@@ -62,8 +78,34 @@ class ArticlePageState extends State<ArticlesPage>{
         (ArticleAzymut.all == null || ArticleAzymut.all!.length == 0) &&
         (ArticlePojutrze.all == null || ArticlePojutrze.all!.length == 0);
 
+  String _countTextFor(ArticleSource? source) {
+    switch (source) {
+      case null:
+        if (ArticleHarcApp.all == null &&
+            ArticleAzymut.all == null &&
+            ArticlePojutrze.all == null) return '...';
+        return ((ArticleHarcApp.all?.length ?? 0) +
+                (ArticleAzymut.all?.length ?? 0) +
+                (ArticlePojutrze.all?.length ?? 0))
+            .toString();
+      case ArticleSource.harcApp:
+        return ArticleHarcApp.all?.length.toString() ?? '...';
+      case ArticleSource.azymut:
+        return ArticleAzymut.all?.length.toString() ?? '...';
+      case ArticleSource.pojutrze:
+        return ArticlePojutrze.all?.length.toString() ?? '...';
+    }
+  }
+
   @override
   void initState() {
+    super.initState();
+    _tabController = TabController(
+      length: _tabSources.length,
+      initialIndex: _tabIndexFor(widget.source),
+      vsync: this,
+    );
+
     listener = ArticleLoaderListener(
         onArticleData: (articleData) => mounted?setState((){}):null,
         onEnd: (_, __, ___) => mounted?setState((){}):null
@@ -73,8 +115,34 @@ class ArticlePageState extends State<ArticlesPage>{
 
     if(!ArticleLoader.allLoaded && !articleLoader.running)
       articleLoader.run();
+  }
 
-    super.initState();
+  @override
+  void didUpdateWidget(ArticlesPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.source != oldWidget.source) {
+      final newIdx = _tabIndexFor(widget.source);
+      if (_tabController.index != newIdx) {
+        _tabController.animateTo(newIdx);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    articleLoader.removeListener(listener);
+    super.dispose();
+  }
+
+  void _onTabTap(int index) {
+    final source = _tabSources[index];
+    final target = source == null
+        ? pathArticles
+        : pathArticlesSource.replaceAll(':source', source.name);
+    final currentUrl = GoRouterState.of(context).uri.toString();
+    if (currentUrl == target) return;
+    context.go(target);
   }
 
   bool get showLoading{
@@ -93,154 +161,72 @@ class ArticlePageState extends State<ArticlesPage>{
   }
 
   @override
-  Widget build(BuildContext context) => BaseScaffold(
-    backgroundColor: background_(context),
-    body: Align(
-      alignment: Alignment.topCenter,
-      child: Container(
-          constraints: BoxConstraints(maxWidth: 1000),
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(top: Dimen.defMarg),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: Dimen.defMarg),
-                      child: Material(
-                        elevation: 5.0,
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(AppCard.defRadius),
-                        child: Padding(
-                          padding: EdgeInsets.all(Dimen.defMarg),
-                          child: Text(
-                            'Wersja testowa. Strona będzie się zacinać.',
-                            style: AppTextStyle(color: Colors.white, fontSize: 18.0, fontWeight: weightHalfBold,),
-                            textAlign: TextAlign.center,
+  Widget build(BuildContext context) {
+    final barColor = cardEnab_(context);
+    final bodyColor = background_(context);
+    return BaseScaffold(
+      backgroundColor: bodyColor,
+      body: Column(
+        children: [
+          Material(
+            color: barColor,
+            child: Stack(
+              children: [
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: defPageWidth),
+                    child: TabBarX(
+                      controller: _tabController,
+                      isScrollable: true,
+                      indicator: FolderTabIndicator(color: bodyColor),
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      splashBorderRadius: FolderTabIndicator.defBorderRadius,
+                      labelColor: textEnab_(context),
+                      unselectedLabelColor: textEnab_(context),
+                      onTap: _onTabTap,
+                      tabs: [
+                        for (final source in _tabSources)
+                          FolderTwoLineTab(
+                            text: source == null
+                                ? 'Wszystkie'
+                                : source.displayName,
+                            subText:
+                                'Liczba artykułów: ${_countTextFor(source)}',
                           ),
-                        )
-                      )
-                    ),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: HeaderWidget(
-                              selected: widget.source,
-                              onTap: (ArticleSource? source){
-                                if(source == null) context.go(pathArticles);
-                                else context.go(pathArticlesSource.replaceAll(":source", source.name));
-                              }
-                          ),
-                        ),
-                        if(articleLoader.running)
-                          Padding(
-                            padding: EdgeInsets.only(right: Dimen.sideMarg),
-                            child: SpinKitChasingDots(
-                              color: Colors.grey,
-                              size: 20.0,
-                            ),
-                          )
                       ],
                     ),
-                  ],
-                )
+                  ),
+                ),
+                if (articleLoader.running)
+                  Positioned(
+                    right: Dimen.sideMarg,
+                    top: 0,
+                    bottom: 0,
+                    child: Center(
+                      child: SpinKitChasingDots(
+                        color: textEnab_(context),
+                        size: 20.0,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: defPageWidth),
+                child: showLoading
+                    ? LoadingGrid(count: 12)
+                    : ArticleGrid(articles: displayedArticles!),
               ),
-
-              Expanded(
-                child: showLoading?
-                LoadingGrid(count: 12):
-                ArticleGrid(articles: displayedArticles!),
-              )
-
-            ],
-          )
-      ),
-    ),
-  );
-
-
-}
-
-class HeaderWidget extends StatelessWidget{
-
-  static const double showCountWidth = 620;
-
-  final ArticleSource? selected;
-  final Function(ArticleSource?) onTap;
-
-  HeaderWidget({required this.selected, required this.onTap});
-
-  String get allCount => ArticleHarcApp.all == null && ArticleAzymut.all == null && ArticlePojutrze.all == null?
-    '...':
-    ((ArticleHarcApp.all?.length??0) + (ArticleAzymut.all?.length??0) + (ArticlePojutrze.all?.length??0)).toString();
-  String get harcAppCount => ArticleHarcApp.all == null?'...':ArticleHarcApp.all!.length.toString();
-  String get azymutCount => ArticleAzymut.all == null?'...':ArticleAzymut.all!.length.toString();
-  String get pojutrzeCount => ArticlePojutrze.all == null?'...':ArticlePojutrze.all!.length.toString();
-
-  @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (BuildContext context, BoxConstraints constraints) => SizedBox(
-      height: Dimen.iconFootprint,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          SimpleButton.from(
-              context: context,
-              radius: AppCard.defRadius,
-
-              text:
-              constraints.maxWidth>=showCountWidth?
-              'Wszystkie ($allCount)':
-              'Wszystkie',
-
-              color: selected == null?backgroundIcon_(context):null,
-              onTap: () => onTap.call(null)
+            ),
           ),
-
-          SimpleButton.from(
-              context: context,
-              radius: AppCard.defRadius,
-
-              text:
-              constraints.maxWidth>=showCountWidth?
-              '${ArticleSource.harcApp.displayName} ($harcAppCount)':
-              ArticleSource.harcApp.displayName,
-
-              color: selected == ArticleSource.harcApp?backgroundIcon_(context):null,
-              onTap: () => onTap.call(ArticleSource.harcApp)
-          ),
-
-          SimpleButton.from(
-              context: context,
-              radius: AppCard.defRadius,
-
-              text: constraints.maxWidth>=showCountWidth?
-              '${ArticleSource.azymut.displayName} ($azymutCount)':
-              ArticleSource.azymut.displayName,
-
-              color: selected == ArticleSource.azymut?backgroundIcon_(context):null,
-              onTap: () => onTap.call(ArticleSource.azymut)
-          ),
-
-          SimpleButton.from(
-              context: context,
-              radius: AppCard.defRadius,
-              text:
-              constraints.maxWidth>=showCountWidth?
-              '${ArticleSource.pojutrze.displayName} ($pojutrzeCount)':
-              ArticleSource.pojutrze.displayName,
-              color: selected == ArticleSource.pojutrze?backgroundIcon_(context):null,
-              onTap: () => onTap.call(ArticleSource.pojutrze)
-          ),
-
         ],
       ),
-    ),
-  );
-
+    );
+  }
 }
 
 
@@ -308,9 +294,11 @@ class BaseState<T> extends State<BaseGrid<T>> {
 
   void groupItems(double screenWidth){
     var (groupDenseCrossCount, groupLooseCrossCount) = _getCrossAxisCount(screenWidth);
-    if (groupDenseCrossCount == this.groupDenseCrossCount) return;
+    if (groupDenseCrossCount == this.groupDenseCrossCount &&
+        _lastItemsLength == items.length) return;
     this.groupDenseCrossCount = groupDenseCrossCount;
     this.groupLooseCrossCount = groupLooseCrossCount;
+    _lastItemsLength = items.length;
 
     countMap = _getCountMap(groupDenseCrossCount);
     groupedItems = _groupItems(countMap);
@@ -323,6 +311,7 @@ class BaseState<T> extends State<BaseGrid<T>> {
   late Map<int?, int> countMap;
   late int groupDenseCrossCount;
   late int groupLooseCrossCount;
+  int _lastItemsLength = -1;
 
   @override
   void initState() {
@@ -339,7 +328,6 @@ class BaseState<T> extends State<BaseGrid<T>> {
     builder: (BuildContext context, BoxConstraints constraints) {
       groupItems(constraints.maxWidth);
       return ListView.builder(
-        key: ValueKey(("Article Groups ListView", groupedItems.length)),
         padding: EdgeInsets.all(sideMarg),
         itemCount: groupedItems.length,
         itemBuilder: (context, groupIndex) {
@@ -379,13 +367,14 @@ class ArticleGrid extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) => BaseGrid<CoreArticle>(
-      key: ValueKey(("Article BaseGrid", articles.length)),
       items: articles,
       itemBuilder: (context, article) => ArticleCardWidget(
+          key: ValueKey(("Article Card", article.uniqName)),
           fallbackCoverKey: ValueKey(("Article Cover Fallback", article.uniqName)),
           article,
-          onTap: (context, article) =>
-              context.push(pathArticlesSourceItem.replaceAll(":source", article.source.name).replaceAll(":localId", article.localId))
+          onTap: (context, article) => context.push(pathArticlesSourceItem
+              .replaceAll(':source', article.source.name)
+              .replaceAll(':localId', article.localId))
       )
   );
 }
@@ -458,3 +447,4 @@ class LoadingGrid extends StatelessWidget{
   );
 
 }
+

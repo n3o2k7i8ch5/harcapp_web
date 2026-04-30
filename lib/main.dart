@@ -6,6 +6,7 @@ import 'package:harcapp_core/color_pack_app.dart';
 import 'package:harcapp_core/comm_classes/color_pack_provider.dart';
 import 'package:harcapp_core/comm_classes/sha_pref.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_loader.dart';
+import 'package:harcapp_core/harcthought/articles/article_renderers.dart';
 import 'package:harcapp_core/harcthought/harcapp_share_button.dart';
 import 'package:harcapp_core/harcthought/konspekts/initialize.dart';
 import 'package:harcapp_core/song_book/providers.dart';
@@ -24,6 +25,7 @@ import 'package:url_strategy/url_strategy.dart';
 import 'articles/models/azymut.dart';
 import 'articles/models/harcapp.dart';
 import 'articles/models/pojutrze.dart';
+import 'articles/web/builders.dart';
 import 'color_pack.dart';
 import 'idb.dart';
 
@@ -49,7 +51,13 @@ void main() async {
   MyApp.lastLoadedSongs = loadedSongs;
   // Make context.push() change url.
   GoRouter.optionURLReflectsImperativeAPIs = true;
-  runApp(HarcAppSongBook(MyApp(), SongBaseSettings()));
+  runApp(
+    ArticleRenderers(
+      coverBuilder: webCoverBuilder,
+      imageBuilder: webImageBuilder,
+      child: HarcAppSongBook(MyApp(), SongBaseSettings()),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -75,68 +83,68 @@ class MyAppState extends State<MyApp>{
       create: (_) => ThemeModeProvider(),
       builder: (context, _) => Consumer<ThemeModeProvider>(
         builder: (context, themeProv, _) => ColorPackApp(
-          initColorPack: ColorPackGraphite(),
-          isDark: () => themeProv.isDark,
-          child: SongEditorApp(
-            builder: (context, _) => MultiProvider(
-              providers: [
+            initColorPack: ColorPackGraphite(),
+            isDark: () => themeProv.isDark,
+            child: SongEditorApp(
+                builder: (context, _) => MultiProvider(
+                    providers: [
 
-                ChangeNotifierProvider(create: (context){
-                  allSongsProv = AllSongsProvider(MyApp.lastLoadedSongs);
-                  return allSongsProv;
-                }),
+                      ChangeNotifierProvider(create: (context){
+                        allSongsProv = AllSongsProvider(MyApp.lastLoadedSongs);
+                        return allSongsProv;
+                      }),
 
-                ChangeNotifierProvider(create: (context) => SearchListProvider(
-                    allSongsProv.songs
-                )),
+                      ChangeNotifierProvider(create: (context) => SearchListProvider(
+                          allSongsProv.songs
+                      )),
 
-                // ChangeNotifierProvider(create: (context){
-                //   // currItemProv = CurrentItemProvider(song: SongRaw.empty());
-                //   return CurrentItemProvider(song: SongRaw.empty());;
-                // }),
+                      // ChangeNotifierProvider(create: (context){
+                      //   // currItemProv = CurrentItemProvider(song: SongRaw.empty());
+                      //   return CurrentItemProvider(song: SongRaw.empty());;
+                      // }),
 
-                ChangeNotifierProvider(create: (context){
-                  SimilarSongProvider prov = SimilarSongProvider();
-                  prov.init();
-                  return prov;
-                }),
+                      ChangeNotifierProvider(create: (context){
+                        SimilarSongProvider prov = SimilarSongProvider();
+                        prov.init();
+                        return prov;
+                      }),
 
-                // ChangeNotifierProvider(create: (context) => RefrenEnabProvider(true)),
-                // ChangeNotifierProvider(create: (context) => RefrenPartProvider()),
-                // ChangeNotifierProvider(create: (context) => TagsProvider(SongTag.ALL, [])),
+                      // ChangeNotifierProvider(create: (context) => RefrenEnabProvider(true)),
+                      // ChangeNotifierProvider(create: (context) => RefrenPartProvider()),
+                      // ChangeNotifierProvider(create: (context) => TagsProvider(SongTag.ALL, [])),
 
-                ChangeNotifierProvider(create: (context){
-                  bindTitleFileNameProv = BindTitleFileNameProvider();
-                  return bindTitleFileNameProv;
-                }),
+                      ChangeNotifierProvider(create: (context){
+                        bindTitleFileNameProv = BindTitleFileNameProvider();
+                        return bindTitleFileNameProv;
+                      }),
 
-                ChangeNotifierProvider(create: (context){
-                  songFileNameDupErrProv = SongFileNameDupErrProvider();
-                  return songFileNameDupErrProv;
-                }),
+                      ChangeNotifierProvider(create: (context){
+                        songFileNameDupErrProv = SongFileNameDupErrProvider();
+                        return songFileNameDupErrProv;
+                      }),
 
-                ChangeNotifierProvider(create: (context) => SongPreviewProvider()),
+                      ChangeNotifierProvider(create: (context) => SongPreviewProvider()),
 
-                ChangeNotifierProvider(create: (context) => SongEditorPanelProvider()),
-              ],
-              builder: (context, _) => Consumer<ColorPackProvider>(
-                  builder: (context, prov, _) => MaterialApp.router(
-                    routerConfig: router,
-                    title: 'HarcApp',
-                    theme: prov.colorPack.themeData(context),
-                    builder: (context, child) => child!,
-                    localizationsDelegates: const [
-                      GlobalMaterialLocalizations.delegate,
-                      GlobalWidgetsLocalizations.delegate,
-                      GlobalCupertinoLocalizations.delegate,
-                      FlutterQuillLocalizations.delegate,
+                      ChangeNotifierProvider(create: (context) => SongEditorPanelProvider()),
                     ],
-                    supportedLocales: const [
-                      Locale('pl', 'PL'), // include country code too
-                    ],
-                  )
-              )
-          )
-      )),
-  ));
+                    builder: (context, _) => Consumer<ColorPackProvider>(
+                        builder: (context, prov, _) => MaterialApp.router(
+                          routerConfig: router,
+                          title: 'HarcApp',
+                          theme: prov.colorPack.themeData(context),
+                          builder: (context, child) => child!,
+                          localizationsDelegates: const [
+                            GlobalMaterialLocalizations.delegate,
+                            GlobalWidgetsLocalizations.delegate,
+                            GlobalCupertinoLocalizations.delegate,
+                            FlutterQuillLocalizations.delegate,
+                          ],
+                          supportedLocales: const [
+                            Locale('pl', 'PL'), // include country code too
+                          ],
+                        )
+                    )
+                )
+            )),
+      ));
 }

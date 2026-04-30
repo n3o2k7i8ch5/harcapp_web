@@ -395,8 +395,8 @@ file:///Users/daniel/.pub-cache/hosted/pub.dev/web-1.1.1/lib/src/helpers/renames
 file:///Users/daniel/.pub-cache/hosted/pub.dev/web-1.1.1/lib/web.dart
 file:///Users/daniel/IdeaProjects/harcapp_core/lib/comm_classes/dio.dart
 file:///Users/daniel/IdeaProjects/harcapp_web/.dart_tool/package_config.json
-file:///Users/daniel/IdeaProjects/harcapp_web/lib/articles/.IsolateManagerWorker.articleCoverWorker.627087350.dart
-file:///Users/daniel/IdeaProjects/harcapp_web/lib/articles/cover_worker.dart
+file:///Users/daniel/IdeaProjects/harcapp_web/lib/articles/workers/.IsolateManagerWorker.articleCoverWorker.214773561.dart
+file:///Users/daniel/IdeaProjects/harcapp_web/lib/articles/workers/article_cover_worker.dart
 file:///opt/homebrew/share/flutter/bin/cache/dart-sdk/lib/_internal/dart2js_platform.dill
 file:///opt/homebrew/share/flutter/bin/cache/dart-sdk/lib/libraries.json
 org-dartlang-sdk:///lib/_http/crypto.dart

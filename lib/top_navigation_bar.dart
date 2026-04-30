@@ -141,7 +141,7 @@ class TopNavigationBarState extends State<TopNavigationBar>{
               PageNavItem(
                 icon: MdiIcons.cross,
                 title: 'Rozważania\newangeliczne',
-                contextInfo: 'Rozważania ewangeliczne na każdą niedzielę.',
+                contextInfo: 'Rozważania ewangeliczne na każdą niedzielę (i nie tylko)!',
                 path: pathRozwazaniaEwangeliczne,
                 dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
               ),

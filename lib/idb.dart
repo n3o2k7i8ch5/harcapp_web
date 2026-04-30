@@ -8,6 +8,7 @@ class IDB{
   static String storeNameContent(ArticleSource source) => "content_${source.name}";
   static String storeNameBigCover(ArticleSource source) => "cover_big_${source.name}";
   static String storeNameSmallCover(ArticleSource source) => "cover_small_${source.name}";
+  static String storeNameCoverImageUrl(ArticleSource source) => "cover_url_${source.name}";
   static String storeNameNewestSeenLocalId(ArticleSource source) => "newestLocalId_${source.name}";
   static String storeNameOldestSeenLocalId(ArticleSource source) => "oldestLocalId_${source.name}";
   static String storeNameIsAllHistoryLoaded(ArticleSource source) => "isAllHistoryLoaded_${source.name}";
@@ -24,11 +25,11 @@ class IDB{
 
     database = await idbFactory.open(
         dbName,
-        version: 2,
+        version: 3,
         onUpgradeNeeded: (VersionChangeEvent event) {
           Database db = event.database;
           int oldVersion = event.oldVersion;
-          
+
           if (oldVersion < 1) {
             for (ArticleSource source in ArticleSource.values){
               db.createObjectStore(storeNameContent(source), autoIncrement: true);
@@ -39,9 +40,15 @@ class IDB{
               db.createObjectStore(storeNameIsAllHistoryLoaded(source), autoIncrement: true);
             }
           }
-          
+
           if (oldVersion < 2) {
             db.createObjectStore(storeNameKonspektDraft, autoIncrement: true);
+          }
+
+          if (oldVersion < 3) {
+            for (ArticleSource source in ArticleSource.values) {
+              db.createObjectStore(storeNameCoverImageUrl(source), autoIncrement: true);
+            }
           }
         }
     );
@@ -114,6 +121,11 @@ class IDB{
       big ? putBigCover(source, key, value) : putSmallCover(source, key, value);
   static Future<Uint8List?> getCover(ArticleSource source, String key, bool big) async =>
       big ? getBigCover(source, key) : getSmallCover(source, key);
+
+  static Future<Object> putCoverImageUrl(ArticleSource source, String key, String url) =>
+      put(storeNameCoverImageUrl(source), key, url);
+  static Future<String?> getCoverImageUrl(ArticleSource source, String key) async =>
+      (await get(storeNameCoverImageUrl(source), key)) as String?;
 
   static Future<Object> putNewestSeenLocalId(ArticleSource source, String value) => put(storeNameNewestSeenLocalId(source), newestSeenLocalIdKey, value);
   static Future<String?> getNewestSeenLocalId(ArticleSource source) async => (await get(storeNameNewestSeenLocalId(source), newestSeenLocalIdKey)) as String?;

@@ -53,14 +53,14 @@ dependencies:
   smooth_scroll_multiplatform: ^1.0.8
   url_strategy: ^0.3.0
   web: 1.1.1
-  worker_manager: ^7.2.2
+  isolate_manager: ^6.3.2
   youtube_player_flutter: ^9.1.1
 
-#  harcapp_core:
-#    git:
-#      url: https://github.com/n3o2k7i8ch5/harcapp_core
   harcapp_core:
-    path: ../harcapp_core
+    git:
+      url: https://github.com/n3o2k7i8ch5/harcapp_core
+#  harcapp_core:
+#    path: ../harcapp_core
 
   flutter:
     sdk: flutter
@@ -72,6 +72,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  isolate_manager_generator: ^0.4.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

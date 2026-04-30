@@ -5,9 +5,10 @@ import 'package:harcapp_core/harcthought/articles/article_loader.dart';
 import 'package:harcapp_core/harcthought/articles/model/article_data.dart';
 import 'package:harcapp_core/harcthought/articles/model/article_source.dart';
 import 'package:harcapp_core/harcthought/articles/source_article_loader.dart';
+import 'package:harcapp_core/logger.dart';
 import 'package:isolate_manager/isolate_manager.dart';
 
-import 'article_worker.dart';
+import '../workers/article_download_worker.dart';
 
 class WebArticleLoader extends ArticleLoader {
   WebArticleLoader({
@@ -20,6 +21,7 @@ class WebArticleLoader extends ArticleLoader {
   IsolateManager<String, String> _getManager() => _manager ??=
       IsolateManager<String, String>.createCustom(
         articleDownloadWorker,
+        workerName: 'articleDownloadWorker',
         concurrent: ArticleSource.values.length,
       );
 
@@ -49,7 +51,13 @@ class WebArticleLoader extends ArticleLoader {
     await _getManager().compute(args, callback: (value) {
       try {
         final decoded = jsonDecode(value) as Map;
-        if (decoded['kind'] == 'end') return true;
+        if (decoded['kind'] == 'end') {
+          if (decoded['debug'] != null) {
+            logger.w('Article worker [${source.name}]: '
+                '${decoded['debug']}');
+          }
+          return true;
+        }
         if (decoded['kind'] != 'data') return false;
 
         final articles = (decoded['articles'] as List).map((entry) {

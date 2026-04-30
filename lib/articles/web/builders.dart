@@ -16,7 +16,7 @@ Widget webCoverBuilder(CoreArticle article) {
   if (url != null && url.isNotEmpty) {
     return WebNetworkImage(url: url);
   }
-  return WebCoverImage(article: article, big: true);
+  return WebCoverImage(article: article);
 }
 
 /// `imageBuilder` for [ArticleRenderers]. Inline article images (

@@ -7,6 +7,7 @@ import 'package:harcapp_web/articles/models/azymut.dart';
 import 'package:harcapp_web/articles/models/harcapp.dart';
 import 'package:harcapp_web/articles/models/pojutrze.dart';
 import 'package:harcapp_web/articles/source_article_loader.dart';
+import 'package:harcapp_web/articles/web/loader.dart';
 
 // TODO:
 // There is an issue currently. If someone calls `ArticleLoader` with only one
@@ -38,7 +39,7 @@ Future<void> addAllArticlesAndCache(ArticleSource source, List<ArticleData> arti
   await sourceArticleLoaders[source]!.cacheAll(articleDataList);
 }
 
-ArticleLoader articleLoader = ArticleLoader(
+ArticleLoader articleLoader = WebArticleLoader(
     sourceArticleLoaders: sourceArticleLoaders,
     onNewArticles: addAllArticlesAndCache
 );

@@ -9,6 +9,7 @@ import 'package:harcapp_core/harcthought/articles/article_loader.dart';
 import 'package:harcapp_core/harcthought/articles/model/article.dart';
 import 'package:harcapp_core/harcthought/articles/model/article_data.dart';
 import 'package:harcapp_core/harcthought/articles/model/article_source.dart';
+import 'package:harcapp_core/harcthought/articles/model/article_source_icon.dart';
 import 'package:harcapp_core/harcthought/articles/model/common.dart';
 import 'package:harcapp_core/harcthought/articles/source_article_loader.dart';
 import 'package:harcapp_core/harcthought/articles/thumbnail/article_cover_widget.dart';
@@ -184,7 +185,7 @@ class ArticlePageState extends State<ArticlePage>{
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              ArticleSource.icon,
+                              articleSourceIcon,
 
                               Text(' ', style: AppTextStyle()),
 
