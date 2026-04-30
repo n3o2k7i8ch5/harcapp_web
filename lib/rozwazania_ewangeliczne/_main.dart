@@ -4,6 +4,7 @@ import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_classes/text_utils.dart';
 import 'package:harcapp_core/comm_widgets/bottom_sheet.dart';
+import 'package:harcapp_core/comm_widgets/dialog/app_dialog.dart';
 import 'package:harcapp_core/comm_widgets/search_field.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/tab_bar.dart';
@@ -16,6 +17,8 @@ import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_print_bottom_sheet.
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_thumbnail_widget.dart';
 import 'package:harcapp_core/harcthought/harcapp_links.dart';
 import 'package:harcapp_core/harcthought/harcapp_share_button.dart';
+import 'package:harcapp_core/harcthought/konspekts/data/harcerskie/rozwazanie_ewangeliczne.dart';
+import 'package:harcapp_core/harcthought/konspekts/widgets/html_widget.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/consts.dart';
 import 'package:harcapp_web/router.dart';
@@ -200,6 +203,20 @@ class _ApelEwanGridState extends State<_ApelEwanGrid> {
     );
   }
 
+  void _openHowItWorksDialog(BuildContext context) {
+    openAppDialog(
+      context: context,
+      title: 'Jak to działa?',
+      closable: true,
+      scrollable: true,
+      maxWidth: appDialogMaxWidth,
+      child: KonspektHtmlWidget(
+        rozwazanie_ewangeliczne,
+        rozwEwanStandaloneDescription,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final folder = widget.folder;
@@ -219,6 +236,18 @@ class _ApelEwanGridState extends State<_ApelEwanGrid> {
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
+
+                      SimpleButton.from(
+                        context: context,
+                        color: cardEnab_(context),
+                        icon: MdiIcons.informationOutline,
+                        text: collapsed ? null : 'Jak to działa?',
+                        onTap: () => _openHowItWorksDialog(context),
+                      ),
+
+                      Expanded(child: Container()),
+                      
+                      const SizedBox(width: Dimen.defMarg),
                       HarcappShareButton(
                         url: folderUrl,
                         subject: folder.name,
