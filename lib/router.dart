@@ -37,13 +37,19 @@ final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 String pathHome = '/';
+String pathKonspekty = HarcappLinks.konspektRootListTemplate;
+String pathKonspektyShort = HarcappLinks.konspektRootListTemplateShort;
 String pathKonspektyFormy = HarcappLinks.formaListTemplate;
+String pathKonspektyFormyShort = HarcappLinks.formaListTemplateShort;
 String pathWarsztatKonspektow = '/konspekty/warsztat';
 String pathKonspektyHarcerskie = HarcappLinks.konspektCategoryListPath(KonspektCategory.harcerskie);
+String pathKonspektyHarcerskieShort = HarcappLinks.konspektCategoryListPath(KonspektCategory.harcerskie, short: true);
 String pathKonspektyHarcerskieItem = HarcappLinks.konspektCategoryItemPath(KonspektCategory.harcerskie);
 String pathKonspektyKsztalcenie = HarcappLinks.konspektCategoryListPath(KonspektCategory.ksztalcenie);
+String pathKonspektyKsztalcenieShort = HarcappLinks.konspektCategoryListPath(KonspektCategory.ksztalcenie, short: true);
 String pathKonspektyKsztalcenieItem = HarcappLinks.konspektCategoryItemPath(KonspektCategory.ksztalcenie);
 String pathPoradnik = HarcappLinks.poradnikListTemplate;
+String pathPoradnikShort = HarcappLinks.poradnikListTemplateShort;
 String pathPoradnikItem = HarcappLinks.poradnikItemTemplate;
 String pathPoradnikItemShort = HarcappLinks.poradnikItemTemplateShort;
 String pathKonspektyHarcerskieItemShort =
@@ -52,14 +58,17 @@ String pathKonspektyKsztalcenieItemShort =
     HarcappLinks.konspektItemTemplateShort.replaceFirst(':category', 'k');
 String pathFormaItemShort = HarcappLinks.formaItemTemplateShort;
 String pathArticlesWorkspace = '/article_workspace';
-String pathArticles = '/articles';
-String pathArticlesSource = '/articles/:source';
-String pathArticlesSourceItem = '/articles/:source/:localId';
+String pathArticles = HarcappLinks.articleListTemplate;
+String pathArticlesShort = HarcappLinks.articleListTemplateShort;
+String pathArticlesSource = HarcappLinks.articleSourceListTemplate;
+String pathArticlesSourceShort = HarcappLinks.articleSourceListTemplateShort;
+String pathArticlesSourceItem = HarcappLinks.articleItemTemplate;
 String pathArticlesSourceItemShort = HarcappLinks.articleItemTemplateShort;
 String pathSong = '/song';
 String pathSongContributionRules = '/song_contribution_rules';
 String pathPrivacyPolicy = '/privacy_policy';
 String pathRozwazaniaEwangeliczne = HarcappLinks.apelEwanFolderListTemplate;
+String pathRozwazaniaEwangeliczneShort = HarcappLinks.apelEwanFolderListTemplateShort;
 String pathRozwazaniaEwangelicznegoFolder = HarcappLinks.apelEwanFolderTemplate;
 String pathRozwazaniaEwangelicznegoFolderShort = HarcappLinks.apelEwanFolderTemplateShort;
 String pathRozwazaniaEwangelicznegoApel = HarcappLinks.apelEwanItemTemplate;
@@ -293,11 +302,33 @@ GoRouter router = GoRouter(
                 path: pathHome,
                 pageBuilder: (context, state) => NoTransitionPage(child: HomePage())
             ),
+            // /konspekty (no category) — web has no shared tab bar, default to harcerskie.
+            GoRoute(
+              path: pathKonspekty,
+              redirect: (context, state) => pathKonspektyHarcerskie,
+            ),
+            GoRoute(
+              path: pathKonspektyShort,
+              redirect: (context, state) => pathKonspektyHarcerskie,
+            ),
+            // Short-form category list redirects: /k/h, /k/k → long form.
+            GoRoute(
+              path: pathKonspektyHarcerskieShort,
+              redirect: (context, state) => pathKonspektyHarcerskie,
+            ),
+            GoRoute(
+              path: pathKonspektyKsztalcenieShort,
+              redirect: (context, state) => pathKonspektyKsztalcenie,
+            ),
             GoRoute(
               path: pathKonspektyFormy,
               pageBuilder: (context, state) => const NoTransitionPage(
                 child: HarcFormyPage(key: ValueKey('formy')),
               ),
+            ),
+            GoRoute(
+              path: pathKonspektyFormyShort,
+              redirect: (context, state) => pathKonspektyFormy,
             ),
             GoRoute(
                 name: 'konspektWorkspace',
@@ -380,8 +411,17 @@ GoRouter router = GoRouter(
             ),
 
             GoRoute(
+              path: pathPoradnikShort,
+              redirect: (context, state) => pathPoradnik,
+            ),
+
+            GoRoute(
                 path: pathArticles,
                 pageBuilder: (context, state) => NoTransitionPage(child: ArticlesPage())
+            ),
+            GoRoute(
+              path: pathArticlesShort,
+              redirect: (context, state) => pathArticles,
             ),
             GoRoute(
                 path: pathArticlesSource,
@@ -389,6 +429,13 @@ GoRouter router = GoRouter(
                   final String sourceName = state.pathParameters['source']!;
                   ArticleSource? source = ArticleSource.fromName(sourceName);
                   return NoTransitionPage(child: ArticlesPage(source: source));
+                }
+            ),
+            GoRoute(
+                path: pathArticlesSourceShort,
+                redirect: (context, state) {
+                  final String sourceName = state.pathParameters['source']!;
+                  return pathArticlesSource.replaceAll(':source', sourceName);
                 }
             ),
             GoRoute(
@@ -445,6 +492,10 @@ GoRouter router = GoRouter(
                   final defaultFolder = ApelEwanPersistentFolder.all.first;
                   return '$pathRozwazaniaEwangeliczne/${defaultFolder.slug}';
                 },
+            ),
+            GoRoute(
+              path: pathRozwazaniaEwangeliczneShort,
+              redirect: (context, state) => pathRozwazaniaEwangeliczne,
             ),
             GoRoute(
                 path: pathRozwazaniaEwangelicznegoFolder,
