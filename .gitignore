@@ -32,6 +32,15 @@
 /build/
 
 # Web related
+web/*Worker.js
+web/*Worker.js.deps
+web/*Worker.js.map
+
+# iOS ephemeral
+**/ios/Flutter/ephemeral/
+
+# Firebase
+.firebase/
 
 # Symbolication related
 app.*.symbols
