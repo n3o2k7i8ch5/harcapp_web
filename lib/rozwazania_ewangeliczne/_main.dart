@@ -248,7 +248,7 @@ class _ApelEwanGridState extends State<_ApelEwanGrid> {
                       Expanded(child: Container()),
                       
                       const SizedBox(width: Dimen.defMarg),
-                      HarcappShareButton(
+                      HarcappShareButton.simpleButton(
                         url: folderUrl,
                         subject: folder.name,
                         color: cardEnab_(context),

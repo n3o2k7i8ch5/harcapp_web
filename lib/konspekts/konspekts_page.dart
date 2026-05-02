@@ -296,7 +296,7 @@ class _KonspektLeadingWidget extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: narrow ? MainAxisAlignment.end : MainAxisAlignment.start,
                 children: [
-                  HarcappShareButton(
+                  HarcappShareButton.simpleButton(
                     url: HarcappLinks.konspektOf(konspekt),
                     subject: konspekt.title,
                     color: cardEnab_(context),

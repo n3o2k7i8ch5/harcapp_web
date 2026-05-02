@@ -149,7 +149,7 @@ class ArticlePageState extends State<ArticlePage>{
                         Positioned(
                           left: Dimen.sideMarg,
                           bottom: Dimen.sideMarg,
-                          child: HarcappShareButton(
+                          child: HarcappShareButton.simpleButton(
                             url: HarcappLinks.articleOf(article!, short: true),
                             subject: article!.title,
                             color: cardEnab_(context),

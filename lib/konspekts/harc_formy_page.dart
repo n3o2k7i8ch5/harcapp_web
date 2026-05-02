@@ -181,7 +181,7 @@ class _FormDetailWidgetState extends State<_FormDetailWidget> {
                     ),
                   ),
                 ),
-                HarcappShareButton(
+                HarcappShareButton.simpleButton(
                   url: HarcappLinks.formaOf(form),
                   subject: form.title,
                 ),
