@@ -294,6 +294,7 @@ class _KonspektLeadingWidget extends StatelessWidget {
                     subject: konspekt.title,
                     color: cardEnab_(context),
                     radius: AppCard.defRadius,
+                    margin: EdgeInsets.zero,
                     collapsed: narrow,
                   ),
                   if (narrow)
