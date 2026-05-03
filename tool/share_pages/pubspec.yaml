@@ -1,0 +1,19 @@
+name: share_pages
+description: Generates per-slug static index.html share pages with og:image / og:title / og:description so crawlers (Messenger, Slack, Discord, Twitter, LinkedIn) get proper link previews. Self-contained — does not import from the main app's lib/.
+publish_to: none
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  harcapp_core:
+    git:
+      url: https://github.com/n3o2k7i8ch5/harcapp_core
+  rss_dart: ^1.0.7
+  html_unescape: ^2.0.0
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

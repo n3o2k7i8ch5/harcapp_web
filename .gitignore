@@ -30,6 +30,7 @@
 .pub-cache/
 .pub/
 /build/
+tool/*/build/
 
 # Web related
 web/*Worker.js
@@ -38,6 +39,7 @@ web/*Worker.js.map
 
 # iOS ephemeral
 **/ios/Flutter/ephemeral/
+ios/Podfile
 
 # Firebase
 .firebase/

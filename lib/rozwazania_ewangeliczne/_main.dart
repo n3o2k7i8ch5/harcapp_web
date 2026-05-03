@@ -3,8 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_classes/text_utils.dart';
-import 'package:harcapp_core/comm_widgets/bottom_sheet.dart';
 import 'package:harcapp_core/comm_widgets/dialog/app_dialog.dart';
+import 'package:harcapp_core/comm_widgets/save_pdf_dialog.dart';
 import 'package:harcapp_core/comm_widgets/search_field.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/tab_bar.dart';
@@ -13,7 +13,7 @@ import 'package:harcapp_core/folder/folder_tab_indicator.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_persistent_folder.dart';
-import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_print_bottom_sheet.dart';
+import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_save_pdf_content.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_thumbnail_widget.dart';
 import 'package:harcapp_core/harcthought/harcapp_links.dart';
 import 'package:harcapp_core/harcthought/harcapp_share_button.dart';
@@ -191,15 +191,9 @@ class _ApelEwanGridState extends State<_ApelEwanGrid> {
   }
 
   void _openPdfBottomSheet(BuildContext context) {
-    final folder = widget.folder;
-    showScrollBottomSheet(
+    showSavePdfDialog(
       context: context,
-      builder: (ctx) => ApelEwanPrintBottomSheet(
-        folder: folder,
-        textColor: folder.colorsData.avgColor,
-        iconColor: folder.colorsData.colorStart,
-        iconEndColor: folder.colorsData.colorEnd,
-      ),
+      child: ApelEwanSavePdfContent(folder: widget.folder),
     );
   }
 
