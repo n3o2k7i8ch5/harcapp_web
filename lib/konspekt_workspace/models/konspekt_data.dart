@@ -175,8 +175,14 @@ class KonspektData extends BaseKonspekt {
           .map((h) => TextEditingController(text: h)).toList(),
       stepsData: k.steps
           .map((s) => KonspektStepData.fromKonspektStep(s)).toList(),
+      // TODO: KonspektInternalLinkAttachment is filtered out — workspace
+      // editor has no UI for editing in-app link attachments yet. Loading a
+      // konspekt that contains them and saving it back will silently drop
+      // them. Add a KonspektInternalLinkAttachmentData + editor row when the
+      // editor needs to support authoring these.
       attachments: k.attachments
-          ?.map((a) => KonspektAttachmentData.fromKonspektAttachment(a)).toList() ?? [],
+          ?.whereType<KonspektAttachment>()
+          .map((a) => KonspektAttachmentData.fromKonspektAttachment(a)).toList() ?? [],
     );
   }
 
