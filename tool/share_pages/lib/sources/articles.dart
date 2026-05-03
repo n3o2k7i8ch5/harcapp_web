@@ -25,6 +25,84 @@ class _Article {
     required this.date,
     required this.imageUrl,
   });
+
+  Map<String, dynamic> toJson() => {
+    'title': title,
+    'author': author,
+    'date': date.toIso8601String(),
+    'imageUrl': imageUrl,
+  };
+
+  static _Article fromJson(
+          String sourceName, String localId, Map<dynamic, dynamic> json) =>
+      _Article(
+        sourceName: sourceName,
+        localId: localId,
+        title: json['title'] as String,
+        author: json['author'] as String,
+        date: DateTime.parse(json['date'] as String),
+        imageUrl: json['imageUrl'] as String?,
+      );
+}
+
+/// Persistent on-disk cache of article records, keyed by source + localId.
+/// Skips per-article curls (HarcApp JSON, ZHR HTML scrape for og:image) on
+/// re-runs. The cache file is committed to the repo so deploys benefit from
+/// previous runs' work.
+class _ArticleCache {
+  final Map<String, Map<String, _Article>> _bySource = {};
+  final String _path;
+
+  _ArticleCache(this._path);
+
+  static _ArticleCache load(String path) {
+    final cache = _ArticleCache(path);
+    final file = File(path);
+    if (!file.existsSync()) return cache;
+    try {
+      final data = jsonDecode(file.readAsStringSync()) as Map<dynamic, dynamic>;
+      data.forEach((src, ids) {
+        final m = <String, _Article>{};
+        (ids as Map).forEach((id, json) {
+          m[id as String] =
+              _Article.fromJson(src as String, id as String, json as Map);
+        });
+        cache._bySource[src as String] = m;
+      });
+    } catch (e) {
+      stderr.writeln('cache load failed, starting fresh: $e');
+    }
+    return cache;
+  }
+
+  _Article? get(String source, String localId) =>
+      _bySource[source]?[localId];
+
+  void put(_Article a) {
+    _bySource.putIfAbsent(a.sourceName, () => {})[a.localId] = a;
+  }
+
+  void save() {
+    final file = File(_path);
+    file.parent.createSync(recursive: true);
+    // Sorted output → deterministic diffs, friendly for git review.
+    final sortedSources = _bySource.keys.toList()..sort();
+    final json = <String, Map<String, dynamic>>{};
+    for (final src in sortedSources) {
+      final m = _bySource[src]!;
+      final sortedIds = m.keys.toList()..sort();
+      final out = <String, dynamic>{};
+      for (final id in sortedIds) {
+        out[id] = m[id]!.toJson();
+      }
+      json[src] = out;
+    }
+    const encoder = JsonEncoder.withIndent('  ');
+    file.writeAsStringSync('${encoder.convert(json)}\n');
+  }
+
+  int get totalCount =>
+      _bySource.values.fold(0, (sum, m) => sum + m.length);
 }
 
 Future<int> generateArticlePages({
@@ -32,12 +110,20 @@ Future<int> generateArticlePages({
   required String buildDir,
   required ShareTemplate template,
   required String fallbackCoverUrl,
+  required String cachePath,
 }) async {
+  final cache = _ArticleCache.load(cachePath);
+  final cacheSizeBefore = cache.totalCount;
+
   final results = await Future.wait([
-    _fetchZhr('azymut', 'https://azymut.zhr.pl/feed/atom/'),
-    _fetchZhr('pojutrze', 'https://pojutrze.zhr.pl/feed/atom/'),
-    _fetchHarcApp(),
+    _fetchZhr('azymut', 'https://azymut.zhr.pl/feed/atom/', cache),
+    _fetchZhr('pojutrze', 'https://pojutrze.zhr.pl/feed/atom/', cache),
+    _fetchHarcApp(cache),
   ]);
+
+  cache.save();
+  stdout.writeln('article cache: ${cacheSizeBefore} → ${cache.totalCount} '
+      '(+${cache.totalCount - cacheSizeBefore} new)');
 
   int count = 0;
   for (final articles in results) {
@@ -89,11 +175,14 @@ String _formatDate(DateTime d) =>
 // =========================================================================
 // ZHR (azymut, pojutrze): paginated Atom feed → localId from item.id "?p=N",
 //                          og:image scraped from the article's HTML page.
+// Feed is always re-fetched (cheap, gives fresh title/author/date). Per-
+// article HTML scrape is skipped if cache already has imageUrl.
 // =========================================================================
 
 const _zhrFullPageSize = 40;
 
-Future<List<_Article>> _fetchZhr(String sourceName, String feedBase) async {
+Future<List<_Article>> _fetchZhr(
+    String sourceName, String feedBase, _ArticleCache cache) async {
   final all = <_Article>[];
   final unescape = HtmlUnescape();
 
@@ -110,12 +199,13 @@ Future<List<_Article>> _fetchZhr(String sourceName, String feedBase) async {
     }
     if (feed.items.isEmpty) break;
 
-    final imageUrls = await Future.wait(
-        feed.items.map((it) => _extractZhrCoverFromItem(it)));
+    final articles = await Future.wait(
+        feed.items.map((it) => _resolveZhrArticle(sourceName, it, cache)));
 
-    for (int i = 0; i < feed.items.length; i++) {
-      final a = _zhrAtomToArticle(sourceName, feed.items[i], imageUrls[i]);
-      if (a != null) all.add(a);
+    for (final a in articles) {
+      if (a == null) continue;
+      cache.put(a);
+      all.add(a);
     }
 
     final isLastPage = feed.items.length < _zhrFullPageSize;
@@ -124,37 +214,38 @@ Future<List<_Article>> _fetchZhr(String sourceName, String feedBase) async {
   return all;
 }
 
-_Article? _zhrAtomToArticle(String sourceName, AtomItem item, String? imageUrl) {
-  try {
-    final id = item.id;
-    if (id == null || !id.contains('?p=')) return null;
-    final localId = id.split('?p=')[1];
-    final title = item.title;
-    final author = item.authors.isNotEmpty ? item.authors[0].name : null;
-    final published = item.published;
-    if (title == null || author == null || published == null) return null;
-    final date = DateTime.tryParse(published);
-    if (date == null) return null;
-    return _Article(
-      sourceName: sourceName,
-      localId: localId,
-      title: title,
-      author: author,
-      date: date,
-      imageUrl: imageUrl,
-    );
-  } catch (_) {
-    return null;
-  }
-}
+Future<_Article?> _resolveZhrArticle(
+    String sourceName, AtomItem item, _ArticleCache cache) async {
+  final id = item.id;
+  if (id == null || !id.contains('?p=')) return null;
+  final localId = id.split('?p=')[1];
 
-Future<String?> _extractZhrCoverFromItem(AtomItem item) async {
-  if (item.links.isEmpty) return null;
-  final link = item.links[0].href;
-  if (link == null) return null;
-  final html = await curlGet(link);
-  if (html == null) return null;
-  return _extractOgImage(html);
+  final title = item.title;
+  final author = item.authors.isNotEmpty ? item.authors[0].name : null;
+  final published = item.published;
+  if (title == null || author == null || published == null) return null;
+  final date = DateTime.tryParse(published);
+  if (date == null) return null;
+
+  // Use cached og:image if we have one — that's the expensive scrape we skip.
+  final cached = cache.get(sourceName, localId);
+  String? imageUrl = cached?.imageUrl;
+  if (imageUrl == null && item.links.isNotEmpty) {
+    final link = item.links[0].href;
+    if (link != null) {
+      final html = await curlGet(link);
+      if (html != null) imageUrl = _extractOgImage(html);
+    }
+  }
+
+  return _Article(
+    sourceName: sourceName,
+    localId: localId,
+    title: title,
+    author: author,
+    date: date,
+    imageUrl: imageUrl,
+  );
 }
 
 String? _extractOgImage(String html) {
@@ -165,6 +256,7 @@ String? _extractOgImage(String html) {
 
 // =========================================================================
 // HarcApp: GitLab tree API for index, raw blob for each article (JSON).
+// Index is always re-fetched. Per-article curl is skipped entirely if cached.
 // =========================================================================
 
 const _harcAppExt = 'hrcpartcl';
@@ -173,7 +265,7 @@ const _harcAppIndexUrl =
 String _harcAppArticleUrl(String localId) =>
     'https://gitlab.com/n3o2k7i8ch5/harcapp_data/-/raw/master/articles/$localId.$_harcAppExt';
 
-Future<List<_Article>> _fetchHarcApp() async {
+Future<List<_Article>> _fetchHarcApp(_ArticleCache cache) async {
   final indexJson = await curlGet(_harcAppIndexUrl);
   if (indexJson == null) return const [];
 
@@ -193,11 +285,14 @@ Future<List<_Article>> _fetchHarcApp() async {
     localIds.add(name.substring(0, name.length - _harcAppExt.length - 1));
   }
 
-  final fetched = await Future.wait(localIds.map(_fetchHarcAppOne));
+  final fetched = await Future.wait(localIds.map((id) => _resolveHarcAppOne(id, cache)));
   return fetched.whereType<_Article>().toList();
 }
 
-Future<_Article?> _fetchHarcAppOne(String localId) async {
+Future<_Article?> _resolveHarcAppOne(String localId, _ArticleCache cache) async {
+  final cached = cache.get('harcApp', localId);
+  if (cached != null) return cached;
+
   final raw = await curlGet(_harcAppArticleUrl(localId));
   if (raw == null) return null;
   Map<dynamic, dynamic> json;
@@ -212,7 +307,7 @@ Future<_Article?> _fetchHarcAppOne(String localId) async {
   if (title == null || author == null || dateStr == null) return null;
   final date = DateTime.tryParse(dateStr);
   if (date == null) return null;
-  return _Article(
+  final article = _Article(
     sourceName: 'harcApp',
     localId: localId,
     title: title,
@@ -220,4 +315,6 @@ Future<_Article?> _fetchHarcAppOne(String localId) async {
     date: date,
     imageUrl: json['imageUrl'] as String?,
   );
+  cache.put(article);
+  return article;
 }

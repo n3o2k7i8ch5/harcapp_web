@@ -33,6 +33,9 @@ const String _fallbackArticleCoverUrl = '$_baseUrl/icons/icon-512.png';
 const String _repoRoot = '../..';
 const String _buildDir = '$_repoRoot/build/web';
 const String _templatePath = '$_repoRoot/web/index.html';
+// Cache lives inside the sub-project, gets committed → first deploy seeds it,
+// subsequent deploys skip the per-article HTML scrape for known articles.
+const String _articleCachePath = 'cache/articles.json';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -58,6 +61,7 @@ void main() {
       buildDir: _buildDir,
       template: template,
       fallbackCoverUrl: _fallbackArticleCoverUrl,
+      cachePath: _articleCachePath,
     );
 
     stdout.writeln('Generated $konspektCount konspekt pages, '

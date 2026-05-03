@@ -706,7 +706,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: c38ae74b1c86c288abd15bfb3225507d0b94d016
+      resolved-ref: "42b22b67084b6ebd49b6128c0739a2f8f6f1c73b"
       url: "https://github.com/n3o2k7i8ch5/harcapp_core"
     source: git
     version: "0.0.1"
