@@ -153,7 +153,6 @@ class ArticlePageState extends State<ArticlePage>{
                             url: HarcappLinks.articleOf(article!, short: true),
                             subject: article!.title,
                             color: cardEnab_(context),
-                            radius: AppCard.defRadius,
                           ),
                         ),
                       ],
