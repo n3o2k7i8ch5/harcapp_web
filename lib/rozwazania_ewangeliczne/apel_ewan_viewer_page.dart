@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_classes/sha_pref.dart';
 import 'package:harcapp_core/comm_widgets/save_pdf_dialog.dart';
 import 'package:harcapp_core/comm_widgets/tab_bar.dart';
 import 'package:harcapp_core/folder/folder_tab.dart';
@@ -45,13 +46,17 @@ class _ApelEwanViewerPageState extends State<ApelEwanViewerPage>
 
   late String _currentVariantId;
 
+  static String _variantPrefsKey(String slug) => 'apel_ewan_variant_$slug';
+
   @override
   void initState() {
     super.initState();
     int initialIndex = apels.indexWhere((a) => a.dirName == widget.initialApel.dirName);
     if (initialIndex < 0) initialIndex = 0;
 
-    _currentVariantId = widget.initialVariantId ?? widget.folder.variantId;
+    final saved = ShaPref.getStringOrNull(_variantPrefsKey(widget.folder.slug));
+    _currentVariantId =
+        widget.initialVariantId ?? saved ?? widget.folder.variantId;
 
     pageController = PageController(initialPage: initialIndex);
     tabController = TabController(
@@ -84,6 +89,7 @@ class _ApelEwanViewerPageState extends State<ApelEwanViewerPage>
   void _handleVariantChanged(ApelEwan apel, String newVariantId) {
     if (newVariantId == _currentVariantId) return;
     setState(() => _currentVariantId = newVariantId);
+    ShaPref.setString(_variantPrefsKey(widget.folder.slug), newVariantId);
     // Preserve the URL form (short `/r/…` vs long `/rozwazania-ewangeliczne/…`)
     // the user arrived on, so picking a variant doesn't suddenly canonicalise it.
     final currentUri = GoRouterState.of(context).uri;
