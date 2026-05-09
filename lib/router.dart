@@ -110,7 +110,7 @@ Page<dynamic> _apelEwanViewerPageBuilder(BuildContext context, GoRouterState sta
   }
 
   return CustomTransitionPage(
-    key: ValueKey('apel_${folder.slug}_${apel.dirName}'),
+    key: ValueKey('apel_${folder.slug}'),
     transitionDuration: const Duration(milliseconds: 200),
     reverseTransitionDuration: const Duration(milliseconds: 200),
     transitionsBuilder: (_, animation, _, child) =>

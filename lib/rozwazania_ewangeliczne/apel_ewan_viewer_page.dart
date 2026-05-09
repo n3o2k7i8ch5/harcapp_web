@@ -71,6 +71,14 @@ class _ApelEwanViewerPageState extends State<ApelEwanViewerPage>
         setState(() => _currentVariantId = resolved);
       }
     }
+    if (widget.initialApel.dirName != oldWidget.initialApel.dirName) {
+      final newIndex = apels.indexWhere(
+        (a) => a.dirName == widget.initialApel.dirName,
+      );
+      if (newIndex >= 0 && newIndex != tabController.index) {
+        tabController.animateTo(newIndex);
+      }
+    }
   }
 
   void _handleVariantChanged(ApelEwan apel, String newVariantId) {
@@ -106,8 +114,28 @@ class _ApelEwanViewerPageState extends State<ApelEwanViewerPage>
   }
 
   void _handlePageChange(int index) {
-    if (tabController.index == index) return;
-    tabController.animateTo(index);
+    if (tabController.index != index) {
+      tabController.animateTo(index);
+    }
+    _syncUrlToIndex(index);
+  }
+
+  void _syncUrlToIndex(int index) {
+    if (index < 0 || index >= apels.length) return;
+    final apel = apels[index];
+    if (apel.dirName == widget.initialApel.dirName) return;
+    final currentUri = GoRouterState.of(context).uri;
+    final isShort = currentUri.pathSegments.isNotEmpty &&
+        currentUri.pathSegments.first == 'r';
+    final newUrl = HarcappLinks.apelEwanItem(
+      widget.folder.slug,
+      apel.dirName,
+      variantId: _currentVariantId,
+      short: isShort,
+    );
+    final newUri = Uri.parse(newUrl);
+    final relative = newUri.hasQuery ? '${newUri.path}?${newUri.query}' : newUri.path;
+    context.replace(relative);
   }
 
   @override
