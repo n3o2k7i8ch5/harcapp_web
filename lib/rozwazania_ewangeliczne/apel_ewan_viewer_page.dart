@@ -8,6 +8,7 @@ import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_persistent_folder.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_widget.dart';
+import 'package:harcapp_web/common/page_width_bar.dart';
 import 'package:harcapp_web/consts.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -77,7 +78,8 @@ class _ApelEwanViewerPageState extends State<ApelEwanViewerPage>
   @override
   Widget build(BuildContext context) {
     final Color barColor = cardEnab_(context);
-    const Color bodyColor = Colors.black;
+    final Color bodyColor = background_(context);
+    final Color labelColor = textEnab_(context);
 
     return Scaffold(
       backgroundColor: bodyColor,
@@ -101,31 +103,22 @@ class _ApelEwanViewerPageState extends State<ApelEwanViewerPage>
       body: Column(
         children: [
 
-          Material(
-            color: barColor,
-            child: LayoutBuilder(
-              builder: (context, constraints) => Center(
-                child: SizedBox(
-                  width: constraints.maxWidth > defPageWidth
-                      ? defPageWidth
-                      : constraints.maxWidth,
-                  child: TabBarX(
-                    controller: tabController,
-                    isScrollable: true,
-                    indicator: FolderTabIndicator(color: bodyColor),
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    splashBorderRadius: FolderTabIndicator.defBorderRadius,
-                    overlayColor: WidgetStateProperty.all(
-                        Colors.white.withValues(alpha: 0.08)),
-                    labelColor: Colors.white,
-                    unselectedLabelColor: Colors.white,
-                    tabs: [
-                      for (final apel in apels)
-                        FolderBaseTab(text: apel.siglum),
-                    ],
-                  ),
-                ),
-              ),
+          PageWidthBar(
+            backgroundColor: barColor,
+            child: TabBarX(
+              controller: tabController,
+              isScrollable: true,
+              indicator: FolderTabIndicator(color: bodyColor),
+              indicatorSize: TabBarIndicatorSize.tab,
+              splashBorderRadius: FolderTabIndicator.defBorderRadius,
+              overlayColor: WidgetStateProperty.all(
+                  labelColor.withValues(alpha: 0.08)),
+              labelColor: labelColor,
+              unselectedLabelColor: labelColor,
+              tabs: [
+                for (final apel in apels)
+                  FolderBaseTab(text: apel.siglum),
+              ],
             ),
           ),
 

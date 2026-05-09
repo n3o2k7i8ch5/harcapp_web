@@ -15,6 +15,7 @@ import 'package:harcapp_core/harcthought/articles/model/article_source.dart';
 import 'package:harcapp_core/harcthought/articles/source_article_loader.dart';
 import 'package:harcapp_core/harcthought/articles/thumbnail/article_card_widget.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
+import 'package:harcapp_web/common/page_width_bar.dart';
 import 'package:harcapp_web/consts.dart';
 import 'package:harcapp_web/router.dart';
 
@@ -168,49 +169,44 @@ class ArticlePageState extends State<ArticlesPage>
       backgroundColor: bodyColor,
       body: Column(
         children: [
-          Material(
-            color: barColor,
-            child: Stack(
-              children: [
-                Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: defPageWidth),
-                    child: TabBarX(
-                      controller: _tabController,
-                      isScrollable: true,
-                      indicator: FolderTabIndicator(color: bodyColor),
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      splashBorderRadius: FolderTabIndicator.defBorderRadius,
-                      labelColor: textEnab_(context),
-                      unselectedLabelColor: textEnab_(context),
-                      onTap: _onTabTap,
-                      tabs: [
-                        for (final source in _tabSources)
-                          FolderTwoLineTab(
-                            text: source == null
-                                ? 'Wszystkie'
-                                : source.displayName,
-                            subText:
-                                'Liczba artykułów: ${_countTextFor(source)}',
-                          ),
-                      ],
+          Stack(
+            children: [
+              PageWidthBar(
+                backgroundColor: barColor,
+                child: TabBarX(
+                  controller: _tabController,
+                  isScrollable: true,
+                  indicator: FolderTabIndicator(color: bodyColor),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  splashBorderRadius: FolderTabIndicator.defBorderRadius,
+                  labelColor: textEnab_(context),
+                  unselectedLabelColor: textEnab_(context),
+                  onTap: _onTabTap,
+                  tabs: [
+                    for (final source in _tabSources)
+                      FolderTwoLineTab(
+                        text: source == null
+                            ? 'Wszystkie'
+                            : source.displayName,
+                        subText:
+                            'Liczba artykułów: ${_countTextFor(source)}',
+                      ),
+                  ],
+                ),
+              ),
+              if (articleLoader.running)
+                Positioned(
+                  right: Dimen.sideMarg,
+                  top: 0,
+                  bottom: 0,
+                  child: Center(
+                    child: SpinKitChasingDots(
+                      color: textEnab_(context),
+                      size: 20.0,
                     ),
                   ),
                 ),
-                if (articleLoader.running)
-                  Positioned(
-                    right: Dimen.sideMarg,
-                    top: 0,
-                    bottom: 0,
-                    child: Center(
-                      child: SpinKitChasingDots(
-                        color: textEnab_(context),
-                        size: 20.0,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+            ],
           ),
           Expanded(
             child: Align(

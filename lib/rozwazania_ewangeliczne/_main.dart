@@ -20,6 +20,7 @@ import 'package:harcapp_core/harcthought/harcapp_share_button.dart';
 import 'package:harcapp_core/harcthought/konspekts/data/harcerskie/rozwazanie_ewangeliczne.dart';
 import 'package:harcapp_core/harcthought/konspekts/widgets/html_widget.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
+import 'package:harcapp_web/common/page_width_bar.dart';
 import 'package:harcapp_web/consts.dart';
 import 'package:harcapp_web/router.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -74,45 +75,37 @@ class _RozwazaniaEwangelicznePageState extends State<RozwazaniaEwangelicznePage>
   @override
   Widget build(BuildContext context) {
     final Color barColor = cardEnab_(context);
-    const Color bodyColor = Colors.black;
+    final Color bodyColor = background_(context);
+    final Color labelColor = textEnab_(context);
 
     return BaseScaffold(
       backgroundColor: bodyColor,
       body: Column(
         children: [
 
-          Material(
-            color: barColor,
-            child: LayoutBuilder(
-              builder: (context, constraints) => Center(
-                child: SizedBox(
-                  width: constraints.maxWidth > defPageWidth
-                      ? defPageWidth
-                      : constraints.maxWidth,
-                  child: TabBarX(
-                    controller: _tabController,
-                    isScrollable: true,
-                    indicator: FolderTabIndicator(color: bodyColor),
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    splashBorderRadius: FolderTabIndicator.defBorderRadius,
-                    overlayColor: WidgetStateProperty.all(
-                        Colors.white.withValues(alpha: 0.08)),
-                    labelColor: Colors.white,
-                    unselectedLabelColor: Colors.white,
-                    onTap: _onTabTap,
-                    tabs: [
-                      for (final folder in _folders)
-                        FolderTab(
-                          iconKey: folder.iconKey,
-                          colorsKey: folder.colorsKey,
-                          folderName: folder.name,
-                          countText: 'Liczba rozważań: ${folder.apelEwans.length}',
-                          countTextStyle: const AppTextStyle(fontWeight: weightNormal),
-                        ),
-                    ],
+          PageWidthBar(
+            backgroundColor: barColor,
+            child: TabBarX(
+              controller: _tabController,
+              isScrollable: true,
+              indicator: FolderTabIndicator(color: bodyColor),
+              indicatorSize: TabBarIndicatorSize.tab,
+              splashBorderRadius: FolderTabIndicator.defBorderRadius,
+              overlayColor: WidgetStateProperty.all(
+                  labelColor.withValues(alpha: 0.08)),
+              labelColor: labelColor,
+              unselectedLabelColor: labelColor,
+              onTap: _onTabTap,
+              tabs: [
+                for (final folder in _folders)
+                  FolderTab(
+                    iconKey: folder.iconKey,
+                    colorsKey: folder.colorsKey,
+                    folderName: folder.name,
+                    countText: 'Liczba rozważań: ${folder.apelEwans.length}',
+                    countTextStyle: const AppTextStyle(fontWeight: weightNormal),
                   ),
-                ),
-              ),
+              ],
             ),
           ),
 
