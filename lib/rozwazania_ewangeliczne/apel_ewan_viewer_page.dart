@@ -8,6 +8,8 @@ import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_persistent_folder.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_widget.dart';
+import 'package:harcapp_core/harcthought/harcapp_links.dart';
+import 'package:harcapp_core/harcthought/harcapp_share_button.dart';
 import 'package:harcapp_web/common/page_width_bar.dart';
 import 'package:harcapp_web/consts.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -136,9 +138,30 @@ class _ApelEwanViewerPageState extends State<ApelEwanViewerPage>
                   child: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: defPageWidth),
-                      child: ApelEwanWidget(
-                        apel,
-                        initVariantId: widget.folder.variantId,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: Dimen.sideMarg),
+                            child: Align(
+                              alignment: Alignment.centerRight,
+                              child: HarcappShareButton.simpleButton(
+                                url: HarcappLinks.apelEwanItemOf(
+                                  widget.folder,
+                                  apel,
+                                  short: true,
+                                ),
+                                subject: apel.siglum,
+                                color: cardEnab_(context),
+                                margin: EdgeInsets.zero,
+                              ),
+                            ),
+                          ),
+                          ApelEwanWidget(
+                            apel,
+                            initVariantId: widget.folder.variantId,
+                          ),
+                        ],
                       ),
                     ),
                   ),
