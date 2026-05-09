@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_widgets/save_pdf_dialog.dart';
 import 'package:harcapp_core/comm_widgets/tab_bar.dart';
 import 'package:harcapp_core/folder/folder_tab.dart';
 import 'package:harcapp_core/folder/folder_tab_indicator.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_persistent_folder.dart';
+import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_save_pdf_content.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_widget.dart';
 import 'package:harcapp_core/harcthought/harcapp_links.dart';
 import 'package:harcapp_core/harcthought/harcapp_share_button.dart';
@@ -101,6 +103,16 @@ class _ApelEwanViewerPageState extends State<ApelEwanViewerPage>
             color: iconEnab_(context),
           ),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(MdiIcons.filePdfBox),
+            tooltip: 'Pobierz PDF',
+            onPressed: () => showSavePdfDialog(
+              context: context,
+              child: ApelEwanSavePdfContent(folder: widget.folder),
+            ),
+          ),
+        ],
       ),
       body: Column(
         children: [
