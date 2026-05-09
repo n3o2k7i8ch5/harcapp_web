@@ -9,6 +9,7 @@ import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/harcthought/poradnik/poradnik.dart';
 import 'package:harcapp_core/harcthought/poradnik/poradnik_thumbnail_widget.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
+import 'package:harcapp_web/consts.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class PoradniksPage extends StatefulWidget{
@@ -93,11 +94,16 @@ class PoradniksPageState extends State<PoradniksPage>{
                 child: SingleChildScrollView(
                   physics: BouncingScrollPhysics(),
                   padding: EdgeInsets.all(PoradniksPage.defPaddingVal),
-                  child: Wrap(
-                    spacing: PoradniksPage.defPaddingVal,
-                    runSpacing: PoradniksPage.defPaddingVal,
-                    alignment: WrapAlignment.start,
-                    children: poradnikWidgets,
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: defPageWidth),
+                      child: Wrap(
+                        spacing: PoradniksPage.defPaddingVal,
+                        runSpacing: PoradniksPage.defPaddingVal,
+                        alignment: WrapAlignment.start,
+                        children: poradnikWidgets,
+                      ),
+                    ),
                   ),
                 )
               )

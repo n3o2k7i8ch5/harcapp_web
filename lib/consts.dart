@@ -2,7 +2,7 @@
 class AppLayout {
   AppLayout._();
 
-  static const double defPageWidth = 900;
+  static const double defPageWidth = 1200;
   static const double appDialogMaxWidth = 900;
   static const double songDialogWidth = 500;
   static const double drawerWidth = 480;
