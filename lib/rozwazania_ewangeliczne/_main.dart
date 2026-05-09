@@ -83,6 +83,8 @@ class _RozwazaniaEwangelicznePageState extends State<RozwazaniaEwangelicznePage>
       body: Column(
         children: [
 
+          Container(height: 8, color: barColor),
+
           PageWidthBar(
             backgroundColor: barColor,
             child: TabBarX(

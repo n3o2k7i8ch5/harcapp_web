@@ -169,6 +169,7 @@ class ArticlePageState extends State<ArticlesPage>
       backgroundColor: bodyColor,
       body: Column(
         children: [
+          Container(height: 8, color: barColor),
           Stack(
             children: [
               PageWidthBar(
