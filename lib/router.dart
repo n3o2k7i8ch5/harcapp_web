@@ -83,6 +83,14 @@ String pathSprawnosciBookFamily = '/sprawnosci/:bookId/:familyId';
 Page<dynamic> _apelEwanViewerPageBuilder(BuildContext context, GoRouterState state) {
   final folderSlug = state.pathParameters['folder'];
   final apelDirName = state.pathParameters['apel'];
+  String? variantId;
+  for (final alias in HarcappLinks.apelEwanItemVariantQueryParamAliases) {
+    final value = state.uri.queryParameters[alias];
+    if (value != null && value.isNotEmpty) {
+      variantId = value;
+      break;
+    }
+  }
 
   final folder = folderSlug == null ? null : ApelEwanPersistentFolder.bySlug(folderSlug);
   ApelEwan? apel;
@@ -107,7 +115,11 @@ Page<dynamic> _apelEwanViewerPageBuilder(BuildContext context, GoRouterState sta
     reverseTransitionDuration: const Duration(milliseconds: 200),
     transitionsBuilder: (_, animation, _, child) =>
         FadeTransition(opacity: animation, child: child),
-    child: ApelEwanViewerPage(folder: folder, initialApel: apel),
+    child: ApelEwanViewerPage(
+      folder: folder,
+      initialApel: apel,
+      initialVariantId: variantId,
+    ),
   );
 }
 

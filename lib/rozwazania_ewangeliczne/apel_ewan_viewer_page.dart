@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/save_pdf_dialog.dart';
@@ -20,10 +21,14 @@ class ApelEwanViewerPage extends StatefulWidget {
 
   final ApelEwanPersistentFolder folder;
   final ApelEwan initialApel;
+  /// Variant id pinned by the URL (`?wariant=...`). When null the folder's
+  /// default [ApelEwanPersistentFolder.variantId] is used.
+  final String? initialVariantId;
 
   const ApelEwanViewerPage({
     required this.folder,
     required this.initialApel,
+    this.initialVariantId,
     super.key,
   });
 
@@ -38,11 +43,15 @@ class _ApelEwanViewerPageState extends State<ApelEwanViewerPage>
   late final PageController pageController;
   late final TabController tabController;
 
+  late String _currentVariantId;
+
   @override
   void initState() {
     super.initState();
     int initialIndex = apels.indexWhere((a) => a.dirName == widget.initialApel.dirName);
     if (initialIndex < 0) initialIndex = 0;
+
+    _currentVariantId = widget.initialVariantId ?? widget.folder.variantId;
 
     pageController = PageController(initialPage: initialIndex);
     tabController = TabController(
@@ -51,6 +60,36 @@ class _ApelEwanViewerPageState extends State<ApelEwanViewerPage>
       vsync: this,
     );
     tabController.addListener(_handleTabChange);
+  }
+
+  @override
+  void didUpdateWidget(ApelEwanViewerPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialVariantId != oldWidget.initialVariantId) {
+      final resolved = widget.initialVariantId ?? widget.folder.variantId;
+      if (resolved != _currentVariantId) {
+        setState(() => _currentVariantId = resolved);
+      }
+    }
+  }
+
+  void _handleVariantChanged(ApelEwan apel, String newVariantId) {
+    if (newVariantId == _currentVariantId) return;
+    setState(() => _currentVariantId = newVariantId);
+    // Preserve the URL form (short `/r/…` vs long `/rozwazania-ewangeliczne/…`)
+    // the user arrived on, so picking a variant doesn't suddenly canonicalise it.
+    final currentUri = GoRouterState.of(context).uri;
+    final isShort = currentUri.pathSegments.isNotEmpty && currentUri.pathSegments.first == 'r';
+    final newUrl = HarcappLinks.apelEwanItem(
+      widget.folder.slug,
+      apel.dirName,
+      variantId: newVariantId,
+      short: isShort,
+    );
+    // HarcappLinks builders include the host; strip to a router-relative path.
+    final newUri = Uri.parse(newUrl);
+    final relative = newUri.hasQuery ? '${newUri.path}?${newUri.query}' : newUri.path;
+    context.replace(relative);
   }
 
   void _handleTabChange() {
@@ -161,6 +200,7 @@ class _ApelEwanViewerPageState extends State<ApelEwanViewerPage>
                                 url: HarcappLinks.apelEwanItemOf(
                                   widget.folder,
                                   apel,
+                                  variantId: _currentVariantId,
                                   short: true,
                                 ),
                                 subject: apel.siglum,
@@ -171,7 +211,9 @@ class _ApelEwanViewerPageState extends State<ApelEwanViewerPage>
                           ),
                           ApelEwanWidget(
                             apel,
-                            initVariantId: widget.folder.variantId,
+                            initVariantId: _currentVariantId,
+                            onVariantChanged: (newVariantId) =>
+                                _handleVariantChanged(apel, newVariantId),
                           ),
                         ],
                       ),
