@@ -204,7 +204,9 @@ class _ApelEwanViewerPageState extends State<ApelEwanViewerPage>
               unselectedLabelColor: labelColor,
               tabs: [
                 for (final apel in apels)
-                  FolderBaseTab(text: apel.siglum),
+                  FolderBaseTab(
+                    text: apel.variantOrFirst(_currentVariantId).oneLineLabel,
+                  ),
               ],
             ),
           ),
