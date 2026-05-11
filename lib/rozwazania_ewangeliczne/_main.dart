@@ -227,7 +227,9 @@ class _ApelEwanGridState extends State<_ApelEwanGrid> {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: defPageWidth),
-        child: Column(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Dimen.sideMarg),
+          child: Column(
           children: [
 
             Padding(
@@ -317,6 +319,7 @@ class _ApelEwanGridState extends State<_ApelEwanGrid> {
             ),
 
           ],
+          ),
         ),
       ),
     );
