@@ -192,11 +192,11 @@ class _ApelEwanGridState extends State<_ApelEwanGrid> {
       child: ApelEwanSavePdfContent(
         folder: widget.folder,
         onPdfGenerated: (f, selectedCount) {
-          if (f is! ApelEwanPersistentFolder) return;
+          final slug = f is ApelEwanPersistentFolder ? f.slug : f.id;
           logAnalyticsEvent('apel_ewan_pdf_generated', {
             'source': 'web',
             'folder_id': f.id,
-            'folder_slug': f.slug,
+            'folder_slug': slug,
             'selected_count': selectedCount,
             'total_count': f.apelEwans.length,
           });
