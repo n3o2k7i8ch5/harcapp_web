@@ -64,6 +64,12 @@ dependencies:
   harcapp_core:
     path: ../harcapp_core
 
+#  sprawnosci_data:
+#    git:
+#      url: https://github.com/n3o2k7i8ch5/sprawnosci_data
+  sprawnosci_data:
+    path: ../sprawnosci_data
+
   flutter:
     sdk: flutter
 

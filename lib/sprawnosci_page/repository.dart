@@ -8,7 +8,7 @@ import 'package:yaml/yaml.dart';
 /// scanning AssetManifest for logical directories.
 
 const String _assetsLocalBase = 'assets/sprawnosci';
-const String _assetsPackageBase = 'packages/harcapp_core/assets/sprawnosci';
+const String _assetsPackageBase = 'packages/sprawnosci_data/assets/sprawnosci';
 
 class SprawnosciBooks {
   static const String bookCHarcC = 'zhr_harc_c_sim_2023';
