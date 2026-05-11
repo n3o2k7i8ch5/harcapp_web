@@ -1490,6 +1490,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.2"
+  sprawnosci_data:
+    dependency: "direct main"
+    description:
+      path: "../sprawnosci_data"
+      relative: true
+    source: path
+    version: "0.0.1"
   sqflite:
     dependency: transitive
     description:
