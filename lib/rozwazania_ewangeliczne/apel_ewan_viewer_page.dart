@@ -14,6 +14,7 @@ import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_save_pdf_content.da
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_widget.dart';
 import 'package:harcapp_core/harcthought/harcapp_links.dart';
 import 'package:harcapp_core/harcthought/harcapp_share_button.dart';
+import 'package:harcapp_web/_common_classes/firebase.dart';
 import 'package:harcapp_web/common/page_width_bar.dart';
 import 'package:harcapp_web/consts.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -182,7 +183,19 @@ class _ApelEwanViewerPageState extends State<ApelEwanViewerPage>
             tooltip: 'Pobierz PDF',
             onPressed: () => showSavePdfDialog(
               context: context,
-              child: ApelEwanSavePdfContent(folder: widget.folder),
+              child: ApelEwanSavePdfContent(
+                folder: widget.folder,
+                onPdfGenerated: (f, selectedCount) {
+                  if (f is! ApelEwanPersistentFolder) return;
+                  logAnalyticsEvent('apel_ewan_pdf_generated', {
+                    'source': 'web',
+                    'folder_id': f.id,
+                    'folder_slug': f.slug,
+                    'selected_count': selectedCount,
+                    'total_count': f.apelEwans.length,
+                  });
+                },
+              ),
             ),
           ),
         ],

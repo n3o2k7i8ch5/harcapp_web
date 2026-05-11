@@ -12,6 +12,7 @@ import 'package:harcapp_core/harcthought/konspekts/initialize.dart';
 import 'package:harcapp_core/song_book/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_editor_app.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
+import 'package:harcapp_web/_common_classes/firebase.dart';
 import 'package:harcapp_web/logger.dart';
 import 'package:harcapp_web/router.dart';
 import 'package:harcapp_web/songs/left_panel/provider.dart';
@@ -42,6 +43,7 @@ void main() async {
   HarcappShare.register((url, {subject}) =>
       SharePlus.instance.share(ShareParams(uri: Uri.parse(url), subject: subject)));
   initLogger();
+  await initFirebase();
   await IDB.init();
   await initArticles();
   await initKonspekts();

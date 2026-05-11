@@ -19,6 +19,7 @@ import 'package:harcapp_core/harcthought/harcapp_links.dart';
 import 'package:harcapp_core/harcthought/harcapp_share_button.dart';
 import 'package:harcapp_core/harcthought/konspekts/data/harcerskie/rozwazanie_ewangeliczne.dart';
 import 'package:harcapp_core/harcthought/konspekts/widgets/html_widget.dart';
+import 'package:harcapp_web/_common_classes/firebase.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/common/page_width_bar.dart';
 import 'package:harcapp_web/consts.dart';
@@ -188,7 +189,19 @@ class _ApelEwanGridState extends State<_ApelEwanGrid> {
   void _openPdfBottomSheet(BuildContext context) {
     showSavePdfDialog(
       context: context,
-      child: ApelEwanSavePdfContent(folder: widget.folder),
+      child: ApelEwanSavePdfContent(
+        folder: widget.folder,
+        onPdfGenerated: (f, selectedCount) {
+          if (f is! ApelEwanPersistentFolder) return;
+          logAnalyticsEvent('apel_ewan_pdf_generated', {
+            'source': 'web',
+            'folder_id': f.id,
+            'folder_slug': f.slug,
+            'selected_count': selectedCount,
+            'total_count': f.apelEwans.length,
+          });
+        },
+      ),
     );
   }
 
