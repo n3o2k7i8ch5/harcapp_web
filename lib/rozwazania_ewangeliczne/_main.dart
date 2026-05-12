@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:harcapp_core/app_mdi_icons.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_classes/text_utils.dart';
@@ -262,7 +263,7 @@ class _ApelEwanGridState extends State<_ApelEwanGrid> {
                       SimpleButton.from(
                         context: context,
                         color: cardEnab_(context),
-                        icon: MdiIcons.filePdfBox,
+                        icon: AppMdiIcons.filePdfBoxMultiple,
                         text: collapsed ? null : 'Pobierz PDF',
                         onTap: () => _openPdfBottomSheet(context),
                       ),
