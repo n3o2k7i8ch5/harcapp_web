@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/app_mdi_icons.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_classes/common.dart';
 import 'package:harcapp_core/comm_classes/text_utils.dart';
 import 'package:harcapp_core/comm_widgets/dialog/app_dialog.dart';
 import 'package:harcapp_core/comm_widgets/save_pdf_dialog.dart';
@@ -16,6 +17,7 @@ import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_persistent_folder.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_save_pdf_content.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_thumbnail_widget.dart';
+import 'package:harcapp_core/harcthought/apel_ewan/hal_2026_feedback_popup.dart';
 import 'package:harcapp_core/harcthought/harcapp_links.dart';
 import 'package:harcapp_core/harcthought/harcapp_share_button.dart';
 import 'package:harcapp_core/harcthought/konspekts/data/harcerskie/rozwazanie_ewangeliczne.dart';
@@ -187,12 +189,14 @@ class _ApelEwanGridState extends State<_ApelEwanGrid> {
     context.push(url);
   }
 
-  void _openPdfBottomSheet(BuildContext context) {
-    showSavePdfDialog(
+  Future<void> _openPdfBottomSheet(BuildContext context) async {
+    bool pdfGenerated = false;
+    await showSavePdfDialog(
       context: context,
       child: ApelEwanSavePdfContent(
         folder: widget.folder,
         onPdfGenerated: (f, selectedCount) {
+          pdfGenerated = true;
           final slug = f is ApelEwanPersistentFolder ? f.slug : f.id;
           logAnalyticsEvent('apel_ewan_pdf_generated', {
             'source': 'web',
@@ -204,6 +208,27 @@ class _ApelEwanGridState extends State<_ApelEwanGrid> {
         },
       ),
     );
+    if (!context.mounted) return;
+    if (pdfGenerated && widget.folder.slug == hal2026FolderSlug) {
+      await showHal2026FeedbackPopup(
+        context,
+        onOpenForm: () async {
+          logAnalyticsEvent('hal2026_feedback_form_opened', const {
+            'source': 'web',
+            'trigger': 'pdf_download',
+          });
+          launchURL(hal2026FeedbackFormUrl);
+        },
+      );
+    }
+  }
+
+  Future<void> _openFeedbackForm() async {
+    logAnalyticsEvent('hal2026_feedback_form_opened', const {
+      'source': 'web',
+      'trigger': 'button',
+    });
+    launchURL(hal2026FeedbackFormUrl);
   }
 
   void _openHowItWorksDialog(BuildContext context) {
@@ -252,6 +277,16 @@ class _ApelEwanGridState extends State<_ApelEwanGrid> {
 
                       Expanded(child: Container()),
                       
+                      if (folder.slug == hal2026FolderSlug) ...[
+                        const SizedBox(width: Dimen.defMarg),
+                        SimpleButton.from(
+                          context: context,
+                          color: cardEnab_(context),
+                          icon: hal2026FeedbackFormIcon,
+                          text: collapsed ? null : hal2026FeedbackFormButtonText,
+                          onTap: _openFeedbackForm,
+                        ),
+                      ],
                       const SizedBox(width: Dimen.defMarg),
                       HarcappShareButton.simpleButton(
                         url: folderUrl,
