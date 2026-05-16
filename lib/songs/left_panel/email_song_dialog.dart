@@ -98,7 +98,7 @@ class EmailSongDialogState extends State<EmailSongDialog> {
       rankHarc: p.rankHarc,
       rankInstr: p.rankInstr,
       druzyna: p.druzyna,
-      hufiec: p.hufiec,
+      srodowisko: p.srodowisko,
       org: p.org,
       comment: p.comment,
       email: [...p.email, senderEmail],
