@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
@@ -108,15 +110,40 @@ class SongEditorPanelState extends State<SongEditorPanel>{
   Widget build(BuildContext context) => Consumer2<SongEditorPanelProvider, SongPreviewProvider>(
     builder: (context, prov, showSongProv, child){
 
-      CurrentItemProvider currItemProv = CurrentItemProvider.of(context);
-
       if(!showSongProv.showSong)
         return Padding(
           padding: EdgeInsets.only(top: 54.0),
           child: SongEditorNoSongWidget(workspaceAlwaysVisible: widget.workspaceAlwaysVisible),
         );
 
-      return SongPartsListWidget(
+      return Stack(
+        children: [
+          Consumer2<SimilarSongProvider, CurrentItemProvider>(
+            builder: (context, simProv, currProv, _){
+              bool bannerVisible = simProv.allSongs != null
+                  && simProv.hasSimilarSong(currProv.titleController.text);
+              return AnimatedPadding(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOut,
+                padding: EdgeInsets.only(top: bannerVisible ? _bannerSpace : 0),
+                child: _buildPartsList(context, currProv),
+              );
+            },
+          ),
+          Positioned(
+            top: Dimen.iconMarg * 2,
+            left: 0,
+            right: 0,
+            child: SimilarSongWidget(),
+          ),
+        ],
+      );
+    },
+  );
+
+  static const double _bannerSpace = Dimen.iconMarg * 2 + Dimen.iconFootprint + Dimen.defMarg;
+
+  Widget _buildPartsList(BuildContext context, CurrentItemProvider currItemProv) => SongPartsListWidget(
         // shrinkWrap: true,
         onPartTap: (index) async {
           final part = currItemProv.song.songParts[index];
@@ -186,8 +213,6 @@ class SongEditorPanelState extends State<SongEditorPanel>{
               textAlign: TextAlign.left,
             ),
 
-            SimilarSongWidget(),
-
             SizedBox(height: Dimen.defMarg),
 
             BasicDataWidget(
@@ -250,9 +275,6 @@ class SongEditorPanelState extends State<SongEditorPanel>{
         ),
       );
 
-    },
-  );
-
 }
 
 class SimilarSongWidget extends StatelessWidget{
@@ -261,54 +283,12 @@ class SimilarSongWidget extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) => Consumer2<SimilarSongProvider, CurrentItemProvider>(
-      builder: (context, similarSongProv, currItemProv, child) => Material(
-          borderRadius: BorderRadius.circular(AppCard.bigRadius),
-          clipBehavior: Clip.hardEdge,
-          child:
-          similarSongProv.allSongs == null?
-          Row(
-            children: [
-              Padding(
-                padding: EdgeInsets.all(Dimen.iconMarg),
-                child: Icon(MdiIcons.timerSand, color: hintEnab_(context)),
-              ),
-              Expanded(child: Text(
-                'Ładowanie listy istniejących piosenek...',
-                style: AppTextStyle(fontSize: Dimen.textSizeBig, fontWeight: weightHalfBold, color: hintEnab_(context)),
-                textAlign: TextAlign.center,
-              )),
-              SizedBox(width: Dimen.iconFootprint)
-            ],
-          ):(
-              !similarSongProv.hasSimilarSong(currItemProv.titleController.text)?
-              _NoSimilarSongsWidget():
-              _FoundSimilarSongWidget()
-          )
-
-      )
-  );
-
-}
-
-class _NoSimilarSongsWidget extends StatelessWidget{
-
-  @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      Padding(
-          padding: EdgeInsets.all(Dimen.iconMarg),
-          child: Icon(MdiIcons.check, color: accent_(context))
-      ),
-
-      Expanded(
-        child: Text(
-          'Sądząc po tytule, tego jeszcze nie ma w śpiewniku!',
-          style: AppTextStyle(fontSize: Dimen.textSizeBig, fontWeight: weightHalfBold, color: accent_(context)),
-          textAlign: TextAlign.center,
-        )
-      ),
-      SizedBox(width: Dimen.iconFootprint)
-    ],
+      builder: (context, similarSongProv, currItemProv, child){
+        if(similarSongProv.allSongs == null) return const SizedBox.shrink();
+        if(!similarSongProv.hasSimilarSong(currItemProv.titleController.text))
+          return const SizedBox.shrink();
+        return _FoundSimilarSongWidget();
+      }
   );
 
 }
@@ -316,37 +296,75 @@ class _NoSimilarSongsWidget extends StatelessWidget{
 class _FoundSimilarSongWidget extends StatelessWidget{
 
   @override
-  Widget build(BuildContext context) => Consumer2<SimilarSongProvider, CurrentItemProvider>(
-      builder: (context, similarSongProv, currItemProv, child) => Row(
-        children: [
-          Padding(
-            padding: EdgeInsets.all(Dimen.iconMarg),
-            child: Icon(SimilarSongWidget.icon, color: Colors.red),
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(AppCard.bigRadius),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.18),
+          blurRadius: 18,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    ),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(AppCard.bigRadius),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.red.withValues(alpha: 0.18),
+            borderRadius: BorderRadius.circular(AppCard.bigRadius),
+            border: Border.all(
+              color: Colors.red.withValues(alpha: 0.45),
+              width: 1,
+            ),
           ),
+          padding: EdgeInsets.symmetric(horizontal: Dimen.defMarg, vertical: Dimen.defMarg / 2),
+          child: Row(
+            children: [
+              Padding(
+                padding: EdgeInsets.all(Dimen.iconMarg),
+                child: Icon(SimilarSongWidget.icon, color: Colors.red),
+              ),
 
-          Expanded(child: Text(
-            'Piosenka o takim tytule już jest!',
-            style: AppTextStyle(color: Colors.red, fontWeight: weightHalfBold, fontSize: Dimen.textSizeBig),
-            textAlign: TextAlign.center,
-          )),
-
-          SimpleButton.from(
-              context: context,
-              icon: MdiIcons.eye,
-              margin: EdgeInsets.zero,
-              iconLeading: false,
-              text: 'Podgląd',
-              onTap: () => showDialog(
-                context: context,
-                builder: (context) => Padding(
-                  padding: EdgeInsets.all(Dimen.sideMarg),
-                  child: SimilarSongViewerDialog(),
+              Expanded(
+                child: Text(
+                  'Piosenka o takim tytule już jest!',
+                  style: AppTextStyle(
+                    color: Colors.red,
+                    fontWeight: weightBold,
+                    fontSize: Dimen.textSizeBig,
+                  ),
                 ),
-              )
-          ),
+              ),
 
-        ],
-      )
+              SimpleButton.from(
+                context: context,
+                icon: MdiIcons.eye,
+                margin: EdgeInsets.zero,
+                padding: EdgeInsets.symmetric(
+                  horizontal: Dimen.iconMarg,
+                  vertical: Dimen.defMarg,
+                ),
+                iconLeading: false,
+                text: 'Podgląd',
+                iconColor: Colors.red,
+                textColor: Colors.red,
+                onTap: () => showDialog(
+                  context: context,
+                  builder: (context) => Padding(
+                    padding: EdgeInsets.all(Dimen.sideMarg),
+                    child: SimilarSongViewerDialog(),
+                  ),
+                ),
+              ),
+
+            ],
+          ),
+        ),
+      ),
+    ),
   );
 
 
