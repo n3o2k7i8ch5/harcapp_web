@@ -817,10 +817,10 @@ packages:
     dependency: "direct main"
     description:
       name: idb_shim
-      sha256: d46b09e116508e817f5ea2d8e1f6f55fb98bf7966175152809fd29791bfba3b8
+      sha256: "48be1c95f06c4b059d0f5b9888dc5d7384e4a9e4d71824ae2deeb1e1546c6c07"
       url: "https://pub.dev"
     source: hosted
-    version: "2.9.1"
+    version: "2.9.2"
   image:
     dependency: "direct main"
     description:

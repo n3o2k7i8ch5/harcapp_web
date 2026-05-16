@@ -23,6 +23,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:provider/provider.dart';
 
 import 'code_editor_dialog.dart';
+import 'email_song_dialog.dart';
 import '../new_song_buttons.dart';
 
 enum NewSongType implements IconTextEnum{
@@ -30,7 +31,8 @@ enum NewSongType implements IconTextEnum{
   newSong,
   newSongExample,
   newSongFromCode,
-  newSongEmpty;
+  newSongEmpty,
+  newSongFromEmail;
 
   IconData get icon{
     switch(this){
@@ -39,6 +41,7 @@ enum NewSongType implements IconTextEnum{
       case NewSongType.newSongExample: return MdiIcons.musicCircleOutline;
       case NewSongType.newSongFromCode: return MdiIcons.codeBraces;
       case NewSongType.newSongEmpty: return MdiIcons.squareRoundedOutline;
+      case NewSongType.newSongFromEmail: return MdiIcons.emailOutline;
     }
   }
 
@@ -49,6 +52,7 @@ enum NewSongType implements IconTextEnum{
       case NewSongType.newSongExample: return 'Przykładowa piosenka';
       case NewSongType.newSongFromCode: return 'Piosenka z kodu';
       case NewSongType.newSongEmpty: return 'Pusta piosenka';
+      case NewSongType.newSongFromEmail: return 'Piosenka z mejla';
     }
   }
 }
@@ -147,34 +151,41 @@ class SongListViewState extends State<SongListView>{
                     Expanded(
                       child: Tooltip(
                           message: 'Nowa piosenka',
-                          child: AppDropdown<NewSongType>(
-                              child: SimpleButton.from(
-                                  context: context,
-                                  margin: EdgeInsets.zero,
-                                  radius: null,
-                                  icon: NewSongType.newSong.icon,
-                                  onTap: null
-                              ),
-                              onSelected: (value){
-                                switch(value){
-                                  case NewSongType.newSongExample:
-                                    handleExampleSongTap(context);
-                                    break;
-                                  case NewSongType.newSongFromCode:
-                                    handleNewSongFromCode(context);
-                                    break;
-                                  case NewSongType.newSongEmpty:
-                                    handleNewSongEmptyTap(context);
-                                    break;
-                                  default:
-                                    break;
-                                }
-                              },
-                              items: [
-                                NewSongType.newSongExample,
-                                NewSongType.newSongFromCode,
-                                NewSongType.newSongEmpty,
-                              ]
+                          child: Consumer<EmailSongUnlockProvider>(
+                            builder: (context, emailUnlockProv, _) => AppDropdown<NewSongType>(
+                                child: SimpleButton.from(
+                                    context: context,
+                                    margin: EdgeInsets.zero,
+                                    radius: null,
+                                    icon: NewSongType.newSong.icon,
+                                    onTap: null
+                                ),
+                                onSelected: (value){
+                                  switch(value){
+                                    case NewSongType.newSongExample:
+                                      handleExampleSongTap(context);
+                                      break;
+                                    case NewSongType.newSongFromCode:
+                                      handleNewSongFromCode(context);
+                                      break;
+                                    case NewSongType.newSongEmpty:
+                                      handleNewSongEmptyTap(context);
+                                      break;
+                                    case NewSongType.newSongFromEmail:
+                                      handleNewSongFromEmail(context);
+                                      break;
+                                    default:
+                                      break;
+                                  }
+                                },
+                                items: [
+                                  NewSongType.newSongExample,
+                                  NewSongType.newSongFromCode,
+                                  NewSongType.newSongEmpty,
+                                  if(emailUnlockProv.unlocked)
+                                    NewSongType.newSongFromEmail,
+                                ]
+                            ),
                           )
 
                       ),
@@ -283,6 +294,12 @@ class NoSongsWidget extends StatelessWidget{
 
         NewEmptySongButton(),
 
+        Consumer<EmailSongUnlockProvider>(
+          builder: (context, prov, _) => prov.unlocked?
+            NewEmailSongButton():
+            const SizedBox.shrink(),
+        ),
+
         NewSongFromCodeButton(),
 
       ],
@@ -366,7 +383,28 @@ void handleNewSongFromCode(BuildContext context) async {
         onSaved: () => saved = true,
       )
   );
-  if(!saved) AllSongsProvider.of(context).remove(song);
+  if(!saved){
+    AllSongsProvider.of(context).remove(song);
+    SongFileNameDupErrProvider.of(context).checkAllDups(context);
+  }
+
+}
+
+void handleNewSongFromEmail(BuildContext context) async {
+  SongRaw song = handleNewSongEmptyTap(context);
+  bool saved = false;
+  await openBaseDialog(
+      context: context,
+      maxWidth: songDialogWidth,
+      builder: (context) => EmailSongDialog(
+        song,
+        onSaved: () => saved = true,
+      )
+  );
+  if(!saved){
+    AllSongsProvider.of(context).remove(song);
+    SongFileNameDupErrProvider.of(context).checkAllDups(context);
+  }
 
 }
 

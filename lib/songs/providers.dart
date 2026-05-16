@@ -222,6 +222,37 @@ class SongPreviewProvider extends ChangeNotifier{
 
 }
 
+class EmailSongUnlockProvider extends ChangeNotifier{
+
+  static EmailSongUnlockProvider of(BuildContext context) => Provider.of<EmailSongUnlockProvider>(context, listen: false);
+
+  static const int _unlockClickCount = 4;
+  static const Duration _resetTimeout = Duration(seconds: 2);
+
+  int _clickCount = 0;
+  DateTime? _lastClickTime;
+  bool _unlocked = false;
+
+  bool get unlocked => _unlocked;
+
+  void registerClick(){
+    if(_unlocked) return;
+
+    DateTime now = DateTime.now();
+    if(_lastClickTime != null && now.difference(_lastClickTime!) > _resetTimeout)
+      _clickCount = 0;
+
+    _lastClickTime = now;
+    _clickCount++;
+
+    if(_clickCount >= _unlockClickCount){
+      _unlocked = true;
+      notifyListeners();
+    }
+  }
+
+}
+
 class SongEditorPanelProvider extends ChangeNotifier{
 
   static SongEditorPanelProvider of(BuildContext context) => Provider.of<SongEditorPanelProvider>(context, listen: false);

@@ -128,6 +128,8 @@ class MyAppState extends State<MyApp>{
                       ChangeNotifierProvider(create: (context) => SongPreviewProvider()),
 
                       ChangeNotifierProvider(create: (context) => SongEditorPanelProvider()),
+
+                      ChangeNotifierProvider(create: (context) => EmailSongUnlockProvider()),
                     ],
                     builder: (context, _) => Consumer<ColorPackProvider>(
                         builder: (context, prov, _) => MaterialApp.router(

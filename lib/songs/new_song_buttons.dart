@@ -65,3 +65,17 @@ class NewSongFromCodeButton extends StatelessWidget {
   );
 
 }
+
+class NewEmailSongButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => SimpleButton.from(
+      context: context,
+      color: backgroundIcon_(context),
+      icon: NewSongType.newSongFromEmail.icon,
+      iconSize: 32.0,
+      text: NewSongType.newSongFromEmail.text,
+      direction: Axis.vertical,
+      onTap: () => handleNewSongFromEmail(context)
+  );
+
+}

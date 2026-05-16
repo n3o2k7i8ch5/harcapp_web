@@ -31,9 +31,13 @@ class SongListTileWidget extends StatelessWidget{
                 ),
 
               IntrinsicWidth(
-                child: TitleShortcutRowWidget(
-                  title: 'Piosenki (${allSongsProv.length})',
-                  textAlign: textAlign,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => EmailSongUnlockProvider.of(context).registerClick(),
+                  child: TitleShortcutRowWidget(
+                    title: 'Piosenki (${allSongsProv.length})',
+                    textAlign: textAlign,
+                  ),
                 ),
               ),
 
