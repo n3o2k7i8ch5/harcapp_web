@@ -137,68 +137,46 @@ class SongEditorPanelState extends State<SongEditorPanel>{
               textAlign: TextAlign.left,
             ),
 
-            Consumer<BindTitleFileNameProvider>(
-              builder: (context, prov, child) =>
-                SwitchListTile(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppCard.bigRadius)),
-                  hoverColor: Colors.transparent,
-                  contentPadding: EdgeInsets.zero,
-                  value: prov.bindTitle,
-                  onChanged: (value){
-                    prov.bindTitle = value;
-                    if(prov.bindTitle)
-                      CurrentItemProvider.of(context).setLclIdFromTitleAndPerformer(withPerformer: prov.bindPerformer);
-                    SongFileNameDupErrProvider.of(context).checkAllDups(context);
-                  },
-                  title: Text(
-                    'Powiąż identyfikator piosenki z tytułem',
-                    style: AppTextStyle(
-                      color: prov.bindTitle?textEnab_(context):textDisab_(context),
-                      fontSize: Dimen.textSizeBig
+            Material(
+              color: backgroundIcon_(context),
+              borderRadius: BorderRadius.circular(AppCard.bigRadius),
+              clipBehavior: Clip.hardEdge,
+              child: Column(
+                children: [
+
+                  Consumer<BindTitleFileNameProvider>(
+                    builder: (context, prov, child) => _BindIdToggleRow(
+                      label: 'Powiąż z tytułem',
+                      value: prov.bindTitle,
+                      onChanged: (value){
+                        prov.bindTitle = value;
+                        if(prov.bindTitle)
+                          CurrentItemProvider.of(context).setLclIdFromTitleAndPerformer(withPerformer: prov.bindPerformer);
+                        SongFileNameDupErrProvider.of(context).checkAllDups(context);
+                      },
                     ),
                   ),
-                ),
-            ),
 
-            SizedBox(height: Dimen.defMarg),
+                  Divider(height: 1, color: hintEnab_(context).withValues(alpha: 0.12)),
 
-            Consumer2<BindTitleFileNameProvider, CurrentItemProvider>(
-              builder: (context, bindTitleFileNameProv, currItemProv, child) =>
-                  IgnorePointer(
-                    ignoring: currItemProv.performersController.isContentEmpty,
-                    child: AnimatedOpacity(
-                      duration: Duration(milliseconds: 300),
-                      opacity: currItemProv.performersController.isContentEmpty?
-                      0.3:
-                      1.0,
-
-                      child: SwitchListTile(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppCard.bigRadius)),
-                        hoverColor: Colors.transparent,
-                        contentPadding: EdgeInsets.zero,
-                        value: currItemProv.performersController.isContentNotEmpty && bindTitleFileNameProv.bindPerformer,
-                        onChanged: (value) {
+                  Consumer2<BindTitleFileNameProvider, CurrentItemProvider>(
+                    builder: (context, bindTitleFileNameProv, currItemProv, child){
+                      bool hasPerformer = currItemProv.performersController.isContentNotEmpty;
+                      return _BindIdToggleRow(
+                        label: 'Powiąż z wykonawcą',
+                        value: hasPerformer && bindTitleFileNameProv.bindPerformer,
+                        onChanged: !hasPerformer ? null : (value){
                           bindTitleFileNameProv.bindPerformer = value;
-
                           if(bindTitleFileNameProv.bindTitle)
                             CurrentItemProvider.of(context).setLclIdFromTitleAndPerformer(withPerformer: value);
-
                           SongFileNameDupErrProvider.of(context).checkAllDups(context);
-
                         },
-                        title: Text(
-                          'Powiąż identyfikator piosenki z wykonawcą',
-                          style: AppTextStyle(
-                              color: bindTitleFileNameProv.bindPerformer?
-                              textEnab_(context):
-                              textDisab_(context),
-
-                              fontSize: Dimen.textSizeBig
-                          ),
-                        ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
+
+                ],
+              ),
             ),
 
             SizedBox(height: Dimen.defMarg),
@@ -372,5 +350,53 @@ class _FoundSimilarSongWidget extends StatelessWidget{
   );
 
 
+
+}
+
+class _BindIdToggleRow extends StatelessWidget {
+
+  final String label;
+  final bool value;
+  final void Function(bool)? onChanged;
+
+  const _BindIdToggleRow({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    bool disabled = onChanged == null;
+    return InkWell(
+      onTap: disabled ? null : () => onChanged!(!value),
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: Dimen.iconMarg,
+          vertical: Dimen.defMarg,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: AppTextStyle(
+                  color: disabled
+                      ? textDisab_(context)
+                      : (value ? textEnab_(context) : hintEnab_(context)),
+                  fontSize: Dimen.textSizeBig,
+                ),
+              ),
+            ),
+            Switch(
+              value: value,
+              onChanged: onChanged,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
 }

@@ -697,7 +697,7 @@ void main() {
       rankHarc: RankHarc.zhpWywiadowca,
       rankInstr: RankInstr.pwd,
       druzyna: '123 WDH "Leśne Tropiciele"',
-      hufiec: 'Hufiec Warszawa-Śródmieście',
+      srodowisko: 'Hufiec Warszawa-Śródmieście',
       org: Org.zhp,
       comment: 'Specjalizacja: gry terenowe',
       email: ['anna.kowalska@example.com'],
@@ -710,7 +710,7 @@ void main() {
     expect(restored.author!.rankHarc, RankHarc.zhpWywiadowca);
     expect(restored.author!.rankInstr, RankInstr.pwd);
     expect(restored.author!.druzyna, '123 WDH "Leśne Tropiciele"');
-    expect(restored.author!.hufiec, 'Hufiec Warszawa-Śródmieście');
+    expect(restored.author!.srodowisko, 'Hufiec Warszawa-Śródmieście');
     expect(restored.author!.org, Org.zhp);
     expect(restored.author!.comment, 'Specjalizacja: gry terenowe');
     expect(restored.author!.email, ['anna.kowalska@example.com']);
@@ -729,7 +729,7 @@ void main() {
     expect(restored.author!.rankHarc, isNull);
     expect(restored.author!.rankInstr, isNull);
     expect(restored.author!.druzyna, isNull);
-    expect(restored.author!.hufiec, isNull);
+    expect(restored.author!.srodowisko, isNull);
     expect(restored.author!.org, isNull);
     expect(restored.author!.comment, isNull);
     expect(restored.author!.email, isEmpty);
