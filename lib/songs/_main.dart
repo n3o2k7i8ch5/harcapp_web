@@ -75,6 +75,7 @@ class SongsPageState extends State<SongsPage>{
       AllSongsProvider.of(context).clear();
       MyApp.lastLoadedSongs.clear();
       SongFileNameDupErrProvider.of(context).checkAllDups(context);
+      SongPreviewProvider.of(context).showSong = false;
     }
   }
 

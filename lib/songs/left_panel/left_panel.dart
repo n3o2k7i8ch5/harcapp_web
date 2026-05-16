@@ -51,12 +51,15 @@ class LeftPanel extends StatelessWidget{
 
       SizedBox(height: Dimen.defMarg),
 
-      SimpleButton.from(
-        context: context,
-        margin: EdgeInsets.zero,
-        color: cardEnab_(context),
-        text: songContributionRulesTitle,
-        onTap: () => openPathInNewTab(pathSongContributionRules)
+      SizedBox(
+        height: Dimen.iconFootprint,
+        child: SimpleButton.from(
+          context: context,
+          margin: EdgeInsets.zero,
+          color: cardEnab_(context),
+          text: songContributionRulesTitle,
+          onTap: () => openPathInNewTab(pathSongContributionRules)
+        ),
       )
 
     ],

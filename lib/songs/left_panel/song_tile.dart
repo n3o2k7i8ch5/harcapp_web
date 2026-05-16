@@ -68,11 +68,11 @@ class SongTileState extends State<SongTile>{
                     padding: EdgeInsets.only(right: Dimen.defMarg),
                     child: Tooltip(
                       message: 'Piosenka o takim tytule już jest w śpiewniku',
-                      child: Icon(SimilarSongWidget.icon, color: hintEnab_(context)),
+                      child: Icon(SimilarSongWidget.icon, color: Colors.red),
                     ),
                   );
 
-                return Container();
+                return const SizedBox.shrink();
               },
             ),
 
