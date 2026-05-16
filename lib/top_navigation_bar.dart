@@ -139,7 +139,7 @@ class TopNavigationBarState extends State<TopNavigationBar>{
               ),
 
               PageNavItem(
-                icon: MdiIcons.cross,
+                icon: MdiIcons.bookCross,
                 title: 'Rozważania\newangeliczne',
                 contextInfo: 'Rozważania ewangeliczne na każdą niedzielę (i nie tylko)!',
                 path: pathRozwazaniaEwangeliczne,
@@ -184,40 +184,47 @@ class PageNavItem extends StatelessWidget{
         .toString();
     final bool selected = isSelected != null ? isSelected!(uri) : uri == path;
 
+    final Color fg = textEnab_(context);
+    final FontWeight weight = selected ? weightBold : weightHalfBold;
+
     return dense
         ? SimpleButton.from(
       padding: EdgeInsets.all((height - Dimen.iconSize) / 2),
       margin: EdgeInsets.zero,
-      textColor: textEnab_(context),
+      textColor: fg,
       radius: 0,
       icon: icon,
-      color: selected ? backgroundIcon_(context) : null,
+      color: selected ? hintEnab_(context).withValues(alpha: 0.22) : null,
       onTap: () => context.go(path),
     )
         : Padding(
-      padding: EdgeInsets.symmetric(horizontal: 1, vertical: Dimen.defMarg / 2),
+      padding: EdgeInsets.symmetric(horizontal: Dimen.defMarg / 2, vertical: Dimen.defMarg / 2),
       child: IntrinsicWidth(
         child: Tooltip(
           message: contextInfo,
           child: SizedBox(
             height: height - Dimen.defMarg,
             child: Material(
-              color: selected ? backgroundIcon_(context) : Colors.transparent,
+              color: selected
+                  ? hintEnab_(context).withValues(alpha: 0.22)
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(AppCard.defRadius),
               child: InkWell(
                 borderRadius: BorderRadius.circular(AppCard.defRadius),
+                hoverColor: hintEnab_(context).withValues(alpha: 0.08),
                 onTap: () => context.go(path),
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: Dimen.iconMarg),
                   child: Row(
                     children: [
-                      Icon(icon, color: iconEnab_(context)),
+                      Icon(icon, color: fg),
                       SizedBox(width: Dimen.iconMarg),
                       Text(
                         title,
                         style: AppTextStyle(
                             fontSize: Dimen.textSizeNormal,
-                            color: iconEnab_(context),
+                            color: fg,
+                            fontWeight: weight,
                             height: 1.2
                         ),
                       ),
@@ -325,7 +332,7 @@ class MainBottomNavBar extends StatelessWidget {
             buildItem(MdiIcons.notebook, 'Konspekty', pathKonspektyHarcerskie, isSelected: (uri) => uri.startsWith('/konspekty')),
             buildItem(MdiIcons.school, 'Poradniki', pathPoradnik),
             buildItem(MdiIcons.trophy, 'Sprawności', pathSprawnosci),
-            buildItem(MdiIcons.cross, 'Rozważania', pathRozwazaniaEwangeliczne),
+            buildItem(MdiIcons.bookCross, 'Rozważania', pathRozwazaniaEwangeliczne),
           ],
         ),
       ),
