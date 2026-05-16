@@ -395,7 +395,7 @@ void handleNewSongFromEmail(BuildContext context) async {
   bool saved = false;
   await openBaseDialog(
       context: context,
-      maxWidth: songDialogWidth,
+      maxWidth: 2 * (songPreviewWidth + 24) + 2,
       builder: (context) => EmailSongDialog(
         song,
         onSaved: () => saved = true,

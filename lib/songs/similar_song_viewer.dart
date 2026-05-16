@@ -17,6 +17,10 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 
 class SimilarSongViewerDialog extends StatefulWidget{
 
+  final String? songTitle;
+
+  const SimilarSongViewerDialog({this.songTitle, super.key});
+
   @override
   State<StatefulWidget> createState() => SimilarSongViewerDialogState();
 
@@ -31,9 +35,8 @@ class SimilarSongViewerDialogState extends State<SimilarSongViewerDialog>{
   @override
   void initState() {
     SimilarSongProvider similarSongProv = SimilarSongProvider.of(context);
-    CurrentItemProvider currentItemProv = CurrentItemProvider.of(context);
 
-    String songTitle = currentItemProv.titleController.text;
+    String songTitle = widget.songTitle ?? CurrentItemProvider.of(context).titleController.text;
 
     similarSongs = similarSongProv.getSimilarSongs(songTitle)??[];
 
