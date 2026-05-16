@@ -9,7 +9,9 @@ import 'package:harcapp_core/harcthought/common/file_format.dart';
 import 'package:harcapp_core/harcthought/konspekts/hrcpknspkt_data.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/values/org.dart';
-import 'package:harcapp_core/values/people/person.dart';
+import 'package:harcapp_core/values/people/contributor_identity.dart';
+import 'package:harcapp_core/values/people/models.dart';
+import 'package:harcapp_core/values/srodowiska/models.dart';
 import 'package:harcapp_core/values/rank_harc.dart';
 import 'package:harcapp_core/values/rank_instr.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_attachment_data.dart';
@@ -395,9 +397,9 @@ void main() {
       },
     );
 
-    const Person author = Person(
-      name: 'phm. Jan Harcerz',
-      email: ['jan.harcerz@example.com'],
+    const ContributorIdentity author = ContributorIdentity(
+      person: Person(name: 'phm. Jan Harcerz'),
+      emailRef: 'jan.harcerz@example.com',
     );
 
     final KonspektData original = KonspektData(
@@ -692,47 +694,50 @@ void main() {
     final KonspektData original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
     
     // Set author with all possible fields
-    original.author = const Person(
-      name: 'pwd. Anna Kowalska',
-      rankHarc: RankHarc.zhpWywiadowca,
-      rankInstr: RankInstr.pwd,
-      druzyna: '123 WDH "Leśne Tropiciele"',
-      srodowisko: 'Hufiec Warszawa-Śródmieście',
-      org: Org.zhp,
-      comment: 'Specjalizacja: gry terenowe',
-      email: ['anna.kowalska@example.com'],
+    original.author = ContributorIdentity(
+      person: Person(
+        name: 'pwd. Anna Kowalska',
+        rankHarc: RankHarc.zhpWywiadowca,
+        rankInstr: RankInstr.pwd,
+        druzyna: '123 WDH "Leśne Tropiciele"',
+        srodowisko: Srodowisko.custom('Hufiec Warszawa-Śródmieście', orgSlug: Org.zhp.name),
+        comment: 'Specjalizacja: gry terenowe',
+      ),
+      emailRef: 'anna.kowalska@example.com',
     );
-    
+
     final KonspektData restored = _roundtrip(original);
-    
+
     expect(restored.author, isNotNull);
-    expect(restored.author!.name, 'pwd. Anna Kowalska');
-    expect(restored.author!.rankHarc, RankHarc.zhpWywiadowca);
-    expect(restored.author!.rankInstr, RankInstr.pwd);
-    expect(restored.author!.druzyna, '123 WDH "Leśne Tropiciele"');
-    expect(restored.author!.srodowisko, 'Hufiec Warszawa-Śródmieście');
-    expect(restored.author!.org, Org.zhp);
-    expect(restored.author!.comment, 'Specjalizacja: gry terenowe');
-    expect(restored.author!.email, ['anna.kowalska@example.com']);
+    expect(restored.author!.person, isNotNull);
+    expect(restored.author!.person!.name, 'pwd. Anna Kowalska');
+    expect(restored.author!.person!.rankHarc, RankHarc.zhpWywiadowca);
+    expect(restored.author!.person!.rankInstr, RankInstr.pwd);
+    expect(restored.author!.person!.druzyna, '123 WDH "Leśne Tropiciele"');
+    expect(restored.author!.person!.srodowisko?.custom, 'Hufiec Warszawa-Śródmieście');
+    expect(restored.author!.person!.org, Org.zhp);
+    expect(restored.author!.person!.comment, 'Specjalizacja: gry terenowe');
+    expect(restored.author!.emailRef, 'anna.kowalska@example.com');
   });
 
   test('KonspektData author field roundtrip with minimal Person', () {
     final KonspektData original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
     
     // Set author with only required name field
-    original.author = const Person(name: 'Jan Nowak');
-    
+    original.author = const ContributorIdentity(person: Person(name: 'Jan Nowak'));
+
     final KonspektData restored = _roundtrip(original);
-    
+
     expect(restored.author, isNotNull);
-    expect(restored.author!.name, 'Jan Nowak');
-    expect(restored.author!.rankHarc, isNull);
-    expect(restored.author!.rankInstr, isNull);
-    expect(restored.author!.druzyna, isNull);
-    expect(restored.author!.srodowisko, isNull);
-    expect(restored.author!.org, isNull);
-    expect(restored.author!.comment, isNull);
-    expect(restored.author!.email, isEmpty);
+    expect(restored.author!.person, isNotNull);
+    expect(restored.author!.person!.name, 'Jan Nowak');
+    expect(restored.author!.person!.rankHarc, isNull);
+    expect(restored.author!.person!.rankInstr, isNull);
+    expect(restored.author!.person!.druzyna, isNull);
+    expect(restored.author!.person!.srodowisko, isNull);
+    expect(restored.author!.person!.org, isNull);
+    expect(restored.author!.person!.comment, isNull);
+    expect(restored.author!.emailRef, isNull);
   });
 
   test('KonspektData author field roundtrip with null author', () {

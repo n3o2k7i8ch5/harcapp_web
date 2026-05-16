@@ -296,8 +296,8 @@ class NoSongsWidget extends StatelessWidget{
 
         Consumer<EmailSongUnlockProvider>(
           builder: (context, prov, _) => prov.unlocked?
-            NewEmailSongButton():
-            const SizedBox.shrink(),
+          NewEmailSongButton():
+          const SizedBox.shrink(),
         ),
 
         NewSongFromCodeButton(),

@@ -5,7 +5,7 @@ import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/instrument_type.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
-import 'package:harcapp_core/song_book/contributor_identity_resolver.dart';
+import 'package:harcapp_web/songs/contrib_id_person_card_resolver.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/song_book/settings.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
@@ -95,13 +95,13 @@ class SongPreviewWidget extends StatelessWidget{
                 SelectableText(
                     prettyJson(currItemProv.song.toApiJsonMap(), indent: 2)
                 ):
-                SongWidgetTemplate<SongRaw, ContributorIdentitySimpleResolver>(
+                SongWidgetTemplate<SongRaw, ContribIdPersonCardResolver>(
                   currItemProv.song,
                   SongBaseSettings(),
                   cacheSizes: false,
                   scrollController: ScrollController(),
                   key: UniqueKey(),
-                  contribIdResolver: ContributorIdentitySimpleResolver(),
+                  contribIdResolver: ContribIdPersonCardResolver(),
                 ),
               )
           )

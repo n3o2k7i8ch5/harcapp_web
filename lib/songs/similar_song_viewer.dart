@@ -5,7 +5,7 @@ import 'package:harcapp_core/comm_widgets/app_bar.dart';
 import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
-import 'package:harcapp_core/song_book/contributor_identity_resolver.dart';
+import 'package:harcapp_web/songs/contrib_id_person_card_resolver.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/song_book/widgets/song_widget_template.dart';
@@ -170,10 +170,10 @@ class SimilarSongWidget extends StatelessWidget{
           TitleShortcutRowWidget(title: title, titleColor: hintEnab_(context)),
 
           Expanded(
-            child: SongWidgetTemplate<SongRaw, ContributorIdentitySimpleResolver>(
+            child: SongWidgetTemplate<SongRaw, ContribIdPersonCardResolver>(
                 song,
                 SongBaseSettings(),
-                contribIdResolver: ContributorIdentitySimpleResolver(),
+                contribIdResolver: ContribIdPersonCardResolver(),
                 scrollController: ScrollController(),
                 key: UniqueKey()//ValueKey(currItemProv.song)
             ),

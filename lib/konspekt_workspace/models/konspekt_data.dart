@@ -4,7 +4,7 @@ import 'package:harcapp_core/comm_classes/meto.dart';
 import 'package:harcapp_core/comm_classes/text_utils.dart';
 import 'package:harcapp_core/harcthought/konspekts/hrcpknspkt_data.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
-import 'package:harcapp_core/values/people/person.dart';
+import 'package:harcapp_core/values/people/contributor_identity.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_step_data.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_material_data.dart';
 
@@ -46,7 +46,7 @@ class KonspektData extends BaseKonspekt {
   final List<Meto> metos;
   final TextEditingController coverAuthorController;
   Uint8List? coverImageBytes;
-  Person? author;
+  ContributorIdentity? author;
   Duration? customDuration;
   final List<TextEditingController> aimControllers;
   final List<KonspektAttachmentData> attachments;

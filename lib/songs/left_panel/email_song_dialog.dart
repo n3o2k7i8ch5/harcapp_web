@@ -8,16 +8,16 @@ import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/app_text.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
-import 'package:harcapp_core/song_book/contrib_song_legacy.dart';
-import 'package:harcapp_core/song_book/contributor_identity.dart';
-import 'package:harcapp_core/song_book/contributor_identity_resolver.dart';
+import 'package:harcapp_core/song_book/contrib_song_email_legacy.dart';
+import 'package:harcapp_core/values/people/contributor_identity.dart';
+import 'package:harcapp_web/songs/contrib_id_person_card_resolver.dart';
 import 'package:harcapp_core/song_book/parse_contrib_email.dart';
 import 'package:harcapp_core/song_book/song_core.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/song_book/widgets/song_widget_template.dart';
 import 'package:harcapp_core/values/dimen.dart';
-import 'package:harcapp_core/values/people/person.dart';
+import 'package:harcapp_core/values/people/models.dart';
 import 'package:harcapp_core/values/people/utils.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_web/consts.dart';
@@ -87,21 +87,16 @@ class EmailSongDialogState extends State<EmailSongDialog> {
     return true;
   }
 
-  Person? get _enrichedPerson {
-    if(_parsed?.person == null) return null;
-    Person p = _parsed!.person!;
-    String? senderEmail = _parsed!.senderEmail;
-    if(senderEmail == null) return p;
-    if(p.email.any((e) => e.toLowerCase() == senderEmail.toLowerCase())) return p;
-    return Person(
-      name: p.name,
-      rankHarc: p.rankHarc,
-      rankInstr: p.rankInstr,
-      druzyna: p.druzyna,
-      srodowisko: p.srodowisko,
-      org: p.org,
-      comment: p.comment,
-      email: [...p.email, senderEmail],
+  RegisteredContributorPerson? get _enrichedRegistered {
+    final registered = _parsed?.registered;
+    if(registered == null) return null;
+    final senderEmail = _parsed!.senderEmail;
+    if(senderEmail == null) return registered;
+    if(registered.emails.any((e) => e.toLowerCase() == senderEmail.toLowerCase())) return registered;
+    return RegisteredContributorPerson(
+      person: registered.person,
+      emails: [...registered.emails, senderEmail],
+      userKey: registered.userKey,
     );
   }
 
@@ -150,7 +145,7 @@ class EmailSongDialogState extends State<EmailSongDialog> {
                   parsed: _parsed,
                   parseError: _parseError,
                   rawEmpty: controller.text.trim().isEmpty,
-                  enrichedPerson: _enrichedPerson,
+                  enrichedRegistered: _enrichedRegistered,
                   willWriteContributorData: _willWriteContributorData,
                 ),
               ),
@@ -211,7 +206,7 @@ class EmailSongDialogState extends State<EmailSongDialog> {
               (c) => (c.emailRef ?? '').toLowerCase() == senderEmail.toLowerCase());
       if(!alreadyHas){
         parsedSong.contribId.add(ContributorIdentity(
-          name: _parsed!.person?.name,
+          person: _parsed!.registered?.person,
           emailRef: senderEmail,
         ));
       }
@@ -239,14 +234,14 @@ class _PreviewPanel extends StatelessWidget {
   final ParsedContribEmail? parsed;
   final String? parseError;
   final bool rawEmpty;
-  final Person? enrichedPerson;
+  final RegisteredContributorPerson? enrichedRegistered;
   final bool willWriteContributorData;
 
   const _PreviewPanel({
     required this.parsed,
     required this.parseError,
     required this.rawEmpty,
-    required this.enrichedPerson,
+    required this.enrichedRegistered,
     required this.willWriteContributorData,
   });
 
@@ -309,10 +304,10 @@ class _PreviewPanel extends StatelessWidget {
             senderEmail: parsed!.senderEmail,
           ),
 
-          if(enrichedPerson != null) ...[
+          if(enrichedRegistered != null) ...[
             SizedBox(height: Dimen.defMarg),
             _PersonBlock(
-              person: enrichedPerson!,
+              registered: enrichedRegistered!,
               addedSenderEmail: _personGotSenderEmailAdded(parsed!),
               isVeteran: _isVeteran(parsed!.senderEmail),
             ),
@@ -335,14 +330,14 @@ class _PreviewPanel extends StatelessWidget {
   }
 
   bool _personGotSenderEmailAdded(ParsedContribEmail p){
-    if(p.person == null || p.senderEmail == null) return false;
-    return !p.person!.email.any(
+    if(p.registered == null || p.senderEmail == null) return false;
+    return !p.registered!.emails.any(
             (e) => e.toLowerCase() == p.senderEmail!.toLowerCase());
   }
 
   bool _isVeteran(String? senderEmail){
     if(senderEmail == null) return false;
-    return allPeopleByEmailMap.containsKey(senderEmail.toLowerCase());
+    return allRegisteredPeopleByEmailMap.containsKey(senderEmail.toLowerCase());
   }
 
 }
@@ -466,12 +461,12 @@ class _SenderBlock extends StatelessWidget {
 
 class _PersonBlock extends StatefulWidget {
 
-  final Person person;
+  final RegisteredContributorPerson registered;
   final bool addedSenderEmail;
   final bool isVeteran;
 
   const _PersonBlock({
-    required this.person,
+    required this.registered,
     required this.addedSenderEmail,
     required this.isVeteran,
   });
@@ -497,8 +492,11 @@ class _PersonBlockState extends State<_PersonBlock> with SingleTickerProviderSta
     super.dispose();
   }
 
-  String get _dartCode => personToObjectStringLegacy(widget.person);
-  String get _jsonCode => const JsonEncoder.withIndent('  ').convert(widget.person.toApiJsonMap());
+  String get _dartCode => registeredPersonToObjectStringLegacy(widget.registered);
+  String get _jsonCode => const JsonEncoder.withIndent('  ').convert({
+    ...widget.registered.person.toApiJsonMap(),
+    'email': widget.registered.emails,
+  });
 
   String get _activeCode => _tabController.index == 0 ? _dartCode : _jsonCode;
 
@@ -595,13 +593,13 @@ class _SongPreviewBlock extends StatelessWidget {
   const _SongPreviewBlock({required this.song});
 
   @override
-  Widget build(BuildContext context) => SongWidgetTemplate<SongRaw, ContributorIdentitySimpleResolver>(
+  Widget build(BuildContext context) => SongWidgetTemplate<SongRaw, ContribIdPersonCardResolver>(
     song,
     SongBaseSettings(),
     cacheSizes: false,
     scrollController: ScrollController(),
     key: ValueKey(song.title + song.songParts.length.toString()),
-    contribIdResolver: ContributorIdentitySimpleResolver(),
+    contribIdResolver: ContribIdPersonCardResolver(),
   );
 
 }

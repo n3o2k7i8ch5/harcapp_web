@@ -10,7 +10,7 @@ import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/app_text.dart';
 import 'package:harcapp_core/comm_widgets/dialog/app_dialog.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
-import 'package:harcapp_core/song_book/contrib_song.dart';
+import 'package:harcapp_core/song_book/contrib_song_email.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_web/common/download_file.dart';
