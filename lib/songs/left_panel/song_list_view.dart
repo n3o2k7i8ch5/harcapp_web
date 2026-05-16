@@ -371,42 +371,17 @@ void handleExampleSongTap(BuildContext context){
 
 }
 
-void handleNewSongFromCode(BuildContext context) async {
-  SongRaw song = handleNewSongEmptyTap(context);
-  bool saved = false;
-  await openBaseDialog(
-      context: context,
-      maxWidth: songDialogWidth,
-      builder: (context) => CodeEditorDialog(
-        song,
-        showInitCode: false,
-        onSaved: () => saved = true,
-      )
-  );
-  if(!saved){
-    AllSongsProvider.of(context).remove(song);
-    SongFileNameDupErrProvider.of(context).checkAllDups(context);
-  }
+void handleNewSongFromCode(BuildContext context) => openBaseDialog(
+    context: context,
+    maxWidth: songDialogWidth,
+    builder: (context) => CodeEditorDialog(null)
+);
 
-}
-
-void handleNewSongFromEmail(BuildContext context) async {
-  SongRaw song = handleNewSongEmptyTap(context);
-  bool saved = false;
-  await openBaseDialog(
-      context: context,
-      maxWidth: 2 * (songPreviewWidth + 24) + 2,
-      builder: (context) => EmailSongDialog(
-        song,
-        onSaved: () => saved = true,
-      )
-  );
-  if(!saved){
-    AllSongsProvider.of(context).remove(song);
-    SongFileNameDupErrProvider.of(context).checkAllDups(context);
-  }
-
-}
+void handleNewSongFromEmail(BuildContext context) => openBaseDialog(
+    context: context,
+    maxWidth: 2 * (songPreviewWidth + 24) + 2,
+    builder: (context) => EmailSongDialog()
+);
 
 SongRaw handleNewSongEmptyTap(BuildContext context){
 

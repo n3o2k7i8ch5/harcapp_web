@@ -30,10 +30,9 @@ import 'package:provider/provider.dart';
 
 class EmailSongDialog extends StatefulWidget{
 
-  final SongRaw song;
   final void Function()? onSaved;
 
-  const EmailSongDialog(this.song, {this.onSaved, super.key});
+  const EmailSongDialog({this.onSaved, super.key});
 
   @override
   State<StatefulWidget> createState() => EmailSongDialogState();
@@ -41,8 +40,6 @@ class EmailSongDialog extends StatefulWidget{
 }
 
 class EmailSongDialogState extends State<EmailSongDialog> {
-
-  SongRaw get song => widget.song;
 
   late TextEditingController controller;
   ParsedContribEmail? _parsed;
@@ -213,20 +210,18 @@ class EmailSongDialogState extends State<EmailSongDialog> {
       }
     }
 
-    parsedSong.id = parsedSong.generateFileName(
-        withPerformer: BindTitleFileNameProvider.of(context).bindPerformer);
+    parsedSong.id = 'o!_${parsedSong.generateFileName(
+        withPerformer: BindTitleFileNameProvider.of(context).bindPerformer)}';
 
     TagsProvider.of(context).set(parsedSong.tags);
 
-    song.set(parsedSong);
-    song.contributorData = parsedSong.contributorData;
-    AllSongsProvider.of(context).set(song, song.isConfid);
+    AllSongsProvider.of(context).addOff(parsedSong);
 
     widget.onSaved?.call();
 
     SongFileNameDupErrProvider.of(context).checkAllDups(context);
 
-    displaySong(context, song);
+    displaySong(context, parsedSong);
     Navigator.pop(context);
   }
 

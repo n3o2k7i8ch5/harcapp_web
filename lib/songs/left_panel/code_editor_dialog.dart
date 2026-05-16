@@ -19,11 +19,10 @@ import 'package:pretty_json/pretty_json.dart';
 
 class CodeEditorDialog extends StatefulWidget{
 
-  final SongRaw song;
-  final bool showInitCode;
+  final SongRaw? song;
   final void Function()? onSaved;
 
-  const CodeEditorDialog(this.song, {this.showInitCode = true, this.onSaved, super.key});
+  const CodeEditorDialog(this.song, {this.onSaved, super.key});
 
   @override
   State<StatefulWidget> createState() => CodeEditorDialogState();
@@ -32,15 +31,16 @@ class CodeEditorDialog extends StatefulWidget{
 
 class CodeEditorDialogState extends State<CodeEditorDialog> {
 
-  SongRaw get song => widget.song;
-  bool get showInitCode => widget.showInitCode;
+  SongRaw? get song => widget.song;
 
   late TextEditingController controller;
 
   @override
   void initState() {
     controller = TextEditingController(
-        text: showInitCode?prettyJson(song.toApiJsonMap(withId: false), indent: 4):''
+        text: song == null
+            ? ''
+            : prettyJson(song!.toApiJsonMap(withId: false), indent: 4)
     );
     super.initState();
   }
@@ -97,19 +97,19 @@ class CodeEditorDialogState extends State<CodeEditorDialog> {
 
   void save(){
 
-    SongRaw song;
+    SongRaw parsedSong;
 
     try{
       // Try parsing the old song code
-      song = parseOldCode('_nowa_piosenka', controller.text);
-      song.id = song.generateFileName(withPerformer: BindTitleFileNameProvider.of(context).bindPerformer);
+      parsedSong = parseOldCode('_nowa_piosenka', controller.text);
+      parsedSong.id = parsedSong.generateFileName(withPerformer: BindTitleFileNameProvider.of(context).bindPerformer);
     } catch(e){
 
       try {
         // Try parsing the entire song code
         Map map = jsonDecode(controller.text);
         String songId = map.keys.toList()[0];
-        song = SongRaw.fromApiRespMap(songId, map[songId]);
+        parsedSong = SongRaw.fromApiRespMap(songId, map[songId]);
 
       } catch(e){
 
@@ -117,7 +117,7 @@ class CodeEditorDialogState extends State<CodeEditorDialog> {
         try{
           Map map = jsonDecode(controller.text);
           String title = map['title'];
-          song = SongRaw.fromApiRespMap("o!_${SongCore.filenameFromTitle(title)}", map);
+          parsedSong = SongRaw.fromApiRespMap("o!_${SongCore.filenameFromTitle(title)}", map);
 
         }catch(e){
           AppScaffold.showMessage(context, text: 'Błędny kod piosneki.');
@@ -126,16 +126,22 @@ class CodeEditorDialogState extends State<CodeEditorDialog> {
       }
     }
 
-    TagsProvider.of(context).set(song.tags);
+    TagsProvider.of(context).set(parsedSong.tags);
 
-    this.song.set(song);
-    AllSongsProvider.of(context).set(this.song, this.song.isConfid);
+    SongRaw? existing = song;
+    if(existing == null){
+      AllSongsProvider.of(context).addOff(parsedSong);
+      widget.onSaved?.call();
+      SongFileNameDupErrProvider.of(context).checkAllDups(context);
+      displaySong(context, parsedSong);
+    } else {
+      existing.set(parsedSong);
+      AllSongsProvider.of(context).set(existing, existing.isConfid);
+      widget.onSaved?.call();
+      SongFileNameDupErrProvider.of(context).checkAllDups(context);
+      displaySong(context, existing);
+    }
 
-    widget.onSaved?.call();
-
-    SongFileNameDupErrProvider.of(context).checkAllDups(context);
-
-    displaySong(context, this.song);
     Navigator.pop(context);
   }
 
