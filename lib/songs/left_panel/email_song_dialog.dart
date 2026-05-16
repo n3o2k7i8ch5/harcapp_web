@@ -133,7 +133,7 @@ class EmailSongDialogState extends State<EmailSongDialog> {
                       onChanged: _onTextChanged,
                       style: TextStyle(color: textEnab_(context), fontSize: 13),
                       decoration: InputDecoration(
-                          hintText: 'Wklej całą treść mejla z piosenką (włącznie z nagłówkami Gmaila — parser je zignoruje)',
+                          hintText: 'Wklej treść mejla z piosenką (włącznie z nagłówkami Gmaila)',
                           hintStyle: TextStyle(color: hintEnab_(context)),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.zero,
@@ -160,20 +160,27 @@ class EmailSongDialogState extends State<EmailSongDialog> {
         ),
 
         Material(
-          color: accent_(context),
-          child: InkWell(
+          color: cardEnab_(context),
+          child: SimpleButton(
+            radius: 0,
+            padding: EdgeInsets.all(Dimen.iconMarg),
             onTap: _parsed == null ? null : _save,
-            child: Container(
-              height: Dimen.iconFootprint,
-              alignment: Alignment.center,
-              child: Text(
-                'Dodaj piosenkę',
-                style: AppTextStyle(
-                  color: _parsed == null ? hintEnab_(context) : Colors.white,
-                  fontWeight: weightHalfBold,
-                  fontSize: Dimen.textSizeBig,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  MdiIcons.plus,
+                  color: _parsed == null ? iconDisab_(context) : iconEnab_(context),
                 ),
-              ),
+                SizedBox(width: Dimen.iconMarg),
+                Text(
+                  'Dodaj piosenkę',
+                  style: AppTextStyle(
+                    fontWeight: weightHalfBold,
+                    color: _parsed == null ? iconDisab_(context) : iconEnab_(context),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -311,6 +318,11 @@ class _PreviewPanel extends StatelessWidget {
             ),
           ],
 
+          if(parsed!.userMessage != null) ...[
+            SizedBox(height: Dimen.defMarg),
+            _UserMessageBlock(message: parsed!.userMessage!),
+          ],
+
           SizedBox(height: Dimen.defMarg),
 
           _AlreadyExistsBanner(song: parsed!.song),
@@ -395,11 +407,7 @@ class _ConsentBlock extends StatelessWidget {
           if(consented)
             Padding(
               padding: EdgeInsets.only(left: Dimen.defMarg),
-              child: AppText(
-                parsed.acceptedRulesVersion!,
-                size: Dimen.textSizeBig,
-                selectable: true,
-              ),
+              child: _Pill.green(parsed.acceptedRulesVersion!),
             ),
         ],
       ),
@@ -655,6 +663,81 @@ class _AlreadyExistsBanner extends StatelessWidget {
 
 }
 
+class _UserMessageBlock extends StatelessWidget {
+
+  final String message;
+
+  const _UserMessageBlock({required this.message});
+
+  @override
+  Widget build(BuildContext context) => _SectionCard(
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: Dimen.defMarg),
+          child: Icon(MdiIcons.messageOutline, color: hintEnab_(context)),
+        ),
+        SizedBox(width: Dimen.defMarg),
+        Expanded(
+          child: AppText(
+            message,
+            size: Dimen.textSizeNormal,
+            selectable: true,
+          ),
+        ),
+      ],
+    ),
+  );
+
+}
+
+class _Pill extends StatelessWidget {
+
+  final String label;
+  final Color bgColor;
+  final Color textColor;
+
+  const _Pill({
+    required this.label,
+    required this.bgColor,
+    required this.textColor,
+  });
+
+  factory _Pill.green(String label) => _Pill(
+    label: label,
+    bgColor: Colors.green.withValues(alpha: 0.18),
+    textColor: Colors.green.shade800,
+  );
+
+  factory _Pill.amber(String label) => _Pill(
+    label: label,
+    bgColor: Colors.amber.withValues(alpha: 0.18),
+    textColor: Colors.orange.shade900,
+  );
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: EdgeInsets.symmetric(
+      horizontal: Dimen.defMarg + 2,
+      vertical: 2,
+    ),
+    decoration: BoxDecoration(
+      color: bgColor,
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: Text(
+      label,
+      style: TextStyle(
+        color: textColor,
+        fontWeight: FontWeight.w600,
+        fontSize: Dimen.textSizeSmall,
+      ),
+    ),
+  );
+
+}
+
 class _VeteranBadge extends StatelessWidget {
 
   final bool isVeteran;
@@ -662,29 +745,9 @@ class _VeteranBadge extends StatelessWidget {
   const _VeteranBadge({required this.isVeteran});
 
   @override
-  Widget build(BuildContext context) {
-    Color bg = isVeteran ? Colors.green : Colors.amber;
-    String label = isVeteran ? 'weteran' : 'świeżak';
-
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: Dimen.defMarg + 2,
-        vertical: 2,
-      ),
-      decoration: BoxDecoration(
-        color: bg.withValues(alpha: 0.18),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: isVeteran ? Colors.green.shade800 : Colors.orange.shade900,
-          fontWeight: FontWeight.w600,
-          fontSize: Dimen.textSizeSmall,
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => isVeteran
+      ? _Pill.green('weteran')
+      : _Pill.amber('świeżak');
 
 }
 
