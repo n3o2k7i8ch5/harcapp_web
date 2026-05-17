@@ -45,6 +45,19 @@ class EmailSongDialogState extends State<EmailSongDialog> {
   late TextEditingController controller;
   ParsedContribEmail? _parsed;
   String? _parseError;
+  String _manualSenderEmail = '';
+
+  static final RegExp _emailRe =
+      RegExp(r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$');
+
+  String? get _effectiveSenderEmail {
+    final fromParse = _parsed?.senderEmail;
+    if(fromParse != null && fromParse.trim().isNotEmpty) return fromParse;
+    final manual = _manualSenderEmail.trim();
+    if(manual.isEmpty) return null;
+    if(!_emailRe.hasMatch(manual)) return null;
+    return manual.toLowerCase();
+  }
 
   @override
   void initState() {
@@ -83,7 +96,7 @@ class EmailSongDialogState extends State<EmailSongDialog> {
   bool get _willWriteContributorData {
     if(_parsed == null) return false;
     if(_parsed!.acceptedRulesVersion == null) return false;
-    if(_parsed!.senderEmail == null) return false;
+    if(_effectiveSenderEmail == null) return false;
     if(_parsed!.song.contributorData != null) return false;
     return true;
   }
@@ -91,7 +104,7 @@ class EmailSongDialogState extends State<EmailSongDialog> {
   RegisteredContributor? get _enrichedRegistered {
     final registered = _parsed?.registered;
     if(registered == null) return null;
-    final senderEmail = _parsed!.senderEmail;
+    final senderEmail = _effectiveSenderEmail;
     if(senderEmail == null) return registered;
     if(registered.emails.any((e) => e.toLowerCase() == senderEmail.toLowerCase())) return registered;
     return RegisteredContributor(
@@ -148,6 +161,12 @@ class EmailSongDialogState extends State<EmailSongDialog> {
                   rawEmpty: controller.text.trim().isEmpty,
                   enrichedRegistered: _enrichedRegistered,
                   willWriteContributorData: _willWriteContributorData,
+                  effectiveSenderEmail: _effectiveSenderEmail,
+                  onManualSenderEmailChanged: (value){
+                    setState((){
+                      _manualSenderEmail = value;
+                    });
+                  },
                 ),
               ),
 
@@ -193,15 +212,16 @@ class EmailSongDialogState extends State<EmailSongDialog> {
 
     SongRaw parsedSong = _parsed!.song;
 
+    final String? senderEmail = _effectiveSenderEmail;
+
     if(_willWriteContributorData){
       parsedSong.contributorData = ContributorData(
-        email: _parsed!.senderEmail!,
+        email: senderEmail!,
         contributionDate: DateTime.now(),
         acceptedContributionRulesVersion: _parsed!.acceptedRulesVersion!,
       );
     }
 
-    String? senderEmail = _parsed!.senderEmail;
     if(senderEmail != null){
       bool alreadyHas = parsedSong.contribRefs.any(
               (c) => (c.emailRef ?? '').toLowerCase() == senderEmail.toLowerCase());
@@ -237,6 +257,8 @@ class _PreviewPanel extends StatelessWidget {
   final bool rawEmpty;
   final RegisteredContributor? enrichedRegistered;
   final bool willWriteContributorData;
+  final String? effectiveSenderEmail;
+  final ValueChanged<String> onManualSenderEmailChanged;
 
   const _PreviewPanel({
     required this.parsed,
@@ -244,6 +266,8 @@ class _PreviewPanel extends StatelessWidget {
     required this.rawEmpty,
     required this.enrichedRegistered,
     required this.willWriteContributorData,
+    required this.effectiveSenderEmail,
+    required this.onManualSenderEmailChanged,
   });
 
   @override
@@ -302,16 +326,18 @@ class _PreviewPanel extends StatelessWidget {
           SizedBox(height: Dimen.defMarg),
 
           _SenderBlock(
-            senderEmail: parsed!.senderEmail,
+            parsedSenderEmail: parsed!.senderEmail,
+            effectiveSenderEmail: effectiveSenderEmail,
+            onManualChanged: onManualSenderEmailChanged,
           ),
 
           if(enrichedRegistered != null) ...[
             SizedBox(height: Dimen.defMarg),
             _PersonBlock(
               registered: enrichedRegistered!,
-              addedSenderEmail: _personGotSenderEmailAdded(parsed!),
-              isVeteran: _isVeteran(parsed!.senderEmail),
-              hasUpdate: _needsUpdate(parsed!),
+              addedSenderEmail: _personGotSenderEmailAdded(parsed!, effectiveSenderEmail),
+              isVeteran: _isVeteran(effectiveSenderEmail),
+              hasUpdate: _needsUpdate(parsed!, effectiveSenderEmail),
             ),
           ],
 
@@ -331,10 +357,10 @@ class _PreviewPanel extends StatelessWidget {
     );
   }
 
-  bool _personGotSenderEmailAdded(ParsedContribEmail p){
-    if(p.registered == null || p.senderEmail == null) return false;
+  bool _personGotSenderEmailAdded(ParsedContribEmail p, String? senderEmail){
+    if(p.registered == null || senderEmail == null) return false;
     return !p.registered!.emails.any(
-            (e) => e.toLowerCase() == p.senderEmail!.toLowerCase());
+            (e) => e.toLowerCase() == senderEmail.toLowerCase());
   }
 
   bool _isVeteran(String? senderEmail){
@@ -342,9 +368,9 @@ class _PreviewPanel extends StatelessWidget {
     return allRegisteredPeopleByEmailMap.containsKey(senderEmail.toLowerCase());
   }
 
-  bool _needsUpdate(ParsedContribEmail p){
-    if(p.registered == null || p.senderEmail == null) return false;
-    final stored = allRegisteredPeopleByEmailMap[p.senderEmail!.toLowerCase()];
+  bool _needsUpdate(ParsedContribEmail p, String? senderEmail){
+    if(p.registered == null || senderEmail == null) return false;
+    final stored = allRegisteredPeopleByEmailMap[senderEmail.toLowerCase()];
     if(stored == null) return false;
     final a = stored.person;
     final b = p.registered!.person;
@@ -410,35 +436,51 @@ class _ConsentBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    bool consented = parsed.acceptedRulesVersion != null;
+    final bool willBeSaved = parsed.song.contributorData != null || willWriteContributorData;
+    final bool consentInEmail = parsed.acceptedRulesVersion != null;
+    final bool detectedButLost = consentInEmail && !willBeSaved;
 
-    Color iconColor = consented ? Colors.green : Colors.red;
-    IconData icon = consented ? MdiIcons.checkCircleOutline : MdiIcons.closeCircleOutline;
+    final Color color;
+    final IconData icon;
+    final String message;
+    if(willBeSaved){
+      color = Colors.green;
+      icon = MdiIcons.checkCircleOutline;
+      message = 'Zgoda autora zapisana w piosence';
+    } else if(detectedButLost){
+      color = Colors.orange;
+      icon = MdiIcons.alertCircleOutline;
+      message = parsed.senderEmail == null
+          ? 'Wykryto zgodę bez adresu nadawcy — nie zostanie zapisana w piosence.'
+          : 'Wykryto zgodę, ale nie zostanie zapisana w piosence.';
+    } else {
+      color = Colors.red;
+      icon = MdiIcons.closeCircleOutline;
+      message = 'Autor NIE wyraził zgody na zasady.';
+    }
 
     return _SectionCard(
-      color: consented
-          ? Colors.green.withValues(alpha: 0.08)
-          : Colors.red.withValues(alpha: 0.08),
+      color: color.withValues(alpha: 0.08),
       child: Row(
         children: [
           Padding(
             padding: EdgeInsets.symmetric(horizontal: Dimen.defMarg),
-            child: Icon(icon, color: iconColor),
+            child: Icon(icon, color: color),
           ),
           SizedBox(width: Dimen.defMarg),
           Expanded(
             child: AppText(
-              consented
-                  ? 'Zgoda autora zapisana w piosence'
-                  : 'Autor NIE wyraził zgody na zasady.',
+              message,
               size: Dimen.textSizeBig,
               selectable: true,
             ),
           ),
-          if(consented)
+          if(consentInEmail)
             Padding(
               padding: EdgeInsets.only(left: Dimen.defMarg),
-              child: _Pill.green(parsed.acceptedRulesVersion!),
+              child: willBeSaved
+                  ? _Pill.green(parsed.acceptedRulesVersion!)
+                  : _Pill.amber(parsed.acceptedRulesVersion!),
             ),
         ],
       ),
@@ -447,52 +489,145 @@ class _ConsentBlock extends StatelessWidget {
 
 }
 
-class _SenderBlock extends StatelessWidget {
+class _SenderBlock extends StatefulWidget {
 
-  final String? senderEmail;
+  static const String _harcappInboxEmail = 'harcapp@gmail.com';
 
-  const _SenderBlock({required this.senderEmail});
+  /// Adres wyciągnięty przez parser z treści mejla — `null`, jeśli parser
+  /// nic nie znalazł.
+  final String? parsedSenderEmail;
+  /// Wybrany ostatecznie adres (z parsera lub z ręcznego wpisania).
+  final String? effectiveSenderEmail;
+  /// Wywoływane, gdy użytkownik zmienia ręczny wpis.
+  final ValueChanged<String> onManualChanged;
+
+  const _SenderBlock({
+    required this.parsedSenderEmail,
+    required this.effectiveSenderEmail,
+    required this.onManualChanged,
+  });
 
   @override
-  Widget build(BuildContext context) => _SectionCard(
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: Dimen.defMarg),
-          child: Icon(MdiIcons.emailOutline, color: hintEnab_(context)),
-        ),
-        SizedBox(width: Dimen.defMarg),
-        Expanded(
-          child: senderEmail == null
-              ? AppText(
-                  'Nie znaleziono adresu nadawcy.',
-                  size: Dimen.textSizeBig,
-                  color: hintEnab_(context),
-                  selectable: true,
-                )
-              : AppText(
-                  senderEmail!,
-                  size: Dimen.textSizeBig,
-                  selectable: true,
-                ),
-        ),
-        if(senderEmail != null)
-          SimpleButton.from(
-            context: context,
-            margin: EdgeInsets.zero,
-            padding: EdgeInsets.all(Dimen.defMarg),
-            iconSize: Dimen.iconSmallSize,
-            icon: MdiIcons.contentCopy,
-            onTap: () {
-              Clipboard.setData(ClipboardData(text: senderEmail!));
-              AppScaffold.showMessage(context, text: 'Skopiowano!');
-            },
-          ),
-      ],
-    ),
-  );
+  State<_SenderBlock> createState() => _SenderBlockState();
+}
 
+class _SenderBlockState extends State<_SenderBlock> {
+
+  late TextEditingController _manualController;
+
+  @override
+  void initState() {
+    super.initState();
+    _manualController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _manualController.dispose();
+    super.dispose();
+  }
+
+  bool _isHarcappInbox(String? email) =>
+      email != null && email.toLowerCase() == _SenderBlock._harcappInboxEmail;
+
+  @override
+  Widget build(BuildContext context) {
+    final parsed = widget.parsedSenderEmail;
+    final effective = widget.effectiveSenderEmail;
+
+    if(parsed != null){
+      return _SectionCard(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: Dimen.defMarg),
+              child: Icon(MdiIcons.emailOutline, color: hintEnab_(context)),
+            ),
+            SizedBox(width: Dimen.defMarg),
+            Expanded(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: AppText(
+                      parsed,
+                      size: Dimen.textSizeBig,
+                      selectable: true,
+                    ),
+                  ),
+                  if(_isHarcappInbox(parsed)) ...[
+                    SizedBox(width: Dimen.defMarg),
+                    Tooltip(
+                      message: 'To adres skrzynki HarcAppa — najpewniej parser '
+                          'wyciągnął zły adres z cytowanej odpowiedzi.',
+                      child: Icon(
+                        MdiIcons.alertCircle,
+                        color: Colors.orange.shade800,
+                        size: Dimen.textSizeBig + 2,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            SimpleButton.from(
+              context: context,
+              margin: EdgeInsets.zero,
+              padding: EdgeInsets.all(Dimen.defMarg),
+              iconSize: Dimen.iconSmallSize,
+              icon: MdiIcons.contentCopy,
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: parsed));
+                AppScaffold.showMessage(context, text: 'Skopiowano!');
+              },
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Brak wykrytego adresu — pozwalamy wpisać ręcznie.
+    final bool manualEmpty = effective == null;
+    return _SectionCard(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: Dimen.defMarg),
+            child: Icon(MdiIcons.emailOutline, color: hintEnab_(context)),
+          ),
+          SizedBox(width: Dimen.defMarg),
+          Expanded(
+            child: TextField(
+              controller: _manualController,
+              onChanged: widget.onManualChanged,
+              style: AppTextStyle(fontSize: Dimen.textSizeBig, color: textEnab_(context)),
+              decoration: InputDecoration(
+                hintText: 'Wpisz adres nadawcy',
+                hintStyle: AppTextStyle(fontSize: Dimen.textSizeBig, color: hintEnab_(context)),
+                border: InputBorder.none,
+                isCollapsed: true,
+              ),
+            ),
+          ),
+          if(manualEmpty) ...[
+            SizedBox(width: Dimen.defMarg),
+            Tooltip(
+              message: 'Parser nie znalazł adresu nadawcy — wpisz go ręcznie, '
+                  'inaczej zgoda nie zostanie zapisana w piosence.',
+              child: Icon(
+                MdiIcons.alertCircle,
+                color: Colors.orange.shade800,
+                size: Dimen.textSizeBig + 2,
+              ),
+            ),
+            SizedBox(width: Dimen.defMarg),
+          ],
+        ],
+      ),
+    );
+  }
 }
 
 class _PersonBlock extends StatefulWidget {
@@ -594,11 +729,11 @@ class _PersonBlockState extends State<_PersonBlock> with SingleTickerProviderSta
   Widget _hufiecSuggestionBanner(BuildContext context) {
     if(_appliedHufiec != null){
       return Padding(
-        padding: EdgeInsets.only(bottom: Dimen.defMarg),
+        padding: EdgeInsets.only(top: Dimen.defMarg),
         child: Align(
           alignment: Alignment.centerLeft,
           child: _HufiecPill(
-            label: 'Wykryto i użyto hufca: ${_appliedHufiec!.name}',
+            label: 'Wykryto i użyto: ${_appliedHufiec!.name}',
             bgColor: Colors.green.withValues(alpha: 0.18),
             textColor: Colors.green.shade800,
             trailingIcon: MdiIcons.undoVariant,
@@ -610,11 +745,11 @@ class _PersonBlockState extends State<_PersonBlock> with SingleTickerProviderSta
     final suggested = _detectHufiec(widget.registered.person.srodowisko);
     if(suggested == null) return const SizedBox.shrink();
     return Padding(
-      padding: EdgeInsets.only(bottom: Dimen.defMarg),
+      padding: EdgeInsets.only(top: Dimen.defMarg),
       child: Align(
         alignment: Alignment.centerLeft,
         child: _HufiecPill(
-          label: 'Wykryto hufiec: ${suggested.name}',
+          label: 'Wykryto: ${suggested.name}',
           bgColor: Colors.amber.withValues(alpha: 0.18),
           textColor: Colors.orange.shade900,
           trailingIcon: MdiIcons.chevronRight,
@@ -663,7 +798,6 @@ class _PersonBlockState extends State<_PersonBlock> with SingleTickerProviderSta
             ],
           ),
           SizedBox(height: Dimen.defMarg),
-          _hufiecSuggestionBanner(context),
           _FolderTabs(
             activeIndex: _tabController.index,
             contentBg: _contentBg(context),
@@ -694,6 +828,7 @@ class _PersonBlockState extends State<_PersonBlock> with SingleTickerProviderSta
               ),
             ),
           ),
+          _hufiecSuggestionBanner(context),
           if(widget.addedSenderEmail) ...[
             SizedBox(height: Dimen.defMarg),
             Center(
@@ -742,7 +877,7 @@ class _AlreadyExistsBanner extends StatelessWidget {
       if(!prov.hasSimilarSong(song.title)) return const SizedBox.shrink();
 
       return Padding(
-        padding: EdgeInsets.only(bottom: Dimen.defMarg),
+        padding: EdgeInsets.only(top: Dimen.defMarg),
         child: Material(
           borderRadius: BorderRadius.circular(AppCard.bigRadius),
           color: Colors.red.withValues(alpha: 0.12),
