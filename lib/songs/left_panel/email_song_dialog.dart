@@ -9,7 +9,7 @@ import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/app_text.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/song_book/contrib_song_email_legacy.dart';
-import 'package:harcapp_core/values/people/contributor_identity.dart';
+import 'package:harcapp_core/values/people/contributor_ref.dart';
 import 'package:harcapp_core/song_book/parse_contrib_email.dart';
 import 'package:harcapp_core/song_book/song_core.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
@@ -18,6 +18,8 @@ import 'package:harcapp_core/song_book/widgets/song_widget_template.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/values/people/models.dart';
 import 'package:harcapp_core/values/people/utils.dart';
+import 'package:harcapp_core/values/srodowiska/hufce.dart';
+import 'package:harcapp_core/values/srodowiska/models.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_web/consts.dart';
 import 'package:harcapp_web/songs/left_panel/song_list_view.dart';
@@ -86,13 +88,13 @@ class EmailSongDialogState extends State<EmailSongDialog> {
     return true;
   }
 
-  RegisteredContributorPerson? get _enrichedRegistered {
+  RegisteredContributor? get _enrichedRegistered {
     final registered = _parsed?.registered;
     if(registered == null) return null;
     final senderEmail = _parsed!.senderEmail;
     if(senderEmail == null) return registered;
     if(registered.emails.any((e) => e.toLowerCase() == senderEmail.toLowerCase())) return registered;
-    return RegisteredContributorPerson(
+    return RegisteredContributor(
       person: registered.person,
       emails: [...registered.emails, senderEmail],
       userKey: registered.userKey,
@@ -201,10 +203,10 @@ class EmailSongDialogState extends State<EmailSongDialog> {
 
     String? senderEmail = _parsed!.senderEmail;
     if(senderEmail != null){
-      bool alreadyHas = parsedSong.contribId.any(
+      bool alreadyHas = parsedSong.contribRefs.any(
               (c) => (c.emailRef ?? '').toLowerCase() == senderEmail.toLowerCase());
       if(!alreadyHas){
-        parsedSong.contribId.add(ContributorIdentity(
+        parsedSong.contribRefs.add(ContributorRef(
           person: _parsed!.registered?.person,
           emailRef: senderEmail,
         ));
@@ -233,7 +235,7 @@ class _PreviewPanel extends StatelessWidget {
   final ParsedContribEmail? parsed;
   final String? parseError;
   final bool rawEmpty;
-  final RegisteredContributorPerson? enrichedRegistered;
+  final RegisteredContributor? enrichedRegistered;
   final bool willWriteContributorData;
 
   const _PreviewPanel({
@@ -309,6 +311,7 @@ class _PreviewPanel extends StatelessWidget {
               registered: enrichedRegistered!,
               addedSenderEmail: _personGotSenderEmailAdded(parsed!),
               isVeteran: _isVeteran(parsed!.senderEmail),
+              hasUpdate: _needsUpdate(parsed!),
             ),
           ],
 
@@ -339,6 +342,40 @@ class _PreviewPanel extends StatelessWidget {
     return allRegisteredPeopleByEmailMap.containsKey(senderEmail.toLowerCase());
   }
 
+  bool _needsUpdate(ParsedContribEmail p){
+    if(p.registered == null || p.senderEmail == null) return false;
+    final stored = allRegisteredPeopleByEmailMap[p.senderEmail!.toLowerCase()];
+    if(stored == null) return false;
+    final a = stored.person;
+    final b = p.registered!.person;
+    if(a.rankHarc != b.rankHarc) return true;
+    if(a.rankInstr != b.rankInstr) return true;
+    if(_normText(a.name) != _normText(b.name)) return true;
+    if(_normText(a.druzyna) != _normText(b.druzyna)) return true;
+    if(_normText(a.comment) != _normText(b.comment)) return true;
+    if(!_srodowiskoEqLoose(a.srodowisko, b.srodowisko)) return true;
+    return false;
+  }
+
+}
+
+final RegExp _nonAlnumRe = RegExp(r'[^\p{L}\p{N}]', unicode: true);
+
+/// Porównanie „luźne" pól tekstowych: tylko litery i cyfry (Unicode),
+/// lowercase. Ignoruje kropki, spacje, cudzysłowy, myślniki, etc.
+String _normText(String? s){
+  if(s == null) return '';
+  return s.toLowerCase().replaceAll(_nonAlnumRe, '');
+}
+
+bool _srodowiskoEqLoose(Srodowisko? a, Srodowisko? b){
+  if(a == null && b == null) return true;
+  if(a == null || b == null) return false;
+  return a.hufiecSlug?.toLowerCase() == b.hufiecSlug?.toLowerCase()
+      && a.choragiewSlug?.toLowerCase() == b.choragiewSlug?.toLowerCase()
+      && a.okregSlug?.toLowerCase() == b.okregSlug?.toLowerCase()
+      && a.orgSlug?.toLowerCase() == b.orgSlug?.toLowerCase()
+      && _normText(a.custom) == _normText(b.custom);
 }
 
 class _SectionCard extends StatelessWidget {
@@ -460,14 +497,16 @@ class _SenderBlock extends StatelessWidget {
 
 class _PersonBlock extends StatefulWidget {
 
-  final RegisteredContributorPerson registered;
+  final RegisteredContributor registered;
   final bool addedSenderEmail;
   final bool isVeteran;
+  final bool hasUpdate;
 
   const _PersonBlock({
     required this.registered,
     required this.addedSenderEmail,
     required this.isVeteran,
+    required this.hasUpdate,
   });
 
   @override
@@ -479,10 +518,19 @@ class _PersonBlockState extends State<_PersonBlock> with SingleTickerProviderSta
 
   late TabController _tabController;
 
+  /// Hufiec zastosowany z sugestii — null jeśli nie zastosowano.
+  Hufiec? _appliedHufiec;
+  /// Custom zapamiętany przed aplikacją, do „Cofnij".
+  String? _restoreCustom;
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    final auto = _detectHufiec(widget.registered.person.srodowisko);
+    if(auto != null){
+      _restoreCustom = widget.registered.person.srodowisko?.custom;
+      _appliedHufiec = auto;
+    }
   }
 
   @override
@@ -491,15 +539,93 @@ class _PersonBlockState extends State<_PersonBlock> with SingleTickerProviderSta
     super.dispose();
   }
 
-  String get _dartCode => registeredPersonToObjectStringLegacy(widget.registered);
+  RegisteredContributor get _effective {
+    if(_appliedHufiec == null) return widget.registered;
+    final p = widget.registered.person;
+    return RegisteredContributor(
+      person: Person(
+        name: p.name,
+        rankHarc: p.rankHarc,
+        rankInstr: p.rankInstr,
+        druzyna: p.druzyna,
+        srodowisko: Srodowisko.hufiec(
+          _appliedHufiec!.slug,
+          showChoragiew: false,
+          showOkreg: false,
+        ),
+        comment: p.comment,
+      ),
+      emails: widget.registered.emails,
+      userKey: widget.registered.userKey,
+    );
+  }
+
+  /// Szuka hufca pasującego do `custom` w danym [Srodowisko]. Zwraca `null`,
+  /// jeśli struktura nie jest pusta lub `custom` < 3 znaki.
+  static Hufiec? _detectHufiec(Srodowisko? s){
+    if(s == null) return null;
+    if(s.hufiecSlug != null || s.choragiewSlug != null || s.okregSlug != null || s.orgSlug != null) return null;
+    final t = (s.custom ?? '').trim().toLowerCase();
+    if(t.length < 3) return null;
+    for(final h in hufce){
+      final n = h.name.toLowerCase();
+      if(n.contains(t) || t.contains(n)) return h;
+    }
+    return null;
+  }
+
+  void _undoHufiecSuggestion(){
+    setState((){
+      _appliedHufiec = null;
+      _restoreCustom = null;
+    });
+  }
+
+  String get _dartCode => registeredPersonToObjectStringLegacy(_effective);
   String get _jsonCode => const JsonEncoder.withIndent('  ').convert({
-    ...widget.registered.person.toApiJsonMap(),
-    'email': widget.registered.emails,
+    ..._effective.person.toApiJsonMap(),
+    'email': _effective.emails,
   });
 
   String get _activeCode => _tabController.index == 0 ? _dartCode : _jsonCode;
 
   Color _contentBg(BuildContext context) => backgroundIcon_(context);
+
+  Widget _hufiecSuggestionBanner(BuildContext context) {
+    if(_appliedHufiec != null){
+      return Padding(
+        padding: EdgeInsets.only(bottom: Dimen.defMarg),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: _HufiecPill(
+            label: 'Wykryto i użyto hufca: ${_appliedHufiec!.name}',
+            bgColor: Colors.green.withValues(alpha: 0.18),
+            textColor: Colors.green.shade800,
+            trailingIcon: MdiIcons.undoVariant,
+            onTap: _undoHufiecSuggestion,
+          ),
+        ),
+      );
+    }
+    final suggested = _detectHufiec(widget.registered.person.srodowisko);
+    if(suggested == null) return const SizedBox.shrink();
+    return Padding(
+      padding: EdgeInsets.only(bottom: Dimen.defMarg),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: _HufiecPill(
+          label: 'Wykryto hufiec: ${suggested.name}',
+          bgColor: Colors.amber.withValues(alpha: 0.18),
+          textColor: Colors.orange.shade900,
+          trailingIcon: MdiIcons.chevronRight,
+          onTap: () => setState((){
+            _restoreCustom = widget.registered.person.srodowisko?.custom;
+            _appliedHufiec = suggested;
+          }),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -521,7 +647,7 @@ class _PersonBlockState extends State<_PersonBlock> with SingleTickerProviderSta
                   selectable: true,
                 ),
               ),
-              _VeteranBadge(isVeteran: widget.isVeteran),
+              _VeteranBadge(isVeteran: widget.isVeteran, hasUpdate: widget.hasUpdate),
               SizedBox(width: Dimen.defMarg),
               SimpleButton.from(
                 context: context,
@@ -537,6 +663,7 @@ class _PersonBlockState extends State<_PersonBlock> with SingleTickerProviderSta
             ],
           ),
           SizedBox(height: Dimen.defMarg),
+          _hufiecSuggestionBanner(context),
           _FolderTabs(
             activeIndex: _tabController.index,
             contentBg: _contentBg(context),
@@ -734,16 +861,76 @@ class _Pill extends StatelessWidget {
 
 }
 
+class _HufiecPill extends StatelessWidget {
+
+  final String label;
+  final Color bgColor;
+  final Color textColor;
+  final IconData? trailingIcon;
+  final VoidCallback? onTap;
+
+  const _HufiecPill({
+    required this.label,
+    required this.bgColor,
+    required this.textColor,
+    this.trailingIcon,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: bgColor,
+    borderRadius: BorderRadius.circular(10),
+    clipBehavior: Clip.antiAlias,
+    child: InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: Dimen.defMarg + 2,
+          vertical: 2,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: textColor,
+                fontWeight: FontWeight.w600,
+                fontSize: Dimen.textSizeSmall,
+              ),
+            ),
+            if(trailingIcon != null) ...[
+              SizedBox(width: Dimen.iconMarg / 2),
+              Icon(trailingIcon, color: textColor, size: Dimen.textSizeSmall + 4),
+            ],
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 class _VeteranBadge extends StatelessWidget {
 
   final bool isVeteran;
+  final bool hasUpdate;
 
-  const _VeteranBadge({required this.isVeteran});
+  const _VeteranBadge({required this.isVeteran, this.hasUpdate = false});
 
   @override
-  Widget build(BuildContext context) => isVeteran
-      ? _Pill.green('weteran')
-      : _Pill.amber('świeżak');
+  Widget build(BuildContext context) {
+    final base = isVeteran ? _Pill.green('weteran') : _Pill.amber('świeżak');
+    if(!isVeteran || !hasUpdate) return base;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        base,
+        SizedBox(width: Dimen.defMarg),
+        _Pill.amber('aktualizacja'),
+      ],
+    );
+  }
 
 }
 

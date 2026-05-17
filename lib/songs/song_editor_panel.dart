@@ -6,7 +6,7 @@ import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
-import 'package:harcapp_core/song_book/song_editor/widgets/contributor_identity_list_widget.dart';
+import 'package:harcapp_core/song_book/song_editor/widgets/contributor_ref_list_widget.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/add_buttons_widget.dart';
@@ -229,7 +229,7 @@ class SongEditorPanelState extends State<SongEditorPanel>{
 
             const SizedBox(height: Dimen.defMarg),
 
-            const ContributorIdentityListWidget(),
+            const ContributorRefListWidget(),
 
             const SizedBox(height: Dimen.defMarg),
 

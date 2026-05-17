@@ -8,7 +8,7 @@ import 'package:web/web.dart' as web;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/comm_widgets/blur.dart';
-import 'package:harcapp_core/comm_widgets/contributor_identity_field.dart';
+import 'package:harcapp_core/comm_widgets/contributor_ref_field.dart';
 import 'package:harcapp_core/comm_widgets/empty_message_widget.dart';
 import 'package:harcapp_web/idb.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
@@ -339,7 +339,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                                                 textAlign: TextAlign.left,
                                               ),
 
-                                              ContributorIdentityField(
+                                              ContributorRefField(
                                                 identity: konspektData.author,
                                                 emptyLabel: 'Dodaj autora konspektu',
                                                 dialogTitle: 'Autor konspektu',

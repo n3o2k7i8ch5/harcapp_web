@@ -9,7 +9,7 @@ import 'package:harcapp_core/harcthought/common/file_format.dart';
 import 'package:harcapp_core/harcthought/konspekts/hrcpknspkt_data.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/values/org.dart';
-import 'package:harcapp_core/values/people/contributor_identity.dart';
+import 'package:harcapp_core/values/people/contributor_ref.dart';
 import 'package:harcapp_core/values/people/models.dart';
 import 'package:harcapp_core/values/srodowiska/models.dart';
 import 'package:harcapp_core/values/rank_harc.dart';
@@ -397,7 +397,7 @@ void main() {
       },
     );
 
-    const ContributorIdentity author = ContributorIdentity(
+    const ContributorRef author = ContributorRef(
       person: Person(name: 'phm. Jan Harcerz'),
       emailRef: 'jan.harcerz@example.com',
     );
@@ -694,7 +694,7 @@ void main() {
     final KonspektData original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
     
     // Set author with all possible fields
-    original.author = ContributorIdentity(
+    original.author = ContributorRef(
       person: Person(
         name: 'pwd. Anna Kowalska',
         rankHarc: RankHarc.zhpWywiadowca,
@@ -724,7 +724,7 @@ void main() {
     final KonspektData original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
     
     // Set author with only required name field
-    original.author = const ContributorIdentity(person: Person(name: 'Jan Nowak'));
+    original.author = const ContributorRef(person: Person(name: 'Jan Nowak'));
 
     final KonspektData restored = _roundtrip(original);
 
