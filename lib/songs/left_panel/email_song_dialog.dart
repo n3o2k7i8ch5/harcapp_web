@@ -10,7 +10,6 @@ import 'package:harcapp_core/comm_widgets/app_text.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/song_book/contrib_song_email_legacy.dart';
 import 'package:harcapp_core/values/people/contributor_identity.dart';
-import 'package:harcapp_web/songs/contrib_id_person_card_resolver.dart';
 import 'package:harcapp_core/song_book/parse_contrib_email.dart';
 import 'package:harcapp_core/song_book/song_core.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
@@ -593,13 +592,12 @@ class _SongPreviewBlock extends StatelessWidget {
   const _SongPreviewBlock({required this.song});
 
   @override
-  Widget build(BuildContext context) => SongWidgetTemplate<SongRaw, ContribIdPersonCardResolver>(
+  Widget build(BuildContext context) => SongWidgetTemplate<SongRaw>(
     song,
     SongBaseSettings(),
     cacheSizes: false,
     scrollController: ScrollController(),
     key: ValueKey(song.title + song.songParts.length.toString()),
-    contribIdResolver: ContribIdPersonCardResolver(),
   );
 
 }
