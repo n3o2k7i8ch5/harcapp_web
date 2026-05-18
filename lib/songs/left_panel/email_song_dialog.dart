@@ -352,6 +352,7 @@ class _PreviewPanel extends StatelessWidget {
               addedSenderEmail: _personGotSenderEmailAdded(p, effectiveSenderEmail),
               isVeteran: _isVeteran(effectiveSenderEmail),
               hasUpdate: _needsUpdate(p, effectiveSenderEmail),
+              parseWarnings: p.personParseWarnings,
             ),
           ],
 
@@ -589,12 +590,14 @@ class _PersonBlock extends StatefulWidget {
   final bool addedSenderEmail;
   final bool isVeteran;
   final bool hasUpdate;
+  final List<String> parseWarnings;
 
   const _PersonBlock({
     required this.registered,
     required this.addedSenderEmail,
     required this.isVeteran,
     required this.hasUpdate,
+    this.parseWarnings = const [],
   });
 
   @override
@@ -756,6 +759,10 @@ class _PersonBlockState extends State<_PersonBlock> with SingleTickerProviderSta
             ),
           ),
           _hufiecSuggestionBanner(),
+          if(widget.parseWarnings.isNotEmpty) ...[
+            SizedBox(height: Dimen.defMarg),
+            _ParseWarningsBlock(warnings: widget.parseWarnings),
+          ],
           if(widget.addedSenderEmail) ...[
             SizedBox(height: Dimen.defMarg),
             Center(
@@ -845,6 +852,65 @@ class _AlreadyExistsBanner extends StatelessWidget {
       );
     },
   );
+
+}
+
+class _ParseWarningsBlock extends StatelessWidget {
+
+  final List<String> warnings;
+
+  const _ParseWarningsBlock({required this.warnings});
+
+  @override
+  Widget build(BuildContext context) {
+    const iconSize = Dimen.textSizeBig + 2;
+    const iconGap = Dimen.defMarg;
+    final color = Colors.orange.shade900;
+    return _SectionCard(
+      color: Colors.orange.withValues(alpha: 0.08),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(MdiIcons.alertCircle, color: color, size: iconSize),
+              SizedBox(width: iconGap),
+              Flexible(
+                child: SelectableText(
+                  'Pola nierozpoznane - popraw ręcznie:',
+                  style: AppTextStyle(
+                    color: color,
+                    fontWeight: weightHalfBold,
+                    fontSize: Dimen.textSizeBig,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: iconSize + iconGap, top: Dimen.defMarg / 2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for(final w in warnings)
+                  Padding(
+                    padding: EdgeInsets.only(top: 2),
+                    child: SelectableText(
+                      '• $w',
+                      style: TextStyle(
+                        color: textEnab_(context),
+                        fontFamily: 'monospace',
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
 }
 
