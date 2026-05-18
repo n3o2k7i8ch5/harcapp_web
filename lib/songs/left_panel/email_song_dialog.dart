@@ -11,6 +11,7 @@ import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/song_book/contrib_song_email_legacy.dart';
 import 'package:harcapp_core/values/people/contributor_ref.dart';
 import 'package:harcapp_core/song_book/parse_contrib_email.dart';
+import 'package:harcapp_core/song_book/parse_contrib_email_oldest.dart';
 import 'package:harcapp_core/song_book/song_core.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
@@ -334,6 +335,11 @@ class _PreviewPanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+
+          if(p.isOldestFormat) ...[
+            const _OldestFormatBlock(),
+            SizedBox(height: Dimen.defMarg),
+          ],
 
           _ConsentBlock(parsed: p, willWriteContributorData: willWriteContributorData),
 
@@ -852,6 +858,61 @@ class _AlreadyExistsBanner extends StatelessWidget {
       );
     },
   );
+
+}
+
+class _OldestFormatBlock extends StatelessWidget {
+
+  const _OldestFormatBlock();
+
+  @override
+  Widget build(BuildContext context) {
+    const iconSize = Dimen.textSizeBig + 2;
+    const iconGap = Dimen.defMarg;
+    final color = Colors.orange.shade900;
+    return _SectionCard(
+      color: Colors.orange.withValues(alpha: 0.08),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(MdiIcons.alertCircle, color: color, size: iconSize),
+              SizedBox(width: iconGap),
+              Expanded(
+                child: SelectableText(
+                  'Mejl ze starej apki — odpisz autorowi:',
+                  style: AppTextStyle(
+                    color: color,
+                    fontWeight: weightHalfBold,
+                    fontSize: Dimen.textSizeBig,
+                  ),
+                ),
+              ),
+              SimpleButton.from(
+                context: context,
+                margin: EdgeInsets.zero,
+                padding: EdgeInsets.all(Dimen.defMarg),
+                iconSize: Dimen.iconSmallSize,
+                icon: MdiIcons.contentCopy,
+                onTap: () {
+                  Clipboard.setData(const ClipboardData(text: oldestFormatReplyMessage));
+                  AppScaffold.showMessage(context, text: 'Skopiowano treść odpowiedzi!');
+                },
+              ),
+            ],
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: iconSize + iconGap, top: Dimen.defMarg / 2),
+            child: SelectableText(
+              oldestFormatReplyMessage,
+              style: TextStyle(color: textEnab_(context), fontSize: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
 }
 
