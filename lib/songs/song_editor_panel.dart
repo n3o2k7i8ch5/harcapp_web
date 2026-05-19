@@ -145,6 +145,7 @@ class SongEditorPanelState extends State<SongEditorPanel>{
 
   Widget _buildPartsList(BuildContext context, CurrentItemProvider currItemProv) => SongPartsListWidget(
         // shrinkWrap: true,
+        maxDialogWidth: appDialogMaxWidth,
         onPartTap: (index) async {
           final part = currItemProv.song.songParts[index];
           await _editPart(
