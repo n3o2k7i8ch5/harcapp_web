@@ -5,7 +5,6 @@ import 'package:harcapp_core/comm_widgets/app_bar.dart';
 import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
-import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/song_book/widgets/song_widget_template.dart';
 import 'package:harcapp_core/values/dimen.dart';
@@ -16,9 +15,9 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 
 class SimilarSongViewerDialog extends StatefulWidget{
 
-  final String? songTitle;
+  final SongRaw currentSong;
 
-  const SimilarSongViewerDialog({this.songTitle, super.key});
+  const SimilarSongViewerDialog({required this.currentSong, super.key});
 
   @override
   State<StatefulWidget> createState() => SimilarSongViewerDialogState();
@@ -35,9 +34,7 @@ class SimilarSongViewerDialogState extends State<SimilarSongViewerDialog>{
   void initState() {
     SimilarSongProvider similarSongProv = SimilarSongProvider.of(context);
 
-    String songTitle = widget.songTitle ?? CurrentItemProvider.of(context).titleController.text;
-
-    similarSongs = similarSongProv.getSimilarSongs(songTitle)??[];
+    similarSongs = similarSongProv.getSimilarSongs(widget.currentSong.title)??[];
 
     controller = PageController(viewportFraction: 0.75);
 
@@ -133,7 +130,7 @@ class SimilarSongViewerDialogState extends State<SimilarSongViewerDialog>{
                           width: songPreviewWidth,
                           child: SimilarSongWidget(
                             title: 'Aktualna piosenka',
-                            song: CurrentItemProvider.of(context).song,
+                            song: widget.currentSong,
                             elevation: AppCard.bigElevation,
                           ),
                         ),

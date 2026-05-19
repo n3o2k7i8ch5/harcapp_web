@@ -827,7 +827,7 @@ class _AlreadyExistsBanner extends StatelessWidget {
               context: context,
               builder: (context) => Padding(
                 padding: EdgeInsets.all(Dimen.sideMarg),
-                child: SimilarSongViewerDialog(songTitle: song.title),
+                child: SimilarSongViewerDialog(currentSong: song),
               ),
             ),
             child: Row(

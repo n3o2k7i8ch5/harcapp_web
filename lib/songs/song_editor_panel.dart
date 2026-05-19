@@ -356,7 +356,9 @@ class _FoundSimilarSongWidget extends StatelessWidget{
                   context: context,
                   builder: (context) => Padding(
                     padding: EdgeInsets.all(Dimen.sideMarg),
-                    child: SimilarSongViewerDialog(),
+                    child: SimilarSongViewerDialog(
+                      currentSong: CurrentItemProvider.of(context).song,
+                    ),
                   ),
                 ),
               ),
