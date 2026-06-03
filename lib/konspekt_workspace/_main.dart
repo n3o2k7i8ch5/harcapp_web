@@ -27,6 +27,7 @@ import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt_to_pdf/konspekt_to_pdf.dart';
 import 'package:harcapp_core/harcthought/konspekts/widgets/base_konspekt_widget.dart';
 import 'package:harcapp_core/harcthought/konspekts/widgets/level_selectable_grid_widget.dart';
+import 'package:harcapp_core/logger.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/common/download_file.dart';
@@ -215,8 +216,8 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
       if (!mounted) return;
       _showDraftRecoveryDialog(draftData, draftKonspekt);
-    } catch (e) {
-      debugPrint('Error loading draft: $e');
+    } catch (e, st) {
+      logger.e('Błąd wczytywania szkicu konspektu', error: e, stackTrace: st);
       await IDB.clearKonspektDraft();
     }
   }
@@ -598,9 +599,17 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                                         child: _TopActions(
                                           konspektData: konspektData,
                                           hasUnsavedChanges: _hasUnsavedChanges,
-                                          onLoaded: (data) => setState(
-                                                  () => _konspektData =
-                                                  KonspektData.fromHrcpknspktData(data)),
+                                          onLoaded: (data) {
+                                            KonspektData converted;
+                                            try {
+                                              converted = KonspektData.fromHrcpknspktData(data);
+                                            } catch (e, st) {
+                                              logger.e('Błąd konwersji wczytanego konspektu (fromHrcpknspktData)', error: e, stackTrace: st);
+                                              AppScaffold.showMessage(context, text: 'Nie udało się wczytać konspektu: $e');
+                                              return;
+                                            }
+                                            setState(() => _konspektData = converted);
+                                          },
                                           onSaved: () async {
                                             _debounceSaveTimer?.cancel();
                                             try {
@@ -1056,6 +1065,7 @@ class _TopActions extends StatelessWidget {
                   FilePickerResult? result = await FilePicker.pickFiles(
                     type: FileType.custom,
                     allowedExtensions: ['hrcpknspkt'],
+                    withData: true,
                   );
 
                   if (result == null) return;
@@ -1067,7 +1077,14 @@ class _TopActions extends StatelessWidget {
                     return;
                   }
 
-                  HrcpknspktData hrcpknspktData = HrcpknspktData.fromTarBytes(bytes);
+                  HrcpknspktData hrcpknspktData;
+                  try {
+                    hrcpknspktData = HrcpknspktData.fromTarBytes(bytes);
+                  } catch (e, st) {
+                    logger.e('Błąd wczytywania konspektu z pliku .hrcpknspkt', error: e, stackTrace: st);
+                    AppScaffold.showMessage(context, text: 'Nie udało się wczytać konspektu: $e');
+                    return;
+                  }
                   onLoaded(hrcpknspktData);
                 }
 
@@ -1124,7 +1141,8 @@ class _TopActions extends StatelessWidget {
                       konspektCore = Konspekt.fromJsonMap(
                         jsonDecode(utf8.decode(konspektJsonBytes)),
                       );
-                    } catch (e) {
+                    } catch (e, st) {
+                      logger.e('Błąd parsowania konspekt.json', error: e, stackTrace: st);
                       completer.complete(null);
                       AppScaffold.showMessage(context, text: 'Błąd parsowania konspekt.json: $e');
                       return;
