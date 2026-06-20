@@ -21,7 +21,7 @@ import 'package:harcapp_core/harcthought/common/file_format_selector_row_widget.
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/comm_classes/text_utils.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
 import '../models/konspekt_material_data.dart';
 

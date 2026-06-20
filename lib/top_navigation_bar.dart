@@ -10,7 +10,7 @@ import 'package:harcapp_web/common/responsive_breakpoints.dart';
 import 'package:harcapp_web/router.dart';
 import 'package:harcapp_web/theme_mode_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:provider/provider.dart';
 
 class TopNavigationBar extends StatefulWidget implements PreferredSizeWidget{

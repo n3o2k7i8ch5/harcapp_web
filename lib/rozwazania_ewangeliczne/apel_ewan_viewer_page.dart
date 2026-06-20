@@ -20,7 +20,7 @@ import 'package:harcapp_core/harcthought/harcapp_share_button.dart';
 import 'package:harcapp_web/_common_classes/firebase.dart';
 import 'package:harcapp_web/common/page_width_bar.dart';
 import 'package:harcapp_web/consts.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
 class ApelEwanViewerPage extends StatefulWidget {
 

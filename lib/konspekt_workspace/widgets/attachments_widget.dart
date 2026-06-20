@@ -9,7 +9,7 @@ import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_attachment_data.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/attachment_widget.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
 class AttachmentsWidget extends StatefulWidget {
   final List<KonspektAttachmentData> attachments;

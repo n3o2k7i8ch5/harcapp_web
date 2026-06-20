@@ -8,7 +8,7 @@ import 'package:harcapp_core/harcthought/harc_forms/data.dart';
 import 'package:harcapp_core/harcthought/harc_forms/harc_form.dart';
 import 'package:harcapp_core/harcthought/harc_forms/harc_form_tile_widget.dart';
 import 'package:harcapp_core/values/dimen.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
 class TableOfContentFormyWidget extends StatefulWidget {
   final HarcForm? selectedForm;

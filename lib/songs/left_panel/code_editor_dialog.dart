@@ -14,7 +14,7 @@ import 'package:harcapp_web/consts.dart';
 import 'package:harcapp_web/songs/left_panel/song_list_view.dart';
 import 'package:harcapp_web/songs/old/parse_old_code.dart';
 import 'package:harcapp_web/songs/providers.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:pretty_json/pretty_json.dart';
 
 class CodeEditorDialog extends StatefulWidget{

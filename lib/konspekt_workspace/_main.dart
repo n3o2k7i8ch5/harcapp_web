@@ -45,7 +45,7 @@ import 'package:harcapp_web/konspekt_workspace/widgets/attachment_embed.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/html_editor.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/quill_html_converter.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/plain_text_editor.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
 import 'cover/cover_processing.dart';
 
@@ -544,6 +544,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                                                   placeholder: 'Wstęp:',
                                                   attachments: konspektData.attachments,
                                                   onChanged: _markUnsaved,
+                                                  checkLanguage: true,
                                                 ),
                                               ),
 
@@ -555,6 +556,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                                                   placeholder: 'Opis:',
                                                   attachments: konspektData.attachments,
                                                   onChanged: _markUnsaved,
+                                                  checkLanguage: true,
                                                 ),
                                               ),
 

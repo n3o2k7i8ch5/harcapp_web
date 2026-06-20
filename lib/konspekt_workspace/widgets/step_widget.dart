@@ -10,7 +10,7 @@ import 'package:harcapp_web/konspekt_workspace/models/konspekt_attachment_data.d
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_step_data.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/html_editor.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/select_time_button.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
 class StepWidget extends StatefulWidget{
 
@@ -126,6 +126,7 @@ class StepWidgetState extends State<StepWidget> {
           placeholder: 'Opis kroku ${widget.index+1}: (np.: "Prowadzący pyta uczestników...", "Uczestnicy rozpoczynają grę w...")',
           attachments: widget.attachments,
           onChanged: widget.onChanged,
+          checkLanguage: true,
         ),
 
         if (onRemove != null) ...[

@@ -27,7 +27,7 @@ import 'package:harcapp_web/songs/left_panel/song_list_view.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/similar_song_viewer.dart';
 import 'package:harcapp_web/songs/song_preview_widget.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:provider/provider.dart';
 
 const String _harcappInboxEmail = 'harcapp@gmail.com';

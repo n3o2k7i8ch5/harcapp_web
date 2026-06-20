@@ -3,7 +3,7 @@ import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt_to_pdf/common.dart' as Dimen;
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
 class MultiTextFieldAddButton extends StatelessWidget {
   final VoidCallback onTap;

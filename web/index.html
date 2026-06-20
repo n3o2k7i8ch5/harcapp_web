@@ -34,6 +34,15 @@
 
   <title>HarcApp Web</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- flutter_gemma_mediapipe: load the MediaPipe GenAI runtime from CDN and
+       expose its symbols on `window` so the on-device LLM (Polish-language
+       check) can run in the browser. -->
+  <script type="module">
+    import { FilesetResolver, LlmInference } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-genai@0.10.27';
+    window.FilesetResolver = FilesetResolver;
+    window.LlmInference = LlmInference;
+  </script>
 </head>
 <body>
   <!-- This script installs service_worker.js to provide PWA functionality to

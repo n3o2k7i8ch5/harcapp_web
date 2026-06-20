@@ -10,7 +10,7 @@ import 'package:harcapp_core/harcthought/poradnik/poradnik.dart';
 import 'package:harcapp_core/harcthought/poradnik/poradnik_thumbnail_widget.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/consts.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
 class PoradniksPage extends StatefulWidget{
 

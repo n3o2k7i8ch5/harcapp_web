@@ -10,7 +10,7 @@ import 'package:harcapp_web/konspekt_workspace/models/konspekt_attachment_data.d
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_material_data.dart';
 import 'package:harcapp_web/konspekt_workspace/providers.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/material_widget.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
 class MaterialsWidget extends StatefulWidget {
   final List<KonspektMaterialData> materials;

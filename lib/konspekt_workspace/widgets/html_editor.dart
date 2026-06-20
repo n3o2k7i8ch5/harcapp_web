@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:harcapp_web/common/gemma_language_checker.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart' as html_widget;
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
@@ -11,7 +14,7 @@ import 'package:harcapp_core/harcthought/common/file_format.dart';
 import 'package:harcapp_core/harcthought/common/file_format_selector_row_widget.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_attachment_data.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
 import 'attachment_embed.dart';
 import 'quill_html_converter.dart';
@@ -28,7 +31,11 @@ class HtmlEditor extends StatefulWidget {
   final bool showDebugButtons;
   final VoidCallback? onChanged;
 
-  const HtmlEditor({super.key, this.radius, this.background, required this.controller, this.placeholder, this.attachments, this.showToolbar = true, this.showDebugButtons = true, this.onChanged});
+  /// When true, the text is checked (on-device LLM) for whether it is written
+  /// in Polish, and an inline warning is shown if it does not appear to be.
+  final bool checkLanguage;
+
+  const HtmlEditor({super.key, this.radius, this.background, required this.controller, this.placeholder, this.attachments, this.showToolbar = true, this.showDebugButtons = true, this.onChanged, this.checkLanguage = false});
 
   @override
   State<HtmlEditor> createState() => _HtmlEditorState();
@@ -38,10 +45,18 @@ class _HtmlEditorState extends State<HtmlEditor> {
   static const _editorMinHeight = 100.0;
   static const _editorMaxHeight = 500.0;
 
+  static const _langCheckDebounce = Duration(milliseconds: 1200);
+
   late final QuillController _quillController;
   late final ScrollController _scrollController;
   late final FocusNode _focusNode;
   _DebugViewMode _debugViewMode = _DebugViewMode.editor;
+
+  Timer? _langCheckTimer;
+  LangCheckResult _langResult = LangCheckResult.unknown;
+  bool _langChecking = false;
+  // Bumped on every scheduled check so stale async results are ignored.
+  int _langCheckToken = 0;
 
   @override
   void initState() {
@@ -53,9 +68,40 @@ class _HtmlEditorState extends State<HtmlEditor> {
       _handleListFormatChange(event);
       _syncToTextController();
       widget.onChanged?.call();
+      if (widget.checkLanguage) _scheduleLanguageCheck();
     });
     // Sync immediately to normalize HTML (e.g., convert soft breaks to <br>)
     _syncToTextController();
+    if (widget.checkLanguage) _scheduleLanguageCheck();
+  }
+
+  void _scheduleLanguageCheck() {
+    _langCheckTimer?.cancel();
+    _langCheckTimer = Timer(_langCheckDebounce, _runLanguageCheck);
+  }
+
+  Future<void> _runLanguageCheck() async {
+    final text = _quillController.document.toPlainText().trim();
+    final token = ++_langCheckToken;
+
+    if (text.length < GemmaLanguageChecker.minChars) {
+      if (mounted) {
+        setState(() {
+          _langChecking = false;
+          _langResult = LangCheckResult.unknown;
+        });
+      }
+      return;
+    }
+
+    if (mounted) setState(() => _langChecking = true);
+    final result = await GemmaLanguageChecker.instance.isPolish(text);
+    // Ignore if a newer check was scheduled or the widget is gone.
+    if (!mounted || token != _langCheckToken) return;
+    setState(() {
+      _langChecking = false;
+      _langResult = result;
+    });
   }
 
   /// When list formatting is applied to a line that contains soft line breaks
@@ -185,6 +231,7 @@ class _HtmlEditorState extends State<HtmlEditor> {
 
   @override
   void dispose() {
+    _langCheckTimer?.cancel();
     _quillController.dispose();
     _scrollController.dispose();
     _focusNode.dispose();
@@ -291,6 +338,7 @@ class _HtmlEditorState extends State<HtmlEditor> {
                 const SizedBox(height: Dimen.defMarg),
               ],
               _buildEditorOrDebugView(context),
+              if (widget.checkLanguage) _buildLanguageWarning(context),
               if (widget.showDebugButtons) ...[
                 const SizedBox(height: Dimen.defMarg),
                 _buildDebugButtons(context),
@@ -299,6 +347,56 @@ class _HtmlEditorState extends State<HtmlEditor> {
           ),
         ),
       );
+
+  Widget _buildLanguageWarning(BuildContext context) {
+    if (_langChecking) {
+      return Padding(
+        padding: EdgeInsets.only(top: Dimen.defMarg),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 14,
+              height: 14,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: hintEnab_(context),
+              ),
+            ),
+            const SizedBox(width: Dimen.defMarg),
+            Text(
+              'Sprawdzanie języka…',
+              style: AppTextStyle(
+                fontSize: Dimen.textSizeSmall,
+                color: hintEnab_(context),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_langResult != LangCheckResult.notPolish) return const SizedBox.shrink();
+
+    return Padding(
+      padding: EdgeInsets.only(top: Dimen.defMarg),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(MdiIcons.alertOutline, size: 18, color: Colors.orange),
+          const SizedBox(width: Dimen.defMarg),
+          Expanded(
+            child: Text(
+              'Ten tekst nie wygląda na napisany po polsku.',
+              style: AppTextStyle(
+                fontSize: Dimen.textSizeSmall,
+                color: Colors.orange,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildEditorOrDebugView(BuildContext context) {
     switch (_debugViewMode) {

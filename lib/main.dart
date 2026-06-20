@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gemma/flutter_gemma.dart';
+import 'package:flutter_gemma_mediapipe/flutter_gemma_mediapipe.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
@@ -43,6 +45,14 @@ void main() async {
   HarcappShare.register((url, {subject}) =>
       SharePlus.instance.share(ShareParams(uri: Uri.parse(url), subject: subject)));
   initLogger();
+  // On-device LLM used to check whether texts are written in Polish.
+  // Registers the MediaPipe (.task) engine; the model itself is downloaded
+  // lazily on first use. The HuggingFace token (for the gated Gemma model) is
+  // passed via --dart-define=HUGGINGFACE_TOKEN=hf_xxx.
+  await FlutterGemma.initialize(
+    inferenceEngines: const [MediaPipeEngine()],
+    huggingFaceToken: const String.fromEnvironment('HUGGINGFACE_TOKEN'),
+  );
   await initFirebase();
   await IDB.init();
   await initArticles();

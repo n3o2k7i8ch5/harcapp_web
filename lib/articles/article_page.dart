@@ -20,7 +20,7 @@ import 'package:harcapp_core/harcthought/harcapp_share_button.dart';
 import 'package:harcapp_core/tag/tag.dart';
 import 'package:harcapp_core/tag/tags_widget.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
 import '../router.dart';
 import 'article_loader.dart';

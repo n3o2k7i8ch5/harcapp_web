@@ -27,7 +27,7 @@ import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/common/page_width_bar.dart';
 import 'package:harcapp_web/consts.dart';
 import 'package:harcapp_web/router.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
 int _initialIndexFor(List<ApelEwanPersistentFolder> folders, String? slug) {
   if (slug == null) return 0;
