@@ -43,6 +43,24 @@ void main() {
       );
     });
 
+    test('ignores a <think> reasoning block (Qwen3-style)', () {
+      // The think block contains both words; only the answer after it counts.
+      expect(
+        OnDeviceTextChecker.parseYesNo(
+            '<think>czy TAK czy NIE? chyba nie po polsku</think> NIE'),
+        isFalse,
+      );
+      expect(
+        OnDeviceTextChecker.parseYesNo('<think>hmm NIE... a może</think>\nTAK'),
+        isTrue,
+      );
+      // Unterminated think (reasoning cut off) → no real answer → null.
+      expect(
+        OnDeviceTextChecker.parseYesNo('<think>zastanawiam się czy TAK'),
+        isNull,
+      );
+    });
+
     test('neither word → null', () {
       expect(OnDeviceTextChecker.parseYesNo('być może'), isNull);
     });
@@ -53,12 +71,31 @@ void main() {
     });
   });
 
-  group('interpretPolish', () {
-    test('maps yes/no/unknown', () {
-      expect(OnDeviceTextChecker.interpretPolish('TAK'), LangCheckResult.polish);
-      expect(OnDeviceTextChecker.interpretPolish('NIE'), LangCheckResult.notPolish);
+  group('interpretPolish (language name → result)', () {
+    test('Polish names → polish', () {
+      expect(OnDeviceTextChecker.interpretPolish('polski'), LangCheckResult.polish);
+      expect(OnDeviceTextChecker.interpretPolish('Język: polski'), LangCheckResult.polish);
+      expect(OnDeviceTextChecker.interpretPolish('Polish'), LangCheckResult.polish);
+    });
+    test('other languages → notPolish', () {
+      expect(OnDeviceTextChecker.interpretPolish('angielski'), LangCheckResult.notPolish);
+      expect(OnDeviceTextChecker.interpretPolish('niemiecki'), LangCheckResult.notPolish);
+      expect(OnDeviceTextChecker.interpretPolish('hiszpański'), LangCheckResult.notPolish);
+    });
+    test('empty / null → unknown', () {
       expect(OnDeviceTextChecker.interpretPolish(''), LangCheckResult.unknown);
+      expect(OnDeviceTextChecker.interpretPolish('   '), LangCheckResult.unknown);
       expect(OnDeviceTextChecker.interpretPolish(null), LangCheckResult.unknown);
+    });
+    test('ignores a <think> block before the answer', () {
+      expect(
+        OnDeviceTextChecker.interpretPolish('<think>hmm to chyba polski</think> angielski'),
+        LangCheckResult.notPolish,
+      );
+      expect(
+        OnDeviceTextChecker.interpretPolish('<think>english? no</think>\npolski'),
+        LangCheckResult.polish,
+      );
     });
   });
 
@@ -78,10 +115,11 @@ void main() {
       expect(narrationPrompt(text), contains(text));
     });
 
-    test('end with the "Odpowiedź:" cue (so greedy decoding emits TAK/NIE, '
-        'not an empty turn)', () {
+    test('end with a cue so greedy decoding emits the answer, not an empty turn',
+        () {
+      // Language prompt asks for the language name; narration asks TAK/NIE.
       expect(OnDeviceTextChecker.polishPrompt('abc').trimRight(),
-          endsWith('Odpowiedź:'));
+          endsWith('Język:'));
       expect(narrationPrompt('abc').trimRight(), endsWith('Odpowiedź:'));
     });
 

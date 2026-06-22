@@ -166,26 +166,43 @@ class OnDeviceTextChecker {
 
   // ===== Pure prompt builder + interpreters (unit-testable) =====
 
+  // Language check: ask the model to NAME the language (with few-shot), not a
+  // yes/no "is it Polish?". The yes/no framing made small models almost always
+  // answer "TAK" (~67% acc); naming the language is near-perfect (Gemma 3 1B
+  // and Qwen3-1.7B both 100% on the eval set).
   @visibleForTesting
   static String polishPrompt(String text) =>
-      'Czy poniższy tekst jest napisany po polsku? '
-      'Odpowiadaj tylko jednym słowem: TAK albo NIE.\n\n'
-      'Przykłady:\n'
-      'Tekst: „Prowadzący wita zbiórkę i przedstawia plan."\n'
-      'Odpowiedź: TAK\n'
-      'Tekst: „The leader greets the troop and explains the plan."\n'
-      'Odpowiedź: NIE\n'
-      'Tekst: „Der Leiter begrüßt die Gruppe und erklärt den Plan."\n'
-      'Odpowiedź: NIE\n\n'
-      'Tekst: „$text"\n'
-      'Odpowiedź:';
+      'Określ język poniższego tekstu. Odpowiedz tylko jednym słowem — nazwą języka.\n\n'
+      'Tekst: „The leader greets the troop."\nJęzyk: angielski\n'
+      'Tekst: „Der Leiter begrüßt die Gruppe."\nJęzyk: niemiecki\n'
+      'Tekst: „Prowadzący wita zbiórkę."\nJęzyk: polski\n\n'
+      'Tekst: „$text"\nJęzyk:';
 
-  /// Maps a raw model response to a [LangCheckResult].
+  /// Maps the model's "name the language" answer to a [LangCheckResult]:
+  /// mentions Polish → polish; any other named language → notPolish; empty →
+  /// unknown.
   @visibleForTesting
   static LangCheckResult interpretPolish(String? raw) {
-    final yn = parseYesNo(raw);
-    if (yn == null) return LangCheckResult.unknown;
-    return yn ? LangCheckResult.polish : LangCheckResult.notPolish;
+    if (raw == null) return LangCheckResult.unknown;
+    final low = _withoutThink(raw).toLowerCase();
+    if (low.contains('polsk') || low.contains('polish')) {
+      return LangCheckResult.polish;
+    }
+    // A named (non-Polish) language → notPolish; nothing usable → unknown.
+    return RegExp(r'[a-ząćęłńóśżź]').hasMatch(low)
+        ? LangCheckResult.notPolish
+        : LangCheckResult.unknown;
+  }
+
+  /// Strips a reasoning model's <think>…</think> block (Qwen3 etc.), including
+  /// an unterminated one (reasoning cut off mid-way), so its musings can't be
+  /// mistaken for the answer.
+  static String _withoutThink(String raw) {
+    var text = raw.replaceAll(
+        RegExp(r'<think>.*?</think>', dotAll: true, caseSensitive: false), '');
+    final open = text.toLowerCase().indexOf('<think>');
+    if (open != -1) text = text.substring(0, open);
+    return text;
   }
 
   /// Parses a yes/no model response: true for "TAK", false for "NIE". Uses the
@@ -195,7 +212,7 @@ class OnDeviceTextChecker {
   /// void the answer. Returns null only if neither word appears (or input null).
   static bool? parseYesNo(String? raw) {
     if (raw == null) return null;
-    final upper = raw.toUpperCase();
+    final upper = _withoutThink(raw).toUpperCase();
     final yes = RegExp(r'\bTAK\b').firstMatch(upper)?.start;
     final no = RegExp(r'\bNIE\b').firstMatch(upper)?.start;
     if (yes == null && no == null) return null;
