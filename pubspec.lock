@@ -73,14 +73,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
-  background_downloader:
-    dependency: transitive
-    description:
-      name: background_downloader
-      sha256: aceacec2b2a72ec3a8862ab5895fcbbc71ab33765f3619d57963f3110dd268e3
-      url: "https://pub.dev"
-    source: hosted
-    version: "9.5.5"
   barcode:
     dependency: transitive
     description:
@@ -494,20 +486,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
-  flutter_gemma:
-    dependency: "direct main"
-    description:
-      path: "third_party/flutter_gemma"
-      relative: true
-    source: path
-    version: "1.0.1"
-  flutter_gemma_mediapipe:
-    dependency: "direct main"
-    description:
-      path: "third_party/flutter_gemma_mediapipe"
-      relative: true
-    source: path
-    version: "1.0.1"
   flutter_inappwebview:
     dependency: transitive
     description:
@@ -947,14 +925,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.4.16"
-  large_file_handler:
-    dependency: transitive
-    description:
-      name: large_file_handler
-      sha256: "234eda71f32b6a772349299d0ed185a5f3e10c59235576fd178f4d720dd956ec"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.5.0"
   leak_tracker:
     dependency: transitive
     description:
@@ -1051,14 +1021,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
-  mutex:
-    dependency: transitive
-    description:
-      name: mutex
-      sha256: "8827da25de792088eb33e572115a5eb0d61d61a3c01acbc8bcbe76ed78f1a1f2"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.1.0"
   native_device_orientation:
     dependency: transitive
     description:

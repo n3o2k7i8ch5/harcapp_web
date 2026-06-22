@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gemma/flutter_gemma.dart';
-import 'package:flutter_gemma_mediapipe/flutter_gemma_mediapipe.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
@@ -15,8 +13,6 @@ import 'package:harcapp_core/song_book/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_editor_app.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_web/_common_classes/firebase.dart';
-import 'package:harcapp_web/konspekt_workspace/content_check/on_device_text_checker.dart';
-import 'package:harcapp_web/common/runtime_config.dart';
 import 'package:harcapp_web/logger.dart';
 import 'package:harcapp_web/router.dart';
 import 'package:harcapp_web/songs/left_panel/provider.dart';
@@ -47,18 +43,9 @@ void main() async {
   HarcappShare.register((url, {subject}) =>
       SharePlus.instance.share(ShareParams(uri: Uri.parse(url), subject: subject)));
   initLogger();
-  // On-device LLM used to check texts (language / konspekt narration style).
-  // Registers the MediaPipe (.task) engine; the model itself is downloaded
-  // lazily on first use. The HuggingFace token (for the gated Gemma model) is
-  // loaded at runtime from web/config.json (so it works regardless of how the
-  // app is launched); OnDeviceTextChecker falls back to --dart-define on its own.
-  await RuntimeConfig.load();
-  final hfToken = RuntimeConfig.getString('HUGGINGFACE_TOKEN');
-  OnDeviceTextChecker.instance.runtimeToken = hfToken;
-  await FlutterGemma.initialize(
-    inferenceEngines: const [MediaPipeEngine()],
-    huggingFaceToken: hfToken,
-  );
+  // On-device content checks (language / konspekt narration) run via WebLLM in
+  // the browser — the model (Qwen3-1.7B, ungated) is downloaded lazily on first
+  // use. No init or token needed here.
   await initFirebase();
   await IDB.init();
   await initArticles();

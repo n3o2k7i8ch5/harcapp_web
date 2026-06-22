@@ -35,20 +35,18 @@
   <title>HarcApp Web</title>
   <link rel="manifest" href="manifest.json">
 
-  <!-- flutter_gemma_mediapipe: load the MediaPipe GenAI runtime from CDN and
-       expose its symbols on `window` so the on-device LLM (Polish-language
-       check) can run in the browser. -->
+  <!-- WebLLM: in-browser LLM inference engine (WebGPU). Used for the on-device
+       content checks (language / narration). Loaded as an ES module from a CDN;
+       module scripts are deferred, so we expose a readiness promise that Dart
+       awaits before touching `window.webllm`. No HuggingFace token needed —
+       models (e.g. Qwen3-1.7B) are ungated MLC builds. -->
   <script type="module">
-    import { FilesetResolver, LlmInference } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-genai@0.10.27';
-    window.FilesetResolver = FilesetResolver;
-    window.LlmInference = LlmInference;
+    window.webLlmReady = (async () => {
+      const m = await import('https://esm.run/@mlc-ai/web-llm');
+      window.webllm = m;
+      return true;
+    })();
   </script>
-
-  <!-- flutter_gemma Cache API bridge: defines window.cacheHas / cacheGetBlobUrl
-       / cachePut / … used by the package to cache the (~700 MB) model so it is
-       not re-downloaded on every load. Must be a classic (non-module) script so
-       the globals exist before main.dart.js runs. -->
-  <script src="cache_api.js"></script>
 </head>
 <body>
   <!-- This script installs service_worker.js to provide PWA functionality to

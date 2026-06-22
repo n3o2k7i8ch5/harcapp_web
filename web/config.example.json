@@ -1,5 +1,0 @@
-{
-  "//": "Skopiuj do web/config.json i wstaw własne wartości. web/config.json jest w .gitignore.",
-  "//HUGGINGFACE_TOKEN": "Token HuggingFace (Read) do bramkowanego modelu Gemma. Wygeneruj na https://huggingface.co/settings/tokens i zaakceptuj licencję na https://huggingface.co/litert-community/Gemma3-1B-IT",
-  "HUGGINGFACE_TOKEN": "hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-}

@@ -99,12 +99,25 @@ void main() {
     });
   });
 
-  group('interpretNarration (konspekt domain)', () {
-    test('maps yes/no/unknown', () {
-      expect(interpretNarration('TAK'), NarrationCheckResult.rolesBased);
-      expect(interpretNarration('NIE'), NarrationCheckResult.personalForm);
+  group('interpretNarration (grammatical person → result)', () {
+    test('third person → rolesBased', () {
+      expect(interpretNarration('trzecia'), NarrationCheckResult.rolesBased);
+      expect(interpretNarration('Osoba: trzecia'), NarrationCheckResult.rolesBased);
+    });
+    test('first/second person plural → personalForm', () {
+      expect(interpretNarration('pierwsza'), NarrationCheckResult.personalForm);
+      expect(interpretNarration('druga'), NarrationCheckResult.personalForm);
+    });
+    test('empty / null / unknown word → unknown', () {
       expect(interpretNarration(''), NarrationCheckResult.unknown);
       expect(interpretNarration(null), NarrationCheckResult.unknown);
+      expect(interpretNarration('nie wiem'), NarrationCheckResult.unknown);
+    });
+    test('ignores a <think> block before the answer', () {
+      expect(
+        interpretNarration('<think>pierwsza? nie...</think> trzecia'),
+        NarrationCheckResult.rolesBased,
+      );
     });
   });
 
@@ -117,10 +130,10 @@ void main() {
 
     test('end with a cue so greedy decoding emits the answer, not an empty turn',
         () {
-      // Language prompt asks for the language name; narration asks TAK/NIE.
+      // Both ask the model to NAME something (language / grammatical person).
       expect(OnDeviceTextChecker.polishPrompt('abc').trimRight(),
           endsWith('Język:'));
-      expect(narrationPrompt('abc').trimRight(), endsWith('Odpowiedź:'));
+      expect(narrationPrompt('abc').trimRight(), endsWith('Osoba:'));
     });
 
     test('narration prompt names both roles and the discouraged forms', () {

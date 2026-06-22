@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_gemma/flutter_gemma.dart';
+import 'package:harcapp_web/konspekt_workspace/content_check/webllm.dart';
 
 /// Outcome of a Polish-language check on a piece of text.
 enum LangCheckResult {
@@ -13,112 +13,58 @@ enum LangCheckResult {
   unknown,
 }
 
-/// On-device (in-browser, via flutter_gemma + MediaPipe/WebGPU) yes/no text
-/// checker backed by a small Gemma model.
+/// On-device (in-browser, WebGPU via WebLLM) yes/no text checker.
 ///
-/// This is the generic engine: it owns the model lifecycle and runs a prompt to
-/// a TAK/NIE answer ([ask] / [parseYesNo]). The only built-in check is the
-/// domain-agnostic [isPolish]; domain-specific checks (e.g. konspekt narration
-/// style) live in their own layer and call [ask] with their own prompt.
+/// Generic engine: owns the model lifecycle and runs a prompt to a TAK/NIE
+/// answer ([ask] / [parseYesNo]). Built-in [isPolish] is domain-agnostic;
+/// domain-specific checks (e.g. konspekt narration) live in their own layer and
+/// call [ask] with their own prompt.
 ///
-/// The Gemma `.task` model (~700 MB) is NOT downloaded automatically — call
-/// [prepare] (e.g. after the user confirms the download) first. Once loaded it
-/// is kept in memory; all checks are serialized (the session is single-lane).
+/// The model (Qwen3-1.7B, an ungated MLC build — NO HuggingFace token) is
+/// downloaded on the first [prepare] and kept in memory. Checks are serialized.
 class OnDeviceTextChecker {
   OnDeviceTextChecker._();
   static final OnDeviceTextChecker instance = OnDeviceTextChecker._();
 
-  /// Web-optimised Gemma 3 1B IT `.task` model (int4).
-  static const String _modelUrl =
-      'https://huggingface.co/litert-community/Gemma3-1B-IT/resolve/main/gemma3-1b-it-int4-web.task';
-
-  /// HuggingFace access token for the gated Gemma model, provided at compile
-  /// time with `--dart-define=HUGGINGFACE_TOKEN=hf_xxx`. Used as a fallback when
-  /// [runtimeToken] is not set.
-  static const String _hfToken = String.fromEnvironment('HUGGINGFACE_TOKEN');
-
-  /// HuggingFace token loaded at runtime (e.g. from `web/config.json`). When
-  /// set, it takes precedence over the compile-time [_hfToken]. Assign during
-  /// app startup before the first check.
-  String? runtimeToken;
-
-  /// Effective token to use for the (gated) download, or null if none.
-  String? get _token {
-    if (runtimeToken != null && runtimeToken!.isNotEmpty) return runtimeToken;
-    return _hfToken.isEmpty ? null : _hfToken;
-  }
-
-  /// Approximate on-disk/download size of the model, in bytes.
-  static const int modelSizeBytes = 700383232;
+  /// WebLLM prebuilt model id. Qwen3-1.7B: ungated (no token needed), strong
+  /// enough for both checks. Swap for another MLC id to trade size for quality.
+  static const String _modelId = 'Qwen3-1.7B-q4f16_1-MLC';
 
   /// Human-readable model size, e.g. for a download-confirmation dialog.
-  static String get modelSizeLabel =>
-      '${(modelSizeBytes / (1024 * 1024)).round()} MB';
+  static const String modelSizeLabel = '~1.1 GB';
 
   /// Minimum number of (plain-text) characters before a check is worthwhile.
   static const int minChars = 12;
 
-  /// Filename used by flutter_gemma to track the installed model.
-  static String get _modelFilename => Uri.parse(_modelUrl).pathSegments.last;
+  Future<bool>? _loading;
 
-  InferenceModel? _model;
-  Future<InferenceModel?>? _loading;
-
-  /// A single reused inference session. On MediaPipe web, createSession is
-  /// idempotent per model (returns a cached session) and closing it kills the
-  /// underlying LlmInference, so we create ONE session and reuse it for every
-  /// check (clearing its query buffer between prompts) rather than per-check
-  /// create+close.
-  InferenceModelSession? _session;
-
-  /// Serializes inference calls — sessions are single-lane.
+  /// Serializes inference calls — one at a time.
   Future<void> _queue = Future.value();
 
-  /// Whether the model is loaded in memory and ready to run checks now.
-  bool get isReady => _model != null;
+  /// Whether the model is loaded and ready to run checks now.
+  bool get isReady => WebLlm.instance.isReady;
 
-  /// Whether the model file is already downloaded/cached, so triggering a check
-  /// would NOT require the big (~700 MB) download. Loaded-in-memory counts too.
+  /// Whether the model is already cached in the browser, so a check won't
+  /// trigger the (~1 GB) download. Loaded-in-memory counts too.
   Future<bool> isDownloaded() async {
-    if (_model != null) return true;
-    try {
-      return await FlutterGemma.isModelInstalled(_modelFilename);
-    } catch (_) {
-      return false;
-    }
+    if (WebLlm.instance.isReady) return true;
+    return WebLlm.instance.hasModelInCache(_modelId);
   }
 
   /// Downloads (if needed) and loads the model, reporting download progress as
-  /// a percentage 0..100 via [onProgress]. Returns true once the model is ready.
-  ///
-  /// Each call is a fresh attempt: a previous failure (e.g. a transient network
-  /// error) does NOT permanently disable the feature — the user can retry.
-  Future<bool> prepare({void Function(int percent)? onProgress}) async {
-    if (_model != null) return true;
-    final model = await (_loading ??= _load(onProgress: onProgress));
-    return model != null;
+  /// a percentage 0..100 via [onProgress]. Returns true once ready. Each call is
+  /// a fresh attempt — a previous failure does not permanently disable retry.
+  Future<bool> prepare({void Function(int percent)? onProgress}) {
+    if (WebLlm.instance.isReady) return Future.value(true);
+    return _loading ??= _load(onProgress: onProgress);
   }
 
-  Future<InferenceModel?> _load({void Function(int percent)? onProgress}) async {
+  Future<bool> _load({void Function(int percent)? onProgress}) async {
     try {
-      await FlutterGemma.installModel(
-        modelType: ModelType.gemmaIt,
-        fileType: ModelFileType.task,
-      )
-          .fromNetwork(_modelUrl, token: _token)
-          .withProgress((p) => onProgress?.call(p))
-          .install();
-
-      _model = await FlutterGemma.getActiveModel(
-        maxTokens: 1024,
-        preferredBackend: PreferredBackend.gpu,
+      return await WebLlm.instance.load(
+        _modelId,
+        onProgress: (p, _) => onProgress?.call((p * 100).round()),
       );
-      return _model;
-    } catch (e, st) {
-      if (kDebugMode) {
-        debugPrint('OnDeviceTextChecker: model load failed: $e\n$st');
-      }
-      return null;
     } finally {
       _loading = null;
     }
@@ -130,38 +76,20 @@ class OnDeviceTextChecker {
   Future<LangCheckResult> isPolish(String text) async =>
       interpretPolish(await ask(text, polishPrompt));
 
-  /// Runs a Gemma check on [text] using [buildPrompt] and returns the raw model
-  /// response, or null if the model is not ready / text is too short / on error.
-  /// Calls are serialized so only one inference runs at a time. Domain-specific
-  /// checks build their own prompt and interpret the raw answer with [parseYesNo].
+  /// Runs a check on [text] using [buildPrompt]; returns the raw model response,
+  /// or null if the model is not ready / text is too short / on error. Calls are
+  /// serialized. Domain checks build their own prompt + interpret with [parseYesNo].
   Future<String?> ask(String text, String Function(String) buildPrompt) {
     final trimmed = text.trim();
     if (trimmed.length < minChars) return Future.value(null);
-    if (_model == null) return Future.value(null);
+    if (!WebLlm.instance.isReady) return Future.value(null);
 
-    final result = _queue.then((_) => _run(buildPrompt(trimmed)));
+    // Thinking stays ON (the model reasons in a <think> block, which the
+    // interpreters strip); generation is uncapped so the answer follows.
+    final result = _queue.then((_) => WebLlm.instance.chat(buildPrompt(trimmed)));
     // Keep the queue alive regardless of this call's success/failure.
     _queue = result.then((_) {}, onError: (_) {});
     return result;
-  }
-
-  Future<String?> _run(String prompt) async {
-    final model = _model;
-    if (model == null) return null;
-
-    try {
-      final session = _session ??=
-          await model.createSession(temperature: 0.1, topK: 1);
-      // Reuse one session: clear any prior prompt so this check is independent.
-      await session.clearQueryChunks();
-      await session.addQueryChunk(Message.text(text: prompt, isUser: true));
-      return await session.getResponse();
-    } catch (e) {
-      if (kDebugMode) debugPrint('OnDeviceTextChecker: inference failed: $e');
-      // Session may be in a bad state — drop it so the next call recreates.
-      _session = null;
-      return null;
-    }
   }
 
   // ===== Pure prompt builder + interpreters (unit-testable) =====
@@ -199,8 +127,10 @@ class OnDeviceTextChecker {
   /// mistaken for the answer.
   static String _withoutThink(String raw) {
     var text = raw.replaceAll(
-        RegExp(r'<think>.*?</think>', dotAll: true, caseSensitive: false), '');
-    final open = text.toLowerCase().indexOf('<think>');
+        RegExp(r'<think(?:ing)?>.*?</think(?:ing)?>',
+            dotAll: true, caseSensitive: false),
+        '');
+    final open = text.toLowerCase().indexOf('<think');
     if (open != -1) text = text.substring(0, open);
     return text;
   }

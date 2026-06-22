@@ -6,22 +6,22 @@ import 'package:harcapp_web/konspekt_workspace/content_check/narration_check.dar
 import 'package:harcapp_web/konspekt_workspace/content_check/on_device_text_checker.dart';
 
 // LLM-backed eval of the REAL prompts + parsing against a labelled dataset,
-// using a local Ollama running Gemma 3 1B (matches the production web model) — so it runs as a NORMAL `flutter
+// using a local Ollama running Qwen3-1.7B (matches the production WebLLM model) — so it runs as a NORMAL `flutter
 // test` (VM + HTTP to localhost), no browser / WebGPU / chromedriver.
 //
 // Setup once:
 //   brew install ollama && ollama serve &   # (or: brew services start ollama)
-//   ollama pull gemma3:1b
+//   ollama pull qwen3:1.7b
 //
 // Then: flutter test test/content_check_model_eval_test.dart
 //
-// NOTE: this runs Gemma 3 1B via Ollama (a different quantization than the web
+// NOTE: this runs Qwen3-1.7B via Ollama (a different runtime/quant than the in-browser WebLLM
 // `-int4-web.task` MediaPipe build the app ships), so it's representative of
 // prompt quality, not a byte-exact replica of production. Skips if Ollama isn't
 // running.
 
 const _ollama = 'http://localhost:11434';
-const _model = 'gemma3:1b';
+const _model = 'qwen3:1.7b';
 
 /// One labelled scenario = input text + the GROUND-TRUTH answer we expect the
 /// model to return. A null expectation means "don't run that check for this
@@ -48,9 +48,12 @@ const _cases = <_Case>[
   _Case('Prowadzący czyta zagadkę, uczestnicy zgłaszają się z odpowiedziami.',
       expectedLang: LangCheckResult.polish,
       expectedNarration: NarrationCheckResult.rolesBased),
+  _Case('Prowadzący dzieli uczestników na grupy.',
+      expectedLang: LangCheckResult.polish,
+      expectedNarration: NarrationCheckResult.rolesBased),
 
-  // Polish but "we/you" forms ("robimy"/"dzielimy się"/"podzielcie") →
-  // language=polish, narration should be flagged as personalForm.
+  // Polish but "we/you" forms ("robimy"/"dzielimy się"/"dzielmy"/"podzielcie")
+  // → language=polish, narration should be flagged as personalForm.
   _Case('Robimy krótką rozgrzewkę, a potem wprowadzamy zasady gry terenowej.',
       expectedLang: LangCheckResult.polish,
       expectedNarration: NarrationCheckResult.personalForm),
@@ -58,6 +61,12 @@ const _cases = <_Case>[
       expectedLang: LangCheckResult.polish,
       expectedNarration: NarrationCheckResult.personalForm),
   _Case('Podzielcie się na grupy i wymyślcie okrzyk, potem go zaprezentujcie.',
+      expectedLang: LangCheckResult.polish,
+      expectedNarration: NarrationCheckResult.personalForm),
+  _Case('Dzielmy uczestników na grupy.',
+      expectedLang: LangCheckResult.polish,
+      expectedNarration: NarrationCheckResult.personalForm),
+  _Case('Dzielmy harcerzy na grupy.',
       expectedLang: LangCheckResult.polish,
       expectedNarration: NarrationCheckResult.personalForm),
 
@@ -92,6 +101,9 @@ Future<String?> _ask(String prompt) async {
         {'role': 'user', 'content': prompt}
       ],
       'stream': false,
+      // Qwen3 is a reasoning model — disable its <think> step (matches the app,
+      // which sends "/no_think"); otherwise Ollama returns empty content.
+      'think': false,
       'options': {'temperature': 0.1, 'top_k': 1, 'num_predict': 16},
     }),
   );
@@ -101,7 +113,7 @@ Future<String?> _ask(String prompt) async {
 
 void main() {
   test('content-check prompts: language + narration accuracy on a labelled '
-      'dataset (real Gemma 3 1B via local Ollama)',
+      'dataset (real Qwen3-1.7B via local Ollama)',
       () async {
     if (!await _ollamaUp()) {
       markTestSkipped('Ollama not running on :11434 — see file header.');
@@ -140,13 +152,14 @@ void main() {
     // ignore: avoid_print
     print(report);
 
-    // Regression floors (Gemma 3 1B via Ollama: ~100% lang with the "name the
-    // language" prompt, ~50% narr). Narration is the harder, fuzzier judgement
-    // — the model stays lenient on "robimy"-style text — hence the low bar.
-    // Raise as prompts/model improve.
+    // Regression floors (Qwen3-1.7B via Ollama): language ~100%, narration
+    // ~67% (6/9). The 1.7B reliably catches clear forms (robimy, podzielcie,
+    // prowadzący/uczestnicy) but MISSES the hortative "Dzielmy…" / "dzielimy
+    // się" without an explicit "my" — reads them as 3rd person. Prompt tuning
+    // only shuffles which case fails (model ceiling); 100% needs a bigger model.
     expect(langAcc, greaterThanOrEqualTo(0.9),
         reason: 'language accuracy regressed below baseline$report');
-    expect(narrAcc, greaterThanOrEqualTo(0.4),
+    expect(narrAcc, greaterThanOrEqualTo(0.6),
         reason: 'narration accuracy regressed below baseline$report');
   }, timeout: const Timeout(Duration(minutes: 4)));
 }

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/foundation.dart';
 import 'package:harcapp_web/konspekt_workspace/content_check/on_device_text_checker.dart';
 
@@ -22,30 +24,48 @@ enum NarrationCheckResult {
 Future<NarrationCheckResult> checkRoleNarration(String text) async =>
     interpretNarration(await OnDeviceTextChecker.instance.ask(text, narrationPrompt));
 
+// Asks the model to NAME the grammatical person (not a yes/no "is the style ok?"
+// — that made small models always answer TAK). Naming maps cleanly: third
+// person (role-based) = good, first/second person plural = the "we/you" forms we
+// flag. Few-shot examples are deliberately NOT from the eval/test dataset.
 @visibleForTesting
 String narrationPrompt(String text) =>
-    'Oceniasz styl opisu kroku konspektu zbiórki harcerskiej.\n'
-    'Zasada: opis ma mówić KTO wykonuje czynność, używając ról „prowadzący" '
-    'i „uczestnicy" w trzeciej osobie. Formy pierwszej osoby liczby mnogiej '
-    '(„robimy", „dzielimy", „wprowadzamy", „zaczynamy") albo drugiej osoby '
-    '(„zróbcie", „podzielcie") są NIEpoprawne.\n'
-    'Odpowiadaj tylko jednym słowem: TAK (styl poprawny) albo NIE (niepoprawny).\n\n'
-    'Przykłady:\n'
-    'Tekst: „Prowadzący dzieli uczestników na grupy."\n'
-    'Odpowiedź: TAK\n'
-    'Tekst: „Robimy na początku podział uczestników na grupy."\n'
-    'Odpowiedź: NIE\n'
-    'Tekst: „Uczestnicy wykonują zadanie, a prowadzący obserwuje."\n'
-    'Odpowiedź: TAK\n'
-    'Tekst: „Na początku dzielimy się na grupy i zaczynamy grę."\n'
-    'Odpowiedź: NIE\n\n'
-    'Tekst: „$text"\n'
-    'Odpowiedź:';
+    'Określ, w której osobie gramatycznej napisany jest poniższy opis kroku '
+    'konspektu. Odpowiedz tylko jednym słowem: „trzecia", „pierwsza" albo „druga".\n'
+    '- trzecia: mowa o rolach, co robią (prowadzący, uczestnicy) — '
+    '„Prowadzący...", „Uczestnicy..."\n'
+    '- pierwsza: autor pisze o sobie/grupie „my" — czasowniki na -my '
+    '(robimy, idziemy)\n'
+    '- druga: zwrot „wy"/rozkaz — czasowniki na -cie (zróbcie, ustawcie)\n\n'
+    'Tekst: „Prowadzący zapala świecę i opowiada legendę."\nOsoba: trzecia\n'
+    'Tekst: „Najpierw śpiewamy piosenkę, a potem malujemy plakat."\nOsoba: pierwsza\n'
+    'Tekst: „Ustawcie się w kole i policzcie do dziesięciu."\nOsoba: druga\n'
+    'Tekst: „Uczestnicy rysują plakat, a prowadzący rozdaje materiały."\nOsoba: trzecia\n\n'
+    'Tekst: „$text"\nOsoba:';
 
-/// Maps a raw model response to a [NarrationCheckResult].
+/// Maps the model's "name the grammatical person" answer: third person →
+/// rolesBased (good); first/second person plural → personalForm; else unknown.
 @visibleForTesting
 NarrationCheckResult interpretNarration(String? raw) {
-  final yn = OnDeviceTextChecker.parseYesNo(raw);
-  if (yn == null) return NarrationCheckResult.unknown;
-  return yn ? NarrationCheckResult.rolesBased : NarrationCheckResult.personalForm;
+  if (raw == null) return NarrationCheckResult.unknown;
+  // Strip a reasoning block (Qwen3 <think>…</think>, incl. an unterminated one)
+  // so musings can't be mistaken for the answer.
+  var text = raw.replaceAll(
+      RegExp(r'<think(?:ing)?>.*?</think(?:ing)?>',
+          dotAll: true, caseSensitive: false),
+      '');
+  final open = text.toLowerCase().indexOf('<think');
+  if (open != -1) text = text.substring(0, open);
+  final low = text.toLowerCase();
+
+  // A model may weigh options aloud ("to nie pierwsza, lecz trzecia"); the FINAL
+  // answer is the LAST grammatical person it names — take the latest mention.
+  int lastOf(List<String> needles) =>
+      needles.map((n) => low.lastIndexOf(n)).fold(-1, math.max);
+  final roles = lastOf(['trzec', 'third']); // third person → role-based (good)
+  final personal = lastOf(['pierw', 'drug', 'first', 'second']);
+  if (roles < 0 && personal < 0) return NarrationCheckResult.unknown;
+  return roles >= personal
+      ? NarrationCheckResult.rolesBased
+      : NarrationCheckResult.personalForm;
 }

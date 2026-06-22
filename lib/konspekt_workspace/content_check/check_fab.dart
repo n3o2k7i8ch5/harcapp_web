@@ -8,12 +8,16 @@ import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/konspekt_workspace/content_check/on_device_text_checker.dart';
 import 'package:harcapp_web/konspekt_workspace/content_check/narration_check.dart';
 import 'package:harcapp_web/konspekt_workspace/content_check/check_controller.dart';
+import 'package:harcapp_web/konspekt_workspace/content_check/webllm.dart';
 
 /// Single global "check correctness" floating action button. Triggers the
 /// on-device checks across all konspekt fields via [KonspektCheckController]
 /// (downloading the model on first use), then shows a summary dialog. Reflects
 /// download / checking state. [buildTargets] supplies the fields to check.
-class KonspektCheckFab extends StatelessWidget {
+///
+/// Hidden entirely when the browser has no WebGPU (the on-device model can't
+/// run there) — checked once on init.
+class KonspektCheckFab extends StatefulWidget {
   final KonspektCheckController controller;
   final List<CheckTarget> Function() buildTargets;
 
@@ -22,6 +26,22 @@ class KonspektCheckFab extends StatelessWidget {
     required this.controller,
     required this.buildTargets,
   });
+
+  @override
+  State<KonspektCheckFab> createState() => _KonspektCheckFabState();
+}
+
+class _KonspektCheckFabState extends State<KonspektCheckFab> {
+  // null = still checking WebGPU; false = unsupported (hide FAB); true = show.
+  bool? _supported;
+
+  @override
+  void initState() {
+    super.initState();
+    WebLlm.instance.isSupported().then((s) {
+      if (mounted) setState(() => _supported = s);
+    });
+  }
 
   Future<bool> _confirmDownload(BuildContext context) async {
     final confirmed = await showDialog<bool>(
@@ -58,8 +78,8 @@ class KonspektCheckFab extends StatelessWidget {
   }
 
   Future<void> _onTap(BuildContext context) async {
-    final result = await controller.run(
-      targets: buildTargets(),
+    final result = await widget.controller.run(
+      targets: widget.buildTargets(),
       confirmDownload: () => _confirmDownload(context),
     );
     if (!context.mounted) return;
@@ -104,9 +124,13 @@ class KonspektCheckFab extends StatelessWidget {
       );
 
   @override
-  Widget build(BuildContext context) => ListenableBuilder(
-        listenable: controller,
+  Widget build(BuildContext context) {
+    // No WebGPU (or still checking) → no FAB at all.
+    if (_supported != true) return const SizedBox.shrink();
+    return ListenableBuilder(
+        listenable: widget.controller,
         builder: (context, _) {
+          final controller = widget.controller;
           if (controller.downloading) {
             final pct = controller.downloadProgress == null
                 ? null
@@ -149,6 +173,7 @@ class KonspektCheckFab extends StatelessWidget {
           );
         },
       );
+  }
 
   Widget _spinner(BuildContext context, {double? value}) => SizedBox(
         width: 18,
