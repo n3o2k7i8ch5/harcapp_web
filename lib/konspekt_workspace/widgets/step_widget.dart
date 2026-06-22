@@ -126,7 +126,6 @@ class StepWidgetState extends State<StepWidget> {
           placeholder: 'Opis kroku ${widget.index+1}: (np.: "Prowadzący pyta uczestników...", "Uczestnicy rozpoczynają grę w...")',
           attachments: widget.attachments,
           onChanged: widget.onChanged,
-          checkLanguage: true,
         ),
 
         if (onRemove != null) ...[

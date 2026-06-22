@@ -43,6 +43,12 @@
     window.FilesetResolver = FilesetResolver;
     window.LlmInference = LlmInference;
   </script>
+
+  <!-- flutter_gemma Cache API bridge: defines window.cacheHas / cacheGetBlobUrl
+       / cachePut / … used by the package to cache the (~700 MB) model so it is
+       not re-downloaded on every load. Must be a classic (non-module) script so
+       the globals exist before main.dart.js runs. -->
+  <script src="cache_api.js"></script>
 </head>
 <body>
   <!-- This script installs service_worker.js to provide PWA functionality to

@@ -39,6 +39,9 @@ import 'package:harcapp_web/konspekt_workspace/widgets/materials_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/select_time_button.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/spheres_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/steps_widget.dart';
+import 'package:harcapp_web/konspekt_workspace/content_check/check_controller.dart';
+import 'package:harcapp_web/konspekt_workspace/content_check/check_fab.dart';
+import 'package:harcapp_web/konspekt_workspace/content_check/html_text.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/bullet_list_editor_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/attachments_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/attachment_embed.dart';
@@ -84,6 +87,26 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
   late final ScrollController _scrollController;
   Timer? _debounceSaveTimer;
   static const _debounceDuration = Duration(seconds: 2);
+
+  // Drives the single global "check correctness" action across all fields.
+  final KonspektCheckController _checkController = KonspektCheckController();
+
+  /// Builds the list of fields to check straight from the konspekt data — the
+  /// single place that says what gets checked. Editors know nothing about it.
+  List<CheckTarget> _buildCheckTargets() {
+    final d = konspektData;
+    final targets = <CheckTarget>[
+      CheckTarget('Wstęp', htmlToPlainText(d.intro), KonspektChecks.intro),
+      CheckTarget('Opis', htmlToPlainText(d.description), KonspektChecks.prose),
+    ];
+    for (var i = 0; i < d.stepsData.length; i++) {
+      final s = d.stepsData[i];
+      final title = s.title.trim();
+      final label = title.isEmpty ? 'Krok ${i + 1}' : 'Krok ${i + 1}: $title';
+      targets.add(CheckTarget(label, htmlToPlainText(s.content), KonspektChecks.prose));
+    }
+    return targets;
+  }
 
   bool _hasDraftContent(KonspektData data) {
     if (data.title.trim().isNotEmpty) return true;
@@ -255,6 +278,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
     }
     _scrollController.removeListener(_handleScrollChanged);
     _scrollController.dispose();
+    _checkController.dispose();
     super.dispose();
   }
 
@@ -265,6 +289,10 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
         builder: (context, child) =>
             BaseScaffold(
                 backgroundColor: cardEnab_(context),
+                floatingActionButton: KonspektCheckFab(
+                  controller: _checkController,
+                  buildTargets: _buildCheckTargets,
+                ),
                 body: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -544,7 +572,6 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                                                   placeholder: 'Wstęp:',
                                                   attachments: konspektData.attachments,
                                                   onChanged: _markUnsaved,
-                                                  checkLanguage: true,
                                                 ),
                                               ),
 
@@ -556,7 +583,6 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                                                   placeholder: 'Opis:',
                                                   attachments: konspektData.attachments,
                                                   onChanged: _markUnsaved,
-                                                  checkLanguage: true,
                                                 ),
                                               ),
 

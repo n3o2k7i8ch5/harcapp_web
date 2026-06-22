@@ -15,6 +15,8 @@ import 'package:harcapp_core/song_book/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_editor_app.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_web/_common_classes/firebase.dart';
+import 'package:harcapp_web/konspekt_workspace/content_check/on_device_text_checker.dart';
+import 'package:harcapp_web/common/runtime_config.dart';
 import 'package:harcapp_web/logger.dart';
 import 'package:harcapp_web/router.dart';
 import 'package:harcapp_web/songs/left_panel/provider.dart';
@@ -45,13 +47,17 @@ void main() async {
   HarcappShare.register((url, {subject}) =>
       SharePlus.instance.share(ShareParams(uri: Uri.parse(url), subject: subject)));
   initLogger();
-  // On-device LLM used to check whether texts are written in Polish.
+  // On-device LLM used to check texts (language / konspekt narration style).
   // Registers the MediaPipe (.task) engine; the model itself is downloaded
   // lazily on first use. The HuggingFace token (for the gated Gemma model) is
-  // passed via --dart-define=HUGGINGFACE_TOKEN=hf_xxx.
+  // loaded at runtime from web/config.json (so it works regardless of how the
+  // app is launched); OnDeviceTextChecker falls back to --dart-define on its own.
+  await RuntimeConfig.load();
+  final hfToken = RuntimeConfig.getString('HUGGINGFACE_TOKEN');
+  OnDeviceTextChecker.instance.runtimeToken = hfToken;
   await FlutterGemma.initialize(
     inferenceEngines: const [MediaPipeEngine()],
-    huggingFaceToken: const String.fromEnvironment('HUGGINGFACE_TOKEN'),
+    huggingFaceToken: hfToken,
   );
   await initFirebase();
   await IDB.init();

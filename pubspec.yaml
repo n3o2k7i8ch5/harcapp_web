@@ -82,7 +82,19 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  integration_test:
+    sdk: flutter
   isolate_manager_generator: ^0.4.1
+
+# Vendored, patched copy of flutter_gemma 1.0.1. Fixes a web bug where
+# WebModelSourceResolver.forActiveModel() read the active model from a fresh,
+# un-initialized WebModelManager (→ "No active inference model set" on the first
+# createSession after install). See third_party/flutter_gemma/PATCH.md.
+dependency_overrides:
+  flutter_gemma:
+    path: third_party/flutter_gemma
+  flutter_gemma_mediapipe:
+    path: third_party/flutter_gemma_mediapipe
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
