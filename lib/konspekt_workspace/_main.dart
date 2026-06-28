@@ -93,6 +93,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
   /// Builds the list of fields to check straight from the konspekt data — the
   /// single place that says what gets checked. Editors know nothing about it.
+  // ignore: unused_element  (used by the temporarily-hidden KonspektCheckFab)
   List<CheckTarget> _buildCheckTargets() {
     final d = konspektData;
     final targets = <CheckTarget>[
@@ -289,10 +290,12 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
         builder: (context, child) =>
             BaseScaffold(
                 backgroundColor: cardEnab_(context),
-                floatingActionButton: KonspektCheckFab(
-                  controller: _checkController,
-                  buildTargets: _buildCheckTargets,
-                ),
+                // TODO: LLM-based konspekt quality check temporarily hidden —
+                // re-enable by restoring KonspektCheckFab here.
+                // floatingActionButton: KonspektCheckFab(
+                //   controller: _checkController,
+                //   buildTargets: _buildCheckTargets,
+                // ),
                 body: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
