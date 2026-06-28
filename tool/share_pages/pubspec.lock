@@ -334,78 +334,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.4.1"
-  flutter_feather_icons:
-    dependency: transitive
-    description:
-      name: flutter_feather_icons
-      sha256: b33b9c276fc8108254632da6644cf01f71af6c17fbfb26e136a86945f5ff9b67
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.0+1"
-  flutter_inappwebview:
-    dependency: transitive
-    description:
-      name: flutter_inappwebview
-      sha256: "80092d13d3e29b6227e25b67973c67c7210bd5e35c4b747ca908e31eb71a46d5"
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.1.5"
-  flutter_inappwebview_android:
-    dependency: transitive
-    description:
-      name: flutter_inappwebview_android
-      sha256: "62557c15a5c2db5d195cb3892aab74fcaec266d7b86d59a6f0027abd672cddba"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.3"
-  flutter_inappwebview_internal_annotations:
-    dependency: transitive
-    description:
-      name: flutter_inappwebview_internal_annotations
-      sha256: e30fba942e3debea7b7e6cdd4f0f59ce89dd403a9865193e3221293b6d1544c6
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.3.0"
-  flutter_inappwebview_ios:
-    dependency: transitive
-    description:
-      name: flutter_inappwebview_ios
-      sha256: "5818cf9b26cf0cbb0f62ff50772217d41ea8d3d9cc00279c45f8aabaa1b4025d"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.2"
-  flutter_inappwebview_macos:
-    dependency: transitive
-    description:
-      name: flutter_inappwebview_macos
-      sha256: c1fbb86af1a3738e3541364d7d1866315ffb0468a1a77e34198c9be571287da1
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.2"
-  flutter_inappwebview_platform_interface:
-    dependency: transitive
-    description:
-      name: flutter_inappwebview_platform_interface
-      sha256: cf5323e194096b6ede7a1ca808c3e0a078e4b33cc3f6338977d75b4024ba2500
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.3.0+1"
-  flutter_inappwebview_web:
-    dependency: transitive
-    description:
-      name: flutter_inappwebview_web
-      sha256: "55f89c83b0a0d3b7893306b3bb545ba4770a4df018204917148ebb42dc14a598"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.2"
-  flutter_inappwebview_windows:
-    dependency: transitive
-    description:
-      name: flutter_inappwebview_windows
-      sha256: "8b4d3a46078a2cdc636c4a3d10d10f2a16882f6be607962dbfff8874d1642055"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.6.0"
   flutter_layout_grid:
     dependency: transitive
     description:
@@ -414,6 +342,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.8"
+  flutter_material_design_icons:
+    dependency: transitive
+    description:
+      name: flutter_material_design_icons
+      sha256: "9a7b6308736e328f9ce2249c3727a56a289c915a65ebf1b1b5f237c8232e92b7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0+7447"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -531,11 +467,9 @@ packages:
   harcapp_core:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: a8c43ec7bb415a21ccdc3b24767366cd1e8b9187
-      url: "https://github.com/n3o2k7i8ch5/harcapp_core"
-    source: git
+      path: "../../../harcapp_core"
+      relative: true
+    source: path
     version: "0.0.1"
   hooks:
     dependency: transitive
@@ -602,22 +536,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.20.2"
-  isar_community:
-    dependency: transitive
-    description:
-      name: isar_community
-      sha256: "683fd093956eac3a660776afb70d65d50a3391b3587b40b89e3d12586b8cc47f"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.3.2"
-  isar_community_flutter_libs:
-    dependency: transitive
-    description:
-      name: isar_community_flutter_libs
-      sha256: c44340fa38c81ef16d924202d443bbe799cde4826be9a31a9dc92ee612e1966f
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.3.2"
   jni:
     dependency: transitive
     description:
@@ -634,14 +552,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
-  js:
-    dependency: transitive
-    description:
-      name: js
-      sha256: "53385261521cc4a0c4658fd0ad07a7d14591cf8fc33abbceae306ddb974888dc"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.2"
   just_audio:
     dependency: transitive
     description:
@@ -730,22 +640,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.13.0"
-  material_design_icons_flutter:
-    dependency: transitive
-    description:
-      name: material_design_icons_flutter
-      sha256: "6f986b7a51f3ad4c00e33c5c84e8de1bdd140489bbcdc8b66fc1283dad4dea5a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "7.0.7296"
   meta:
     dependency: transitive
     description:
       name: meta
-      sha256: "23f08335362185a5ea2ad3a4e597f1375e78bce8a040df5c600c8d3552ef2394"
+      sha256: "1741988757a65eb6b36abe716829688cf01910bbf91c34354ff7ec1c3de2b349"
       url: "https://pub.dev"
     source: hosted
-    version: "1.17.0"
+    version: "1.18.0"
   mime:
     dependency: transitive
     description:
@@ -1211,10 +1113,10 @@ packages:
     dependency: transitive
     description:
       name: test_api
-      sha256: "8161c84903fd860b26bfdefb7963b3f0b68fee7adea0f59ef805ecca346f0c7a"
+      sha256: "949a932224383300f01be9221c39180316445ecb8e7547f70a41a35bf421fb9e"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.10"
+    version: "0.7.11"
   typed_data:
     dependency: transitive
     description:
@@ -1463,14 +1365,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.3"
-  youtube_player_flutter:
+  youtube_player_iframe:
     dependency: transitive
     description:
-      name: youtube_player_flutter
-      sha256: e64eeebaa5f7dc1d55d103cc9abf05f87d8013bae0d3b6a11aad5d33a2f7f5b4
+      name: youtube_player_iframe
+      sha256: "8488d3fd3ce10286356a3e40036cc9ab296c19f399a3141acb70dc18a5231dab"
       url: "https://pub.dev"
     source: hosted
-    version: "9.1.3"
+    version: "6.0.2"
+  youtube_player_iframe_web:
+    dependency: transitive
+    description:
+      name: youtube_player_iframe_web
+      sha256: "405fccd8b7ae467835fc713bc86a3182470106098eec9aad0c178aec5395efa8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.3"
   zxing_lib:
     dependency: transitive
     description:

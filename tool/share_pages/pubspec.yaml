@@ -6,9 +6,15 @@ environment:
   sdk: ^3.8.1
 
 dependencies:
+  # Use the local checkout so this matches the main app (which also depends on
+  # the local harcapp_core). The published git ref is pre icon-migration and
+  # pulls material_design_icons_flutter, which breaks on Flutter >=3.44
+  # (IconData is now a final class).
   harcapp_core:
-    git:
-      url: https://github.com/n3o2k7i8ch5/harcapp_core
+    path: ../../../harcapp_core
+#  harcapp_core:
+#    git:
+#      url: https://github.com/n3o2k7i8ch5/harcapp_core
   rss_dart: ^1.0.7
   html_unescape: ^2.0.0
   flutter:
