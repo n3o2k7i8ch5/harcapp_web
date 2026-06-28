@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/missing_decode_param_error.dart';
@@ -109,11 +111,34 @@ class KonspektAttachmentData extends BaseKonspektAttachment{
     autoIdFromTitle: (map['autoIdFromTitle'] as bool?) ?? true,
   );
 
-  static KonspektAttachmentData fromKonspektAttachment(KonspektAttachment a) {
+  /// [attachmentFiles] are the raw bytes unpacked from the .hrcpknspkt archive,
+  /// keyed `'<attachmentName>.<ext>'` (see [KonspektData.toHrcpknspktData]).
+  /// We reconnect each non-URL asset to its bytes so loaded file attachments
+  /// keep their file instead of coming back empty.
+  static KonspektAttachmentData fromKonspektAttachment(
+    KonspektAttachment a, {
+    Map<String, Uint8List> attachmentFiles = const {},
+  }) {
     final Map<FileFormat, String?> urlAssets = {};
-    for (final entry in a.assets.entries)
-      if (entry.key.isUrl)
-        urlAssets[entry.key] = entry.value;
+    final Map<FileFormat, PlatformFile?> fileAssets = {};
+    for (final entry in a.assets.entries) {
+      final FileFormat format = entry.key;
+      if (format.isUrl) {
+        urlAssets[format] = entry.value;
+        continue;
+      }
+      final Uint8List? bytes = attachmentFiles['${a.name}.${format.extension}'];
+      if (bytes == null) continue;
+      // Prefer the asset's original filename; fall back to the archive key.
+      final String fileName = (entry.value?.isNotEmpty ?? false)
+          ? entry.value!
+          : '${a.name}.${format.extension}';
+      fileAssets[format] = PlatformFile(
+        name: fileName,
+        size: bytes.length,
+        bytes: bytes,
+      );
+    }
 
     final String slugFromTitle = simplifyString(a.title);
     final bool autoIdFromTitle = slugFromTitle.isEmpty || a.name == slugFromTitle;
@@ -121,7 +146,7 @@ class KonspektAttachmentData extends BaseKonspektAttachment{
     return KonspektAttachmentData(
       nameController: TextEditingController(text: a.name),
       titleController: TextEditingController(text: a.title),
-      pickedFiles: {},
+      pickedFiles: fileAssets,
       pickedUrls: urlAssets,
       printInfoEnabled: a.print != null,
       printSide: a.print?.side ?? KonspektAttachmentPrintSide.single,

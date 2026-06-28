@@ -182,7 +182,10 @@ class KonspektData extends BaseKonspekt {
       // editor needs to support authoring these.
       attachments: k.attachments
           ?.whereType<KonspektAttachment>()
-          .map((a) => KonspektAttachmentData.fromKonspektAttachment(a)).toList() ?? [],
+          .map((a) => KonspektAttachmentData.fromKonspektAttachment(
+                a,
+                attachmentFiles: data.attachmentFiles,
+              )).toList() ?? [],
     );
   }
 

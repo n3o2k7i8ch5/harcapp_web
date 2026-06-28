@@ -845,6 +845,44 @@ void main() {
     expect(restored.pickedFiles[FileFormat.pdf]!.bytes, pdfBytes);
   });
 
+  test('file attachment survives full HrcpknspktData roundtrip (regression)', () {
+    // Regression for: loading a .hrcpknspkt dropped file attachments because
+    // fromHrcpknspktData ignored the archive bytes and fromKonspektAttachment
+    // reset pickedFiles to {}. The file came back empty in the editor.
+    final pdfFile = _exampleFile('example.pdf');
+    final pdfBytes = pdfFile.readAsBytesSync();
+
+    final original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+    original.attachments
+      ..clear()
+      ..add(KonspektAttachmentData(
+        nameController: TextEditingController(text: 'materialy_do_gry'),
+        titleController: TextEditingController(text: 'Materiały do gry'),
+        pickedFiles: {
+          // The on-disk filename differs from the attachment name on purpose —
+          // mirrors real data where assets.pdf keeps the original upload name.
+          FileFormat.pdf: PlatformFile(
+            name: 'załączniki kw.pdf',
+            size: pdfBytes.length,
+            bytes: pdfBytes,
+          ),
+        },
+        pickedUrls: const {},
+        printInfoEnabled: false,
+        printSide: KonspektAttachmentPrintSide.single,
+        printColor: KonspektAttachmentPrintColor.monochrome,
+        autoIdFromTitle: false,
+      ));
+
+    final restored = _roundtrip(original);
+
+    expect(restored.attachments.length, 1);
+    final restoredFile = restored.attachments[0].pickedFiles[FileFormat.pdf];
+    expect(restoredFile, isNotNull, reason: 'file attachment must not be dropped on load');
+    expect(restoredFile!.bytes, pdfBytes);
+    expect(restoredFile.name, 'załączniki kw.pdf', reason: 'original filename preserved from assets');
+  });
+
   // ============================================================================
   // Edge case tests
   // ============================================================================
