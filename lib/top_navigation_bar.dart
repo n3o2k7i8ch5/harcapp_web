@@ -46,9 +46,88 @@ class TopNavigationBarState extends State<TopNavigationBar>{
     super.initState();
   }
 
+  /// Stała część szerokości rozwiniętej zakładki (bez tekstu): zewnętrzny
+  /// padding poziomy ([Dimen.defMarg]) + wewnętrzny padding poziomy
+  /// (2×[Dimen.iconMarg]) + ikona ([Dimen.iconSize]) + odstęp ikona–tekst.
+  static const double _navItemFixedWidth =
+      Dimen.defMarg + 2 * Dimen.iconMarg + Dimen.iconSize + Dimen.iconMarg;
+
+  /// Prawy margines lustrzany do lewej krawędzi.
+  static const double _navTrailingWidth = Dimen.sideMarg - Dimen.defMarg / 2;
+
+  static double _measureTextWidth(String text, TextStyle style, TextScaler textScaler) {
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: TextDirection.ltr,
+      textScaler: textScaler,
+    )..layout();
+    return painter.width;
+  }
+
+  /// Czy zakładki z etykietami NIE mieszczą się w [available]? Jeśli tak —
+  /// zwijamy je do samych ikon. Każda mierzona w swojej realnej grubości
+  /// (zaznaczona = bold), tytuły bywają dwuwierszowe — bierzemy szerszy wiersz.
+  static bool _shouldCollapseNav(
+      String uri, List<_NavItemData> items, double available, TextScaler textScaler) {
+    double needed = _navTrailingWidth;
+    for (final item in items) {
+      final bool selected =
+          item.isSelected != null ? item.isSelected!(uri) : uri == item.path;
+      final style = AppTextStyle(
+        fontSize: Dimen.textSizeNormal,
+        fontWeight: selected ? weightBold : weightHalfBold,
+        height: 1.2,
+      );
+      needed += _navItemFixedWidth + _measureTextWidth(item.title, style, textScaler);
+    }
+    // Mały zapas, by zaokrąglenia sub-pikselowe nie obcięły ostatniej zakładki.
+    return needed + Dimen.defMarg > available;
+  }
+
   @override
-  Widget build(BuildContext context) => Material(
-    // elevation: AppCard.bigElevation,
+  Widget build(BuildContext context) {
+    final navItems = <_NavItemData>[
+      _NavItemData(
+        icon: MdiIcons.music,
+        title: 'Warsztat\npiosenki',
+        contextInfo: 'Twórz i dodawaj piosenki do HarcAppki!',
+        path: pathSong,
+      ),
+      _NavItemData(
+        icon: MdiIcons.textBoxMultiple,
+        title: 'Artykuły\nharcerskie',
+        contextInfo: 'Bądź na bieżąco z harcerską myślą!',
+        path: pathArticles,
+      ),
+      _NavItemData(
+        icon: MdiIcons.notebook,
+        title: 'Konspekty\ni formy',
+        contextInfo: 'Konspekty dla harcerzy, kształceniowe i edytor',
+        path: pathKonspektyHarcerskie,
+        isSelected: (uri) => uri.startsWith('/konspekty'),
+      ),
+      _NavItemData(
+        icon: MdiIcons.school,
+        title: 'Poradniki\ninstruktorskie',
+        contextInfo: 'Dobre rady harcerskie!',
+        path: pathPoradnik,
+      ),
+      _NavItemData(
+        icon: MdiIcons.trophy,
+        title: 'Sprawności',
+        contextInfo: 'Zdobądź sprawności!',
+        path: pathSprawnosci,
+      ),
+      _NavItemData(
+        icon: MdiIcons.bookCross,
+        title: 'Rozważania\newangeliczne',
+        contextInfo: 'Rozważania ewangeliczne na każdą niedzielę (i nie tylko)!',
+        path: pathRozwazaniaEwangeliczne,
+      ),
+    ];
+
+    return Material(
+      // elevation: AppCard.bigElevation,
       color: cardEnab_(context),
       child: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) => Row(
@@ -86,72 +165,69 @@ class TopNavigationBarState extends State<TopNavigationBar>{
 
             const _ThemeModeButton(),
 
-            Expanded(child: Container()),
-
-            if (constraints.maxWidth >= ResponsiveBreakpoints.topNavToBottom) ...[
-              PageNavItem(
-                icon: MdiIcons.music,
-                title: 'Warsztat\npiosenki',
-                contextInfo: 'Twórz i dodawaj piosenki do HarcAppki!',
-                path: pathSong,
-                dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
-              ),
-
-              // PageNavItem(
-              //   icon: MdiIcons.textBoxEditOutline,
-              //   title: 'Warsztat\nartykułów',
-              //   contextInfo: 'Twórz i dodawaj artykuły do HarcAppki!',
-              //   path: pathArticlesWorkspace,
-              //   dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
-              // ),
-
-              PageNavItem(
-                icon: MdiIcons.textBoxMultiple,
-                title: 'Artykuły\nharcerskie',
-                contextInfo: 'Bądź na bieżąco z harcerską myślą!',
-                path: pathArticles,
-                dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
-              ),
-
-              PageNavItem(
-                icon: MdiIcons.notebook,
-                title: 'Konspekty\ni formy',
-                contextInfo: 'Konspekty dla harcerzy, kształceniowe i edytor',
-                path: pathKonspektyHarcerskie,
-                dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
-                isSelected: (uri) => uri.startsWith('/konspekty'),
-              ),
-
-              PageNavItem(
-                icon: MdiIcons.school,
-                title: 'Poradniki\ninstruktorskie',
-                contextInfo: 'Dobre rady harcerskie!',
-                path: pathPoradnik,
-                dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
-              ),
-
-              PageNavItem(
-                icon: MdiIcons.trophy,
-                title: 'Sprawności',
-                contextInfo: 'Zdobądź sprawności!',
-                path: pathSprawnosci,
-                dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
-              ),
-
-              PageNavItem(
-                icon: MdiIcons.bookCross,
-                title: 'Rozważania\newangeliczne',
-                contextInfo: 'Rozważania ewangeliczne na każdą niedzielę (i nie tylko)!',
-                path: pathRozwazaniaEwangeliczne,
-                dense: constraints.maxWidth < TopNavigationBar.denseMaxWidth,
-              ),
-            ],
+            // Zakładki zajmują pozostałą przestrzeń i są dosunięte do prawej.
+            // Czy mają etykiety, czy same ikony — decydujemy MIERZĄC, czy pełne
+            // wersje mieszczą się w realnie dostępnej szerokości (Expanded +
+            // wewnętrzny LayoutBuilder dają dokładny leftover po lewym klastrze),
+            // a nie ze sztywnego breakpointu. Poniżej topNavToBottom zakładki
+            // przenoszą się na dolny pasek (osobny widget sterowany MediaQuery).
+            Expanded(
+              child: constraints.maxWidth < ResponsiveBreakpoints.topNavToBottom
+                  ? const SizedBox.shrink()
+                  : AnimatedBuilder(
+                      // Pomiar zależy od metryk czcionki (Ubuntu ładuje się
+                      // asynchronicznie) — przelicz próg po jej załadowaniu.
+                      animation: PaintingBinding.instance.systemFonts,
+                      builder: (context, _) => LayoutBuilder(
+                        builder: (context, itemConstraints) {
+                          final String uri = GoRouterState.of(context).uri.toString();
+                          final TextScaler textScaler = MediaQuery.textScalerOf(context);
+                          final bool dense = _shouldCollapseNav(
+                              uri, navItems, itemConstraints.maxWidth, textScaler);
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              for (final item in navItems)
+                                PageNavItem(
+                                  icon: item.icon,
+                                  title: item.title,
+                                  contextInfo: item.contextInfo,
+                                  path: item.path,
+                                  dense: dense,
+                                  isSelected: item.isSelected,
+                                ),
+                              const SizedBox(width: _navTrailingWidth),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+            ),
 
           ],
         ),
-      )
-  );
+      ),
+    );
+  }
 
+}
+
+/// Opis pojedynczej zakładki górnej nawigacji — wspólne źródło dla pomiaru
+/// szerokości i renderowania.
+class _NavItemData {
+  final IconData icon;
+  final String title;
+  final String contextInfo;
+  final String path;
+  final bool Function(String uri)? isSelected;
+
+  const _NavItemData({
+    required this.icon,
+    required this.title,
+    required this.contextInfo,
+    required this.path,
+    this.isSelected,
+  });
 }
 
 class PageNavItem extends StatelessWidget{
