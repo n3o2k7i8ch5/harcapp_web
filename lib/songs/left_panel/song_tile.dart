@@ -8,6 +8,7 @@ import 'package:harcapp_core/comm_widgets/dialog/app_dialog.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
+import 'package:harcapp_core/song_book/song_editor/widgets/piosenkomat_issues_widget.dart';
 import 'package:harcapp_web/consts.dart';
 import 'package:harcapp_web/songs/left_panel/provider.dart';
 import 'package:harcapp_web/songs/left_panel/song_list_view.dart';
@@ -96,15 +97,26 @@ class SongTileState extends State<SongTile>{
 
           ],
         ),
-        subtitle: Text(
-          lclId,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: AppTextStyle(
-            color:
-            lclId==HINT_FILE_NAME || songFileNameDupErrProv.hasDup(song)?
-            Colors.red:hintEnab_(context)
-          )
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              lclId,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyle(
+                color:
+                lclId==HINT_FILE_NAME || songFileNameDupErrProv.hasDup(song)?
+                Colors.red:hintEnab_(context)
+              )
+            ),
+            // Podgląd uwag piosenkomatu; znikają, gdy zdejmiesz je w edytorze.
+            if(song.piosenkomatData?.issues.isNotEmpty ?? false)
+              Padding(
+                padding: EdgeInsets.only(top: Dimen.defMarg/2),
+                child: PiosenkomatIssuesPreview(song),
+              ),
+          ],
         ),
         selected: currItemProv.song == song,
         selectedTileColor: backgroundIcon_(context),

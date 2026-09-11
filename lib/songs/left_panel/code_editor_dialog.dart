@@ -40,7 +40,7 @@ class CodeEditorDialogState extends State<CodeEditorDialog> {
     controller = TextEditingController(
         text: song == null
             ? ''
-            : prettyJson(song!.toApiJsonMap(withId: false), indent: 4)
+            : prettyJson(song!.toApiJsonMap(withId: false, withPiosenkomatData: true), indent: 4)
     );
     super.initState();
   }

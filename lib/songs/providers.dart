@@ -86,6 +86,15 @@ class AllSongsProvider extends ChangeNotifier{
     notifyListeners();
   }
 
+  void removeAll(List<SongRaw> songs){
+    for(SongRaw song in songs){
+      _songs.remove(song);
+      _confMap.remove(song);
+    }
+    _cacheSongs();
+    notifyListeners();
+  }
+
   void addAll(List<SongRaw> songs, Map<SongRaw, bool> confMap){
     _songs.addAll(songs);
     _confMap.addAll(confMap);
@@ -130,7 +139,9 @@ class AllSongsProvider extends ChangeNotifier{
     int iterOff = 0;
     int iterConf = 0;
     for(SongRaw song in _songs){
-      Map map = song.toApiJsonMap(withId: false);
+      // Z uwagami piosenkomatu: to ten plik wraca do narzędzia jako
+      // `reviewed.hrcpsng` i po nich poznaje, co zostało ogarnięte.
+      Map map = song.toApiJsonMap(withId: false, withPiosenkomatData: true);
       if(isConf(song)!)
         confSongMap[song.id] = {
           'song': map,

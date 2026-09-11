@@ -7,6 +7,7 @@ import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/contributor_ref_list_widget.dart';
+import 'package:harcapp_core/song_book/song_editor/widgets/piosenkomat_issues_widget.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/add_buttons_widget.dart';
@@ -159,6 +160,14 @@ class SongEditorPanelState extends State<SongEditorPanel>{
           children: [
 
             SizedBox(height: Dimen.iconMarg),
+
+            // Uwagi piosenkomatu do zgłoszenia — tylko przy piosenkach z jego
+            // plików. Zdjęcie pastylki to decyzja „ogarnięte”; kafelek na
+            // liście słucha CurrentItemProvider, więc odświeży się sam.
+            PiosenkomatIssuesWidget(
+              padding: EdgeInsets.only(bottom: Dimen.defMarg),
+              onResolved: (_) => SongEditorPanelProvider.of(context).notify(),
+            ),
 
             TitleShortcutRowWidget(
               title: 'Identyfikator piosenki',

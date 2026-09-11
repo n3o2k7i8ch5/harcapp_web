@@ -324,16 +324,33 @@ void handleImportSongsTap(BuildContext context) async {
   if(result==null)
     return;
 
-  importSongsFromBytes(context, result.files.single.bytes!);
+  importSongsFromFiles(context, [result.files.single.bytes!]);
 
 }
 
 void importSongsFromFiles(BuildContext context, List<Uint8List> filesBytes){
+
+  List<SongRaw> importedSongs = [];
   for(Uint8List bytes in filesBytes)
-    importSongsFromBytes(context, bytes);
+    importedSongs.addAll(importSongsFromBytes(context, bytes));
+
+  if(importedSongs.isEmpty) return;
+
+  AppScaffold.showMessage(
+      context,
+      text:
+      importedSongs.length == 1?
+      'Zaimportowano 1 piosenkę':
+      'Zaimportowano ${importedSongs.length} piosenek',
+      buttonText: 'Cofnij',
+      onButtonPressed: () => undoSongImport(context, importedSongs),
+      duration: const Duration(seconds: 10)
+  );
+
 }
 
-void importSongsFromBytes(BuildContext context, Uint8List bytes) {
+/// Importuje piosenki z jednego pliku i zwraca te, które faktycznie dodano.
+List<SongRaw> importSongsFromBytes(BuildContext context, Uint8List bytes) {
 
   String code;
   try {
@@ -341,7 +358,7 @@ void importSongsFromBytes(BuildContext context, Uint8List bytes) {
   } catch(e, s){
     AppScaffold.showMessage(context, text: 'Błąd odczytu pliku (błąd kodowania binarnego): $e');
     debugPrint('Błąd odczytu pliku: $e\n$s');
-    return;
+    return [];
   }
 
   var songsResult;
@@ -350,7 +367,7 @@ void importSongsFromBytes(BuildContext context, Uint8List bytes) {
   } catch(e, s){
     AppScaffold.showMessage(context, text: 'Błąd importu piosenek: $e');
     debugPrint('Błąd importu piosenek: $e\n$s');
-    return;
+    return [];
   }
   List<SongRaw> offSongs = songsResult.$1;
   List<SongRaw> confSongs = songsResult.$2;
@@ -358,7 +375,7 @@ void importSongsFromBytes(BuildContext context, Uint8List bytes) {
   AllSongsProvider allSongsProv = AllSongsProvider.of(context);
 
   List<SongRaw> songs = confSongs.cast<SongRaw>() + offSongs.cast<SongRaw>();
-  if(songs.isEmpty) return;
+  if(songs.isEmpty) return [];
   Map<SongRaw, bool> map = {};
   for(SongRaw song in songs) map[song] = confSongs.contains(song);
   allSongsProv.addAll(songs, map);
@@ -366,6 +383,33 @@ void importSongsFromBytes(BuildContext context, Uint8List bytes) {
 
   SongFileNameDupErrProvider songFileNameDupErrProv = SongFileNameDupErrProvider.of(context);
   songFileNameDupErrProv.checkAllDups(context);
+
+  return songs;
+
+}
+
+/// Cofa import - usuwa dokładnie te piosenki, które przed chwilą doszły.
+void undoSongImport(BuildContext context, List<SongRaw> songs){
+
+  if(!context.mounted) return;
+
+  AllSongsProvider allSongsProv = AllSongsProvider.of(context);
+
+  int remIndex = allSongsProv.songs.indexOf(songs.first);
+  bool currentSongRemoved = songs.contains(CurrentItemProvider.of(context).song);
+
+  allSongsProv.removeAll(songs);
+
+  if(currentSongRemoved){
+    if(remIndex >= allSongsProv.length) remIndex = allSongsProv.length - 1;
+
+    if(remIndex < 0) SongPreviewProvider.of(context).showSong = false;
+    else displaySong(context, allSongsProv.songs[remIndex]);
+  }
+
+  SearchListProvider.of(context).research();
+  SongFileNameDupErrProvider.of(context).checkAllDups(context);
+  SongEditorPanelProvider.of(context).notify();
 
 }
 
