@@ -24,6 +24,7 @@ import 'package:flutter_material_design_icons/flutter_material_design_icons.dart
 import 'package:provider/provider.dart';
 
 import 'code_editor_dialog.dart';
+import 'import_selection_dialog.dart';
 import 'song_file_drop_target.dart';
 import 'email_song_dialog.dart';
 import '../new_song_buttons.dart';
@@ -330,27 +331,31 @@ void handleImportSongsTap(BuildContext context) async {
 
 void importSongsFromFiles(BuildContext context, List<Uint8List> filesBytes){
 
-  List<SongRaw> importedSongs = [];
-  for(Uint8List bytes in filesBytes)
-    importedSongs.addAll(importSongsFromBytes(context, bytes));
+  List<SongRaw> parsedSongs = [];
+  Map<SongRaw, bool> confMap = {};
 
-  if(importedSongs.isEmpty) return;
+  for(Uint8List bytes in filesBytes){
+    var (List<SongRaw> songs, Map<SongRaw, bool> map) = parseSongsFromBytes(context, bytes);
+    parsedSongs.addAll(songs);
+    confMap.addAll(map);
+  }
 
-  AppScaffold.showMessage(
+  if(parsedSongs.isEmpty) return;
+
+  showImportSelectionDialog(
       context,
-      text:
-      importedSongs.length == 1?
-      'Zaimportowano 1 piosenkę':
-      'Zaimportowano ${importedSongs.length} piosenek',
-      buttonText: 'Cofnij',
-      onButtonPressed: () => undoSongImport(context, importedSongs),
-      duration: const Duration(seconds: 10)
+      songs: parsedSongs,
+      onImport: (selectedSongs) => addImportedSongs(
+          context,
+          selectedSongs,
+          {for(SongRaw song in selectedSongs) song: confMap[song]!}
+      )
   );
 
 }
 
-/// Importuje piosenki z jednego pliku i zwraca te, które faktycznie dodano.
-List<SongRaw> importSongsFromBytes(BuildContext context, Uint8List bytes) {
+/// Wczytuje piosenki z jednego pliku. Nic jeszcze nie dodaje do śpiewnika.
+(List<SongRaw>, Map<SongRaw, bool>) parseSongsFromBytes(BuildContext context, Uint8List bytes) {
 
   String code;
   try {
@@ -358,7 +363,7 @@ List<SongRaw> importSongsFromBytes(BuildContext context, Uint8List bytes) {
   } catch(e, s){
     AppScaffold.showMessage(context, text: 'Błąd odczytu pliku (błąd kodowania binarnego): $e');
     debugPrint('Błąd odczytu pliku: $e\n$s');
-    return [];
+    return ([], {});
   }
 
   var songsResult;
@@ -367,24 +372,39 @@ List<SongRaw> importSongsFromBytes(BuildContext context, Uint8List bytes) {
   } catch(e, s){
     AppScaffold.showMessage(context, text: 'Błąd importu piosenek: $e');
     debugPrint('Błąd importu piosenek: $e\n$s');
-    return [];
+    return ([], {});
   }
   List<SongRaw> offSongs = songsResult.$1;
   List<SongRaw> confSongs = songsResult.$2;
 
-  AllSongsProvider allSongsProv = AllSongsProvider.of(context);
-
   List<SongRaw> songs = confSongs.cast<SongRaw>() + offSongs.cast<SongRaw>();
-  if(songs.isEmpty) return [];
-  Map<SongRaw, bool> map = {};
-  for(SongRaw song in songs) map[song] = confSongs.contains(song);
-  allSongsProv.addAll(songs, map);
+  Map<SongRaw, bool> confMap = {for(SongRaw song in songs) song: confSongs.contains(song)};
+
+  return (songs, confMap);
+
+}
+
+/// Dodaje do śpiewnika piosenki wybrane w oknie importu.
+void addImportedSongs(BuildContext context, List<SongRaw> songs, Map<SongRaw, bool> confMap){
+
+  if(songs.isEmpty) return;
+
+  AllSongsProvider.of(context).addAll(songs, confMap);
   displaySong(context, songs.first);
 
-  SongFileNameDupErrProvider songFileNameDupErrProv = SongFileNameDupErrProvider.of(context);
-  songFileNameDupErrProv.checkAllDups(context);
+  SearchListProvider.of(context).research();
+  SongFileNameDupErrProvider.of(context).checkAllDups(context);
 
-  return songs;
+  AppScaffold.showMessage(
+      context,
+      text:
+      songs.length == 1?
+      'Zaimportowano 1 piosenkę':
+      'Zaimportowano ${songs.length} piosenek',
+      buttonText: 'Cofnij',
+      onButtonPressed: () => undoSongImport(context, songs),
+      duration: const Duration(seconds: 10)
+  );
 
 }
 
