@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,7 @@ import 'package:flutter_material_design_icons/flutter_material_design_icons.dart
 import 'package:provider/provider.dart';
 
 import 'code_editor_dialog.dart';
+import 'song_file_drop_target.dart';
 import 'email_song_dialog.dart';
 import '../new_song_buttons.dart';
 
@@ -87,7 +89,9 @@ class SongListViewState extends State<SongListView>{
   }
 
   @override
-  Widget build(BuildContext context) => Consumer<AllSongsProvider>(
+  Widget build(BuildContext context) => SongFileDropTarget(
+    onFilesDropped: (filesBytes) => importSongsFromFiles(context, filesBytes),
+    child: Consumer<AllSongsProvider>(
       builder: (context, allSongsProv, child) =>
       allSongsProv.length==0?
       NoSongsWidget():
@@ -199,6 +203,7 @@ class SongListViewState extends State<SongListView>{
 
         ],
       )
+    ),
   );
 
 }
@@ -312,16 +317,27 @@ void handleImportSongsTap(BuildContext context) async {
 
   FilePickerResult? result = await FilePicker.pickFiles(
     type: FileType.custom,
-    allowedExtensions: ['hrcpsng'],
+    allowedExtensions: [songFileExtension],
     withData: true,
   );
 
   if(result==null)
     return;
 
+  importSongsFromBytes(context, result.files.single.bytes!);
+
+}
+
+void importSongsFromFiles(BuildContext context, List<Uint8List> filesBytes){
+  for(Uint8List bytes in filesBytes)
+    importSongsFromBytes(context, bytes);
+}
+
+void importSongsFromBytes(BuildContext context, Uint8List bytes) {
+
   String code;
   try {
-    code = utf8.decode(result.files.single.bytes!);
+    code = utf8.decode(bytes);
   } catch(e, s){
     AppScaffold.showMessage(context, text: 'Błąd odczytu pliku (błąd kodowania binarnego): $e');
     debugPrint('Błąd odczytu pliku: $e\n$s');
