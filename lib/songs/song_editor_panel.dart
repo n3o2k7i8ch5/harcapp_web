@@ -161,12 +161,18 @@ class SongEditorPanelState extends State<SongEditorPanel>{
 
             SizedBox(height: Dimen.iconMarg),
 
-            // Uwagi piosenkomatu do zgłoszenia — tylko przy piosenkach z jego
-            // plików. Zdjęcie pastylki to decyzja „ogarnięte”; kafelek na
-            // liście słucha CurrentItemProvider, więc odświeży się sam.
-            PiosenkomatIssuesWidget(
-              padding: EdgeInsets.only(bottom: Dimen.defMarg),
-              onResolved: (_) => SongEditorPanelProvider.of(context).notify(),
+            // Nagłówek piosenkomatu — tylko przy piosenkach z jego plików:
+            // badge POPRAWKA (z tytułem poprawianej piosenki), dopiski autora
+            // i pastylki z uwagami. Wszystko do czytania, nic do klikania.
+            Consumer<SimilarSongProvider>(
+              builder: (context, simProv, _) => PiosenkomatHeaderWidget(
+                padding: EdgeInsets.only(bottom: Dimen.defMarg),
+                titleOfAppSong: (id) => simProv.allSongs?.values
+                    .expand((songs) => songs)
+                    .where((s) => s.id == id)
+                    .firstOrNull
+                    ?.title,
+              ),
             ),
 
             TitleShortcutRowWidget(

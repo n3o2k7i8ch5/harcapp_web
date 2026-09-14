@@ -73,6 +73,12 @@ class SaveSendWidget extends StatelessWidget{
                       List<SongRaw> songsWithoutYT = [];
                       List<SongRaw> songsWithoutChords = [];
                       for(SongRaw song in allSongsProv.songs) {
+                        // Piosenki odrzucone przy przeglądzie piosenkomatem
+                        // („Do odrzucenia”) i tak nie wejdą do śpiewnika, więc
+                        // nie ma czego w nich uzupełniać — pomijamy je w
+                        // ostrzeżeniach o brakach.
+                        if (song.piosenkomatData?.goesIn == false) continue;
+
                         if (song.title.isEmpty)
                           songsWithouTitle.add(song);
 

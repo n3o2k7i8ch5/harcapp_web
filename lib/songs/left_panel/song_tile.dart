@@ -89,7 +89,17 @@ class SongTileState extends State<SongTile>{
             Expanded(
               child: Text(
                 title,
-                style: AppTextStyle(fontSize: Dimen.textSizeBig),
+                // Piosenka zgaszona przy przeglądzie („Do odrzucenia”) —
+                // przekreślona i przygaszona, żeby z listy było widać, co
+                // odpada, bez otwierania każdej. Przebudowa idzie przez
+                // CurrentItemProvider, który przełącznik woła po zmianie.
+                style: song.piosenkomatData?.goesIn == false
+                    ? AppTextStyle(
+                        fontSize: Dimen.textSizeBig,
+                        color: hintEnab_(context),
+                        decoration: TextDecoration.lineThrough,
+                      )
+                    : AppTextStyle(fontSize: Dimen.textSizeBig),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis
               )
@@ -107,7 +117,11 @@ class SongTileState extends State<SongTile>{
               style: AppTextStyle(
                 color:
                 lclId==HINT_FILE_NAME || songFileNameDupErrProv.hasDup(song)?
-                Colors.red:hintEnab_(context)
+                Colors.red:hintEnab_(context),
+                // Przekreślone razem z tytułem, gdy piosenka odpada.
+                decoration: song.piosenkomatData?.goesIn == false
+                    ? TextDecoration.lineThrough
+                    : null,
               )
             ),
             // Podgląd uwag piosenkomatu; znikają, gdy zdejmiesz je w edytorze.

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/sha_pref.dart';
 import 'package:harcapp_core/comm_classes/text_utils.dart';
+import 'package:harcapp_core/song_book/import_hrcpsng.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_web/common/sha_pref.dart';
 import 'package:harcapp_web/songs/utils/song_loader.dart';
@@ -80,7 +81,10 @@ class AllSongsProvider extends ChangeNotifier{
   }
 
   void remove(SongRaw? song){
-    _songs.remove(song);
+    // `removeWhere`, a nie `remove`: gdyby ten sam obiekt trafił na listę
+    // więcej niż raz, `remove` zdjęłoby tylko pierwsze wystąpienie i piosenka
+    // zostałaby na liście (z fałszywym alarmem o powtórzonej nazwie).
+    _songs.removeWhere((s) => identical(s, song));
     _confMap.remove(song);
     _cacheSongs();
     notifyListeners();
@@ -88,7 +92,7 @@ class AllSongsProvider extends ChangeNotifier{
 
   void removeAll(List<SongRaw> songs){
     for(SongRaw song in songs){
-      _songs.remove(song);
+      _songs.removeWhere((s) => identical(s, song));
       _confMap.remove(song);
     }
     _cacheSongs();
@@ -117,13 +121,28 @@ class AllSongsProvider extends ChangeNotifier{
     String? code = ShaPref.getStringOrNull(SHA_PREF_LAST_EDITED_SONGS);
     if(code == null) return [];
 
-    Map<String, List<SongRaw>> decodedSongs = decodeSongs(code);
+    // Cache jest pisany przez `convertAllToCode()`, czyli w formacie hrcpsng —
+    // i tak samo go czytamy. `decodeSongs()` to indeks tytuł -> piosenki (dla
+    // szukania podobnych) i wrzuca ten sam obiekt raz na tytuł i raz na każdy
+    // tytuł ukryty, więc piosenka z `hidTitles` lądowała na liście kilka razy
+    // (fałszywy alarm o powtórzonej nazwie, a usunięcie zdejmowało tylko jedno
+    // wystąpienie).
+    try {
+      (List<SongRaw>, List<SongRaw>) songsResult = importHrcpsng(code);
+      return songsResult.$2.cast<SongRaw>() + songsResult.$1.cast<SongRaw>();
+    } catch(e){
+      // Stary/nadgryziony cache (np. pomieszane indeksy) — wtedy ratujemy, co
+      // się da, starą drogą, ale z odsiewaniem powtórzonych wystąpień.
+      Map<String, List<SongRaw>> decodedSongs = decodeSongs(code);
 
-    List<SongRaw> result = [];
-    for (List<SongRaw> songs in decodedSongs.values)
-      result.addAll(songs);
+      Set<SongRaw> seen = Set.identity();
+      List<SongRaw> result = [];
+      for (List<SongRaw> songs in decodedSongs.values)
+        for (SongRaw song in songs)
+          if(seen.add(song)) result.add(song);
 
-    return result;
+      return result;
+    }
   }
 
   static void clearCachedSongs() =>
