@@ -743,8 +743,6 @@ Co łączy wszystkie hasła?<br><br><i>Odp.: można się od nich uzależnić.</i
 
       test('link with empty href', () {
         final ops = htmlToDeltaOps('<p><a href="">Empty href</a></p>');
-        final textOp = ops.firstWhere((op) =>
-            op['insert'] is String && op['insert'].contains('Empty href'));
         // Empty href should still create a link attribute (or be treated as no link)
         expect(ops.any((op) => op['insert'].toString().contains('Empty href')), isTrue);
       });

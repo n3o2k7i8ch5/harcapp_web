@@ -1,5 +1,5 @@
-import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:harcapp_core/comm_classes/app_navigator.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
@@ -410,7 +410,7 @@ class CopiableText extends StatelessWidget {
               AppButton(
                 icon: Icon(MdiIcons.contentCopy),
                 onTap: () async {
-                  await FlutterClipboard.copy(text);
+                  await Clipboard.setData(ClipboardData(text: text));
                   AppScaffold.showMessage(context, text: 'Skopiowano!');
                 },
               )

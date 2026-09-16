@@ -40,7 +40,6 @@ import 'package:harcapp_web/konspekt_workspace/widgets/select_time_button.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/spheres_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/steps_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/content_check/check_controller.dart';
-import 'package:harcapp_web/konspekt_workspace/content_check/check_fab.dart';
 import 'package:harcapp_web/konspekt_workspace/content_check/html_text.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/bullet_list_editor_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/attachments_widget.dart';

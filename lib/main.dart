@@ -79,7 +79,6 @@ class MyApp extends StatefulWidget {
 class MyAppState extends State<MyApp>{
 
   late AllSongsProvider allSongsProv;
-  // late CurrentItemProvider currItemProv;
   late BindTitleFileNameProvider bindTitleFileNameProv;
   late SongFileNameDupErrProvider songFileNameDupErrProv;
 
@@ -103,20 +102,11 @@ class MyAppState extends State<MyApp>{
                           allSongsProv.songs
                       )),
 
-                      // ChangeNotifierProvider(create: (context){
-                      //   // currItemProv = CurrentItemProvider(song: SongRaw.empty());
-                      //   return CurrentItemProvider(song: SongRaw.empty());;
-                      // }),
-
                       ChangeNotifierProvider(create: (context){
                         SimilarSongProvider prov = SimilarSongProvider();
                         prov.init();
                         return prov;
                       }),
-
-                      // ChangeNotifierProvider(create: (context) => RefrenEnabProvider(true)),
-                      // ChangeNotifierProvider(create: (context) => RefrenPartProvider()),
-                      // ChangeNotifierProvider(create: (context) => TagsProvider(SongTag.ALL, [])),
 
                       ChangeNotifierProvider(create: (context){
                         bindTitleFileNameProv = BindTitleFileNameProvider();
