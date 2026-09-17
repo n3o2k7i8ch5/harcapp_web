@@ -75,8 +75,6 @@ class SongListViewState extends State<SongListView>{
 
   late ScrollController controller;
 
-  late BuildContext itemContext;
-
   @override
   void initState() {
     controller = ScrollController();
@@ -484,6 +482,4 @@ void displaySong(BuildContext context, SongRaw song){
   BindTitleFileNameProvider.of(context).setSetBasedOnSong(song);
   SongEditorPanelProvider.notify_(context);
   TagsProvider.of(context).set(song.tags);
-
-  // SimilarSongProvider.of(context).title = song.title;
 }

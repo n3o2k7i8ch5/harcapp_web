@@ -40,10 +40,6 @@ class SongTileState extends State<SongTile>{
   static const String HINT_FILE_TITLE = 'Brak tytułu.';
   static const String HINT_FILE_NAME = 'Brak nazwy pliku.';
 
-  static const String MENU_CONF = 'conf';
-  static const String MENU_CODE = 'code';
-  static const String MENU_NAME = 'name';
-
   @override
   Widget build(BuildContext context) => Consumer2<SongFileNameDupErrProvider, CurrentItemProvider>(
     builder: (context, songFileNameDupErrProv, currItemProv, child){

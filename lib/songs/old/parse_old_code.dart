@@ -6,83 +6,56 @@ import 'package:harcapp_web/songs/old/song_basic_data.dart';
 import 'package:harcapp_web/songs/old/song_element_old.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-SongRaw parseOldCode(String id, String code, {bool official = true}){
-  bool hasRefren;
-  SongElementOld refrenElementOld;
+SongRaw parseOldCode(String id, String code){
+  SongBasicData1 basicData = SongBasicData1.parse(id, code);
+
+  List<String> parts = code.split('<');
+
   SongElement? refrenElement;
-  List<SongElementOld?> songElementOldList = [];
+  bool hasRefren = parts[1].isNotEmpty;
+  if (hasRefren) {
+    SongElementOld refrenElementOld = SongElementOld.decodeOld(parts[1]);
+    refrenElement = SongElement(refrenElementOld.getText(), refrenElementOld.getChords(), true);
+  }
+
+  String? firstElementChords;
   List<SongElement?> songElements = [];
-
-  try {
-
-    SongBasicData1 basicData = SongBasicData1.parse(id, code, official: official);
-
-    List<String> parts = code.split('<');
-
-    // REFREN
-    if(parts[1].length != 0) {
-      hasRefren = true;
-      refrenElementOld = SongElementOld.decodeOld(parts[1]);
-
-      refrenElement = SongElement(refrenElementOld.getText(), refrenElementOld.getChords(), true);
-
-    }else
-      hasRefren = false;
-
-    //ZWROTKI
-    String? firstElementChords;
-    for(int i=2; i<parts.length; i++)
-    {
-      if (parts[i].length == 0) {
-
-        //null oznacza refren
-        songElementOldList.add(null);
-        songElements.add(refrenElement);
-        continue;
-      }
-
-      List<String> zwrotkaElements = parts[i].split('>');
-      if(firstElementChords==null)
-        firstElementChords = zwrotkaElements[0];
-
-      if (zwrotkaElements[0] == '1')
-        zwrotkaElements[0] = firstElementChords;
-
-      SongElementOld songElementOld = SongElementOld.decodeOld(parts[i], firstElementChords: firstElementChords);
-      songElementOldList.add(songElementOld);
-      songElements.add(SongElement(songElementOld.getText(), songElementOld.getChords(), false));
-
+  for(int i=2; i<parts.length; i++)
+  {
+    if (parts[i].isEmpty) {
+      songElements.add(refrenElement);
+      continue;
     }
 
-    List<String> hidTitles = [];
+    List<String> zwrotkaElements = parts[i].split('>');
+    firstElementChords ??= zwrotkaElements[0];
 
-    return SongRaw(
-      id: id,
-      title: basicData.title,
-      hidTitles: hidTitles,
-      authors: [basicData.author],
-      composers: [],
-      performers: [basicData.performer],
-      contribRefs: [ContributorRef(person: Person(name: basicData.moderator), emailRef: null, userKeyRef: null)],
-      contributorData: null,
-      youtubeVideoId: basicData.youtubeLink==null?
-        null:
-        YoutubePlayer.convertUrlToId(basicData.youtubeLink!),
-
-      tags: basicData.tags,
-
-      releaseDate: null,
-      showRelDateMonth: false,
-      showRelDateDay: false,
-
-      hasRefren: hasRefren,
-      refrenPart: refrenElement == null? SongPart.empty():SongPart.from(refrenElement),
-
-      songParts: songElements.map((e) => SongPart.from(e!)).toList(),
-
-    );
-
-  } on Exception {
-    throw Exception();
+    SongElementOld songElementOld = SongElementOld.decodeOld(parts[i], firstElementChords: firstElementChords);
+    songElements.add(SongElement(songElementOld.getText(), songElementOld.getChords(), false));
   }
+
+  return SongRaw(
+    id: id,
+    title: basicData.title,
+    hidTitles: [],
+    authors: [basicData.author],
+    composers: [],
+    performers: [basicData.performer],
+    contribRefs: [ContributorRef(person: Person(name: basicData.moderator), emailRef: null, userKeyRef: null)],
+    contributorData: null,
+    youtubeVideoId: basicData.youtubeLink==null?
+      null:
+      YoutubePlayer.convertUrlToId(basicData.youtubeLink!),
+
+    tags: basicData.tags,
+
+    releaseDate: null,
+    showRelDateMonth: false,
+    showRelDateDay: false,
+
+    hasRefren: hasRefren,
+    refrenPart: refrenElement == null? SongPart.empty():SongPart.from(refrenElement),
+
+    songParts: songElements.map((e) => SongPart.from(e!)).toList(),
+  );
 }

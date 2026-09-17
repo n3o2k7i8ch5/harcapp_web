@@ -40,7 +40,6 @@ class BindTitleFileNameProvider extends ChangeNotifier{
     bindTitle = song.id.split('@')[0] == (song.isConfid?'oc!_':'o!_') + song.generateFileName(withPerformer: false);
 
     bindPerformer = song.id == (song.isConfid?'oc!_':'o!_') + song.generateFileName(withPerformer: true);
-      // (song.lclId.contains('@') && bindTitle) || song.lclId == 'o!_' || song.lclId == 'oc!_';
     notifyListeners();
   }
 

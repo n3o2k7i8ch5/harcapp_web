@@ -24,8 +24,6 @@ import 'package:harcapp_core/comm_widgets/dialog/alert_dialog.dart';
 
 import '../router.dart';
 
-const String EMAIL_TO_SEND = 'harcapp@gmail.com';
-
 class SaveSendWidget extends StatelessWidget{
 
   @override
@@ -254,7 +252,6 @@ class HowToSendEmailWidget extends StatelessWidget{
         selectable: true,
         size: Dimen.textSizeBig,
       ),
-      // SizedBox(height: HowToContributeDialog.textSeparation),
 
       BulletPoint(1, 'Tytuł'),
       SizedBox(height: HowToContributeDialog.textSeparation),
@@ -283,7 +280,6 @@ class HowToSendEmailWidget extends StatelessWidget{
             songs: AllSongsProvider.of(context).songs,
             source: SongSource.web,
             acceptRulesVersion: SongContributionRulesAcceptanceManager.acceptedRulesVersion,
-            // person: ,
           ),
         ),
       ),
@@ -307,8 +303,6 @@ class HowToContributeDialog extends StatelessWidget{
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     mainAxisSize: MainAxisSize.min,
-    // physics: BouncingScrollPhysics(),
-    // shrinkWrap: true,
     children: [
 
       AppText(

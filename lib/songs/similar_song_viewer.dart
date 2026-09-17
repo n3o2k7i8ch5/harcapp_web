@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
-import 'package:harcapp_core/comm_classes/common.dart';
 import 'package:harcapp_core/comm_widgets/app_bar.dart';
 import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
@@ -38,13 +37,8 @@ class SimilarSongViewerDialogState extends State<SimilarSongViewerDialog>{
 
     controller = PageController(viewportFraction: 0.75);
 
-    post(() => setState(() {}));  // To update hasNext/hasPrev
-
     super.initState();
   }
-
-  bool get hasNext => controller.hasClients && controller.page != null && controller.page! < (similarSongs.length-1);
-  bool get hasPrev => controller.hasClients && controller.page != null && controller.page! > 0;
 
   @override
   Widget build(BuildContext context) => Center(
@@ -81,7 +75,6 @@ class SimilarSongViewerDialogState extends State<SimilarSongViewerDialog>{
                           icon: Icon(MdiIcons.chevronLeft),
                           onTap: () async {
                             await controller.previousPage(duration: Duration(milliseconds: 300), curve: Curves.easeInOutCubic);
-                            // setState(() {});
                           },
                         ),
                       ),
@@ -117,7 +110,6 @@ class SimilarSongViewerDialogState extends State<SimilarSongViewerDialog>{
                           icon: Icon(MdiIcons.chevronRight),
                           onTap: () async {
                             await controller.nextPage(duration: Duration(milliseconds: 300), curve: Curves.easeInOutCubic);
-                            // setState(() {});
                           },
                         ),
                       ),
@@ -170,7 +162,7 @@ class SimilarSongWidget extends StatelessWidget{
                 song,
                 SongBaseSettings(),
                 scrollController: ScrollController(),
-                key: UniqueKey()//ValueKey(currItemProv.song)
+                key: UniqueKey(),
             ),
           )
 

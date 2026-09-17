@@ -3,9 +3,6 @@ import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/error_widget.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/song_part_editor_template/song_part_editor_template.dart';
 
-
-const double TEXT_FIELD_TOP_PADD = Dimen.TEXT_FIELD_PADD - 7;
-
 class SongPartEditor extends StatefulWidget{
 
   final String initText;

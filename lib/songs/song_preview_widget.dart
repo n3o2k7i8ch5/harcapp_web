@@ -17,9 +17,7 @@ import 'package:provider/provider.dart';
 
 class SongPreviewWidget extends StatelessWidget{
 
-  final dynamic songWidgetHeroTag;
-
-  const SongPreviewWidget({this.songWidgetHeroTag});
+  const SongPreviewWidget();
 
   @override
   Widget build(BuildContext context) => Consumer2<CurrentItemProvider, SongPreviewProvider>(

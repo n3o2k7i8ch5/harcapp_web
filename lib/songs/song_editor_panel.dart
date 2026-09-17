@@ -145,7 +145,6 @@ class SongEditorPanelState extends State<SongEditorPanel>{
   static const double _bannerSpace = Dimen.iconMarg * 2 + Dimen.iconFootprint + Dimen.defMarg;
 
   Widget _buildPartsList(BuildContext context, CurrentItemProvider currItemProv) => SongPartsListWidget(
-        // shrinkWrap: true,
         maxDialogWidth: appDialogMaxWidth,
         onPartTap: (index) async {
           final part = currItemProv.song.songParts[index];
