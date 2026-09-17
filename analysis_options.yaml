@@ -1,0 +1,6 @@
+# Keep analysis on this package's sources. Without this, `dart analyze`
+# walks into `build/` and reports errors from copied plugin examples.
+analyzer:
+  exclude:
+    - build/**
+    - tool/**/build/**

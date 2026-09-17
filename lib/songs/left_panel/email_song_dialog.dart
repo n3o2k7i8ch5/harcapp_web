@@ -11,6 +11,8 @@ import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/song_book/contrib_song_email_legacy.dart';
 import 'package:harcapp_core/values/people/contributor_ref.dart';
 import 'package:harcapp_core/song_book/parse_contrib_email.dart';
+import 'package:harcapp_core/song_book/submission/submission_file.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:harcapp_core/song_book/parse_contrib_email_oldest.dart';
 import 'package:harcapp_core/song_book/song_core.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
@@ -90,6 +92,8 @@ class EmailSongDialogState extends State<EmailSongDialog> {
   late TextEditingController controller;
   ParsedContribEmail? _parsed;
   String? _parseError;
+  /// Coś, o czym trzeba powiedzieć, choć piosenka się wczytała.
+  String? _warning;
   String _manualSenderEmail = '';
 
   String? get _effectiveSenderEmail {
@@ -114,14 +118,51 @@ class EmailSongDialogState extends State<EmailSongDialog> {
 
   void _onTextChanged(String text){
     if(text.trim().isEmpty){
-      setState((){ _parsed = null; _parseError = null; });
+      setState((){ _parsed = null; _parseError = null; _warning = null; });
       return;
     }
+    // Treść pliku zgłoszenia też wolno wkleić: to zwykły JSON.
+    if(text.trimLeft().startsWith('{') && _applySubmissionFile(text)) return;
     try {
       final result = parseContribEmail(text);
-      setState((){ _parsed = result; _parseError = null; });
+      setState((){ _parsed = result; _parseError = null; _warning = null; });
     } catch(e){
-      setState((){ _parsed = null; _parseError = e.toString(); });
+      setState((){ _parsed = null; _parseError = e.toString(); _warning = null; });
+    }
+  }
+
+  /// Nowy format: piosenka jest w załączniku, a treść mejla niesie sam
+  /// dopisek autora.
+  Future<void> _pickSubmissionFile() async {
+    final result = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: [kSubmissionFileExtension],
+      withData: true,
+    );
+    final bytes = result?.files.single.bytes;
+    if(bytes == null) return;
+    _applySubmissionFile(utf8.decode(bytes));
+  }
+
+  /// `true`, gdy to był plik zgłoszenia — także uszkodzony, którego nie
+  /// ratujemy starym parserem.
+  bool _applySubmissionFile(String raw){
+    try {
+      final file = SongSubmissionFile.decode(raw);
+      setState((){
+        _parsed = ParsedContribEmail.fromSubmissionFile(file, controller.text);
+        _parseError = null;
+        _warning = file.submissions.length > 1
+            ? 'W pliku jest ${file.submissions.length} zgłoszeń — wczytane jest '
+                'pierwsze. Resztę wczytaj osobno.'
+            : null;
+      });
+      return true;
+    } on SubmissionFileError catch(e){
+      setState((){ _parsed = null; _parseError = e.message; _warning = null; });
+      return true;
+    } catch(_){
+      return false;
     }
   }
 
@@ -161,7 +202,21 @@ class EmailSongDialogState extends State<EmailSongDialog> {
                 width: songPreviewWidth + 24,
                 child: Padding(
                   padding: EdgeInsets.all(Dimen.defMarg),
-                  child: _SectionCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+
+                      // Zgłoszenia z apki jadą plikiem.
+                      SimpleButton.from(
+                        context: context,
+                        icon: MdiIcons.paperclip,
+                        text: 'Wczytaj plik zgłoszenia (.$kSubmissionFileExtension)',
+                        onTap: _pickSubmissionFile,
+                      ),
+
+                      SizedBox(height: Dimen.defMarg),
+
+                      Expanded(child: _SectionCard(
                     child: TextField(
                       maxLines: null,
                       expands: true,
@@ -170,13 +225,17 @@ class EmailSongDialogState extends State<EmailSongDialog> {
                       onChanged: _onTextChanged,
                       style: TextStyle(color: textEnab_(context), fontSize: 13),
                       decoration: InputDecoration(
-                        hintText: 'Wklej treść mejla z piosenką (włącznie z nagłówkami Gmaila)',
+                        hintText: 'Wklej treść mejla z piosenką (włącznie z nagłówkami '
+                          'Gmaila) albo sam plik zgłoszenia',
                         hintStyle: TextStyle(color: hintEnab_(context)),
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.zero,
                         isCollapsed: true,
                       ),
                     ),
+                  )),
+
+                    ],
                   ),
                 ),
               ),
@@ -198,6 +257,15 @@ class EmailSongDialogState extends State<EmailSongDialog> {
             ],
           ),
         ),
+
+        if(_warning case final warning?)
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: Dimen.sideMarg, vertical: Dimen.defMarg),
+            child: Text(
+              warning,
+              style: AppTextStyle(color: Colors.red, fontWeight: weightHalfBold),
+            ),
+          ),
 
         Material(
           color: cardEnab_(context),
