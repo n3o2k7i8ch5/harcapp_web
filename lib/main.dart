@@ -15,7 +15,6 @@ import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_web/_common_classes/firebase.dart';
 import 'package:harcapp_web/logger.dart';
 import 'package:harcapp_web/router.dart';
-import 'package:harcapp_web/songs/left_panel/provider.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/song_preview_widget.dart';
 import 'package:harcapp_web/theme_mode_provider.dart';
