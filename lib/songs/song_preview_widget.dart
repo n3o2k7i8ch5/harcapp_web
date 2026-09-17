@@ -12,8 +12,10 @@ import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/song_book/widgets/song_widget_template.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
-import 'package:pretty_json/pretty_json.dart';
+import 'dart:convert';
 import 'package:provider/provider.dart';
+
+const JsonEncoder _songCodeEncoder = JsonEncoder.withIndent('  ');
 
 class SongPreviewWidget extends StatefulWidget{
 
@@ -113,7 +115,7 @@ class SongPreviewWidgetState extends State<SongPreviewWidget>{
                 width: 400,
                 child: songPrevProv.code?
                 SelectableText(
-                    prettyJson(currItemProv.song.toApiJsonMap(withPiosenkomatData: true), indent: 2)
+                    _songCodeEncoder.convert(currItemProv.song.toApiJsonMap(withPiosenkomatData: true))
                 ):
                 SongWidgetTemplate<SongRaw>(
                   currItemProv.song,

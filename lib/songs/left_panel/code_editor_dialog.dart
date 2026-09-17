@@ -15,7 +15,10 @@ import 'package:harcapp_web/songs/left_panel/song_list_view.dart';
 import 'package:harcapp_web/songs/old/parse_old_code.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
-import 'package:pretty_json/pretty_json.dart';
+
+/// Kod piosenki pokazujemy z wcięciem 4 spacji - tak samo przy pierwszym
+/// wypełnieniu pola, jak i przy "wyczyść".
+const JsonEncoder _songCodeEncoder = JsonEncoder.withIndent('    ');
 
 class CodeEditorDialog extends StatefulWidget{
 
@@ -40,7 +43,7 @@ class CodeEditorDialogState extends State<CodeEditorDialog> {
     controller = TextEditingController(
         text: song == null
             ? ''
-            : prettyJson(song!.toApiJsonMap(withId: false, withPiosenkomatData: true), indent: 4)
+            : _songCodeEncoder.convert(song!.toApiJsonMap(withId: false, withPiosenkomatData: true))
     );
     super.initState();
   }
@@ -88,7 +91,7 @@ class CodeEditorDialogState extends State<CodeEditorDialog> {
 
   void cleanupText(){
     try {
-      String prettyText = prettyJson(jsonDecode(controller.text), indent: 4);
+      String prettyText = _songCodeEncoder.convert(jsonDecode(controller.text));
       controller.text = prettyText;
     } catch(e){
       AppScaffold.showMessage(context, text: 'Błędny kod piosenki.');
