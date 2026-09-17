@@ -100,7 +100,7 @@ class SongsPageState extends State<SongsPage>{
   Widget build(BuildContext context) => LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints){
 
-        bool drawerAlwaysVisible = constraints.maxWidth>920;
+        bool drawerAlwaysVisible = constraints.maxWidth>collapseWidth;
 
         return BaseScaffold(
           scaffoldKey: scaffoldKey,

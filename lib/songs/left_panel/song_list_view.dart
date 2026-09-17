@@ -3,15 +3,13 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/comm_widgets/app_dropdown.dart';
 import 'package:harcapp_core/comm_widgets/dialog/base.dart';
 import 'package:harcapp_core/song_book/import_hrcpsng.dart';
-import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
-import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/floating_container.dart';
+import 'package:harcapp_core/comm_widgets/search_field.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
@@ -107,7 +105,13 @@ class SongListViewState extends State<SongListView>{
                         FloatingContainer.child(
                             child: Padding(
                               padding: EdgeInsets.all(Dimen.defMarg),
-                              child: SearchField(),
+                              child: SearchField(
+                                hint: 'Szukaj',
+                                margin: EdgeInsets.zero,
+                                color: background_(context),
+                                onChanged: searchListProv.changeSearchPhrase,
+                                onTextCleared: () => searchListProv.changeSearchPhrase(''),
+                              ),
                             ),
                             height: Dimen.iconFootprint + 2*Dimen.defMarg
                         ),
@@ -202,72 +206,6 @@ class SongListViewState extends State<SongListView>{
         ],
       )
     ),
-  );
-
-}
-
-class SearchField extends StatefulWidget{
-
-  const SearchField();
-
-  @override
-  State<StatefulWidget> createState() => SearchFieldState();
-
-}
-
-class SearchFieldState extends State<SearchField> {
-
-  late TextEditingController controller;
-
-  @override
-  void initState() {
-    super.initState();
-    controller = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => Material(
-      elevation: AppCard.bigElevation,
-      borderRadius: BorderRadius.circular(AppCard.bigRadius - 4),
-      color: background_(context),
-      child: Consumer<SearchListProvider>(
-        builder: (context, prov, child) => Row(
-          children: [
-            AppButton(
-                icon:
-                prov.searchPhrase.isEmpty?
-                Icon(MdiIcons.magnify, color: hintEnab_(context)):
-                Icon(MdiIcons.close),
-
-                onTap:
-                prov.searchPhrase.isEmpty?
-                null:
-                    (){
-                  controller.clear();
-                  prov.changeSearchPhrase('');
-                }
-            ),
-            Expanded(
-              child: TextField(
-                  controller: controller,
-                  style: AppTextStyle(),
-                  decoration: InputDecoration(
-                      hintText: 'Szukaj',
-                      hintStyle: AppTextStyle(color: hintEnab_(context)),
-                      border: InputBorder.none
-                  ),
-                  onChanged: (text) => prov.changeSearchPhrase(text)
-              ),
-            )
-          ],
-        ),
-      )
   );
 
 }
