@@ -7,6 +7,7 @@ import 'package:harcapp_core/song_book/import_hrcpsng.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_web/common/sha_pref.dart';
 import 'package:harcapp_web/songs/utils/song_loader.dart';
+import 'package:harcapp_web/songs/utils/song_search.dart';
 import 'package:provider/provider.dart';
 
 
@@ -341,13 +342,7 @@ class SearchListProvider extends ChangeNotifier{
   void changeSearchPhrase(String text){
     searchPhrase = text;
     anySearchPhrase = text.length!=0;
-    currSongList = [];
-
-    String simplifiedText = searchableString(text);
-    for(SongRaw? song in allSongs){
-      if(searchableString(song!.title).contains(simplifiedText))
-        currSongList.add(song);
-    }
+    currSongList = searchSongs(allSongs, text);
 
     notifyListeners();
 

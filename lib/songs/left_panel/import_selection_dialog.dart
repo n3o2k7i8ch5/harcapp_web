@@ -10,6 +10,7 @@ import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/consts.dart';
+import 'package:harcapp_web/songs/utils/song_search.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
 /// Pokazuje listę piosenek z importowanego pliku i pozwala wybrać, które
@@ -48,11 +49,7 @@ class ImportSelectionDialogState extends State<ImportSelectionDialog>{
 
   List<SongRaw> get displayedSongs{
     if(searchPhrase.isEmpty) return songs;
-    String phrase = searchPhrase.toLowerCase();
-    return songs.where((song) =>
-        song.title.toLowerCase().contains(phrase) ||
-        song.id.toLowerCase().contains(phrase)
-    ).toList();
+    return searchSongs(songs, searchPhrase);
   }
 
   @override

@@ -5,43 +5,32 @@ import 'package:flutter/services.dart';
 import 'package:harcapp_core/comm_classes/text_utils.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 
+/// Wrzuca piosenkę do indeksu pod jej tytułem i pod każdym tytułem ukrytym.
+void _indexSong(Map<String, List<SongRaw>> songsMap, String songId, Map songMap){
+  SongRaw song = SongRaw.fromApiRespMap(songId, songMap);
+
+  for(String title in [song.title, ...song.hidTitles]){
+    String key = searchableString(title);
+    if(!songsMap.containsKey(key)) songsMap[key] = [];
+    songsMap[key]!.add(song);
+  }
+}
+
 Map<String, List<SongRaw>> decodeSongs(String allSongsCode) {
 
   Map allSongsJSONMap = jsonDecode(allSongsCode);
 
-  // OFFICIAL SONGS
   Map<String, List<SongRaw>> songsMap = {};
 
-  for(String songId in allSongsJSONMap['official'].keys)
-    try {
-      Map songMap = allSongsJSONMap['official'][songId]['song'];
-      SongRaw song = SongRaw.fromApiRespMap(songId, songMap);
-      String title = searchableString(song.title);
-      if(!songsMap.containsKey(title)) songsMap[title] = [];
-      songsMap[title]!.add(song);
-      for(String hidTitle in song.hidTitles){
-        hidTitle = searchableString(hidTitle);
-        if(!songsMap.containsKey(hidTitle))
-          songsMap[hidTitle] = [];
-        songsMap[hidTitle]!.add(song);
+  for(String section in const ['official', 'conf'])
+    for(String songId in allSongsJSONMap[section].keys)
+      try {
+        _indexSong(songsMap, songId, allSongsJSONMap[section][songId]['song']);
+      } on Error catch(e, s){
+        // Pojedyncza zepsuta piosenka nie może wywalić całego indeksu, ale
+        // niech chociaż zostawi ślad - inaczej znika bez śladu.
+        debugPrint('Pominięto piosenkę $section/$songId: $e\n$s');
       }
-    } on Error {}
-
-  // CONFIDENTIAL SONGS
-  for(String songId in allSongsJSONMap['conf'].keys)
-    try {
-      Map songMap = allSongsJSONMap['conf'][songId]['song'];
-      SongRaw song = SongRaw.fromApiRespMap(songId, songMap);
-      String title = searchableString(song.title).trim();
-      if(!songsMap.containsKey(title)) songsMap[title] = [];
-      songsMap[title]!.add(song);
-      for(String hidTitle in song.hidTitles){
-        hidTitle = searchableString(hidTitle).trim();
-        if(!songsMap.containsKey(hidTitle))
-          songsMap[hidTitle] = [];
-        songsMap[hidTitle]!.add(song);
-      }
-    } on Error {}
 
   return songsMap;
 
