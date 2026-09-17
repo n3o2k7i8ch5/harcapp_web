@@ -99,7 +99,7 @@ class SimilarSongViewerDialogState extends State<SimilarSongViewerDialog>{
                                 physics: BouncingScrollPhysics(),
                                 itemBuilder: (context, index) => Padding(
                                   padding: EdgeInsets.symmetric(horizontal: Dimen.sideMarg/2),
-                                  child: SimilarSongWidget(song: similarSongs[index], title: 'Podobna piosenka ${index + 1}'),
+                                  child: _SimilarSongPreview(song: similarSongs[index], title: 'Podobna piosenka ${index + 1}'),
                                 ),
                                 itemCount: similarSongs.length,
                               ),
@@ -126,7 +126,7 @@ class SimilarSongViewerDialogState extends State<SimilarSongViewerDialog>{
                         padding: EdgeInsets.all(Dimen.sideMarg),
                         child:  SizedBox(
                           width: songPreviewWidth,
-                          child: SimilarSongWidget(
+                          child: _SimilarSongPreview(
                             title: 'Aktualna piosenka',
                             song: widget.currentSong,
                             elevation: AppCard.bigElevation,
@@ -145,20 +145,20 @@ class SimilarSongViewerDialogState extends State<SimilarSongViewerDialog>{
 
 }
 
-class SimilarSongWidget extends StatefulWidget{
+class _SimilarSongPreview extends StatefulWidget{
 
   final String title;
   final SongRaw song;
   final double elevation;
 
-  const SimilarSongWidget({required this.song, this.title = 'Podobna piosenka', this.elevation = 0, super.key});
+  const _SimilarSongPreview({required this.song, this.title = 'Podobna piosenka', this.elevation = 0});
 
   @override
-  State<SimilarSongWidget> createState() => SimilarSongWidgetState();
+  State<_SimilarSongPreview> createState() => _SimilarSongPreviewState();
 
 }
 
-class SimilarSongWidgetState extends State<SimilarSongWidget>{
+class _SimilarSongPreviewState extends State<_SimilarSongPreview>{
 
   String get title => widget.title;
   SongRaw get song => widget.song;

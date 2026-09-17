@@ -15,7 +15,7 @@ import 'package:harcapp_web/songs/left_panel/song_list_view.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:provider/provider.dart';
 
-import '../song_editor_panel.dart';
+import '../similar_song_banner.dart';
 import 'code_editor_dialog.dart';
 import '../providers.dart';
 import 'contrib_rules_dialog.dart';
@@ -65,7 +65,7 @@ class SongTileState extends State<SongTile>{
                     padding: EdgeInsets.only(right: Dimen.defMarg),
                     child: Tooltip(
                       message: 'Piosenka o takim tytule już jest w śpiewniku',
-                      child: Icon(SimilarSongWidget.icon, color: Colors.red),
+                      child: Icon(SimilarSongBanner.icon, color: Colors.red),
                     ),
                   );
 
