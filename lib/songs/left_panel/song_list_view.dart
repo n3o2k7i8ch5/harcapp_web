@@ -55,6 +55,19 @@ enum NewSongType implements IconTextEnum{
       case NewSongType.newSongFromEmail: return 'Piosenka z mejla';
     }
   }
+
+  /// Akcja kryjąca się za danym typem. `newSong` to tylko rozwijane menu -
+  /// samo w sobie nic nie robi.
+  void handle(BuildContext context){
+    switch(this){
+      case NewSongType.importSongs: handleImportSongsTap(context); break;
+      case NewSongType.newSong: break;
+      case NewSongType.newSongExample: handleExampleSongTap(context); break;
+      case NewSongType.newSongFromCode: handleNewSongFromCode(context); break;
+      case NewSongType.newSongEmpty: handleNewSongEmptyTap(context); break;
+      case NewSongType.newSongFromEmail: handleNewSongFromEmail(context); break;
+    }
+  }
 }
 
 class SongListView extends StatefulWidget{
@@ -166,24 +179,7 @@ class SongListViewState extends State<SongListView>{
                                     icon: NewSongType.newSong.icon,
                                     onTap: null
                                 ),
-                                onSelected: (value){
-                                  switch(value){
-                                    case NewSongType.newSongExample:
-                                      handleExampleSongTap(context);
-                                      break;
-                                    case NewSongType.newSongFromCode:
-                                      handleNewSongFromCode(context);
-                                      break;
-                                    case NewSongType.newSongEmpty:
-                                      handleNewSongEmptyTap(context);
-                                      break;
-                                    case NewSongType.newSongFromEmail:
-                                      handleNewSongFromEmail(context);
-                                      break;
-                                    default:
-                                      break;
-                                  }
-                                },
+                                onSelected: (value) => value.handle(context),
                                 items: [
                                   NewSongType.newSongExample,
                                   NewSongType.newSongFromCode,
@@ -223,7 +219,7 @@ class NoSongsWidget extends StatelessWidget{
       shrinkWrap: true,
       children: [
 
-        ImportSongsButton(),
+        NewSongButton(NewSongType.importSongs),
 
         SizedBox(height: Dimen.sideMarg),
 
@@ -231,17 +227,17 @@ class NoSongsWidget extends StatelessWidget{
 
         SizedBox(height: Dimen.sideMarg),
 
-        NewExampleSongButton(),
+        NewSongButton(NewSongType.newSongExample),
 
-        NewEmptySongButton(),
+        NewSongButton(NewSongType.newSongEmpty),
 
         Consumer<EmailSongUnlockProvider>(
           builder: (context, prov, _) => prov.unlocked?
-          NewEmailSongButton():
+          NewSongButton(NewSongType.newSongFromEmail):
           const SizedBox.shrink(),
         ),
 
-        NewSongFromCodeButton(),
+        NewSongButton(NewSongType.newSongFromCode),
 
       ],
     ),

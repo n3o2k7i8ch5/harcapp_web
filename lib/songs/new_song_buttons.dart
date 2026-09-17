@@ -7,75 +7,37 @@ import 'package:provider/provider.dart';
 import 'providers.dart';
 
 
-class ImportSongsButton extends StatelessWidget{
+/// Duży, pionowy przycisk "dodaj piosenkę" - jeden na każdy [NewSongType].
+/// Ikonę, napis i akcję bierze z samego typu.
+class NewSongButton extends StatelessWidget{
 
-  @override
-  Widget build(BuildContext context) => SimpleButton.from(
+  static const double iconSize = 32.0;
+
+  final NewSongType type;
+
+  const NewSongButton(this.type, {super.key});
+
+  Widget _button(BuildContext context, {bool enabled = true}) => SimpleButton.from(
       context: context,
       color: backgroundIcon_(context),
-      icon: NewSongType.importSongs.icon,
-      iconSize: 32.0,
-      text: NewSongType.importSongs.text,
+      icon: type.icon,
+      iconSize: iconSize,
+      text: type.text,
       direction: Axis.vertical,
-      onTap: () => handleImportSongsTap(context)
+      textColor: enabled?iconEnab_(context):iconDisab_(context),
+      onTap: enabled?() => type.handle(context):null
   );
 
-}
-
-class NewExampleSongButton extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => Consumer<SimilarSongProvider>(
-      builder: (context, prov, child) => SimpleButton.from(
-          textColor: prov.allSongs == null?iconDisab_(context):iconEnab_(context),
-          color: backgroundIcon_(context),
-          icon: NewSongType.newSongExample.icon,
-          iconSize: 32.0,
-          text: NewSongType.newSongExample.text,
-          direction: Axis.vertical,
-          onTap: prov.allSongs == null?null:() => handleExampleSongTap(context)
-      )
-  );
+  Widget build(BuildContext context){
+    // Przykładowa piosenka wymaga wczytanego śpiewnika - dopóki się ładuje,
+    // przycisk jest wyszarzony.
+    if(type == NewSongType.newSongExample)
+      return Consumer<SimilarSongProvider>(
+        builder: (context, prov, child) => _button(context, enabled: prov.allSongs != null),
+      );
 
-}
-
-class NewEmptySongButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => SimpleButton.from(
-      context: context,
-      color: backgroundIcon_(context),
-      icon: NewSongType.newSongEmpty.icon,
-      iconSize: 32.0,
-      text: NewSongType.newSongEmpty.text,
-      direction: Axis.vertical,
-      onTap: () => handleNewSongEmptyTap(context)
-  );
-
-}
-
-class NewSongFromCodeButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => SimpleButton.from(
-      context: context,
-      color: backgroundIcon_(context),
-      icon: NewSongType.newSongFromCode.icon,
-      iconSize: 32.0,
-      text: NewSongType.newSongFromCode.text,
-      direction: Axis.vertical,
-      onTap: () => handleNewSongFromCode(context)
-  );
-
-}
-
-class NewEmailSongButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => SimpleButton.from(
-      context: context,
-      color: backgroundIcon_(context),
-      icon: NewSongType.newSongFromEmail.icon,
-      iconSize: 32.0,
-      text: NewSongType.newSongFromEmail.text,
-      direction: Axis.vertical,
-      onTap: () => handleNewSongFromEmail(context)
-  );
+    return _button(context);
+  }
 
 }

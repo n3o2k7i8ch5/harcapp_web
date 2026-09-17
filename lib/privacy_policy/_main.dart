@@ -89,7 +89,7 @@ class PrivacyPolicyPage extends StatelessWidget{
                       '\n'
                       '\nMateriały reklamowo – promocyjne wysyłamy Klientom jedynie wówczas, gdy dotyczą one zmian na stronie harcapp.web.app i aplikacji HarcApp.'
                       '\n'
-                      '\nWszelkie pytania, wnioski i sugestie odnoszące się do ochrony Państwa prywatności, w szczególności danych osobowych prosimy zgłaszać na adres harcapp@gmail.com.',
+                      '\nWszelkie pytania, wnioski i sugestie odnoszące się do ochrony Państwa prywatności, w szczególności danych osobowych prosimy zgłaszać na adres $harcappEmail.',
                   style: TextStyle(
                     fontSize: Dimen.textSizeBig,
                     color: iconEnab_(context),

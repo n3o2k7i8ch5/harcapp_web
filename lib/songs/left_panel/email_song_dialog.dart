@@ -32,7 +32,6 @@ import 'package:harcapp_web/songs/song_preview_widget.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:provider/provider.dart';
 
-const String _harcappInboxEmail = 'harcapp@gmail.com';
 
 final RegExp _emailRe =
     RegExp(r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$');
@@ -604,7 +603,7 @@ class _SenderBlockState extends State<_SenderBlock> {
   @override
   Widget build(BuildContext context) {
     final parsed = widget.parsedSenderEmail;
-    final isHarcappInbox = parsed != null && parsed.toLowerCase() == _harcappInboxEmail;
+    final isHarcappInbox = parsed != null && parsed.toLowerCase() == harcappEmail;
 
     final Widget body;
     final Widget? trailing;

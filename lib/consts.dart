@@ -15,3 +15,6 @@ const double appDialogMaxWidth = AppLayout.appDialogMaxWidth;
 const double songDialogWidth = AppLayout.songDialogWidth;
 const double drawerWidth = AppLayout.drawerWidth;
 const double songPreviewWidth = AppLayout.songPreviewWidth;
+/// Skrzynka HarcAppu - adres, na który trafiają propozycje piosenek
+/// i pod którym zgłasza się sprawy dotyczące prywatności.
+const String harcappEmail = 'harcapp@gmail.com';

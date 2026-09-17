@@ -181,11 +181,11 @@ class ClickHereWidget extends StatelessWidget {
 
               SizedBox(height: NoSongsWidget.paddingVal),
 
-              NewEmptySongButton(),
+              NewSongButton(NewSongType.newSongEmpty),
 
               SizedBox(height: 20.0),
 
-              NewExampleSongButton(),
+              NewSongButton(NewSongType.newSongExample),
 
               SizedBox(height: 20.0),
               Icon(MdiIcons.circleMedium, color: textDisab_(context)),

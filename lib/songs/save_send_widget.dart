@@ -318,7 +318,7 @@ class HowToContributeDialog extends StatelessWidget{
       BulletPoint(2, 'Pobierz plik z piosenkami przyciskiem "<b>Zapisz wszystko</b>".'),
       SizedBox(height: textSeparation),
 
-      BulletPoint(3, 'Wyślij mejlem pobrany plik na adres: <b>harcapp@gmail.com</b>.'),
+      BulletPoint(3, 'Wyślij mejlem pobrany plik na adres: <b>$harcappEmail</b>.'),
 
       SizedBox(height: 24),
 
