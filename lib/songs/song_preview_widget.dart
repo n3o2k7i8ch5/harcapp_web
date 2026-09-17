@@ -15,9 +15,32 @@ import 'package:flutter_material_design_icons/flutter_material_design_icons.dart
 import 'package:pretty_json/pretty_json.dart';
 import 'package:provider/provider.dart';
 
-class SongPreviewWidget extends StatelessWidget{
+class SongPreviewWidget extends StatefulWidget{
 
-  const SongPreviewWidget();
+  const SongPreviewWidget({super.key});
+
+  @override
+  State<SongPreviewWidget> createState() => SongPreviewWidgetState();
+
+}
+
+class SongPreviewWidgetState extends State<SongPreviewWidget>{
+
+  late ScrollController scrollController;
+  late SongBaseSettings settings;
+
+  @override
+  void initState() {
+    scrollController = ScrollController();
+    settings = SongBaseSettings();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => Consumer2<CurrentItemProvider, SongPreviewProvider>(
@@ -94,10 +117,9 @@ class SongPreviewWidget extends StatelessWidget{
                 ):
                 SongWidgetTemplate<SongRaw>(
                   currItemProv.song,
-                  SongBaseSettings(),
+                  settings,
                   cacheSizes: false,
-                  scrollController: ScrollController(),
-                  key: UniqueKey(),
+                  scrollController: scrollController,
                 ),
               )
           )

@@ -41,6 +41,12 @@ class SimilarSongViewerDialogState extends State<SimilarSongViewerDialog>{
   }
 
   @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) => Center(
       child: Container(
         constraints: BoxConstraints(
@@ -139,13 +145,40 @@ class SimilarSongViewerDialogState extends State<SimilarSongViewerDialog>{
 
 }
 
-class SimilarSongWidget extends StatelessWidget{
+class SimilarSongWidget extends StatefulWidget{
 
   final String title;
   final SongRaw song;
   final double elevation;
 
   const SimilarSongWidget({required this.song, this.title = 'Podobna piosenka', this.elevation = 0, super.key});
+
+  @override
+  State<SimilarSongWidget> createState() => SimilarSongWidgetState();
+
+}
+
+class SimilarSongWidgetState extends State<SimilarSongWidget>{
+
+  String get title => widget.title;
+  SongRaw get song => widget.song;
+  double get elevation => widget.elevation;
+
+  late ScrollController scrollController;
+  late SongBaseSettings settings;
+
+  @override
+  void initState() {
+    scrollController = ScrollController();
+    settings = SongBaseSettings();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => Material(
@@ -160,9 +193,8 @@ class SimilarSongWidget extends StatelessWidget{
           Expanded(
             child: SongWidgetTemplate<SongRaw>(
                 song,
-                SongBaseSettings(),
-                scrollController: ScrollController(),
-                key: UniqueKey(),
+                settings,
+                scrollController: scrollController,
             ),
           )
 
