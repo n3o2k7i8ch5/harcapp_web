@@ -439,7 +439,10 @@ class _PreviewPanel extends StatelessWidget {
 
           _AlreadyExistsBanner(song: p.song),
 
-          _SongPreviewBlock(song: p.song),
+          _SongPreviewBlock(
+            song: p.song,
+            key: ValueKey(p.song.title + p.song.songParts.length.toString()),
+          ),
 
         ],
       ),
@@ -855,19 +858,41 @@ class _PersonBlockState extends State<_PersonBlock> with SingleTickerProviderSta
 
 }
 
-class _SongPreviewBlock extends StatelessWidget {
+class _SongPreviewBlock extends StatefulWidget {
 
   final SongRaw song;
 
-  const _SongPreviewBlock({required this.song});
+  const _SongPreviewBlock({required this.song, super.key});
+
+  @override
+  State<_SongPreviewBlock> createState() => _SongPreviewBlockState();
+
+}
+
+class _SongPreviewBlockState extends State<_SongPreviewBlock> {
+
+  late ScrollController scrollController;
+  late SongBaseSettings settings;
+
+  @override
+  void initState() {
+    scrollController = ScrollController();
+    settings = SongBaseSettings();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => SongWidgetTemplate<SongRaw>(
-    song,
-    SongBaseSettings(),
+    widget.song,
+    settings,
     cacheSizes: false,
-    scrollController: ScrollController(),
-    key: ValueKey(song.title + song.songParts.length.toString()),
+    scrollController: scrollController,
   );
 
 }
