@@ -1092,17 +1092,16 @@ class _TopActions extends StatelessWidget {
                 if (choice == null) return;
 
                 if (choice == _LoadSourceChoice.singleFile) {
-                  FilePickerResult? result = await FilePicker.pickFiles(
+                  final PlatformFile? file = await FilePicker.pickFile(
                     type: FileType.custom,
                     allowedExtensions: ['hrcpknspkt'],
-                    withData: true,
                   );
 
-                  if (result == null) return;
+                  if (file == null) return;
 
-                  final Uint8List? bytes = result.files.single.bytes;
+                  final Uint8List bytes = await file.readAsBytes();
 
-                  if (bytes == null) {
+                  if (bytes.isEmpty) {
                     AppScaffold.showMessage(context, text: 'Coś poszło nie tak.');
                     return;
                   }
@@ -1234,15 +1233,14 @@ class _CoverWidget extends StatelessWidget {
   const _CoverWidget({required this.konspektData, required this.onChanged});
 
   Future<void> setCover(BuildContext context, StateSetter setState) async {
-    FilePickerResult? result = await FilePicker.pickFiles(
+    final PlatformFile? file = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: ['png', 'jpg', 'jpeg', 'webp'],
-      withData: true,
     );
-    if (result == null || result.files.isEmpty) return;
+    if (file == null) return;
 
-    final bytes = result.files.first.bytes;
-    if (bytes == null) return;
+    final bytes = await file.readAsBytes();
+    if (bytes.isEmpty) return;
 
     final processedBytes = await processCoverImage(context, bytes);
     if (processedBytes == null) return;

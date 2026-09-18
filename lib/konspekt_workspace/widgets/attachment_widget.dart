@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:harcapp_web/konspekt_workspace/models/platform_file_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_web/common/download_file.dart';
@@ -49,7 +50,7 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
 
   TextEditingController get nameController => widget.data.nameController;
   TextEditingController get titleController => widget.data.titleController;
-  Map<FileFormat, PlatformFile?> get pickedFiles => widget.data.pickedFiles;
+  Map<FileFormat, PickedFile?> get pickedFiles => widget.data.pickedFiles;
   Map<FileFormat, String?> get pickedUrls => widget.data.pickedUrls;
 
   Set<FileFormat> get selectedFormats{
@@ -119,16 +120,15 @@ class _AttachmentWidgetState extends State<AttachmentWidget>{
 
     // File-based picking
     final String ext = format.extension;
-    FilePickerResult? result = await FilePicker.pickFiles(
+    final PlatformFile? file = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: [ext],
-      withData: true,
     );
-    if (result != null && result.files.isNotEmpty) {
-      setState(() => pickedFiles[format] = result.files.single);
-      return true;
-    }
-    return false;
+    if (file == null) return false;
+
+    final picked = await PickedFile.read(file);
+    setState(() => pickedFiles[format] = picked);
+    return true;
   }
 
   bool isReferencedByMaterial(){

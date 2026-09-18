@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:file_picker/file_picker.dart';
+import 'package:harcapp_web/konspekt_workspace/models/platform_file_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:harcapp_core/comm_classes/meto.dart';
@@ -542,22 +542,19 @@ void main() {
       nameController: TextEditingController(text: 'example_attachments'),
       titleController: TextEditingController(text: 'Przykładowe załączniki'),
       pickedFiles: {
-        FileFormat.pdf: PlatformFile(
+        FileFormat.pdf: PickedFile(
           name: 'example.pdf',
           path: pdfFile.path,
-          size: pdfBytes.length,
           bytes: pdfBytes,
         ),
-        FileFormat.docx: PlatformFile(
+        FileFormat.docx: PickedFile(
           name: 'example.docx',
           path: docxFile.path,
-          size: docxBytes.length,
           bytes: docxBytes,
         ),
-        FileFormat.webp: PlatformFile(
+        FileFormat.webp: PickedFile(
           name: 'example.webp',
           path: webpFile.path,
-          size: webpBytes.length,
           bytes: webpBytes,
         ),
       },
@@ -570,9 +567,9 @@ void main() {
 
     // Test that pickedFiles contains the expected formats
     expect(konspektAttachment.pickedFiles.keys.toSet(), {FileFormat.pdf, FileFormat.docx, FileFormat.webp});
-    expect(konspektAttachment.pickedFiles[FileFormat.pdf]!.bytes!.isNotEmpty, true);
-    expect(konspektAttachment.pickedFiles[FileFormat.docx]!.bytes!.isNotEmpty, true);
-    expect(konspektAttachment.pickedFiles[FileFormat.webp]!.bytes!.isNotEmpty, true);
+    expect(konspektAttachment.pickedFiles[FileFormat.pdf]!.bytes.isNotEmpty, true);
+    expect(konspektAttachment.pickedFiles[FileFormat.docx]!.bytes.isNotEmpty, true);
+    expect(konspektAttachment.pickedFiles[FileFormat.webp]!.bytes.isNotEmpty, true);
   });
   
   test('KonspektData.toHrcpknspktData uses coverImageBytes and toJsonMap', () {
@@ -821,10 +818,9 @@ void main() {
       nameController: TextEditingController(text: 'file_attachment'),
       titleController: TextEditingController(text: 'Załącznik z plikiem'),
       pickedFiles: {
-        FileFormat.pdf: PlatformFile(
+        FileFormat.pdf: PickedFile(
           name: 'example.pdf',
           path: pdfFile.path,
-          size: pdfBytes.length,
           bytes: pdfBytes,
         ),
       },
@@ -861,9 +857,8 @@ void main() {
         pickedFiles: {
           // The on-disk filename differs from the attachment name on purpose —
           // mirrors real data where assets.pdf keeps the original upload name.
-          FileFormat.pdf: PlatformFile(
+          FileFormat.pdf: PickedFile(
             name: 'załączniki kw.pdf',
-            size: pdfBytes.length,
             bytes: pdfBytes,
           ),
         },

@@ -45,7 +45,7 @@ SongRaw parseOldCode(String id, String code){
     contributorData: null,
     youtubeVideoId: basicData.youtubeLink==null?
       null:
-      YoutubePlayer.convertUrlToId(basicData.youtubeLink!),
+      YoutubePlayerController.convertUrlToId(basicData.youtubeLink!),
 
     tags: basicData.tags,
 

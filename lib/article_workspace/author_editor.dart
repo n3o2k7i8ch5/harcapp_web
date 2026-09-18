@@ -307,15 +307,15 @@ class AuthorEditorPageState extends State<AuthorEditorPage> with AutomaticKeepAl
               //     fileExtension: '.hrcpsng'
               // );
 
-              FilePickerResult? result = await FilePicker.pickFiles();
+              final PlatformFile? file = await FilePicker.pickFile();
 
               //FilePickerCross filePicker = FilePickerCross();
               //await filePicker.pick();
 
-              if(result==null)
+              if(file==null)
                 return;
 
-              Uint8List uint8List = result.files.single.bytes!;
+              Uint8List uint8List = await file.readAsBytes();
               String code = utf8.decode(uint8List);
 
               Author author = Author.fromJson(code);
@@ -396,13 +396,11 @@ Uint8List resize(Uint8List? imageBytes) {
 }
 
 Future<void> loadImage(BuildContext context, AuthorEditorPageState state) async {
-  final result = await FilePicker.pickFiles(
-    type: FileType.image,
-    withData: true,
-  );
-  final Uint8List? imageBytes = result?.files.single.bytes;
+  final file = await FilePicker.pickFile(type: FileType.image);
 
-  if(imageBytes == null) return;
+  if(file == null) return;
+
+  final Uint8List imageBytes = await file.readAsBytes();
 
   ui.Image image = await decodeImageFromList(imageBytes);
 

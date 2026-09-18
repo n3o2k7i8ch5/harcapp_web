@@ -137,8 +137,8 @@ class KonspektData extends BaseKonspekt {
     final Map<String, Uint8List> attachmentFilesMap = {};
     for (final att in attachments) {
       for (final entry in att.pickedFiles.entries) {
-        if (entry.value?.bytes != null) {
-          attachmentFilesMap['${att.name}.${entry.key.extension}'] = entry.value!.bytes!;
+        if (entry.value != null) {
+          attachmentFilesMap['${att.name}.${entry.key.extension}'] = entry.value!.bytes;
         }
       }
     }

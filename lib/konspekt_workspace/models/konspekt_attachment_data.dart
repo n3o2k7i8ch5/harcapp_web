@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/missing_decode_param_error.dart';
 import 'package:harcapp_core/comm_classes/text_utils.dart';
@@ -11,7 +10,7 @@ import 'package:harcapp_web/konspekt_workspace/models/platform_file_utils.dart';
 class KonspektAttachmentData extends BaseKonspektAttachment{
   final TextEditingController nameController;
   final TextEditingController titleController;
-  final Map<FileFormat, PlatformFile?> pickedFiles;
+  final Map<FileFormat, PickedFile?> pickedFiles;
   final Map<FileFormat, String?> pickedUrls;
 
   bool printInfoEnabled;
@@ -53,7 +52,7 @@ class KonspektAttachmentData extends BaseKonspektAttachment{
   Map toJsonMap() => {
     'name': name,
     'title': title,
-    'pickedFiles': pickedFiles.map((key, value) => MapEntry(key.apiParam, value==null?null:platformFileToJsonMap(value))),
+    'pickedFiles': pickedFiles.map((key, value) => MapEntry(key.apiParam, value==null?null:pickedFileToJsonMap(value))),
     'pickedUrls': pickedUrls.map((key, value) => MapEntry(key.apiParam, value)),
     'printInfoEnabled': printInfoEnabled,
     'printSide': printSide.apiParam,
@@ -99,8 +98,8 @@ class KonspektAttachmentData extends BaseKonspektAttachment{
     titleController: TextEditingController(text: map['title']),
     pickedFiles: (map['pickedFiles'] as Map).map((key, value) => MapEntry(
         FileFormat.fromApiParam(key)??(throw InvalidDecodeParamError('FileFormat', key)),
-        value==null?null:platformFileFromJsonMap(value))
-    ).cast<FileFormat, PlatformFile?>(),
+        value==null?null:pickedFileFromJsonMap(value))
+    ).cast<FileFormat, PickedFile?>(),
     pickedUrls: (map['pickedUrls'] as Map).map((key, value) => MapEntry(
         FileFormat.fromApiParam(key)??(throw InvalidDecodeParamError('FileFormat', key)),
         value as String?)
@@ -120,7 +119,7 @@ class KonspektAttachmentData extends BaseKonspektAttachment{
     Map<String, Uint8List> attachmentFiles = const {},
   }) {
     final Map<FileFormat, String?> urlAssets = {};
-    final Map<FileFormat, PlatformFile?> fileAssets = {};
+    final Map<FileFormat, PickedFile?> fileAssets = {};
     for (final entry in a.assets.entries) {
       final FileFormat format = entry.key;
       if (format.isUrl) {
@@ -133,9 +132,8 @@ class KonspektAttachmentData extends BaseKonspektAttachment{
       final String fileName = (entry.value?.isNotEmpty ?? false)
           ? entry.value!
           : '${a.name}.${format.extension}';
-      fileAssets[format] = PlatformFile(
+      fileAssets[format] = PickedFile(
         name: fileName,
-        size: bytes.length,
         bytes: bytes,
       );
     }

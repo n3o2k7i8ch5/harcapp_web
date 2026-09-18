@@ -133,13 +133,12 @@ class EmailSongDialogState extends State<EmailSongDialog> {
   /// Nowy format: piosenka jest w załączniku, a treść mejla niesie sam
   /// dopisek autora.
   Future<void> _pickSubmissionFile() async {
-    final result = await FilePicker.pickFiles(
+    final file = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: [kSubmissionFileExtension],
-      withData: true,
     );
-    final bytes = result?.files.single.bytes;
-    if(bytes == null) return;
+    if(file == null) return;
+    final bytes = await file.readAsBytes();
     _applySubmissionFile(utf8.decode(bytes));
   }
 

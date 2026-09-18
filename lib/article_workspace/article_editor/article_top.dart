@@ -33,11 +33,8 @@ class ArticleTop extends StatelessWidget{
         AppButton(
           icon: Icon(Icons.image, color: HEADER_TEXT_COLOR),
           onTap: () async {
-            final result = await FilePicker.pickFiles(
-              type: FileType.image,
-              withData: true,
-            );
-            page.setImage(result?.files.single.bytes);
+            final file = await FilePicker.pickFile(type: FileType.image);
+            page.setImage(file == null? null: await file.readAsBytes());
           },
         ),
 
