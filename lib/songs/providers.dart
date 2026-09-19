@@ -106,6 +106,12 @@ class AllSongsProvider extends ChangeNotifier{
     notifyListeners();
   }
 
+  /// Ile piosenek faktycznie wchodzi do śpiewnika. Przy przeglądzie
+  /// piosenkomatem resztę zgasiłeś przełącznikiem; poza przeglądem
+  /// równe [length].
+  int get goingInCount =>
+      _songs.where((s) => s.piosenkomatData?.goesIn != false).length;
+
   bool? isConf(SongRaw song) => _confMap[song];
 
   void set(SongRaw song, bool isConf){

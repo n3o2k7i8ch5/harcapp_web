@@ -4,6 +4,7 @@ import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/values/dimen.dart';
+import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +12,13 @@ import 'package:provider/provider.dart';
 class SongListTileWidget extends StatelessWidget{
 
   static const double height = Dimen.iconFootprint;
+
+  /// Samo „18”, a przy przeglądzie z odrzuconymi — „11 z 18”.
+  static String _countText(AllSongsProvider prov){
+    final goingIn = prov.goingInCount;
+    if(goingIn == prov.length) return '${prov.length}';
+    return '$goingIn z ${prov.length}';
+  }
 
   final TextAlign textAlign;
   final bool showDuplicated;
@@ -30,13 +38,18 @@ class SongListTileWidget extends StatelessWidget{
                     onTap: () => Navigator.pop(context)
                 ),
 
+              // Licznik przez `CurrentItemProvider`, bo przełącznik werdyktu
+              // przy przeglądzie notyfikuje właśnie jego — piosenki są te same
+              // obiekty, więc przeliczenie widzi zmianę od razu.
               IntrinsicWidth(
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => EmailSongUnlockProvider.of(context).registerClick(),
-                  child: TitleShortcutRowWidget(
-                    title: 'Piosenki (${allSongsProv.length})',
-                    textAlign: textAlign,
+                  child: Consumer<CurrentItemProvider>(
+                    builder: (context, _, __) => TitleShortcutRowWidget(
+                      title: 'Piosenki (${_countText(allSongsProv)})',
+                      textAlign: textAlign,
+                    ),
                   ),
                 ),
               ),
