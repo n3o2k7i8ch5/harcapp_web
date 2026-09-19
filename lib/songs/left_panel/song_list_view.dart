@@ -21,6 +21,7 @@ import 'package:flutter_material_design_icons/flutter_material_design_icons.dart
 import 'package:provider/provider.dart';
 
 import 'code_editor_dialog.dart';
+import 'correction_import_dialog.dart';
 import 'import_selection_dialog.dart';
 import 'song_file_drop_target.dart';
 import 'email_song_dialog.dart';
@@ -275,10 +276,38 @@ void importSongsFromFiles(BuildContext context, List<Uint8List> filesBytes){
   showImportSelectionDialog(
       context,
       songs: parsedSongs,
-      onImport: (selectedSongs) => addImportedSongs(
+      onImport: (selectedSongs) => handleSelectedSongsImport(
           context,
           selectedSongs,
           {for(SongRaw song in selectedSongs) song: confMap[song]!}
+      )
+  );
+
+}
+
+/// Wpuszcza wybrane piosenki do warsztatu, a przy poprawkach czegoś, co już
+/// w warsztacie jest, najpierw pyta, czy pierwowzór ma zniknąć.
+void handleSelectedSongsImport(BuildContext context, List<SongRaw> songs, Map<SongRaw, bool> confMap){
+
+  List<CorrectionConflict> conflicts =
+      findCorrectionConflicts(songs, AllSongsProvider.of(context).songs);
+
+  if(conflicts.isEmpty){
+    addImportedSongs(context, songs, confMap);
+    return;
+  }
+
+  showCorrectionImportDialog(
+      context,
+      conflicts: conflicts,
+      onChosen: (mode) => addImportedSongs(
+          context,
+          songs,
+          confMap,
+          replaced:
+          mode == CorrectionImportMode.replace?
+          [for(CorrectionConflict conflict in conflicts) ...conflict.existing]:
+          const []
       )
   );
 
@@ -314,32 +343,55 @@ void importSongsFromFiles(BuildContext context, List<Uint8List> filesBytes){
 
 }
 
-/// Dodaje do śpiewnika piosenki wybrane w oknie importu.
-void addImportedSongs(BuildContext context, List<SongRaw> songs, Map<SongRaw, bool> confMap){
+/// Dodaje do śpiewnika piosenki wybrane w oknie importu. [replaced] to te,
+/// które import zastępuje - znikają z warsztatu, a cofnięcie je przywraca.
+void addImportedSongs(
+    BuildContext context,
+    List<SongRaw> songs,
+    Map<SongRaw, bool> confMap,
+    { List<SongRaw> replaced = const [] }){
 
   if(songs.isEmpty) return;
 
-  AllSongsProvider.of(context).addAll(songs, confMap);
+  AllSongsProvider allSongsProv = AllSongsProvider.of(context);
+
+  // Przynależność (oficjalna/niejawna) zdejmujemy przed usunięciem - po nim
+  // provider już jej nie zna, a cofnięcie musi ją oddać.
+  Map<SongRaw, bool> replacedConfMap = {
+    for(SongRaw song in replaced) song: allSongsProv.isConf(song)??song.isConfid
+  };
+
+  if(replaced.isNotEmpty) allSongsProv.removeAll(replaced);
+
+  allSongsProv.addAll(songs, confMap);
   displaySong(context, songs.first);
 
   SearchListProvider.of(context).research();
   SongFileNameDupErrProvider.of(context).checkAllDups(context);
 
-  AppScaffold.showMessage(
-      context,
-      text:
+  String text =
       songs.length == 1?
       'Zaimportowano 1 piosenkę':
-      'Zaimportowano ${songs.length} piosenek',
+      'Zaimportowano ${songs.length} piosenek';
+
+  if(replaced.isNotEmpty)
+    text += replaced.length == 1?
+    ', podmieniono 1':
+    ', podmieniono ${replaced.length}';
+
+  AppScaffold.showMessage(
+      context,
+      text: text,
       buttonText: 'Cofnij',
-      onButtonPressed: () => undoSongImport(context, songs),
+      onButtonPressed: () => undoSongImport(context, songs, replacedConfMap),
       duration: const Duration(seconds: 10)
   );
 
 }
 
-/// Cofa import - usuwa dokładnie te piosenki, które przed chwilą doszły.
-void undoSongImport(BuildContext context, List<SongRaw> songs){
+/// Cofa import - usuwa dokładnie te piosenki, które przed chwilą doszły,
+/// i oddaje te, które import podmienił.
+void undoSongImport(BuildContext context, List<SongRaw> songs, [Map<SongRaw, bool> replaced = const {}]){
 
   if(!context.mounted) return;
 
@@ -349,6 +401,7 @@ void undoSongImport(BuildContext context, List<SongRaw> songs){
   bool currentSongRemoved = songs.contains(CurrentItemProvider.of(context).song);
 
   allSongsProv.removeAll(songs);
+  if(replaced.isNotEmpty) allSongsProv.addAll(replaced.keys.toList(), replaced);
 
   if(currentSongRemoved){
     if(remIndex >= allSongsProv.length) remIndex = allSongsProv.length - 1;

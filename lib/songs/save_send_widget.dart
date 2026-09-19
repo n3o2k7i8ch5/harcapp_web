@@ -10,8 +10,9 @@ import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/app_text.dart';
 import 'package:harcapp_core/comm_widgets/dialog/app_dialog.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
-import 'package:harcapp_core/song_book/contrib_song_email.dart';
 import 'package:harcapp_core/song_book/piosenkomat/file_names.dart';
+import 'package:harcapp_core/song_book/submission/submission_email.dart';
+import 'package:harcapp_core/song_book/submission/submission_file.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/common/download_file.dart';
 import 'package:harcapp_web/consts.dart';
@@ -149,9 +150,7 @@ class SaveSendWidget extends StatelessWidget{
 class HowToSendEmailWidget extends StatelessWidget{
 
   @override
-  Widget build(BuildContext context){
-    final songs = AllSongsProvider.of(context).songs;
-    return Column(
+  Widget build(BuildContext context) => Column(
     mainAxisSize: MainAxisSize.min,
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
@@ -172,8 +171,10 @@ class HowToSendEmailWidget extends StatelessWidget{
           title: 'Tytuł mejla',
           text: composeSubmissionEmailSubject(
             origin: SubmissionOrigin.web,
-            song: songs.length == 1? songs.single: null,
-            songCount: songs.length,
+            song: AllSongsProvider.of(context).length == 1
+                ? AllSongsProvider.of(context).songs.single
+                : null,
+            songCount: AllSongsProvider.of(context).length,
           ),
         ),
       ),
@@ -189,9 +190,12 @@ class HowToSendEmailWidget extends StatelessWidget{
         child: CopiableText(
           title: 'Treść mejla',
           text: composeSubmissionEmailBody(
-            attachmentFileName: suggestedSaveFileName(songs),
+            attachmentFileName:
+                suggestedSaveFileName(AllSongsProvider.of(context).songs),
             acceptRulesVersion:
                 SongContributionRulesAcceptanceManager.acceptedRulesVersion,
+            // Strona wysyła całą paczkę jednym mejlem.
+            oneSongPerMail: false,
           ),
         ),
       ),
