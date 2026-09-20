@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:harcapp_core/comm_classes/text_utils.dart';
+import 'package:harcapp_core/song_book/similarity/song_index.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 
 /// Wrzuca piosenkę do indeksu pod jej tytułem i pod każdym tytułem ukrytym.
@@ -36,7 +37,29 @@ Map<String, List<SongRaw>> decodeSongs(String allSongsCode) {
 
 }
 
-Future<Map<String, List<SongRaw>>> loadSongs()async{
+/// Cały śpiewnik jako indeks do porównań. Profile (zbiory słów, klucze
+/// tytułów, odwrócony indeks) liczą się raz — tu, w `compute`, żeby start
+/// strony nie stawał. Zepsuta pojedyncza piosenka nie wywala indeksu, tak
+/// samo jak w [decodeSongs].
+Future<SongIndex<SongRaw>> loadAppSongIndex() async {
   String allSongsCode = await rootBundle.loadString('packages/harcapp_core/assets/songs/all_songs.hrcpsng');
-  return await compute(decodeSongs, allSongsCode);
+  return await compute(buildAppSongIndex, allSongsCode);
+}
+
+SongIndex<SongRaw> buildAppSongIndex(String allSongsCode) {
+
+  Map allSongsJSONMap = jsonDecode(allSongsCode);
+
+  List<SongRaw> songs = [];
+
+  for(String section in const ['official', 'conf'])
+    for(String songId in allSongsJSONMap[section].keys)
+      try {
+        songs.add(SongRaw.fromApiRespMap(songId, allSongsJSONMap[section][songId]['song']));
+      } on Error catch(e, s){
+        debugPrint('Pominięto piosenkę $section/$songId: $e\n$s');
+      }
+
+  return SongIndex(songs);
+
 }

@@ -6,13 +6,13 @@ import 'package:harcapp_core/comm_widgets/app_bar.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/dialog/base.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
-import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
-import 'package:harcapp_core/song_book/piosenkomat/piosenkomat_data.dart';
+import 'package:harcapp_core/song_book/similarity/similarity.dart';
+import 'package:harcapp_core/song_book/similarity/similarity_widgets.dart';
+import 'package:harcapp_core/song_book/similarity/song_index.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
-import 'package:harcapp_core/song_book/widgets/song_widget_template.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/consts.dart';
-import 'package:harcapp_web/songs/song_preview_widget.dart';
+import 'package:harcapp_web/songs/song_compare_preview.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
 /// Importowana piosenka i to, co ona zastaje w warsztacie pod tym samym id.
@@ -41,28 +41,37 @@ enum ImportConflictChoice{
 /// Poprawka **nie zdradza się polem `piosenkomat`**: `prepare` ten ślad zdejmuje,
 /// a poprawionej piosence ustawia `id` poprawianej (w apce piosenki są
 /// referencjonowane po `lclId`). Poznajemy ją więc po tym, po czym i tak widać
-/// konflikt: po zbieżności id z czymś, co już w warsztacie leży. Gdy ślad
-/// jeszcze jest (`candidates-*`, `reviewed-*`), bierzemy dodatkowo cel poprawki
-/// - tam id poprawki potrafi być inne niż id pierwowzoru.
+/// konflikt: po dowodzie [SameId] z indeksu warsztatu. Gdy ślad jeszcze jest
+/// (`candidates-*`, `reviewed-*`), bierzemy dodatkowo cel poprawki — tam id
+/// poprawki potrafi być inne niż id pierwowzoru.
+///
+/// Celowo **nie** `correctionTargetOf`: ono liczy też `correctedSongId`,
+/// a piosenka przerobiona z cudzej i importowana obok oryginału to nie
+/// kolizja — to inna piosenka, która pamięta, z czego powstała.
 List<ImportConflict> findImportConflicts(
     List<SongRaw> imported,
     List<SongRaw> workspace,
 ){
 
+  SongIndex<SongRaw> index = SongIndex(workspace);
+  bool fromImport(SongRaw s) => imported.any((i) => identical(i, s));
+
   List<ImportConflict> conflicts = [];
 
   for(SongRaw song in imported){
-    PiosenkomatData? data = song.piosenkomatData;
-
-    Set<String> targetIds = {song.id, if(data?.correctionTarget != null) data!.correctionTarget!};
-
-    List<SongRaw> existing = workspace.where((s) =>
-        targetIds.contains(s.id) && !imported.any((i) => identical(i, s))
-    ).toList();
+    // Set po tożsamości: `SongRaw` nie nadpisuje `==`, a ta sama piosenka
+    // może wyjść i po id, i po celu poprawki.
+    Set<SongRaw> existing = {
+      for(SongMatch<SongRaw> m in index.matches(SongProfile(song), exclude: fromImport))
+        if(m.similarities.any((s) => s is SameId)) m.song,
+      if(song.piosenkomatData?.correctionTarget case final target?)
+        for(SongRaw s in index.allById(target))
+          if(!fromImport(s)) s,
+    };
 
     if(existing.isEmpty) continue;
 
-    conflicts.add(ImportConflict(song, existing));
+    conflicts.add(ImportConflict(song, existing.toList()));
   }
 
   return conflicts;
@@ -79,6 +88,10 @@ void showImportConflictDialog(
     }) => openBaseDialog(
     context: context,
     maxWidth: 2*songPreviewWidth + 6*Dimen.sideMarg,
+    // Szare tło, na nim białe, uniesione karty — obie tak samo. Jedna płaska,
+    // druga uniesiona sugerowałaby, że któraś jest „tą właściwą”, a tu
+    // właśnie o to pytamy.
+    color: cardEnab_(context),
     builder: (context) => ImportConflictDialog(conflicts: conflicts, onResolved: onResolved)
 );
 
@@ -142,33 +155,31 @@ class ImportConflictDialogState extends State<ImportConflictDialog>{
   }
 
   @override
-  Widget build(BuildContext context) => ConstrainedBox(
+  Widget build(BuildContext context){
+    final List<Similarity> similarities = compare(
+      SongProfile(conflict.imported),
+      SongProfile(conflict.existing.first),
+    );
+
+    return ConstrainedBox(
     constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height - 2*Dimen.sideMarg),
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
 
+        // Pasek w kolorze okna: motyw daje mu `background` (biały), a na
+        // szarym oknie biały pasek z cieniem wygląda jak osobna, nakładająca
+        // się karta.
         AppBarX(
             title:
             conflicts.length == 1?
             'Ta piosenka już jest w warsztacie':
-            'Piosenka już w warsztacie (${index + 1} z ${conflicts.length})'
+            'Piosenka już w warsztacie (${index + 1} z ${conflicts.length})',
+            backgroundColor: cardEnab_(context),
         ),
 
-        // Tytuły obu piosenek widać w podglądach pod spodem, więc zdanie o nich
-        // byłoby powtórzeniem. Zostaje jedyna rzecz, której podglądy nie niosą:
-        // id, które koliduje.
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Dimen.sideMarg),
-          child: Text(
-            'to samo id: ${conflict.existing.map((s) => s.id).join(', ')}',
-            textAlign: TextAlign.center,
-            style: AppTextStyle(fontSize: Dimen.textSizeNormal, color: hintEnab_(context)),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-
+        // Bez zdania „to samo id” pod paskiem: id widać w nagłówku każdej
+        // karty, a pastylka przy nowej mówi, że jest wspólne.
         const SizedBox(height: Dimen.sideMarg),
 
         Flexible(
@@ -182,12 +193,15 @@ class ImportConflictDialogState extends State<ImportConflictDialog>{
                   // Kolizji z kilkoma piosenkami w warsztacie prawie nie ma
                   // (to id powtórzone po stronie warsztatu), ale gdy jest,
                   // pokazujemy pierwszą i mówimy, ile ich razem.
-                  child: _ConflictSongPreview(
+                  child: SongComparePreview(
+                    key: ObjectKey(conflict.existing.first),
                     song: conflict.existing.first,
-                    title:
+                    label:
                     conflict.existing.length == 1?
-                    'Stara (w warsztacie)':
-                    'Stara (w warsztacie, 1 z ${conflict.existing.length})',
+                    'stara · w warsztacie':
+                    'stara · w warsztacie · 1 z ${conflict.existing.length}',
+                    icon: MdiIcons.laptop,
+                    elevation: AppCard.bigElevation,
                   ),
                 ),
               ),
@@ -195,9 +209,17 @@ class ImportConflictDialogState extends State<ImportConflictDialog>{
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(left: Dimen.sideMarg/2, right: Dimen.sideMarg),
-                  child: _ConflictSongPreview(
+                  // Pastylki przy **nowej**: to ona przychodzi i to o niej
+                  // pytamy — „to samo id, ten sam tekst” względem starej.
+                  // Kolor po poziomie, jak w belce, a nie szary: szare
+                  // na szarym ginęło.
+                  child: SongComparePreview(
+                    key: ObjectKey(conflict.imported),
                     song: conflict.imported,
-                    title: 'Nowa (z importu)',
+                    label: 'nowa · z importu',
+                    icon: MdiIcons.trayArrowDown,
+                    similarities: similarities,
+                    pillColor: matchLevelColor(levelOf(similarities)),
                     elevation: AppCard.bigElevation,
                   ),
                 ),
@@ -255,6 +277,7 @@ class ImportConflictDialogState extends State<ImportConflictDialog>{
         ),
 
         // Pod wyborem i po prawej, bo to jego przypis, nie czwarta opcja.
+        // Odstęp od przycisków taki, jak między przyciskami a kartami.
         if(index + 1 < conflicts.length)
           Align(
             alignment: Alignment.centerRight,
@@ -263,72 +286,72 @@ class ImportConflictDialogState extends State<ImportConflictDialog>{
               // padding `defMarg`, a każdy przycisk jeszcze własny margines
               // `defMarg/2`.
               padding: const EdgeInsets.only(
-                  top: Dimen.defMarg,
+                  top: Dimen.iconMarg,
                   right: Dimen.defMarg + Dimen.defMarg/2,
-                  bottom: Dimen.defMarg),
-              child: _ApplyToRestPill(
+                  bottom: Dimen.sideMarg),
+              child: _ApplyToRestToggle(
                 count: conflicts.length - index - 1,
                 value: applyToAll,
-                onTap: () => setState(() => applyToAll = !applyToAll),
+                onChanged: (v) => setState(() => applyToAll = v),
               ),
             ),
           )
         else
-          const SizedBox(height: Dimen.defMarg),
+          const SizedBox(height: Dimen.sideMarg),
 
       ],
     ),
   );
+  }
 
 }
 
-/// „Tak samo dla pozostałych” — przełącznik, nie akcja, więc bez tła
-/// i poza rzędem wyboru.
-class _ApplyToRestPill extends StatelessWidget{
+/// „Tak samo dla pozostałych” — przełącznik, nie akcja, więc `Switch`
+/// z etykietą, jak przełączniki w panelu edytora („Powiąż z tytułem”),
+/// a nie czwarty przycisk. Bez tła: biała karta robiła z niego czwarty
+/// przycisk, a to ma być przypis do trzech nad nim.
+class _ApplyToRestToggle extends StatelessWidget{
 
   final int count;
   final bool value;
-  final void Function() onTap;
+  final void Function(bool) onChanged;
 
-  const _ApplyToRestPill({required this.count, required this.value, required this.onTap});
+  const _ApplyToRestToggle({required this.count, required this.value, required this.onChanged});
 
   @override
-  Widget build(BuildContext context){
-    final color = value? accent_(context): hintEnab_(context);
+  Widget build(BuildContext context) => Material(
+    color: Colors.transparent,
+    borderRadius: BorderRadius.circular(AppCard.bigRadius),
+    clipBehavior: Clip.hardEdge,
+    child: InkWell(
+      onTap: () => onChanged(!value),
+      child: Padding(
+        padding: const EdgeInsets.only(left: Dimen.iconMarg, right: Dimen.defMarg),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
 
-    return SimpleButton(
-      radius: 100,
-      elevation: 0,
-      // Bez tła: o stanie mówi kolor ikonki i napisu.
-      padding: const EdgeInsets.symmetric(
-          horizontal: Dimen.iconMarg, vertical: Dimen.defMarg/2),
-      onTap: onTap,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-
-          Icon(
-            value? MdiIcons.checkboxMarkedOutline: MdiIcons.checkboxBlankOutline,
-            size: Dimen.textSizeBig + 2,
-            color: color,
-          ),
-
-          const SizedBox(width: Dimen.defMarg),
-
-          Text(
-            'Tak samo dla pozostałych ($count)',
-            style: AppTextStyle(
-              fontSize: Dimen.textSizeBig,
-              fontWeight: weightHalfBold,
-              color: color,
+            Text(
+              'Tak samo dla pozostałych ($count)',
+              style: AppTextStyle(
+                fontSize: Dimen.textSizeBig,
+                color: value? textEnab_(context): hintEnab_(context),
+              ),
             ),
-            maxLines: 1,
-          ),
 
-        ],
+            const SizedBox(width: Dimen.defMarg),
+
+            Switch(
+              value: value,
+              onChanged: onChanged,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+
+          ],
+        ),
       ),
-    );
-  }
+    ),
+  );
 
 }
 
@@ -348,68 +371,15 @@ class _ChoiceButton extends StatelessWidget{
   Widget build(BuildContext context) => SimpleButton.from(
       context: context,
       margin: const EdgeInsets.symmetric(horizontal: Dimen.defMarg/2),
-      color: backgroundIcon_(context),
+      // Białe na szarym tle okna, jak karty z piosenkami nad nimi — i z tym
+      // samym zaokrągleniem; domyślne 6 px obok kart na 20 px wyglądało
+      // jak z innego zestawu.
+      color: background_(context),
+      radius: AppCard.bigRadius,
       icon: icon,
       text: text,
       textColor: iconEnab_(context),
       onTap: onTap
-  );
-
-}
-
-/// Podgląd jednej piosenki w kolumnie - jak w oknie podobnych piosenek.
-class _ConflictSongPreview extends StatefulWidget{
-
-  final SongRaw song;
-  final String title;
-  final double elevation;
-
-  const _ConflictSongPreview({required this.song, required this.title, this.elevation = 0});
-
-  @override
-  State<StatefulWidget> createState() => _ConflictSongPreviewState();
-
-}
-
-class _ConflictSongPreviewState extends State<_ConflictSongPreview>{
-
-  late ScrollController scrollController;
-  late SongBaseSettings settings;
-
-  @override
-  void initState() {
-    scrollController = ScrollController();
-    settings = SongBaseSettings();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => Material(
-      color: background_(context),
-      elevation: widget.elevation,
-      borderRadius: BorderRadius.circular(AppCard.bigRadius),
-      clipBehavior: Clip.hardEdge,
-      child: Column(
-        children: [
-
-          TitleShortcutRowWidget(title: widget.title, titleColor: hintEnab_(context)),
-
-          Expanded(
-            child: SongWidgetTemplate<SongRaw>(
-              widget.song,
-              settings,
-              scrollController: scrollController,
-            ),
-          )
-
-        ],
-      )
   );
 
 }

@@ -34,7 +34,7 @@ class NewSongButton extends StatelessWidget{
     // przycisk jest wyszarzony.
     if(type == NewSongType.newSongExample)
       return Consumer<SimilarSongProvider>(
-        builder: (context, prov, child) => _button(context, enabled: prov.allSongs != null),
+        builder: (context, prov, child) => _button(context, enabled: prov.loaded),
       );
 
     return _button(context);

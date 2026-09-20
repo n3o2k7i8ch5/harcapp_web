@@ -14,6 +14,8 @@ import 'package:harcapp_core/song_book/parse_contrib_email.dart';
 import 'package:harcapp_core/song_book/submission/submission_file.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:harcapp_core/song_book/parse_contrib_email_oldest.dart';
+import 'package:harcapp_core/song_book/similarity/similarity_widgets.dart';
+import 'package:harcapp_core/song_book/similarity/song_index.dart';
 import 'package:harcapp_core/song_book/song_core.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
@@ -902,45 +904,53 @@ class _AlreadyExistsBanner extends StatelessWidget {
   const _AlreadyExistsBanner({required this.song});
 
   @override
-  Widget build(BuildContext context) => Consumer<SimilarSongProvider>(
-    builder: (context, prov, _){
-      if(prov.allSongs == null || !prov.hasSimilarSong(song.title))
-        return const SizedBox.shrink();
+  Widget build(BuildContext context) => Consumer2<SimilarSongProvider, AllSongsProvider>(
+    builder: (context, simProv, allSongsProv, _){
+      if(!simProv.loaded) return const SizedBox.shrink();
+
+      // Piosenka z mejla jeszcze nie jest w warsztacie, ale porównujemy ją
+      // i z apką, i z warsztatem — do niego zaraz trafi.
+      List<SongMatch<SongRaw>> matches = simProv.matchesFor(song, workspace: allSongsProv.songs);
+      if(matches.isEmpty) return const SizedBox.shrink();
+
+      SongMatch<SongRaw> best = matches.first;
+      Color color = matchLevelColor(best.level);
 
       return Padding(
         padding: EdgeInsets.only(top: Dimen.defMarg),
         child: Material(
           borderRadius: BorderRadius.circular(AppCard.bigRadius),
-          color: Colors.red.withValues(alpha: 0.12),
+          color: color.withValues(alpha: 0.12),
           clipBehavior: Clip.hardEdge,
           child: InkWell(
-            onTap: () => showDialog(
-              context: context,
-              builder: (context) => Padding(
-                padding: EdgeInsets.all(Dimen.sideMarg),
-                child: SimilarSongViewerDialog(currentSong: song),
-              ),
+            onTap: () => showSimilarSongViewer(
+              context,
+              currentSong: song,
+              matches: matches,
+              currentLabel: 'z mejla',
             ),
             child: Row(
               children: [
                 Padding(
                   padding: EdgeInsets.all(Dimen.iconMarg),
-                  child: Icon(MdiIcons.musicBoxMultiple, color: Colors.red),
+                  child: Icon(MdiIcons.musicBoxMultiple, color: color),
                 ),
                 Expanded(
                   child: Text(
-                    'Piosenka o takim tytule już jest!',
+                    similarSongsSummary(matches),
                     style: AppTextStyle(
-                      color: Colors.red,
+                      color: color,
                       fontWeight: weightHalfBold,
                       fontSize: Dimen.textSizeBig,
                     ),
                     textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Padding(
                   padding: EdgeInsets.all(Dimen.iconMarg),
-                  child: Icon(MdiIcons.eye, color: Colors.red),
+                  child: Icon(MdiIcons.eye, color: color),
                 ),
               ],
             ),

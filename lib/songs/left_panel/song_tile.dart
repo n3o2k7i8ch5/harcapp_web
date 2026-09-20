@@ -6,6 +6,8 @@ import 'package:harcapp_core/comm_widgets/app_dropdown.dart';
 import 'package:harcapp_core/comm_widgets/dialog/alert_dialog.dart';
 import 'package:harcapp_core/comm_widgets/dialog/app_dialog.dart';
 import 'package:harcapp_core/values/dimen.dart';
+import 'package:harcapp_core/song_book/similarity/similarity.dart';
+import 'package:harcapp_core/song_book/similarity/similarity_widgets.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/piosenkomat_issues_widget.dart';
@@ -57,18 +59,21 @@ class SongTileState extends State<SongTile>{
         title: Row(
           children: [
 
-            Consumer<SimilarSongProvider>(
-              builder: (context, prov, child){
-                if(prov.hasSimilarSong(song.title))
-                  return Padding(
-                    padding: EdgeInsets.only(right: Dimen.defMarg),
-                    child: Tooltip(
-                      message: 'Piosenka o takim tytule już jest w śpiewniku',
-                      child: Icon(SimilarSongBanner.icon, color: Colors.red),
-                    ),
-                  );
+            // Ten sam wynik, co belka nad edytorem: najsilniejsze trafienie
+            // z apki i z warsztatu, kolor po poziomie. Wynik jest cache'owany
+            // w providerze, więc lista nie liczy niczego dwa razy.
+            Consumer2<SimilarSongProvider, AllSongsProvider>(
+              builder: (context, simProv, allSongsProv, child){
+                MatchLevel? level = simProv.strongestLevelFor(song, workspace: allSongsProv.songs);
+                if(level == null) return const SizedBox.shrink();
 
-                return const SizedBox.shrink();
+                return Padding(
+                  padding: EdgeInsets.only(right: Dimen.defMarg),
+                  child: Tooltip(
+                    message: 'Podobna piosenka: ${level.text}',
+                    child: Icon(SimilarSongBanner.icon, color: matchLevelColor(level)),
+                  ),
+                );
               },
             ),
 

@@ -435,14 +435,14 @@ void undoSongImport(BuildContext context, List<SongRaw> songs, [Map<SongRaw, boo
 
 void handleExampleSongTap(BuildContext context){
 
-  Map<String, List<SongRaw>>? allSongs = SimilarSongProvider.of(context).allSongs;
+  SongRaw? example = SimilarSongProvider.of(context).byId('o!_addio_pomidory@kabaret_starszych_panow');
 
-  if(allSongs == null) {
+  if(example == null) {
     AppScaffold.showMessage(context, text: 'Ładowanie piosenek. Spróbuj za chwilę');
     return;
   }
 
-  SongRaw song = allSongs.values.firstWhere((songs) => songs.first.id == 'o!_addio_pomidory@kabaret_starszych_panow').first.copy(withId: true);
+  SongRaw song = example.copy(withId: true);
 
   AllSongsProvider.of(context).addOff(song);
   displaySong(context, song);

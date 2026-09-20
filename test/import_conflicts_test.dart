@@ -42,6 +42,19 @@ void main(){
     expect(findImportConflicts([_song('o!_nowa')], [_song('o!_stara')]), isEmpty);
   });
 
+  test('correctedSongId to nie kolizja — przerobiona z cudzej to inna piosenka', (){
+    SongRaw original = _song('o!_barka');
+    SongRaw derived = _song('o!_moja_barka')..correctedSongId = 'o!_barka';
+    expect(findImportConflicts([derived], [original]), isEmpty);
+  });
+
+  test('id powtórzone w warsztacie: kolizja wymienia obie stare', (){
+    SongRaw a = _song('o!_x');
+    SongRaw b = _song('o!_x');
+    List<ImportConflict> conflicts = findImportConflicts([_song('o!_x')], [a, b]);
+    expect(conflicts.single.existing, unorderedEquals([a, b]));
+  });
+
   test('piosenka z tej samej paczki importu nie jest własnym pierwowzorem', (){
     SongRaw a = _song('o!_ta_sama');
     SongRaw b = _song('o!_ta_sama');

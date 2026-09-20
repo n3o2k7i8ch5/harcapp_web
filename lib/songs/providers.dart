@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/sha_pref.dart';
 import 'package:harcapp_core/comm_classes/text_utils.dart';
 import 'package:harcapp_core/song_book/import_hrcpsng.dart';
+import 'package:harcapp_core/song_book/similarity/similarity.dart';
+import 'package:harcapp_core/song_book/similarity/song_index.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_web/common/sha_pref.dart';
 import 'package:harcapp_web/songs/utils/song_loader.dart';
@@ -298,47 +300,123 @@ class SongEditorPanelProvider extends ChangeNotifier{
 
 }
 
+/// Podobne piosenki dla edytora: śpiewnik apki (raz, w `compute`) plus
+/// warsztat (przebudowywany, gdy zmieni się cokolwiek, co profil czyta).
+///
+/// Wyniki są cache'owane po **tożsamości** piosenki i sygnaturze jej treści:
+/// o to samo pyta kilku konsumentów naraz (belka, padding edytora, lista),
+/// a `CurrentItemProvider.notify()` leci z każdym znakiem. Sygnatura, nie
+/// `hashCode` — `SongRaw` jest mutowalny i nie nadpisuje `==`.
 class SimilarSongProvider extends ChangeNotifier{
 
   static SimilarSongProvider of(BuildContext context) => Provider.of<SimilarSongProvider>(context, listen: false);
 
-  // A dict containing simplified song titles and hidden titles as keys and
-  // lists of similar songs with that title or hidden title as values.
-  Map<String, List<SongRaw>>? allSongs;
+  SongIndex<SongRaw>? _app;
 
-  List<SongRaw>? getSimilarSongs(String title){
-    if(allSongs == null) return null;
-    return allSongs![searchableString(title)]??[];
-  }
+  SimilarSongProvider();
 
-  /// Piosenka z apki po `lclId`. Indeks jest po tytułach, więc szukamy
-  /// przez wartości — piosenek jest kilkaset, a to chodzi przy kliknięciu.
-  ///
-  /// Przy chybionym trafieniu druga runda bez członu `@wykonawca`: zgłoszenie
-  /// bywa sprzed zmiany wykonawcy w apce, a to dalej ta sama piosenka.
-  SongRaw? songById(String id){
-    if(allSongs == null) return null;
-    SongRaw? loose;
-    final bare = id.split('@').first;
-    for(List<SongRaw> songs in allSongs!.values)
-      for(SongRaw song in songs){
-        if(song.id == id) return song;
-        loose ??= song.id.split('@').first == bare? song: null;
-      }
-    return loose;
-  }
+  /// Do testów: gotowy indeks zamiast ładowania z assetów.
+  @visibleForTesting
+  SimilarSongProvider.withIndex(SongIndex<SongRaw> app): _app = app;
 
-  bool hasSimilarSong(String title){
-    List<SongRaw>? similarSongs = getSimilarSongs(title);
-    if(similarSongs == null) return false;
+  /// Czy śpiewnik apki już jest. Przed tym nic nie porównujemy — lepiej
+  /// przez chwilę nie ostrzegać, niż ostrzegać „nic nie znaleziono”.
+  bool get loaded => _app != null;
 
-    return similarSongs.isNotEmpty;
-  }
+  SongIndex<SongRaw>? _workspace;
+  String? _workspaceSig;
+
+  final Map<SongRaw, _SimilarCache> _cache = Map.identity();
 
   void init() async {
-    allSongs = await loadSongs();
+    _app = await loadAppSongIndex();
     notifyListeners();
   }
+
+  /// Piosenka z apki po `lclId` (także bez członu `@wykonawca`).
+  SongRaw? byId(String id) => _app?.byId(id);
+
+  /// Wszystko, co [SongProfile] czyta — zmiana czegokolwiek z tego
+  /// unieważnia cache. Tekst i chwyty w całości: to one decydują.
+  static String _signature(SongRaw s) => [
+    s.id, s.title, s.hidTitles.join('\x00'), s.authors.join('\x00'),
+    s.composers.join('\x00'), s.performers.join('\x00'),
+    s.releaseDate?.toIso8601String() ?? '', s.youtubeVideoId ?? '',
+    s.tags.join('\x00'), s.chords, s.text,
+  ].join('\x01');
+
+  SongIndex<SongRaw> _workspaceIndex(List<SongRaw> songs){
+    String sig = songs.map(_signature).join('\x02');
+    if(_workspace == null || sig != _workspaceSig){
+      _workspace = SongIndex(songs);
+      _workspaceSig = sig;
+    }
+    return _workspace!;
+  }
+
+  /// Pierwowzór, który [song] **deklaruje**, że poprawia — najpierw w apce,
+  /// potem w warsztacie (po „zachowaj obie” oryginał leży obok poprawki).
+  (SongRaw, MatchSource)? _originalOf(SongRaw song, SongIndex<SongRaw> app, SongIndex<SongRaw> workspace){
+    if(correctionTargetOf(song, app) case final found?) return (found, MatchSource.app);
+    if(correctionTargetOf(song, workspace) case final found?) return (found, MatchSource.workspace);
+    return null;
+  }
+
+  /// Pierwowzór poprawki jako trafienie z dowodami, albo `null`, gdy [song]
+  /// niczego nie poprawia albo pierwowzoru nie ma ani w apce, ani w warsztacie.
+  SongMatch<SongRaw>? originalMatchOf(SongRaw song, {List<SongRaw> workspace = const []}) =>
+      _compute(song, workspace).original;
+
+  /// Wszystkie podobne piosenki z apki i z warsztatu, od najsilniejszej.
+  /// Bez samej [song] i bez jej pierwowzoru — ten idzie osobno,
+  /// przez [originalMatchOf].
+  List<SongMatch<SongRaw>> matchesFor(SongRaw song, {List<SongRaw> workspace = const []}) =>
+      _compute(song, workspace).matches;
+
+  /// Najsilniejsze trafienie — do ikonki na liście i koloru belki.
+  MatchLevel? strongestLevelFor(SongRaw song, {List<SongRaw> workspace = const []}) =>
+      matchesFor(song, workspace: workspace).firstOrNull?.level;
+
+  _SimilarCache _compute(SongRaw song, List<SongRaw> workspaceSongs){
+    SongIndex<SongRaw>? app = _app;
+    if(app == null) return const _SimilarCache.empty();
+
+    SongIndex<SongRaw> workspace = _workspaceIndex(workspaceSongs);
+    String sig = _signature(song);
+    _SimilarCache? cached = _cache[song];
+    if(cached != null && cached.signature == sig && cached.workspaceSignature == _workspaceSig)
+      return cached;
+
+    SongProfile profile = SongProfile(song);
+    (SongRaw, MatchSource)? original = _originalOf(song, app, workspace);
+    SongMatch<SongRaw>? originalMatch = original == null? null: SongMatch(
+      song: original.$1,
+      source: original.$2,
+      similarities: compare(profile, SongProfile(original.$1)),
+    );
+
+    bool skip(SongRaw s) => identical(s, song) || identical(s, original?.$1);
+    List<SongMatch<SongRaw>> matches = [
+      ...app.matches(profile, source: MatchSource.app, exclude: skip),
+      ...workspace.matches(profile, source: MatchSource.workspace, exclude: skip),
+    ]..sort(compareSongMatches);
+
+    _SimilarCache result = _SimilarCache(sig, _workspaceSig, originalMatch, matches);
+    _cache[song] = result;
+    return result;
+  }
+
+}
+
+class _SimilarCache{
+
+  final String? signature;
+  final String? workspaceSignature;
+  final SongMatch<SongRaw>? original;
+  final List<SongMatch<SongRaw>> matches;
+
+  const _SimilarCache(this.signature, this.workspaceSignature, this.original, this.matches);
+  const _SimilarCache.empty(): this(null, null, null, const []);
 
 }
 

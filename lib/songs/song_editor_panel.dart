@@ -115,9 +115,9 @@ class SongEditorPanelState extends State<SongEditorPanel>{
 
       return Stack(
         children: [
-          Consumer2<SimilarSongProvider, CurrentItemProvider>(
-            builder: (context, simProv, currProv, _){
-              bool bannerVisible = similarSongBannerVisible(simProv, currProv);
+          Consumer3<SimilarSongProvider, AllSongsProvider, CurrentItemProvider>(
+            builder: (context, simProv, allSongsProv, currProv, _){
+              bool bannerVisible = similarSongBannerVisible(simProv, allSongsProv, currProv);
               return AnimatedPadding(
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeOut,
@@ -161,7 +161,7 @@ class SongEditorPanelState extends State<SongEditorPanel>{
             Consumer<SimilarSongProvider>(
               builder: (context, simProv, _) => PiosenkomatHeaderWidget(
                 padding: EdgeInsets.only(bottom: Dimen.defMarg),
-                titleOfAppSong: (id) => simProv.songById(id)?.title,
+                titleOfAppSong: (id) => simProv.byId(id)?.title,
               ),
             ),
 
