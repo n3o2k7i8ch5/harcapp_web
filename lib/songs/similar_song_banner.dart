@@ -5,11 +5,37 @@ import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
+import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/similar_song_viewer.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:provider/provider.dart';
+
+/// Piosenka z apki, którą poprawia piosenka z edytora — albo `null`, gdy to
+/// nie poprawka albo pierwowzoru nie da się wskazać.
+///
+/// Szukamy **po id, nie po tytule**: poprawka wolno zmienia tytuł, a dalej
+/// dotyczy tej samej piosenki. Kolejno: `correctionTarget` ze śladu
+/// piosenkomatu, potem id samej poprawki (gdy narzędzie celu nie znało — ta
+/// sama reguła, co w `findCorrectionConflicts`), a na końcu, gdy id nic nie
+/// daje, zbieżność tytułu.
+SongRaw? correctedAppSong(SimilarSongProvider prov, SongRaw song){
+  if(!isCorrection(song)) return null;
+  final target = song.piosenkomatData!.correctionTarget;
+  return prov.songById(target ?? song.id)
+      ?? (target == null? null: prov.songById(song.id))
+      ?? prov.getSimilarSongs(song.title)?.firstOrNull;
+}
+
+bool isCorrection(SongRaw song) => song.piosenkomatData?.isCorrection ?? false;
+
+/// Czy nad edytorem jest belka — do wyliczenia miejsca na nią.
+bool similarSongBannerVisible(SimilarSongProvider prov, CurrentItemProvider curr){
+  if(prov.allSongs == null) return false;
+  if(isCorrection(curr.song)) return correctedAppSong(prov, curr.song) != null;
+  return prov.hasSimilarSong(curr.titleController.text);
+}
 
 class SimilarSongBanner extends StatelessWidget{
 
@@ -21,17 +47,73 @@ class SimilarSongBanner extends StatelessWidget{
   Widget build(BuildContext context) => Consumer2<SimilarSongProvider, CurrentItemProvider>(
       builder: (context, similarSongProv, currItemProv, child){
         if(similarSongProv.allSongs == null) return const SizedBox.shrink();
+
+        // Przy poprawce „taki tytuł już jest” nie jest ostrzeżeniem — o to
+        // przecież chodzi. Zamiast tego: pierwowzór obok propozycji, a gdy
+        // pierwowzoru nie znajdziemy — nic, bo czerwone byłoby kłamstwem.
+        if(isCorrection(currItemProv.song)){
+          final SongRaw? original =
+              correctedAppSong(similarSongProv, currItemProv.song);
+          if(original == null) return const SizedBox.shrink();
+          return _Banner(
+            color: Colors.orange,
+            icon: MdiIcons.compareHorizontal,
+            text: 'Poprawka piosenki „${original.title}”',
+            buttonText: 'Porównaj',
+            onTap: () => showDialog(
+              context: context,
+              builder: (_) => Padding(
+                padding: EdgeInsets.all(Dimen.sideMarg),
+                child: SimilarSongViewerDialog(
+                  currentSong: currItemProv.song,
+                  compareTo: [original],
+                  dialogTitle: 'Poprawka piosenki',
+                  currentTitle: 'Proponowana poprawka',
+                  compareTitle: (_) => 'Piosenka w apce',
+                ),
+              ),
+            ),
+          );
+        }
+
         if(!similarSongProv.hasSimilarSong(currItemProv.titleController.text))
           return const SizedBox.shrink();
-        return const _FoundSimilarSongBanner();
+
+        return _Banner(
+          color: Colors.red,
+          icon: SimilarSongBanner.icon,
+          text: 'Piosenka o takim tytule już jest!',
+          buttonText: 'Podgląd',
+          onTap: () => showDialog(
+            context: context,
+            builder: (_) => Padding(
+              padding: EdgeInsets.all(Dimen.sideMarg),
+              child: SimilarSongViewerDialog(
+                currentSong: currItemProv.song,
+              ),
+            ),
+          ),
+        );
       }
   );
 
 }
 
-class _FoundSimilarSongBanner extends StatelessWidget{
+class _Banner extends StatelessWidget{
 
-  const _FoundSimilarSongBanner();
+  final Color color;
+  final IconData icon;
+  final String text;
+  final String buttonText;
+  final void Function() onTap;
+
+  const _Banner({
+    required this.color,
+    required this.icon,
+    required this.text,
+    required this.buttonText,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) => DecoratedBox(
@@ -51,10 +133,10 @@ class _FoundSimilarSongBanner extends StatelessWidget{
         filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.red.withValues(alpha: 0.18),
+            color: color.withValues(alpha: 0.18),
             borderRadius: BorderRadius.circular(AppCard.bigRadius),
             border: Border.all(
-              color: Colors.red.withValues(alpha: 0.45),
+              color: color.withValues(alpha: 0.45),
               width: 1,
             ),
           ),
@@ -63,14 +145,14 @@ class _FoundSimilarSongBanner extends StatelessWidget{
             children: [
               Padding(
                 padding: EdgeInsets.all(Dimen.iconMarg),
-                child: Icon(SimilarSongBanner.icon, color: Colors.red),
+                child: Icon(icon, color: color),
               ),
 
               Expanded(
                 child: Text(
-                  'Piosenka o takim tytule już jest!',
+                  text,
                   style: AppTextStyle(
-                    color: Colors.red,
+                    color: color,
                     fontWeight: weightBold,
                     fontSize: Dimen.textSizeBig,
                   ),
@@ -86,18 +168,10 @@ class _FoundSimilarSongBanner extends StatelessWidget{
                   vertical: Dimen.defMarg,
                 ),
                 iconLeading: false,
-                text: 'Podgląd',
-                iconColor: Colors.red,
-                textColor: Colors.red,
-                onTap: () => showDialog(
-                  context: context,
-                  builder: (context) => Padding(
-                    padding: EdgeInsets.all(Dimen.sideMarg),
-                    child: SimilarSongViewerDialog(
-                      currentSong: CurrentItemProvider.of(context).song,
-                    ),
-                  ),
-                ),
+                text: buttonText,
+                iconColor: color,
+                textColor: color,
+                onTap: onTap,
               ),
 
             ],

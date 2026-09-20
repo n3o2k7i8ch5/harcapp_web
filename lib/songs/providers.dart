@@ -311,6 +311,23 @@ class SimilarSongProvider extends ChangeNotifier{
     return allSongs![searchableString(title)]??[];
   }
 
+  /// Piosenka z apki po `lclId`. Indeks jest po tytułach, więc szukamy
+  /// przez wartości — piosenek jest kilkaset, a to chodzi przy kliknięciu.
+  ///
+  /// Przy chybionym trafieniu druga runda bez członu `@wykonawca`: zgłoszenie
+  /// bywa sprzed zmiany wykonawcy w apce, a to dalej ta sama piosenka.
+  SongRaw? songById(String id){
+    if(allSongs == null) return null;
+    SongRaw? loose;
+    final bare = id.split('@').first;
+    for(List<SongRaw> songs in allSongs!.values)
+      for(SongRaw song in songs){
+        if(song.id == id) return song;
+        loose ??= song.id.split('@').first == bare? song: null;
+      }
+    return loose;
+  }
+
   bool hasSimilarSong(String title){
     List<SongRaw>? similarSongs = getSimilarSongs(title);
     if(similarSongs == null) return false;
