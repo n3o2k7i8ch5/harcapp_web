@@ -115,28 +115,21 @@ class _Banner extends StatelessWidget{
     required this.onTap,
   });
 
+  // Bez cienia. `BackdropFilter` rozmywa wszystko, co jest pod nim — razem
+  // z cieniem rzucanym przez tę samą belkę — i brud lądował w środku, za
+  // półprzezroczystym wypełnieniem. Od odcięcia od tła jest tu samo rozmycie
+  // plus obwódka; zamiast cienia mocniejsze wypełnienie.
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(AppCard.bigRadius),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.18),
-          blurRadius: 18,
-          offset: const Offset(0, 4),
-        ),
-      ],
-    ),
-    child: ClipRRect(
+  Widget build(BuildContext context) => ClipRRect(
       borderRadius: BorderRadius.circular(AppCard.bigRadius),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Container(
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.18),
+            color: color.withValues(alpha: 0.22),
             borderRadius: BorderRadius.circular(AppCard.bigRadius),
             border: Border.all(
-              color: color.withValues(alpha: 0.45),
+              color: color.withValues(alpha: 0.5),
               width: 1,
             ),
           ),
@@ -178,7 +171,6 @@ class _Banner extends StatelessWidget{
           ),
         ),
       ),
-    ),
   );
 
 }

@@ -21,7 +21,7 @@ import 'package:flutter_material_design_icons/flutter_material_design_icons.dart
 import 'package:provider/provider.dart';
 
 import 'code_editor_dialog.dart';
-import 'correction_import_dialog.dart';
+import 'import_conflict_dialog.dart';
 import 'import_selection_dialog.dart';
 import 'song_file_drop_target.dart';
 import 'email_song_dialog.dart';
@@ -285,30 +285,47 @@ void importSongsFromFiles(BuildContext context, List<Uint8List> filesBytes){
 
 }
 
-/// Wpuszcza wybrane piosenki do warsztatu, a przy poprawkach czegoś, co już
-/// w warsztacie jest, najpierw pyta, czy pierwowzór ma zniknąć.
+/// Wpuszcza wybrane piosenki do warsztatu, a o każdą, która zastaje w nim
+/// piosenkę o tym samym id, najpierw pyta: zastąpić, pominąć czy zostawić obie.
 void handleSelectedSongsImport(BuildContext context, List<SongRaw> songs, Map<SongRaw, bool> confMap){
 
-  List<CorrectionConflict> conflicts =
-      findCorrectionConflicts(songs, AllSongsProvider.of(context).songs);
+  List<ImportConflict> conflicts =
+      findImportConflicts(songs, AllSongsProvider.of(context).songs);
 
   if(conflicts.isEmpty){
     addImportedSongs(context, songs, confMap);
     return;
   }
 
-  showCorrectionImportDialog(
+  showImportConflictDialog(
       context,
       conflicts: conflicts,
-      onChosen: (mode) => addImportedSongs(
-          context,
-          songs,
-          confMap,
-          replaced:
-          mode == CorrectionImportMode.replace?
-          [for(CorrectionConflict conflict in conflicts) ...conflict.existing]:
-          const []
-      )
+      onResolved: (choices){
+
+        // Pominiętych nie wnosimy wcale; zastępowane zdejmujemy z warsztatu.
+        List<SongRaw> toAdd = songs.where((song) =>
+            choices[song] != ImportConflictChoice.keepOld
+        ).toList();
+
+        List<SongRaw> replaced = [
+          for(ImportConflict conflict in conflicts)
+            if(choices[conflict.imported] == ImportConflictChoice.replace)
+              ...conflict.existing
+        ];
+
+        if(toAdd.isEmpty){
+          AppScaffold.showMessage(context, text: 'Nic nie zaimportowano - wszędzie zostały stare piosenki');
+          return;
+        }
+
+        addImportedSongs(
+            context,
+            toAdd,
+            {for(SongRaw song in toAdd) song: confMap[song]!},
+            replaced: replaced
+        );
+
+      }
   );
 
 }

@@ -153,6 +153,9 @@ class _DropHint extends StatelessWidget{
 
   const _DropHint();
 
+  // Bez elewacji: cień rzucany **na** półprzezroczystą, rozmytą warstwę robił
+  // się brudną plamą zamiast uniesienia. Kafelek odcina się samym kolorem
+  // i obwódką — tak samo jak belka „taki tytuł już jest”.
   @override
   Widget build(BuildContext context) => BackdropFilter(
     filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
@@ -160,11 +163,16 @@ class _DropHint extends StatelessWidget{
       color: background_(context).withValues(alpha: .6),
       alignment: Alignment.center,
       padding: const EdgeInsets.all(Dimen.sideMarg),
-      child: Material(
+      child: Container(
+        decoration: BoxDecoration(
+          color: backgroundIcon_(context),
+          borderRadius: BorderRadius.circular(AppCard.bigRadius),
+          border: Border.all(
+            color: iconEnab_(context).withValues(alpha: 0.25),
+            width: 1,
+          ),
+        ),
         clipBehavior: Clip.hardEdge,
-        borderRadius: BorderRadius.circular(AppCard.bigRadius),
-        color: backgroundIcon_(context),
-        elevation: AppCard.bigElevation,
         child: Padding(
           padding: const EdgeInsets.all(Dimen.sideMarg),
           child: Column(
