@@ -5,6 +5,7 @@ import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/song_book/similarity/similarity.dart';
 import 'package:harcapp_core/song_book/similarity/similarity_widgets.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
+import 'package:harcapp_core/song_book/playback/widgets/song_playback_bar.dart';
 import 'package:harcapp_core/song_book/widgets/song_widget_template.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/songs/song_preview_widget.dart';
@@ -127,6 +128,7 @@ class _SongComparePreviewState extends State<SongComparePreview>{
               widget.song,
               settings,
               scrollController: scrollController,
+              playbackBar: PlaybackBarMode.preview,
             ),
           ),
 

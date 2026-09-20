@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/color_pack_app.dart';
+import 'package:harcapp_core/song_book/playback/song_audio.dart';
 import 'package:harcapp_core/comm_classes/color_pack_provider.dart';
 import 'package:harcapp_core/comm_classes/sha_pref.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_loader.dart';
@@ -51,6 +52,7 @@ void main() async {
   await initKonspekts();
   await loadAllApelEwans();
   await ShaPref.init();
+  await AudioMeta.load();
   List<SongRaw> loadedSongs = await AllSongsProvider.loadCachedSongs();
   MyApp.lastLoadedSongs = loadedSongs;
   // Make context.push() change url.

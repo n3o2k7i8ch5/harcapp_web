@@ -9,6 +9,7 @@ import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/song_book/settings.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
+import 'package:harcapp_core/song_book/playback/widgets/song_playback_bar.dart';
 import 'package:harcapp_core/song_book/widgets/song_widget_template.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
@@ -122,6 +123,10 @@ class SongPreviewWidgetState extends State<SongPreviewWidget>{
                   settings,
                   cacheSizes: false,
                   scrollController: scrollController,
+                  // Tylko podgląd: widać, co piosenka ma (nagrania, film),
+                  // tapnięcie otwiera źródło w nowej karcie. Edytor nie jest
+                  // odtwarzaczem.
+                  playbackBar: PlaybackBarMode.preview,
                 ),
               )
           )
@@ -132,6 +137,12 @@ class SongPreviewWidgetState extends State<SongPreviewWidget>{
 }
 
 class SongBaseSettings extends SongBookSettTempl{
+
+  // Podgląd nic nie gra — nie ma czego przyklejać.
+  @override
+  bool get stickyAudioPlayer => false;
+  @override
+  set stickyAudioPlayer(bool value) {}
 
   @override
   bool get alwaysOnScreen => false;

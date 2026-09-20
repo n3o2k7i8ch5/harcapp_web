@@ -4,7 +4,6 @@ import 'package:harcapp_core/song_book/song_element.dart';
 import 'package:harcapp_core/values/people/models.dart';
 import 'package:harcapp_web/songs/old/song_basic_data.dart';
 import 'package:harcapp_web/songs/old/song_element_old.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 SongRaw parseOldCode(String id, String code){
   SongBasicData1 basicData = SongBasicData1.parse(id, code);
@@ -45,7 +44,7 @@ SongRaw parseOldCode(String id, String code){
     contributorData: null,
     youtubeVideoId: basicData.youtubeLink==null?
       null:
-      YoutubePlayerController.convertUrlToId(basicData.youtubeLink!),
+      SongRaw.ytLinkToVideoId(basicData.youtubeLink!),
 
     tags: basicData.tags,
 

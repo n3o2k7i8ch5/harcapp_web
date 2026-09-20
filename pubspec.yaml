@@ -54,7 +54,6 @@ dependencies:
   url_strategy: ^0.3.0
   web: 1.1.1
   isolate_manager: ^6.3.2
-  youtube_player_flutter: ^10.0.1
 
 #  harcapp_core:
 #    git:
