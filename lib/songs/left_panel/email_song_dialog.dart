@@ -3,20 +3,20 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/comm_classes/regexp_email.dart';
 import 'package:harcapp_core/comm_widgets/app_bar.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/app_text.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
-import 'package:harcapp_core/song_book/contrib_song_email_legacy.dart';
-import 'package:harcapp_core/values/people/contributor_ref.dart';
+import 'package:harcapp_core/song_book/submission/submission_contributor.dart';
+import 'package:harcapp_core/values/people/registered_contributor_code.dart';
 import 'package:harcapp_core/song_book/parse_contrib_email.dart';
 import 'package:harcapp_core/song_book/submission/submission_file.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:harcapp_core/song_book/parse_contrib_email_oldest.dart';
+import 'package:harcapp_core/song_book/parse_contrib_email_old_app.dart';
 import 'package:harcapp_core/song_book/similarity/similarity_widgets.dart';
-import 'package:harcapp_core/song_book/similarity/song_index.dart';
-import 'package:harcapp_core/song_book/song_core.dart';
+import 'package:harcapp_core/song_book/similarity/similarity.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/song_book/widgets/song_widget_template.dart';
@@ -26,6 +26,7 @@ import 'package:harcapp_core/values/people/utils.dart';
 import 'package:harcapp_core/values/srodowiska/hufce.dart';
 import 'package:harcapp_core/values/srodowiska/models.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
+import 'package:harcapp_core/values/strings.dart';
 import 'package:harcapp_web/consts.dart';
 import 'package:harcapp_web/songs/left_panel/song_list_view.dart';
 import 'package:harcapp_web/songs/providers.dart';
@@ -34,9 +35,6 @@ import 'package:harcapp_web/songs/song_preview_widget.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:provider/provider.dart';
 
-
-final RegExp _emailRe =
-    RegExp(r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$');
 
 final RegExp _nonAlnumRe = RegExp(r'[^\p{L}\p{N}]', unicode: true);
 
@@ -57,15 +55,14 @@ bool _srodowiskoEqLoose(Srodowisko? a, Srodowisko? b){
 
 bool _personGotSenderEmailAdded(ParsedContribEmail p, String? senderEmail){
   if(p.registered == null || senderEmail == null) return false;
-  return !p.registered!.emails.any((e) => e.toLowerCase() == senderEmail.toLowerCase());
+  return !p.registered!.emails.any((e) => normalizedEmail(e) == normalizedEmail(senderEmail));
 }
 
-bool _isVeteran(String? senderEmail) => senderEmail != null
-    && allRegisteredPeopleByEmailMap.containsKey(senderEmail.toLowerCase());
+bool _isVeteran(String? senderEmail) => registeredPersonByEmail(senderEmail) != null;
 
 bool _needsUpdate(ParsedContribEmail p, String? senderEmail){
-  if(p.registered == null || senderEmail == null) return false;
-  final stored = allRegisteredPeopleByEmailMap[senderEmail.toLowerCase()];
+  if(p.registered == null) return false;
+  final stored = registeredPersonByEmail(senderEmail);
   if(stored == null) return false;
   final a = stored.person;
   final b = p.registered!.person;
@@ -101,8 +98,8 @@ class EmailSongDialogState extends State<EmailSongDialog> {
     final fromParse = _parsed?.senderEmail;
     if(fromParse != null && fromParse.trim().isNotEmpty) return fromParse;
     final manual = _manualSenderEmail.trim();
-    if(manual.isEmpty || !_emailRe.hasMatch(manual)) return null;
-    return manual.toLowerCase();
+    if(manual.isEmpty || !regExpEmail.hasMatch(manual)) return null;
+    return normalizedEmail(manual);
   }
 
   @override
@@ -165,12 +162,6 @@ class EmailSongDialogState extends State<EmailSongDialog> {
       return false;
     }
   }
-
-  bool get _willWriteContributorData =>
-      _parsed != null
-      && _parsed!.acceptedRulesVersion != null
-      && _effectiveSenderEmail != null
-      && _parsed!.song.contributorData == null;
 
   RegisteredContributor? get _enrichedRegistered {
     final registered = _parsed?.registered;
@@ -247,7 +238,6 @@ class EmailSongDialogState extends State<EmailSongDialog> {
                   parseError: _parseError,
                   rawEmpty: controller.text.trim().isEmpty,
                   enrichedRegistered: _enrichedRegistered,
-                  willWriteContributorData: _willWriteContributorData,
                   effectiveSenderEmail: _effectiveSenderEmail,
                   onManualSenderEmailChanged: (value) =>
                       setState(() => _manualSenderEmail = value),
@@ -301,29 +291,12 @@ class EmailSongDialogState extends State<EmailSongDialog> {
     }
 
     final parsedSong = _parsed!.song;
-    final senderEmail = _effectiveSenderEmail;
+    // Ta sama reguła, co w piosenkomacie: zgoda (albo „brak”) i adres nadawcy
+    // w jedynej karcie osoby, a nie obok niej.
+    applySubmissionContributor(_parsed!, sender: _effectiveSenderEmail);
 
-    if(_willWriteContributorData){
-      parsedSong.contributorData = ContributorData(
-        email: senderEmail!,
-        contributionDate: DateTime.now(),
-        acceptedContributionRulesVersion: _parsed!.acceptedRulesVersion!,
-      );
-    }
-
-    if(senderEmail != null){
-      final alreadyHas = parsedSong.contribRefs.any(
-              (c) => (c.emailRef ?? '').toLowerCase() == senderEmail.toLowerCase());
-      if(!alreadyHas){
-        parsedSong.contribRefs.add(ContributorRef(
-          person: _parsed!.registered?.person,
-          emailRef: senderEmail,
-        ));
-      }
-    }
-
-    parsedSong.id = 'o!_${parsedSong.generateFileName(
-        withPerformer: BindTitleFileNameProvider.of(context).bindPerformer)}';
+    parsedSong.id = parsedSong.idFromTitle(
+        withPerformer: BindTitleFileNameProvider.of(context).bindPerformer);
 
     TagsProvider.of(context).set(parsedSong.tags);
     AllSongsProvider.of(context).addOff(parsedSong);
@@ -341,7 +314,6 @@ class _PreviewPanel extends StatelessWidget {
   final String? parseError;
   final bool rawEmpty;
   final RegisteredContributor? enrichedRegistered;
-  final bool willWriteContributorData;
   final String? effectiveSenderEmail;
   final ValueChanged<String> onManualSenderEmailChanged;
 
@@ -350,7 +322,6 @@ class _PreviewPanel extends StatelessWidget {
     required this.parseError,
     required this.rawEmpty,
     required this.enrichedRegistered,
-    required this.willWriteContributorData,
     required this.effectiveSenderEmail,
     required this.onManualSenderEmailChanged,
   });
@@ -404,12 +375,12 @@ class _PreviewPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
 
-          if(p.isOldestFormat) ...[
-            const _OldestFormatBlock(),
+          if(p.shape == ContribEmailShape.oldApp) ...[
+            const _OldAppFormatBlock(),
             SizedBox(height: Dimen.defMarg),
           ],
 
-          _ConsentBlock(parsed: p, willWriteContributorData: willWriteContributorData),
+          _ConsentBlock(parsed: p, senderEmail: effectiveSenderEmail),
 
           SizedBox(height: Dimen.defMarg),
 
@@ -506,34 +477,34 @@ class _IconRow extends StatelessWidget {
 class _ConsentBlock extends StatelessWidget {
 
   final ParsedContribEmail parsed;
-  final bool willWriteContributorData;
+  final String? senderEmail;
 
-  const _ConsentBlock({required this.parsed, required this.willWriteContributorData});
+  const _ConsentBlock({required this.parsed, required this.senderEmail});
 
   @override
   Widget build(BuildContext context) {
 
-    final willBeSaved = parsed.song.contributorData != null || willWriteContributorData;
-    final consentInEmail = parsed.acceptedRulesVersion != null;
-    final detectedButLost = consentInEmail && !willBeSaved;
+    // To, co zapisze `applySubmissionContributor`: wersja regulaminu
+    // z piosenki albo z mejla, a bez zgody — „brak”.
+    final version = submissionRulesVersion(parsed);
+    final consent = version != kNoConsentRulesVersion;
+    final withoutSender = senderEmail == null && parsed.song.contributorData == null;
 
     final Color color;
     final IconData icon;
     final String message;
-    if(willBeSaved){
+    if(!consent){
+      color = Colors.red;
+      icon = MdiIcons.closeCircleOutline;
+      message = 'Autor NIE wyraził zgody na zasady — w piosence zapisze się „$kNoConsentRulesVersion”.';
+    } else if(withoutSender){
+      color = Colors.orange;
+      icon = MdiIcons.alertCircleOutline;
+      message = 'Zgoda zapisana w piosence, ale bez adresu nadawcy — podaj go niżej.';
+    } else {
       color = Colors.green;
       icon = MdiIcons.checkCircleOutline;
       message = 'Zgoda autora zapisana w piosence';
-    } else if(detectedButLost){
-      color = Colors.orange;
-      icon = MdiIcons.alertCircleOutline;
-      message = parsed.senderEmail == null
-          ? 'Wykryto zgodę bez adresu nadawcy — nie zostanie zapisana w piosence.'
-          : 'Wykryto zgodę, ale nie zostanie zapisana w piosence.';
-    } else {
-      color = Colors.red;
-      icon = MdiIcons.closeCircleOutline;
-      message = 'Autor NIE wyraził zgody na zasady.';
     }
 
     return _SectionCard(
@@ -542,12 +513,10 @@ class _ConsentBlock extends StatelessWidget {
         icon: icon,
         iconColor: color,
         child: AppText(message, size: Dimen.textSizeBig, selectable: true),
-        trailing: consentInEmail
+        trailing: consent
             ? Padding(
                 padding: EdgeInsets.only(left: Dimen.defMarg),
-                child: willBeSaved
-                    ? _Pill.green(parsed.acceptedRulesVersion!)
-                    : _Pill.amber(parsed.acceptedRulesVersion!),
+                child: withoutSender? _Pill.amber(version): _Pill.green(version),
               )
             : null,
       ),
@@ -604,7 +573,7 @@ class _SenderBlockState extends State<_SenderBlock> {
   @override
   Widget build(BuildContext context) {
     final parsed = widget.parsedSenderEmail;
-    final isHarcappInbox = parsed != null && parsed.toLowerCase() == harcappEmail;
+    final isHarcappInbox = parsed != null && parsed.toLowerCase() == kHarcappEmail;
 
     final Widget body;
     final Widget? trailing;
@@ -737,7 +706,7 @@ class _PersonBlockState extends State<_PersonBlock> with SingleTickerProviderSta
     return null;
   }
 
-  String get _dartCode => registeredPersonToObjectStringLegacy(_effective);
+  String get _dartCode => registeredContributorDartCode(_effective);
   String get _jsonCode => const JsonEncoder.withIndent('  ').convert({
     ..._effective.person.toApiJsonMap(),
     'email': _effective.emails,
@@ -962,9 +931,9 @@ class _AlreadyExistsBanner extends StatelessWidget {
 
 }
 
-class _OldestFormatBlock extends StatelessWidget {
+class _OldAppFormatBlock extends StatelessWidget {
 
-  const _OldestFormatBlock();
+  const _OldAppFormatBlock();
 
   @override
   Widget build(BuildContext context) {
@@ -997,7 +966,7 @@ class _OldestFormatBlock extends StatelessWidget {
                 iconSize: Dimen.iconSmallSize,
                 icon: MdiIcons.contentCopy,
                 onTap: () {
-                  Clipboard.setData(const ClipboardData(text: oldestFormatReplyMessage));
+                  Clipboard.setData(const ClipboardData(text: oldAppReplyMessage));
                   AppScaffold.showMessage(context, text: 'Skopiowano treść odpowiedzi!');
                 },
               ),
@@ -1006,7 +975,7 @@ class _OldestFormatBlock extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(left: iconSize + iconGap, top: Dimen.defMarg / 2),
             child: SelectableText(
-              oldestFormatReplyMessage,
+              oldAppReplyMessage,
               style: TextStyle(color: textEnab_(context), fontSize: 12),
             ),
           ),

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
+import 'package:harcapp_core/values/strings.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
 import 'package:harcapp_web/router.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
@@ -89,7 +90,7 @@ class PrivacyPolicyPage extends StatelessWidget{
                       '\n'
                       '\nMateriały reklamowo – promocyjne wysyłamy Klientom jedynie wówczas, gdy dotyczą one zmian na stronie harcapp.web.app i aplikacji HarcApp.'
                       '\n'
-                      '\nWszelkie pytania, wnioski i sugestie odnoszące się do ochrony Państwa prywatności, w szczególności danych osobowych prosimy zgłaszać na adres $harcappEmail.',
+                      '\nWszelkie pytania, wnioski i sugestie odnoszące się do ochrony Państwa prywatności, w szczególności danych osobowych prosimy zgłaszać na adres $kHarcappEmail.',
                   style: TextStyle(
                     fontSize: Dimen.textSizeBig,
                     color: iconEnab_(context),

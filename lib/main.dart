@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/color_pack_app.dart';
+import 'package:harcapp_core/song_book/playback/playback_controller.dart';
 import 'package:harcapp_core/song_book/playback/song_audio.dart';
 import 'package:harcapp_core/comm_classes/color_pack_provider.dart';
 import 'package:harcapp_core/comm_classes/sha_pref.dart';
@@ -57,11 +58,13 @@ void main() async {
   MyApp.lastLoadedSongs = loadedSongs;
   // Make context.push() change url.
   GoRouter.optionURLReflectsImperativeAPIs = true;
+  final SongBaseSettings songBookSettings = SongBaseSettings();
+  SongbookPlaybackController.instance.settings = songBookSettings;
   runApp(
     ArticleRenderers(
       coverBuilder: webCoverBuilder,
       imageBuilder: webImageBuilder,
-      child: HarcAppSongBook(MyApp(), SongBaseSettings()),
+      child: HarcAppSongBook(MyApp(), songBookSettings),
     ),
   );
 }

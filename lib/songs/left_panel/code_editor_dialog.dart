@@ -7,12 +7,11 @@ import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/comm_widgets/app_scaffold.dart';
 import 'package:harcapp_core/comm_widgets/dialog/base.dart';
 import 'package:harcapp_core/values/dimen.dart';
-import 'package:harcapp_core/song_book/song_core.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_web/consts.dart';
+import 'package:harcapp_web/songs/left_panel/song_from_code.dart';
 import 'package:harcapp_web/songs/left_panel/song_list_view.dart';
-import 'package:harcapp_web/songs/old/parse_old_code.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
@@ -100,33 +99,12 @@ class CodeEditorDialogState extends State<CodeEditorDialog> {
 
   void save(){
 
-    SongRaw parsedSong;
-
-    try{
-      // Try parsing the old song code
-      parsedSong = parseOldCode('_nowa_piosenka', controller.text);
-      parsedSong.id = parsedSong.generateFileName(withPerformer: BindTitleFileNameProvider.of(context).bindPerformer);
-    } catch(e){
-
-      try {
-        // Try parsing the entire song code
-        Map map = jsonDecode(controller.text);
-        String songId = map.keys.toList()[0];
-        parsedSong = SongRaw.fromApiRespMap(songId, map[songId]);
-
-      } catch(e){
-
-        // Try parsing the song code without the songId level
-        try{
-          Map map = jsonDecode(controller.text);
-          String title = map['title'];
-          parsedSong = SongRaw.fromApiRespMap("o!_${SongCore.filenameFromTitle(title)}", map);
-
-        }catch(e){
-          AppScaffold.showMessage(context, text: 'Błędny kod piosneki.');
-          return;
-        }
-      }
+    final parsedSong = songFromCode(controller.text,
+        editedId: song?.id,
+        withPerformer: BindTitleFileNameProvider.of(context).bindPerformer);
+    if(parsedSong == null){
+      AppScaffold.showMessage(context, text: 'Błędny kod piosenki.');
+      return;
     }
 
     TagsProvider.of(context).set(parsedSong.tags);

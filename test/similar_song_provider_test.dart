@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:harcapp_core/song_book/piosenkomat/piosenkomat_data.dart';
 import 'package:harcapp_core/song_book/similarity/similarity.dart';
-import 'package:harcapp_core/song_book/similarity/song_index.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/song_book/song_element.dart';
 import 'package:harcapp_web/songs/providers.dart';
@@ -40,12 +39,12 @@ void main(){
 
       List<SongMatch<SongRaw>> got = prov.matchesFor(edited, workspace: [edited, inWorkspace]);
 
-      // Warsztatowa kopia ma ten sam tekst co „Ognisko” z apki, ale to tytuł
-      // („Morze”) daje wyższy poziom — więc „Morze” pierwsze.
-      expect(got.map((m) => m.song.id), ['o!_morze', 'o!_ognisko', 'o!_ognisko_kopia']);
-      expect(got.map((m) => m.source), [MatchSource.app, MatchSource.app, MatchSource.workspace]);
-      expect(got[0].level, MatchLevel.sameTitleDifferentText);
-      expect(got[1].level, MatchLevel.similarText);
+      // Tekst rozstrzyga, tytuł tylko opisuje: „Ognisko” z apki i jego kopia
+      // z warsztatu mają ten sam tekst, więc wyprzedzają „Morze”, które ma
+      // tylko ten sam tytuł.
+      expect(got.map((m) => m.song.id), ['o!_ognisko', 'o!_ognisko_kopia', 'o!_morze']);
+      expect(got.map((m) => m.source), [MatchSource.app, MatchSource.workspace, MatchSource.app]);
+      expect(got.map((m) => m.level), [MatchLevel.sameSong, MatchLevel.sameSong, MatchLevel.sameTitleDifferentText]);
     });
 
     test('sama siebie w warsztacie nie jest trafieniem', (){
@@ -59,10 +58,11 @@ void main(){
 
       expect(prov.matchesFor(correction), isEmpty,
           reason: '„Góry” z apki to pierwowzór, a nie podobna piosenka');
-      SongMatch<SongRaw>? original = prov.originalMatchOf(correction);
-      expect(original?.song.id, 'o!_gory');
-      expect(original?.source, MatchSource.app);
-      expect(original?.similarities.whereType<SameText>(), hasLength(1));
+      OriginalMatch? original = prov.originalMatchOf(correction);
+      expect(original?.match.song.id, 'o!_gory');
+      expect(original?.match.source, MatchSource.app);
+      expect(original?.match.similarities.whereType<SameText>(), hasLength(1));
+      expect(original?.guessed, isFalse);
     });
 
     test('pierwowzór w warsztacie, gdy w apce go nie ma', (){
@@ -70,9 +70,18 @@ void main(){
       SongRaw correction = song('o!_lokalna_v2', 'Lokalna v2', _morze)
         ..piosenkomatData = const PiosenkomatData(kind: SubmissionKind.correction, correctionTarget: 'o!_lokalna');
 
-      SongMatch<SongRaw>? original = prov.originalMatchOf(correction, workspace: [orig, correction]);
-      expect(original?.song, same(orig));
-      expect(original?.source, MatchSource.workspace);
+      OriginalMatch? original = prov.originalMatchOf(correction, workspace: [orig, correction]);
+      expect(original?.match.song, same(orig));
+      expect(original?.match.source, MatchSource.workspace);
+    });
+
+    test('pierwowzór znaleziony dopiero bez @wykonawca jest oznaczony jako zgadnięty', (){
+      // Apka wskazała id sprzed zmiany wykonawcy — ta sama piosenka, ale domysł.
+      SongRaw correction = song('o!_hej', 'Hej góry', _gory)
+        ..piosenkomatData = const PiosenkomatData(kind: SubmissionKind.correction, correctionTarget: 'o!_gory@stary_zespol');
+      OriginalMatch? original = prov.originalMatchOf(correction);
+      expect(original?.match.song.id, 'o!_gory');
+      expect(original?.guessed, isTrue);
     });
 
     test('kolizja id bez deklaracji to trafienie z SameId, nie pierwowzór', (){
@@ -114,6 +123,35 @@ void main(){
 
   });
 
+  group('pisanie:', (){
+
+    testWidgets('w trakcie pisania poprzedni wynik, po chwili ciszy nowy', (tester) async {
+      SimilarSongProvider slow = SimilarSongProvider.withIndex(
+        SongIndex<SongRaw>([song('o!_morze', 'Morze', _morze), song('o!_gory', 'Góry', _gory)]),
+        settle: const Duration(milliseconds: 300),
+      );
+      int notified = 0;
+      slow.addListener(() => notified++);
+
+      SongRaw edited = song('o!_probe', 'Morze', 'zupełnie własny tekst bez wspólnych słów');
+      expect(slow.matchesFor(edited).map((m) => m.song.id), ['o!_morze'], reason: 'pierwszy wynik od razu');
+
+      edited.title = 'Góry';
+      expect(slow.matchesFor(edited).map((m) => m.song.id), ['o!_morze'], reason: 'piszesz — jeszcze stary');
+      await tester.pump(const Duration(milliseconds: 200));
+      edited.title = 'Góry!';
+      expect(slow.matchesFor(edited).map((m) => m.song.id), ['o!_morze'], reason: 'kolejny znak odsuwa przeliczenie');
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(notified, 0);
+
+      await tester.pump(const Duration(milliseconds: 150));
+      expect(notified, 1, reason: 'po ciszy słuchacze dostają znać');
+      expect(slow.matchesFor(edited).map((m) => m.song.id), ['o!_gory']);
+      slow.dispose();
+    });
+
+  });
+
   group('podsumowania:', (){
 
     test('similarCountText odmienia po polsku', (){
@@ -128,9 +166,9 @@ void main(){
       SongRaw edited = song('o!_probe', 'Morze', _ognisko);
       List<SongMatch<SongRaw>> got = prov.matchesFor(edited);
       expect(similarSongsSummary(got),
-          '2 podobne piosenki — najbliżej „Morze” w apce: ten sam tytuł, inna treść');
+          '2 podobne piosenki — najbliżej „Płonie ognisko” w apce: ta sama piosenka, drobne różnice');
       expect(similarSongsSummary([got.last]),
-          '„Płonie ognisko” w apce: podobny tekst');
+          '„Morze” w apce: ten sam tytuł, inna treść');
     });
 
   });

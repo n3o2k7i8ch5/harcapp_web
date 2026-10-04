@@ -8,7 +8,6 @@ import 'package:harcapp_core/comm_widgets/dialog/base.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/song_book/similarity/similarity.dart';
 import 'package:harcapp_core/song_book/similarity/similarity_widgets.dart';
-import 'package:harcapp_core/song_book/similarity/song_index.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/consts.dart';
@@ -38,14 +37,14 @@ enum ImportConflictChoice{
 
 /// Szuka importowanych piosenek, które w warsztacie mają swój pierwowzór.
 ///
-/// Poprawka **nie zdradza się polem `piosenkomat`**: `prepare` ten ślad zdejmuje,
-/// a poprawionej piosence ustawia `id` poprawianej (w apce piosenki są
-/// referencjonowane po `lclId`). Poznajemy ją więc po tym, po czym i tak widać
-/// konflikt: po dowodzie [SameId] z indeksu warsztatu. Gdy ślad jeszcze jest
+/// Poprawka **nie zdradza się polem `piosenkomat`**: `review --push` ten ślad
+/// zdejmuje, a poprawionej piosence ustawia `id` poprawianej (w apce piosenki
+/// są referencjonowane po `lclId`). Poznajemy ją więc po tym, po czym i tak
+/// widać konflikt: po dowodzie [SameId] z indeksu warsztatu. Gdy ślad jeszcze jest
 /// (`candidates-*`, `reviewed-*`), bierzemy dodatkowo cel poprawki — tam id
 /// poprawki potrafi być inne niż id pierwowzoru.
 ///
-/// Celowo **nie** `correctionTargetOf`: ono liczy też `correctedSongId`,
+/// Celowo **nie** `correctionTargetOf`: ono liczy też `basedOnSongId`,
 /// a piosenka przerobiona z cudzej i importowana obok oryginału to nie
 /// kolizja — to inna piosenka, która pamięta, z czego powstała.
 List<ImportConflict> findImportConflicts(

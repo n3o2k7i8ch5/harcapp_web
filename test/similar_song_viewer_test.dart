@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:harcapp_core/song_book/providers.dart';
 import 'package:harcapp_core/song_book/similarity/similarity.dart';
-import 'package:harcapp_core/song_book/similarity/song_index.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/song_book/song_element.dart';
 import 'package:harcapp_web/color_pack.dart';
+import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/similar_song_viewer.dart';
 import 'package:harcapp_web/songs/song_preview_widget.dart';
 
@@ -52,22 +52,23 @@ void main(){
     tester.takeException();
 
     expect(find.text('2 PODOBNE PIOSENKI'), findsOneWidget);
+    expect(find.text('w apce · ta sama piosenka, drobne różnice'), findsOneWidget);
     expect(find.text('w apce · ten sam tytuł, inna treść'), findsOneWidget);
-    expect(find.text('w apce · podobny tekst'), findsOneWidget);
 
-    // Pośrodku pierwsze trafienie: „Morze” z pastylką „ten sam tytuł”.
-    expect(find.text('ten sam tytuł'), findsOneWidget);
+    // Pośrodku pierwsze trafienie: „Płonie ognisko” — ten sam tekst pod innym
+    // tytułem wygrywa z samym tytułem. Wspólne wersy obok „ten sam tekst” są
+    // celowo ukryte, bo nie mówią nic nowego.
+    expect(find.text('ten sam tekst'), findsOneWidget);
+    expect(find.textContaining('wspóln'), findsNothing);
+    expect(find.text('ten sam tytuł'), findsNothing);
 
-    await tester.tap(find.text('Płonie ognisko'));
+    await tester.tap(find.text('w apce · ten sam tytuł, inna treść'));
     await tester.pumpAndSettle();
     tester.takeException();
 
-    // Drugie trafienie nie ma wspólnego tytułu, za to tekst ma dosłownie ten
-    // sam — pastylka tytułu znika, wchodzi „ten sam tekst” (a „tekst 100%”
-    // obok niej jest celowo ukryte, bo nie mówi nic nowego).
-    expect(find.text('ten sam tytuł'), findsNothing);
-    expect(find.text('ten sam tekst'), findsOneWidget);
-    expect(find.text('tekst 100%'), findsNothing);
+    // Drugie trafienie: „Morze” — tytuł ten sam, tekstu wspólnego brak.
+    expect(find.text('ten sam tytuł'), findsOneWidget);
+    expect(find.text('ten sam tekst'), findsNothing);
   });
 
   testWidgets('jedno trafienie: bez listy, dwie kolumny', (tester) async {
@@ -90,9 +91,12 @@ void main(){
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
-    final original = SongMatch<SongRaw>(
-      song: morze,
-      similarities: compare(SongProfile(current), SongProfile(morze)),
+    final original = OriginalMatch(
+      SongMatch<SongRaw>(
+        song: morze,
+        similarities: compare(SongProfile(current), SongProfile(morze)),
+      ),
+      guessed: false,
     );
     final matches = matchesFor(current, [ognisko]);
 
@@ -109,6 +113,32 @@ void main(){
     expect(find.text('POPRAWIANA PIOSENKA · W APCE'), findsOneWidget);
     // Licznik liczy tylko podobne, bez pierwowzoru.
     expect(find.text('1 PODOBNA PIOSENKA'), findsOneWidget);
+  });
+
+  testWidgets('zgadnięty pierwowzór ma to w podpisie', (tester) async {
+    tester.view.physicalSize = const Size(1800, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final original = OriginalMatch(
+      SongMatch<SongRaw>(
+        song: morze,
+        similarities: compare(SongProfile(current), SongProfile(morze)),
+      ),
+      guessed: true,
+    );
+    final matches = matchesFor(current, [ognisko]);
+
+    await tester.pumpWidget(wrap(SimilarSongViewerDialog(
+      currentSong: current,
+      matches: matches,
+      original: original,
+      title: 'Poprawka piosenki',
+    )));
+    await tester.pumpAndSettle();
+    tester.takeException();
+
+    expect(find.text('w apce · poprawiana piosenka (zgadnięta, inny wykonawca)'), findsOneWidget);
   });
 
 }

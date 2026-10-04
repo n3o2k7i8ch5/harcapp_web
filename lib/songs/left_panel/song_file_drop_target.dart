@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
+import 'package:harcapp_core/song_book/import_hrcpsng.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:web/web.dart' as web;
 
-const String songFileExtension = 'hrcpsng';
 
 /// Obszar, na który można upuścić plik .hrcpsng, by od razu zaimportować piosenki.
 /// Gdy plik jest przeciągany nad tym obszarem, obszar zostaje podświetlony.
@@ -117,7 +117,7 @@ class SongFileDropTargetState extends State<SongFileDropTarget>{
     for(int i = 0; i < fileList.length; i++){
       web.File? file = fileList.item(i);
       if(file == null) continue;
-      if(!file.name.toLowerCase().endsWith('.$songFileExtension')) continue;
+      if(!file.name.toLowerCase().endsWith('.$kSongFileExtension')) continue;
       JSArrayBuffer buffer = await file.arrayBuffer().toDart;
       filesBytes.add(buffer.toDart.asUint8List());
     }

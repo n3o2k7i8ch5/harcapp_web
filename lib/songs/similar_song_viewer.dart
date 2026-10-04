@@ -1,23 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:harcapp_core/comm_classes/text_utils.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_bar.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/song_book/similarity/similarity_widgets.dart';
-import 'package:harcapp_core/song_book/similarity/song_index.dart';
+import 'package:harcapp_core/song_book/similarity/similarity.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/values/dimen.dart';
+import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/consts.dart';
 import 'package:harcapp_web/songs/song_compare_preview.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
 /// „1 podobna piosenka”, „3 podobne piosenki”, „12 podobnych piosenek”.
-String similarCountText(int n){
-  if(n == 1) return '1 podobna piosenka';
-  final unit = n % 10, tens = n % 100;
-  if(unit >= 2 && unit <= 4 && (tens < 12 || tens > 14)) return '$n podobne piosenki';
-  return '$n podobnych piosenek';
-}
+String similarCountText(int n) => plural(n, 'podobna piosenka', 'podobne piosenki', 'podobnych piosenek');
 
 /// Jedno zdanie o liście trafień, do belki i do banera w oknie mejla:
 /// przy jednym — co i skąd, przy kilku — ile i które najbliższe.
@@ -34,6 +31,7 @@ String similarSongsSummary(List<SongMatch<SongRaw>> matches){
 IconData matchSourceIcon(MatchSource source) => switch(source){
   MatchSource.app => MdiIcons.cellphone,
   MatchSource.workspace => MdiIcons.laptop,
+  MatchSource.batch => MdiIcons.emailOutline,
 };
 
 /// Otwiera przeglądarkę podobnych piosenek. Jedno wejście dla belki nad
@@ -42,7 +40,7 @@ Future<void> showSimilarSongViewer(
     BuildContext context,
     { required SongRaw currentSong,
       required List<SongMatch<SongRaw>> matches,
-      SongMatch<SongRaw>? original,
+      OriginalMatch? original,
       String title = 'Podobne piosenki',
       String currentLabel = 'w edytorze',
     }) => showDialog(
@@ -69,7 +67,7 @@ class SimilarSongViewerDialog extends StatefulWidget{
 
   final SongRaw currentSong;
   final List<SongMatch<SongRaw>> matches;
-  final SongMatch<SongRaw>? original;
+  final OriginalMatch? original;
   final String title;
   final String currentLabel;
 
@@ -91,11 +89,14 @@ class _Entry{
 
   final SongMatch<SongRaw> match;
   final bool isOriginal;
+  /// Pierwowzór zgadnięty ([OriginalMatch.guessed]) — mówi o tym podpis.
+  final bool guessed;
 
-  const _Entry(this.match, {this.isOriginal = false});
+  const _Entry(this.match, {this.isOriginal = false, this.guessed = false});
 
   /// Podpis na liście i w nagłówku kolumny: skąd, a przy pierwowzorze — co to.
-  String get kindText => isOriginal? 'poprawiana piosenka': match.level?.text ?? '';
+  String get kindText => !isOriginal? match.level?.text ?? '':
+      guessed? 'poprawiana piosenka (${OriginalMatch.guessedText})': 'poprawiana piosenka';
   Color color(BuildContext context) => isOriginal? accent_(context): matchLevelColor(match.level);
   IconData get icon => isOriginal? MdiIcons.compareHorizontal: matchSourceIcon(match.source);
 
@@ -111,7 +112,7 @@ class SimilarSongViewerDialogState extends State<SimilarSongViewerDialog>{
   @override
   void initState() {
     entries = [
-      if(widget.original case final original?) _Entry(original, isOriginal: true),
+      if(widget.original case final original?) _Entry(original.match, isOriginal: true, guessed: original.guessed),
       for(final m in widget.matches) _Entry(m),
     ];
     super.initState();

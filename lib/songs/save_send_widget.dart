@@ -21,6 +21,7 @@ import 'package:harcapp_web/songs/song_contribution_rules_acceptance_manager.dar
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:harcapp_core/comm_widgets/dialog/alert_dialog.dart';
+import 'package:harcapp_core/values/strings.dart';
 
 import '../router.dart';
 
@@ -192,7 +193,7 @@ class HowToSendEmailWidget extends StatelessWidget{
           text: composeSubmissionEmailBody(
             attachmentFileName:
                 suggestedSaveFileName(AllSongsProvider.of(context).songs),
-            acceptRulesVersion:
+            acceptedRulesVersion:
                 SongContributionRulesAcceptanceManager.acceptedRulesVersion,
             // Strona wysyła całą paczkę jednym mejlem.
             oneSongPerMail: false,
@@ -234,7 +235,7 @@ class HowToContributeDialog extends StatelessWidget{
       BulletPoint(2, 'Pobierz plik z piosenkami przyciskiem "<b>Zapisz wszystko</b>".'),
       SizedBox(height: textSeparation),
 
-      BulletPoint(3, 'Wyślij mejlem pobrany plik na adres: <b>$harcappEmail</b>.'),
+      BulletPoint(3, 'Wyślij mejlem pobrany plik na adres: <b>$kHarcappEmail</b>.'),
 
       SizedBox(height: 24),
 

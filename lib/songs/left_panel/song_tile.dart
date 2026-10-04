@@ -10,7 +10,7 @@ import 'package:harcapp_core/song_book/similarity/similarity.dart';
 import 'package:harcapp_core/song_book/similarity/similarity_widgets.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
-import 'package:harcapp_core/song_book/song_editor/widgets/piosenkomat_issues_widget.dart';
+import 'package:harcapp_core/song_book/song_editor/widgets/piosenkomat_pills.dart';
 import 'package:harcapp_web/consts.dart';
 import 'package:harcapp_web/songs/left_panel/song_list_view.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
@@ -93,7 +93,7 @@ class SongTileState extends State<SongTile>{
                 // przekreślona i przygaszona, żeby z listy było widać, co
                 // odpada, bez otwierania każdej. Przebudowa idzie przez
                 // CurrentItemProvider, który przełącznik woła po zmianie.
-                style: song.piosenkomatData?.goesIn == false
+                style: song.piosenkomatData?.rejected == true
                     ? AppTextStyle(
                         fontSize: Dimen.textSizeBig,
                         color: hintEnab_(context),
@@ -119,17 +119,14 @@ class SongTileState extends State<SongTile>{
                 lclId==HINT_FILE_NAME || songFileNameDupErrProv.hasDup(song)?
                 Colors.red:hintEnab_(context),
                 // Przekreślone razem z tytułem, gdy piosenka odpada.
-                decoration: song.piosenkomatData?.goesIn == false
+                decoration: song.piosenkomatData?.rejected == true
                     ? TextDecoration.lineThrough
                     : null,
               )
             ),
-            // Podgląd uwag piosenkomatu; znikają, gdy zdejmiesz je w edytorze.
-            if(song.piosenkomatData?.issues.isNotEmpty ?? false)
-              Padding(
-                padding: EdgeInsets.only(top: Dimen.defMarg/2),
-                child: PiosenkomatIssuesPreview(song),
-              ),
+            // Badge POPRAWKA i pastylki uwag piosenkomatu.
+            if(song.piosenkomatData case final data?)
+              PiosenkomatPills(data, compact: true, padding: EdgeInsets.only(top: Dimen.defMarg/2)),
           ],
         ),
         selected: currItemProv.song == song,

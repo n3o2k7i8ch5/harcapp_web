@@ -250,7 +250,7 @@ void handleImportSongsTap(BuildContext context) async {
 
   final PlatformFile? file = await FilePicker.pickFile(
     type: FileType.custom,
-    allowedExtensions: [songFileExtension],
+    allowedExtensions: [kSongFileExtension],
   );
 
   if(file==null)
@@ -352,6 +352,12 @@ void handleSelectedSongsImport(BuildContext context, List<SongRaw> songs, Map<So
   }
   List<SongRaw> offSongs = songsResult.$1;
   List<SongRaw> confSongs = songsResult.$2;
+
+  // Wczytać wolno — zapisać nie, dopóki duplikatów nie usuniesz.
+  final duplicates = hrcpsngDuplicateIds(code);
+  if(duplicates.isNotEmpty)
+    AppScaffold.showMessage(context, text: 'W pliku są zdublowane id: ${duplicates.join(', ')}. '
+        'Zapis będzie zablokowany, dopóki ich nie usuniesz albo nie zmienisz im id.');
 
   List<SongRaw> songs = confSongs.cast<SongRaw>() + offSongs.cast<SongRaw>();
   Map<SongRaw, bool> confMap = {for(SongRaw song in songs) song: confSongs.contains(song)};

@@ -40,7 +40,7 @@ class ContribRulesDialogState extends State<ContribRulesDialog> {
   void initState() {
     emailController = TextEditingController(text: song.contributorData?.email);
     contributionDate = song.contributorData?.contributionDate ?? DateTime.now();
-    acceptedRulesVersion = song.contributorData?.acceptedContributionRulesVersion;
+    acceptedRulesVersion = song.contributorData?.acceptedRulesVersion;
     super.initState();
   }
 
@@ -77,7 +77,7 @@ class ContribRulesDialogState extends State<ContribRulesDialog> {
                       song.contributorData = ContributorData(
                         email: emailController.text.trim(),
                         contributionDate: contributionDate,
-                        acceptedContributionRulesVersion: acceptedRulesVersion!,
+                        acceptedRulesVersion: acceptedRulesVersion!,
                       );
                       CurrentItemProvider.notify_(context);
                       popPage(context);

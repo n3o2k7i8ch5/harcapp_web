@@ -31,7 +31,7 @@ void main() {
   setUp(() => AudioMeta.set({'o!_x': const [SongAudio('x.mp3', performer: 'Ktoś')]}));
   tearDown(AudioMeta.reset);
 
-  testWidgets('podgląd na stronie: pasek tylko do oglądania, przycisk YouTube żywy', (tester) async {
+  testWidgets('podgląd na stronie: pasek tylko do oglądania', (tester) async {
     tester.view.physicalSize = const Size(1200, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -52,11 +52,12 @@ void main() {
     expect(find.byIcon(MdiIcons.openInNew), findsOneWidget);
     expect(find.byIcon(MdiIcons.play), findsNothing, reason: 'na stronie nic nie gra');
 
-    // Przycisk „YouTube” w rzędzie ikon jest — i ma co robić (otwiera link).
-    expect(find.byIcon(MdiIcons.playCircleOutline), findsOneWidget);
+    // Osobnego przycisku YouTube w rzędzie ikon już nie ma (harcapp_core
+    // b894a8c4) — film jest kafelkiem paska, a pierwszy kafelek to mp3.
+    expect(find.byIcon(MdiIcons.playCircleOutline), findsNothing);
   });
 
-  testWidgets('bez filmu i nagrań: ani paska, ani przycisku YouTube', (tester) async {
+  testWidgets('bez filmu i nagrań: bez paska', (tester) async {
     tester.view.physicalSize = const Size(1200, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);

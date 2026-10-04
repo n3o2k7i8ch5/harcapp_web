@@ -6,6 +6,7 @@ import 'package:harcapp_core/comm_widgets/instrument_type.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/values/dimen.dart';
+import 'package:harcapp_core/song_book/playback/autoplay_mode.dart';
 import 'package:harcapp_core/song_book/settings.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
@@ -140,9 +141,15 @@ class SongBaseSettings extends SongBookSettTempl{
 
   // Podgląd nic nie gra — nie ma czego przyklejać.
   @override
-  bool get stickyAudioPlayer => false;
+  bool get stickyPlaybackBar => false;
   @override
-  set stickyAudioPlayer(bool value) {}
+  set stickyPlaybackBar(bool value) {}
+
+  // Wybór „co po nagraniu” żyje do odświeżenia strony.
+  @override
+  AutoplayMode autoplayMode = AutoplayMode.one;
+  @override
+  bool autoplayRandom = false;
 
   @override
   bool get alwaysOnScreen => false;

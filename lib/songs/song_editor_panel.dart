@@ -4,7 +4,7 @@ import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/contributor_ref_list_widget.dart';
-import 'package:harcapp_core/song_book/song_editor/widgets/piosenkomat_issues_widget.dart';
+import 'package:harcapp_core/song_book/song_editor/widgets/piosenkomat_header_widget.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/add_buttons_widget.dart';
@@ -155,9 +155,9 @@ class SongEditorPanelState extends State<SongEditorPanel>{
 
             SizedBox(height: Dimen.iconMarg),
 
-            // Nagłówek piosenkomatu — tylko przy piosenkach z jego plików:
-            // badge POPRAWKA (z tytułem poprawianej piosenki), dopiski autora
-            // i pastylki z uwagami. Wszystko do czytania, nic do klikania.
+            // Karta piosenkomatu — tylko przy piosenkach z jego plików:
+            // werdykt, badge POPRAWKA (z tytułem poprawianej piosenki),
+            // pastylki z uwagami, rozmowa z autorem i pole odpowiedzi.
             Consumer<SimilarSongProvider>(
               builder: (context, simProv, _) => PiosenkomatHeaderWidget(
                 padding: EdgeInsets.only(bottom: Dimen.defMarg),

@@ -14,7 +14,7 @@ SongRaw _song(String id, {PiosenkomatData? data}){
 void main(){
 
   test('final-correction: poprawka bez śladu piosenkomatu, poznana po id', (){
-    // `prepare` zdejmuje pole `piosenkomat` i ustawia id poprawianej piosenki.
+    // `review --push` zdejmuje pole `piosenkomat` i ustawia id poprawianej piosenki.
     SongRaw existing = _song('o!_roadtrip@dream&pmbata');
     SongRaw imported = _song('o!_roadtrip@dream&pmbata');
 
@@ -42,9 +42,9 @@ void main(){
     expect(findImportConflicts([_song('o!_nowa')], [_song('o!_stara')]), isEmpty);
   });
 
-  test('correctedSongId to nie kolizja — przerobiona z cudzej to inna piosenka', (){
+  test('basedOnSongId to nie kolizja — przerobiona z cudzej to inna piosenka', (){
     SongRaw original = _song('o!_barka');
-    SongRaw derived = _song('o!_moja_barka')..correctedSongId = 'o!_barka';
+    SongRaw derived = _song('o!_moja_barka')..basedOnSongId = 'o!_barka';
     expect(findImportConflicts([derived], [original]), isEmpty);
   });
 

@@ -72,6 +72,17 @@ class SongListTileWidget extends StatelessWidget{
                     )
                 ),
 
+              Consumer<SimilarSongProvider>(
+                builder: (context, prov, child) => prov.appError == null
+                    ? const SizedBox.shrink()
+                    : SimpleButton.from(
+                        textColor: Colors.red,
+                        icon: MdiIcons.alertOctagonOutline,
+                        text: 'all_songs',
+                        onTap: () => AppScaffold.showMessage(context, text: prov.appError!),
+                      ),
+              ),
+
               Expanded(child: Container()),
 
               SizedBox(height: Dimen.iconFootprint + 2*Dimen.defMarg),

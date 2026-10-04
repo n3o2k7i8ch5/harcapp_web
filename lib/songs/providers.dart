@@ -1,11 +1,10 @@
-import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:harcapp_core/comm_classes/sha_pref.dart';
 import 'package:harcapp_core/comm_classes/text_utils.dart';
 import 'package:harcapp_core/song_book/import_hrcpsng.dart';
 import 'package:harcapp_core/song_book/similarity/similarity.dart';
-import 'package:harcapp_core/song_book/similarity/song_index.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_web/common/sha_pref.dart';
 import 'package:harcapp_web/songs/utils/song_loader.dart';
@@ -40,9 +39,9 @@ class BindTitleFileNameProvider extends ChangeNotifier{
   }
 
   void setSetBasedOnSong(SongRaw song){
-    bindTitle = song.id.split('@')[0] == (song.isConfid?'oc!_':'o!_') + song.generateFileName(withPerformer: false);
+    bindTitle = song.id.split('@')[0] == song.idFromTitle(withPerformer: false);
 
-    bindPerformer = song.id == (song.isConfid?'oc!_':'o!_') + song.generateFileName(withPerformer: true);
+    bindPerformer = song.id == song.idFromTitle(withPerformer: true);
     notifyListeners();
   }
 
@@ -112,7 +111,7 @@ class AllSongsProvider extends ChangeNotifier{
   /// piosenkomatem resztę zgasiłeś przełącznikiem; poza przeglądem
   /// równe [length].
   int get goingInCount =>
-      _songs.where((s) => s.piosenkomatData?.goesIn != false).length;
+      _songs.where((s) => s.piosenkomatData?.rejected != true).length;
 
   bool? isConf(SongRaw song) => _confMap[song];
 
@@ -122,8 +121,10 @@ class AllSongsProvider extends ChangeNotifier{
     notifyListeners();
   }
 
+  /// Roboczy stan warsztatu — razem z duplikatami, żeby po odświeżeniu dalej
+  /// było je widać i dało się je naprawić.
   void _cacheSongs() =>
-    ShaPref.setString(SHA_PREF_LAST_EDITED_SONGS, convertAllToCode());
+    ShaPref.setString(SHA_PREF_LAST_EDITED_SONGS, convertAllToCode(allowDuplicateIds: true));
 
   static Future<List<SongRaw>> loadCachedSongs() async {
     String? code = ShaPref.getStringOrNull(SHA_PREF_LAST_EDITED_SONGS);
@@ -156,37 +157,23 @@ class AllSongsProvider extends ChangeNotifier{
   static void clearCachedSongs() =>
       ShaPref.remove(SHA_PREF_LAST_EDITED_SONGS);
   
-  String convertAllToCode(){
-
-    Map offSongMap = {};
-    Map confSongMap = {};
+  /// Plik piosenek z całego warsztatu. Zdublowane id to
+  /// [HrcpsngDuplicateIdError] — pliku z duplikatami nie zapisujemy; tylko
+  /// roboczy cache ([allowDuplicateIds]) je przenosi.
+  String convertAllToCode({bool allowDuplicateIds = false}){
 
     _songs.sort((a, b) => compareText(a.title, b.title));
 
-    int iterOff = 0;
-    int iterConf = 0;
-    for(SongRaw song in _songs){
-      // Z uwagami piosenkomatu: to ten plik wraca do narzędzia jako
-      // `reviewed.hrcpsng` i po nich poznaje, co zostało ogarnięte.
-      Map map = song.toApiJsonMap(withId: false, withPiosenkomatData: true);
-      if(isConf(song)!)
-        confSongMap[song.id] = {
-          'song': map,
-          'index': iterConf++
-        };
-      else
-        offSongMap[song.id] = {
-          'song': map,
-          'index': iterOff++
-        };
-    }
+    // Z uwagami piosenkomatu: to ten plik wraca do narzędzia jako
+    // `reviewed-*.hrcpsng` i po nich poznaje, co zostało ogarnięte.
+    (String, Map) entryOf(SongRaw song) =>
+        (song.id, song.toApiJsonMap(withId: false, withPiosenkomatData: true));
 
-    String code = jsonEncode({
-      'official': offSongMap,
-      'conf': confSongMap,
-    });
-
-    return code;
+    return encodeHrcpsngEntries(
+      official: [for(SongRaw song in _songs) if(!isConf(song)!) entryOf(song)],
+      conf: [for(SongRaw song in _songs) if(isConf(song)!) entryOf(song)],
+      allowDuplicateIds: allowDuplicateIds,
+    );
   }
 
 }
@@ -300,24 +287,38 @@ class SongEditorPanelProvider extends ChangeNotifier{
 
 }
 
-/// Podobne piosenki dla edytora: śpiewnik apki (raz, w `compute`) plus
+/// Podobne piosenki dla edytora: śpiewnik apki (raz, porcjami w tle) plus
 /// warsztat (przebudowywany, gdy zmieni się cokolwiek, co profil czyta).
 ///
 /// Wyniki są cache'owane po **tożsamości** piosenki i sygnaturze jej treści:
 /// o to samo pyta kilku konsumentów naraz (belka, padding edytora, lista),
 /// a `CurrentItemProvider.notify()` leci z każdym znakiem. Sygnatura, nie
 /// `hashCode` — `SongRaw` jest mutowalny i nie nadpisuje `==`.
+///
+/// Dwie części osobno: porównanie ze śpiewnikiem apki zależy **tylko** od
+/// samej piosenki, więc znak wpisany w innej piosence warsztatu go nie
+/// unieważnia — liczy się od nowa tylko mała część „warsztat”. Inaczej każdy
+/// znak kazałby wszystkim widocznym kafelkom przeszukiwać cały śpiewnik.
+///
+/// Przy pisaniu nie liczymy z każdym znakiem: dopóki piosenka albo warsztat
+/// zmieniły się mniej niż [settle] temu, oddajemy poprzedni wynik, a po
+/// chwili ciszy liczymy od nowa i dajemy znać słuchaczom. Pierwszy wynik dla
+/// piosenki liczy się od razu.
 class SimilarSongProvider extends ChangeNotifier{
 
   static SimilarSongProvider of(BuildContext context) => Provider.of<SimilarSongProvider>(context, listen: false);
 
   SongIndex<SongRaw>? _app;
 
-  SimilarSongProvider();
+  /// Ile ciszy po ostatniej zmianie, zanim policzymy od nowa.
+  final Duration settle;
 
-  /// Do testów: gotowy indeks zamiast ładowania z assetów.
+  SimilarSongProvider({this.settle = const Duration(milliseconds: 300)});
+
+  /// Do testów: gotowy indeks zamiast ładowania z assetów; domyślnie bez
+  /// czekania na ciszę, żeby każda zmiana od razu dawała nowy wynik.
   @visibleForTesting
-  SimilarSongProvider.withIndex(SongIndex<SongRaw> app): _app = app;
+  SimilarSongProvider.withIndex(SongIndex<SongRaw> app, {this.settle = Duration.zero}): _app = app;
 
   /// Czy śpiewnik apki już jest. Przed tym nic nie porównujemy — lepiej
   /// przez chwilę nie ostrzegać, niż ostrzegać „nic nie znaleziono”.
@@ -326,10 +327,51 @@ class SimilarSongProvider extends ChangeNotifier{
   SongIndex<SongRaw>? _workspace;
   String? _workspaceSig;
 
-  final Map<SongRaw, _SimilarCache> _cache = Map.identity();
+  /// Po tożsamości piosenki; `Expando`, żeby usunięte z warsztatu nie
+  /// wisiały w pamięci.
+  final Expando<_SimilarCache> _cache = Expando();
+  final Expando<_AppPart> _appCache = Expando();
+
+  /// Ostatnio widziany stan piosenki (jej sygnatura + sygnatura warsztatu)
+  /// — po nim poznajemy, że właśnie coś się zmieniło.
+  final Expando<String> _seen = Expando();
+  Timer? _settleTimer;
+  bool _settling = false;
+
+  /// Czy stan [key] piosenki [song] jest świeży, a więc trzeba jeszcze
+  /// poczekać. Każda nowa zmiana odsuwa przeliczenie o [settle].
+  bool _stillChanging(SongRaw song, String key){
+    if(settle == Duration.zero) return false;
+    if(_seen[song] != key){
+      _seen[song] = key;
+      _settling = true;
+      _settleTimer?.cancel();
+      _settleTimer = Timer(settle, (){
+        _settling = false;
+        notifyListeners();
+      });
+    }
+    return _settling;
+  }
+
+  @override
+  void dispose(){
+    _settleTimer?.cancel();
+    super.dispose();
+  }
+
+  /// Czemu śpiewnik apki się nie wczytał — np. zdublowane id w `all_songs`.
+  /// Wtedy nic nie porównujemy, a lista piosenek pokazuje ten błąd.
+  String? appError;
 
   void init() async {
-    _app = await loadAppSongIndex();
+    try {
+      _app = await loadAppSongIndex();
+    } on HrcpsngDuplicateIdError catch(e){
+      appError = 'W all_songs są zdublowane id: ${e.ids.join(', ')}. '
+          'Napraw plik — pod każdym id ma być jedna piosenka. Do tego czasu '
+          'śpiewnik apki się nie wczyta i nie ma porównań.';
+    }
     notifyListeners();
   }
 
@@ -345,8 +387,9 @@ class SimilarSongProvider extends ChangeNotifier{
     s.tags.join('\x00'), s.chords, s.text,
   ].join('\x01');
 
-  SongIndex<SongRaw> _workspaceIndex(List<SongRaw> songs){
-    String sig = songs.map(_signature).join('\x02');
+  static String _workspaceSignature(List<SongRaw> songs) => songs.map(_signature).join('\x02');
+
+  SongIndex<SongRaw> _workspaceIndex(List<SongRaw> songs, String sig){
     if(_workspace == null || sig != _workspaceSig){
       _workspace = SongIndex(songs);
       _workspaceSig = sig;
@@ -354,17 +397,35 @@ class SimilarSongProvider extends ChangeNotifier{
     return _workspace!;
   }
 
-  /// Pierwowzór, który [song] **deklaruje**, że poprawia — najpierw w apce,
-  /// potem w warsztacie (po „zachowaj obie” oryginał leży obok poprawki).
-  (SongRaw, MatchSource)? _originalOf(SongRaw song, SongIndex<SongRaw> app, SongIndex<SongRaw> workspace){
-    if(correctionTargetOf(song, app) case final found?) return (found, MatchSource.app);
-    if(correctionTargetOf(song, workspace) case final found?) return (found, MatchSource.workspace);
-    return null;
+  /// Wszystko, co zależy tylko od [song] i śpiewnika apki: odcisk, pierwowzór
+  /// w apce i trafienia w apce.
+  _AppPart _appPartOf(SongRaw song, String sig, SongIndex<SongRaw> app){
+    _AppPart? cached = _appCache[song];
+    if(cached != null && cached.signature == sig) return cached;
+
+    SongProfile profile = SongProfile(song);
+    final target = correctionTargetLookupOf(song, app);
+    SongRaw? original = target?.song;
+    _AppPart result = _AppPart(
+      signature: sig,
+      profile: profile,
+      original: target == null? null: OriginalMatch(
+        SongMatch(
+          song: target.song,
+          source: MatchSource.app,
+          similarities: compare(profile, SongProfile(target.song)),
+        ),
+        guessed: target.guessed,
+      ),
+      matches: app.matches(profile, source: MatchSource.app, exclude: (s) => identical(s, song) || identical(s, original)),
+    );
+    _appCache[song] = result;
+    return result;
   }
 
   /// Pierwowzór poprawki jako trafienie z dowodami, albo `null`, gdy [song]
   /// niczego nie poprawia albo pierwowzoru nie ma ani w apce, ani w warsztacie.
-  SongMatch<SongRaw>? originalMatchOf(SongRaw song, {List<SongRaw> workspace = const []}) =>
+  OriginalMatch? originalMatchOf(SongRaw song, {List<SongRaw> workspace = const []}) =>
       _compute(song, workspace).original;
 
   /// Wszystkie podobne piosenki z apki i z warsztatu, od najsilniejszej.
@@ -381,23 +442,38 @@ class SimilarSongProvider extends ChangeNotifier{
     SongIndex<SongRaw>? app = _app;
     if(app == null) return const _SimilarCache.empty();
 
-    SongIndex<SongRaw> workspace = _workspaceIndex(workspaceSongs);
+    String workspaceSig = _workspaceSignature(workspaceSongs);
     String sig = _signature(song);
     _SimilarCache? cached = _cache[song];
-    if(cached != null && cached.signature == sig && cached.workspaceSignature == _workspaceSig)
+    if(cached != null && cached.signature == sig && cached.workspaceSignature == workspaceSig)
+      return cached;
+    // Właśnie piszesz: poprzedni wynik, przeliczenie po chwili ciszy.
+    if(cached != null && _stillChanging(song, '$sig\x03$workspaceSig'))
       return cached;
 
-    SongProfile profile = SongProfile(song);
-    (SongRaw, MatchSource)? original = _originalOf(song, app, workspace);
-    SongMatch<SongRaw>? originalMatch = original == null? null: SongMatch(
-      song: original.$1,
-      source: original.$2,
-      similarities: compare(profile, SongProfile(original.$1)),
-    );
+    SongIndex<SongRaw> workspace = _workspaceIndex(workspaceSongs, workspaceSig);
 
-    bool skip(SongRaw s) => identical(s, song) || identical(s, original?.$1);
+    _AppPart appPart = _appPartOf(song, sig, app);
+    SongProfile profile = appPart.profile;
+
+    // Pierwowzór, który [song] **deklaruje**, że poprawia — najpierw w apce,
+    // potem w warsztacie (po „zachowaj obie” oryginał leży obok poprawki).
+    OriginalMatch? originalMatch = appPart.original;
+    if(originalMatch == null)
+      if(correctionTargetLookupOf(song, workspace) case final found?)
+        originalMatch = OriginalMatch(
+          SongMatch(
+            song: found.song,
+            source: MatchSource.workspace,
+            similarities: compare(profile, SongProfile(found.song)),
+          ),
+          guessed: found.guessed,
+        );
+
+    SongRaw? original = originalMatch?.match.song;
+    bool skip(SongRaw s) => identical(s, song) || identical(s, original);
     List<SongMatch<SongRaw>> matches = [
-      ...app.matches(profile, source: MatchSource.app, exclude: skip),
+      ...appPart.matches,
       ...workspace.matches(profile, source: MatchSource.workspace, exclude: skip),
     ]..sort(compareSongMatches);
 
@@ -408,11 +484,36 @@ class SimilarSongProvider extends ChangeNotifier{
 
 }
 
+/// Pierwowzór poprawki. [guessed]: id pasuje dopiero bez członu
+/// `@wykonawca` — ta sama piosenka po zmianie wykonawcy, ale to domysł.
+class OriginalMatch{
+
+  final SongMatch<SongRaw> match;
+  final bool guessed;
+
+  const OriginalMatch(this.match, {required this.guessed});
+
+  /// Dopisek do podpisu, gdy [guessed].
+  static const String guessedText = 'zgadnięta, inny wykonawca';
+
+}
+
+class _AppPart{
+
+  final String signature;
+  final SongProfile profile;
+  final OriginalMatch? original;
+  final List<SongMatch<SongRaw>> matches;
+
+  const _AppPart({required this.signature, required this.profile, required this.original, required this.matches});
+
+}
+
 class _SimilarCache{
 
   final String? signature;
   final String? workspaceSignature;
-  final SongMatch<SongRaw>? original;
+  final OriginalMatch? original;
   final List<SongMatch<SongRaw>> matches;
 
   const _SimilarCache(this.signature, this.workspaceSignature, this.original, this.matches);

@@ -5,7 +5,7 @@ import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/song_book/similarity/similarity_widgets.dart';
-import 'package:harcapp_core/song_book/similarity/song_index.dart';
+import 'package:harcapp_core/song_book/similarity/similarity.dart';
 import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/values/dimen.dart';
@@ -37,7 +37,7 @@ class SimilarSongBanner extends StatelessWidget{
 
         final SongRaw song = currItemProv.song;
         final List<SongRaw> workspace = allSongsProv.songs;
-        final SongMatch<SongRaw>? original = simProv.originalMatchOf(song, workspace: workspace);
+        final OriginalMatch? original = simProv.originalMatchOf(song, workspace: workspace);
         final List<SongMatch<SongRaw>> matches = simProv.matchesFor(song, workspace: workspace);
 
         if(original == null && matches.isEmpty) return const SizedBox.shrink();
@@ -51,9 +51,10 @@ class SimilarSongBanner extends StatelessWidget{
           // chodzi. Pomarańcz, nie czerwień, a obok ewentualne inne trafienia.
           color = Colors.orange;
           icon = MdiIcons.compareHorizontal;
-          text = matches.isEmpty?
-          'Poprawka piosenki „${original.song.title}”':
-          'Poprawka piosenki „${original.song.title}” · ${similarCountText(matches.length)}';
+          final String what = original.guessed?
+          'Poprawka piosenki „${original.match.song.title}” (${OriginalMatch.guessedText})':
+          'Poprawka piosenki „${original.match.song.title}”';
+          text = matches.isEmpty? what: '$what · ${similarCountText(matches.length)}';
         } else {
           color = matchLevelColor(matches.first.level);
           icon = SimilarSongBanner.icon;
