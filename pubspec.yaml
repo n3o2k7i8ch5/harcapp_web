@@ -28,6 +28,10 @@ dependency_overrides:
   # Drop these pins once the SDK catches up.
   material_ui: 1.2.0
   cupertino_ui: 1.0.2
+  # image 4.11.0 calls ZLibDecoder.decodeLazy (archive 4.1+) while declaring
+  # archive ^4.0.9; pdf 3.12.0 caps archive at <4.1.0, so dart2js fails.
+  # Drop this pin once pdf allows archive >=4.1.0.
+  image: 4.10.1
 
 dependencies:
 

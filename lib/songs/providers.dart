@@ -142,15 +142,23 @@ class AllSongsProvider extends ChangeNotifier{
     } catch(e){
       // Stary/nadgryziony cache (np. pomieszane indeksy) — wtedy ratujemy, co
       // się da, starą drogą, ale z odsiewaniem powtórzonych wystąpień.
-      Map<String, List<SongRaw>> decodedSongs = decodeSongs(code);
+      try {
+        Map<String, List<SongRaw>> decodedSongs = decodeSongs(code);
 
-      Set<SongRaw> seen = Set.identity();
-      List<SongRaw> result = [];
-      for (List<SongRaw> songs in decodedSongs.values)
-        for (SongRaw song in songs)
-          if(seen.add(song)) result.add(song);
+        Set<SongRaw> seen = Set.identity();
+        List<SongRaw> result = [];
+        for (List<SongRaw> songs in decodedSongs.values)
+          for (SongRaw song in songs)
+            if(seen.add(song)) result.add(song);
 
-      return result;
+        return result;
+      } catch(e){
+        // Cache z warsztatu w innej wersji (np. ślad piosenkomatu sprzed
+        // zmiany kluczy). Nie udajemy, że go rozumiemy: zaczynamy pusto,
+        // a przegląd wraca z pliku, który i tak jest źródłem prawdy.
+        debugPrint('Nie udało się wczytać roboczego stanu warsztatu: $e');
+        return [];
+      }
     }
   }
 
