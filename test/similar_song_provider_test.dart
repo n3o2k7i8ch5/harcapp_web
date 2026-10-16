@@ -112,13 +112,36 @@ void main(){
       expect(prov.matchesFor(edited).map((m) => m.song.id), ['o!_gory']);
     });
 
-    test('zmiana w warsztacie unieważnia wynik', (){
+    test('zmiana treści w warsztacie unieważnia wynik — po zgłoszeniu', (){
       SongRaw edited = song('o!_probe', 'Nic z apki', 'zupełnie własny tekst bez wspólnych słów');
       SongRaw other = song('o!_inna', 'Inna', 'tekst innej piosenki, też własny');
       expect(prov.matchesFor(edited, workspace: [edited, other]), isEmpty);
 
+      // Zmiana w locie nie rusza listy, więc provider sam jej nie zobaczy —
+      // ma się zgłosić ten, kto edytuje. W apce robi to CurrentItemProvider
+      // (spięcie w `main.dart`), tu robimy to wprost.
       other.title = 'Nic z apki';
+      prov.workspaceChanged();
+
       expect(prov.matchesFor(edited, workspace: [edited, other]).single.source, MatchSource.workspace);
+    });
+
+    test('zmiana składu warsztatu unieważnia wynik bez zgłaszania', (){
+      SongRaw edited = song('o!_probe', 'Nic z apki', 'zupełnie własny tekst bez wspólnych słów');
+      SongRaw other = song('o!_inna', 'Nic z apki', 'tekst innej piosenki, też własny');
+      expect(prov.matchesFor(edited, workspace: [edited]), isEmpty);
+
+      // Kto leży w warsztacie, widać po samej liście — tego zgłaszać nie trzeba.
+      expect(prov.matchesFor(edited, workspace: [edited, other]).single.source, MatchSource.workspace);
+    });
+
+    test('podmiana piosenki na inną pod tym samym numerem też unieważnia', (){
+      SongRaw edited = song('o!_probe', 'Nic z apki', 'zupełnie własny tekst bez wspólnych słów');
+      SongRaw stara = song('o!_inna', 'Inna', 'tekst innej piosenki, też własny');
+      SongRaw nowa = song('o!_inna', 'Nic z apki', 'tekst innej piosenki, też własny');
+      expect(prov.matchesFor(edited, workspace: [edited, stara]), isEmpty);
+
+      expect(prov.matchesFor(edited, workspace: [edited, nowa]).single.source, MatchSource.workspace);
     });
 
   });

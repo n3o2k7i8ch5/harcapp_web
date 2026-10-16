@@ -13,19 +13,19 @@ SongRaw _song(String id, {PiosenkomatData? data}){
 
 void main(){
 
-  test('final-correction: poprawka bez śladu piosenkomatu, poznana po id', (){
+  test('final-correction: poprawka bez śladu piosenkomatu, poznana po id', () async {
     // `review --push` zdejmuje pole `piosenkomat` i ustawia id poprawianej piosenki.
     SongRaw existing = _song('o!_roadtrip@dream&pmbata');
     SongRaw imported = _song('o!_roadtrip@dream&pmbata');
 
-    List<ImportConflict> conflicts = findImportConflicts([imported], [existing]);
+    List<ImportConflict> conflicts = await findImportConflicts([imported], [existing]);
 
     expect(conflicts.length, 1);
     expect(identical(conflicts.single.imported, imported), isTrue);
     expect(conflicts.single.existing, [existing]);
   });
 
-  test('candidates-correction: poprawka o innym id, poznana po correctionTarget', (){
+  test('candidates-correction: poprawka o innym id, poznana po correctionTarget', () async {
     SongRaw existing = _song('o!_ukraina');
     SongRaw imported = _song(
         'o!_hej_sokoly',
@@ -35,30 +35,30 @@ void main(){
         ),
     );
 
-    expect(findImportConflicts([imported], [existing]).single.existing, [existing]);
+    expect((await findImportConflicts([imported], [existing])).single.existing, [existing]);
   });
 
-  test('nowa piosenka, której nie ma w warsztacie, nie robi konfliktu', (){
-    expect(findImportConflicts([_song('o!_nowa')], [_song('o!_stara')]), isEmpty);
+  test('nowa piosenka, której nie ma w warsztacie, nie robi konfliktu', () async {
+    expect(await findImportConflicts([_song('o!_nowa')], [_song('o!_stara')]), isEmpty);
   });
 
-  test('basedOnSongId to nie kolizja — przerobiona z cudzej to inna piosenka', (){
+  test('basedOnSongId to nie kolizja — przerobiona z cudzej to inna piosenka', () async {
     SongRaw original = _song('o!_barka');
     SongRaw derived = _song('o!_moja_barka')..basedOnSongId = 'o!_barka';
-    expect(findImportConflicts([derived], [original]), isEmpty);
+    expect(await findImportConflicts([derived], [original]), isEmpty);
   });
 
-  test('id powtórzone w warsztacie: kolizja wymienia obie stare', (){
+  test('id powtórzone w warsztacie: kolizja wymienia obie stare', () async {
     SongRaw a = _song('o!_x');
     SongRaw b = _song('o!_x');
-    List<ImportConflict> conflicts = findImportConflicts([_song('o!_x')], [a, b]);
+    List<ImportConflict> conflicts = await findImportConflicts([_song('o!_x')], [a, b]);
     expect(conflicts.single.existing, unorderedEquals([a, b]));
   });
 
-  test('piosenka z tej samej paczki importu nie jest własnym pierwowzorem', (){
+  test('piosenka z tej samej paczki importu nie jest własnym pierwowzorem', () async {
     SongRaw a = _song('o!_ta_sama');
     SongRaw b = _song('o!_ta_sama');
-    expect(findImportConflicts([a, b], [a, b]), isEmpty);
+    expect(await findImportConflicts([a, b], [a, b]), isEmpty);
   });
 
 }

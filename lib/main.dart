@@ -12,6 +12,7 @@ import 'package:harcapp_core/harcthought/articles/article_renderers.dart';
 import 'package:harcapp_core/harcthought/harcapp_share_button.dart';
 import 'package:harcapp_core/harcthought/konspekts/initialize.dart';
 import 'package:harcapp_core/song_book/providers.dart';
+import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_editor_app.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_web/_common_classes/firebase.dart';
@@ -106,11 +107,18 @@ class MyAppState extends State<MyApp>{
                           allSongsProv.songs
                       )),
 
-                      ChangeNotifierProvider(create: (context){
-                        SimilarSongProvider prov = SimilarSongProvider();
-                        prov.init();
-                        return prov;
-                      }),
+                      // Przez [CurrentItemProvider] idzie każda zmiana treści
+                      // piosenki w edytorze - i tylko tamtędy. Stąd to spięcie:
+                      // [SimilarSongProvider] nie musi zmian wyszukiwać,
+                      // dostaje o nich znać.
+                      ChangeNotifierProxyProvider<CurrentItemProvider, SimilarSongProvider>(
+                        create: (context){
+                          SimilarSongProvider prov = SimilarSongProvider();
+                          prov.init();
+                          return prov;
+                        },
+                        update: (context, currItemProv, prov) => prov!..workspaceChanged(),
+                      ),
 
                       ChangeNotifierProvider(create: (context){
                         bindTitleFileNameProv = BindTitleFileNameProvider();

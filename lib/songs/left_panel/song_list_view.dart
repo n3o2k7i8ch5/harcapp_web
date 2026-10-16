@@ -23,6 +23,7 @@ import 'package:provider/provider.dart';
 import 'code_editor_dialog.dart';
 import 'import_conflict_dialog.dart';
 import 'import_selection_dialog.dart';
+import 'progress_dialog.dart';
 import 'song_file_drop_target.dart';
 import 'email_song_dialog.dart';
 import '../new_song_buttons.dart';
@@ -260,18 +261,30 @@ void handleImportSongsTap(BuildContext context) async {
 
 }
 
-void importSongsFromFiles(BuildContext context, List<Uint8List> filesBytes){
+Future<void> importSongsFromFiles(BuildContext context, List<Uint8List> filesBytes) async {
 
   List<SongRaw> parsedSongs = [];
   Map<SongRaw, bool> confMap = {};
 
-  for(Uint8List bytes in filesBytes){
-    var (List<SongRaw> songs, Map<SongRaw, bool> map) = parseSongsFromBytes(context, bytes);
-    parsedSongs.addAll(songs);
-    confMap.addAll(map);
-  }
+  // Rozbiór jednego pliku to jeden `jsonDecode` - nie da się go pokroić,
+  // więc pasek leci bez końca, a kroimy po plikach.
+  await runWithProgress(
+      context,
+      text: 'Wczytywanie pliku...',
+      work: (progress) async {
+        if(filesBytes.length > 1) progress.step('Wczytywanie plików...', total: filesBytes.length);
+
+        for(Uint8List bytes in filesBytes){
+          var (List<SongRaw> songs, Map<SongRaw, bool> map) = parseSongsFromBytes(context, bytes);
+          parsedSongs.addAll(songs);
+          confMap.addAll(map);
+          await progress.advance();
+        }
+      }
+  );
 
   if(parsedSongs.isEmpty) return;
+  if(!context.mounted) return;
 
   showImportSelectionDialog(
       context,
@@ -287,10 +300,17 @@ void importSongsFromFiles(BuildContext context, List<Uint8List> filesBytes){
 
 /// Wpuszcza wybrane piosenki do warsztatu, a o każdą, która zastaje w nim
 /// piosenkę o tym samym id, najpierw pyta: zastąpić, pominąć czy zostawić obie.
-void handleSelectedSongsImport(BuildContext context, List<SongRaw> songs, Map<SongRaw, bool> confMap){
+Future<void> handleSelectedSongsImport(BuildContext context, List<SongRaw> songs, Map<SongRaw, bool> confMap) async {
 
-  List<ImportConflict> conflicts =
-      findImportConflicts(songs, AllSongsProvider.of(context).songs);
+  List<SongRaw> workspace = AllSongsProvider.of(context).songs;
+
+  List<ImportConflict> conflicts = await runWithProgress(
+      context,
+      text: 'Przegląd warsztatu...',
+      work: (progress) => findImportConflicts(songs, workspace, progress: progress)
+  );
+
+  if(!context.mounted) return;
 
   if(conflicts.isEmpty){
     addImportedSongs(context, songs, confMap);
@@ -368,11 +388,11 @@ void handleSelectedSongsImport(BuildContext context, List<SongRaw> songs, Map<So
 
 /// Dodaje do śpiewnika piosenki wybrane w oknie importu. [replaced] to te,
 /// które import zastępuje - znikają z warsztatu, a cofnięcie je przywraca.
-void addImportedSongs(
+Future<void> addImportedSongs(
     BuildContext context,
     List<SongRaw> songs,
     Map<SongRaw, bool> confMap,
-    { List<SongRaw> replaced = const [] }){
+    { List<SongRaw> replaced = const [] }) async {
 
   if(songs.isEmpty) return;
 
@@ -384,13 +404,34 @@ void addImportedSongs(
     for(SongRaw song in replaced) song: allSongsProv.isConf(song)??song.isConfid
   };
 
-  if(replaced.isNotEmpty) allSongsProv.removeAll(replaced);
+  await runWithProgress(
+      context,
+      text: songs.length == 1?
+      'Importowanie piosenki...':
+      'Importowanie ${songs.length} piosenek...',
+      work: (progress) async {
 
-  allSongsProv.addAll(songs, confMap);
-  displaySong(context, songs.first);
+        // Same listy i mapy - to jest szybkie. Obie zmiany idą pod rząd, więc
+        // lista przebuduje się raz, a cache zapisze się raz (po turze).
+        if(replaced.isNotEmpty) allSongsProv.removeAll(replaced);
+        allSongsProv.addAll(songs, confMap);
 
-  SearchListProvider.of(context).research();
-  SongFileNameDupErrProvider.of(context).checkAllDups(context);
+        if(!context.mounted) return;
+
+        displaySong(context, songs.first);
+
+        SearchListProvider.of(context).research();
+        SongFileNameDupErrProvider.of(context).checkAllDups(context);
+
+        // Zapis warsztatu (przy 600 piosenkach ~1,3 MB) jeszcze pod oknem —
+        // inaczej zaciąłby się dopiero po jego zamknięciu.
+        progress.step('Zapisywanie warsztatu...');
+        await progress.settle();
+        allSongsProv.writeCacheNow();
+      }
+  );
+
+  if(!context.mounted) return;
 
   String text =
       songs.length == 1?
@@ -414,7 +455,7 @@ void addImportedSongs(
 
 /// Cofa import - usuwa dokładnie te piosenki, które przed chwilą doszły,
 /// i oddaje te, które import podmienił.
-void undoSongImport(BuildContext context, List<SongRaw> songs, [Map<SongRaw, bool> replaced = const {}]){
+Future<void> undoSongImport(BuildContext context, List<SongRaw> songs, [Map<SongRaw, bool> replaced = const {}]) async {
 
   if(!context.mounted) return;
 
@@ -423,19 +464,32 @@ void undoSongImport(BuildContext context, List<SongRaw> songs, [Map<SongRaw, boo
   int remIndex = allSongsProv.songs.indexOf(songs.first);
   bool currentSongRemoved = songs.contains(CurrentItemProvider.of(context).song);
 
-  allSongsProv.removeAll(songs);
-  if(replaced.isNotEmpty) allSongsProv.addAll(replaced.keys.toList(), replaced);
+  // Cofnięcie przerabia dokładnie tyle samo, co import - też pod oknem.
+  await runWithProgress(
+      context,
+      text: 'Cofanie importu...',
+      work: (progress) async {
+        allSongsProv.removeAll(songs);
+        if(replaced.isNotEmpty) allSongsProv.addAll(replaced.keys.toList(), replaced);
 
-  if(currentSongRemoved){
-    if(remIndex >= allSongsProv.length) remIndex = allSongsProv.length - 1;
+        if(!context.mounted) return;
 
-    if(remIndex < 0) SongPreviewProvider.of(context).showSong = false;
-    else displaySong(context, allSongsProv.songs[remIndex]);
-  }
+        if(currentSongRemoved){
+          if(remIndex >= allSongsProv.length) remIndex = allSongsProv.length - 1;
 
-  SearchListProvider.of(context).research();
-  SongFileNameDupErrProvider.of(context).checkAllDups(context);
-  SongEditorPanelProvider.of(context).notify();
+          if(remIndex < 0) SongPreviewProvider.of(context).showSong = false;
+          else displaySong(context, allSongsProv.songs[remIndex]);
+        }
+
+        SearchListProvider.of(context).research();
+        SongFileNameDupErrProvider.of(context).checkAllDups(context);
+        SongEditorPanelProvider.of(context).notify();
+
+        progress.step('Zapisywanie warsztatu...');
+        await progress.settle();
+        allSongsProv.writeCacheNow();
+      }
+  );
 
 }
 

@@ -121,10 +121,31 @@ class AllSongsProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  /// Roboczy stan warsztatu — razem z duplikatami, żeby po odświeżeniu dalej
-  /// było je widać i dało się je naprawić.
-  void _cacheSongs() =>
+  Timer? _cacheTimer;
+
+  /// Zapis roboczego stanu warsztatu — odłożony do końca tury. Serializacja
+  /// całego śpiewnika nie jest darmowa (1,3 MB przy 600 piosenkach), a jedna
+  /// czynność potrafi ruszyć listę kilka razy (import zdejmuje podmieniane
+  /// i dokłada nowe). Po turze stan jest już ustalony i wystarczy jeden zapis.
+  void _cacheSongs(){
+    _cacheTimer?.cancel();
+    _cacheTimer = Timer(Duration.zero, writeCacheNow);
+  }
+
+  /// Zapis bez czekania na koniec tury — dla tego, kto sam wie, że właśnie
+  /// skończył (import robi to pod oknem postępu, żeby nie zacięło się już
+  /// po jego zamknięciu).
+  void writeCacheNow(){
+    _cacheTimer?.cancel();
+    _cacheTimer = null;
     ShaPref.setString(SHA_PREF_LAST_EDITED_SONGS, convertAllToCode(allowDuplicateIds: true));
+  }
+
+  @override
+  void dispose(){
+    _cacheTimer?.cancel();
+    super.dispose();
+  }
 
   static Future<List<SongRaw>> loadCachedSongs() async {
     String? code = ShaPref.getStringOrNull(SHA_PREF_LAST_EDITED_SONGS);
@@ -395,7 +416,28 @@ class SimilarSongProvider extends ChangeNotifier{
     s.tags.join('\x00'), s.chords, s.text,
   ].join('\x01');
 
-  static String _workspaceSignature(List<SongRaw> songs) => songs.map(_signature).join('\x02');
+  /// Ile razy treść którejś piosenki w warsztacie się zmieniła. Osobno od
+  /// składu warsztatu, bo zmiana w locie nie rusza listy.
+  int _editEpoch = 0;
+
+  /// Treść piosenki w warsztacie się zmieniła — wyniki policzone wcześniej
+  /// są nieaktualne.
+  ///
+  /// Edycje **zgłaszają się same**; provider ich nie wyszukuje. Kiedyś
+  /// wyszukiwał: sygnatura warsztatu sklejała tytuły, teksty i chwyty
+  /// wszystkich piosenek, a liczył ją każdy kafelek listy z osobna — przy
+  /// 600 piosenkach 197 ms na klatkę, i to zarówno przy imporcie, jak i przy
+  /// zwykłym przewijaniu. Zgłaszać ma się [CurrentItemProvider] (jedyne
+  /// miejsce, w którym piosenka zmienia się w locie) — spięte w `main.dart`.
+  void workspaceChanged() => _editEpoch++;
+
+  /// Stan warsztatu w jednym napisie: **które** piosenki w nim leżą i w jakiej
+  /// kolejności (po tożsamości obiektów — dołożenie, usunięcie i podmiana to
+  /// widzą), plus licznik zgłoszonych zmian w treści. Same teksty zostają
+  /// nietknięte, więc koszt to kilkaset operacji na liczbach zamiast megabajta
+  /// sklejanych napisów.
+  static String _workspaceVersion(List<SongRaw> songs, int editEpoch) =>
+      '${songs.length}\x02${Object.hashAll(songs.map(identityHashCode))}\x02$editEpoch';
 
   SongIndex<SongRaw> _workspaceIndex(List<SongRaw> songs, String sig){
     if(_workspace == null || sig != _workspaceSig){
@@ -450,7 +492,7 @@ class SimilarSongProvider extends ChangeNotifier{
     SongIndex<SongRaw>? app = _app;
     if(app == null) return const _SimilarCache.empty();
 
-    String workspaceSig = _workspaceSignature(workspaceSongs);
+    String workspaceSig = _workspaceVersion(workspaceSongs, _editEpoch);
     String sig = _signature(song);
     _SimilarCache? cached = _cache[song];
     if(cached != null && cached.signature == sig && cached.workspaceSignature == workspaceSig)

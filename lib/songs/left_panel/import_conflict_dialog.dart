@@ -11,6 +11,7 @@ import 'package:harcapp_core/song_book/similarity/similarity_widgets.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/consts.dart';
+import 'package:harcapp_web/songs/left_panel/progress_dialog.dart';
 import 'package:harcapp_web/songs/song_compare_preview.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
@@ -47,22 +48,45 @@ enum ImportConflictChoice{
 /// Celowo **nie** `correctionTargetOf`: ono liczy też `basedOnSongId`,
 /// a piosenka przerobiona z cudzej i importowana obok oryginału to nie
 /// kolizja — to inna piosenka, która pamięta, z czego powstała.
-List<ImportConflict> findImportConflicts(
+Future<List<ImportConflict>> findImportConflicts(
     List<SongRaw> imported,
     List<SongRaw> workspace,
-){
+    { ProgressReport? progress }
+) async {
 
-  SongIndex<SongRaw> index = SongIndex(workspace);
-  bool fromImport(SongRaw s) => imported.any((i) => identical(i, s));
+  // `inSlices`, nie konstruktor: odciski całego warsztatu liczone jednym
+  // ciągiem zamrażają stronę, a tak dochodzą między klatkami.
+  progress?.step('Przegląd warsztatu...');
+  SongIndex<SongRaw> index = await SongIndex.inSlices(workspace);
+
+  // Zbiór po tożsamości, nie przeszukiwanie listy: przy imporcie kilkuset
+  // piosenek `any` wołane dla każdego porównania robiło z tego kwadrat.
+  Set<SongRaw> importedSet = Set.identity()..addAll(imported);
+  bool fromImport(SongRaw s) => importedSet.contains(s);
+
+  // [SameId] to dokładnie „to samo, niepuste id”, a indeks umie je podać
+  // wprost. Szukanie tego przez `matches` kazałoby porównywać **treść**
+  // każdej importowanej piosenki z całym warsztatem - przy kilkuset
+  // piosenkach kilkanaście sekund na nic, bo z całego porównania liczył się
+  // tylko ten jeden dowód. `allById` tu nie wystarczy: ono dobiera też
+  // piosenki pasujące dopiero bez członu `@wykonawca`, a to nie kolizja id.
+  List<SongRaw> sameId(String id) => switch(index.lookupId(id)){
+    IdHit<SongRaw>(how: IdLookup.exact, :final songs) => songs,
+    _ => const [],
+  };
 
   List<ImportConflict> conflicts = [];
 
+  progress?.step('Szukanie kolizji...', total: imported.length);
+
   for(SongRaw song in imported){
+    if(progress != null) await progress.advance();
+
     // Set po tożsamości: `SongRaw` nie nadpisuje `==`, a ta sama piosenka
     // może wyjść i po id, i po celu poprawki.
     Set<SongRaw> existing = {
-      for(SongMatch<SongRaw> m in index.matches(SongProfile(song), exclude: fromImport))
-        if(m.similarities.any((s) => s is SameId)) m.song,
+      for(SongRaw s in sameId(song.id))
+        if(!fromImport(s)) s,
       if(song.piosenkomatData?.correctionTarget case final target?)
         for(SongRaw s in index.allById(target))
           if(!fromImport(s)) s,
