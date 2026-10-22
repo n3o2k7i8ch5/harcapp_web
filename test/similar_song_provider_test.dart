@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:harcapp_core/comm_classes/sha_pref.dart';
 import 'package:harcapp_core/song_book/piosenkomat/piosenkomat_data.dart';
 import 'package:harcapp_core/song_book/similarity/similarity.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
@@ -19,17 +20,25 @@ SongRaw song(String id, String title, String lyrics){
   return s;
 }
 
+SongIndex<SongRaw> _app() => SongIndex<SongRaw>([
+  song('o!_ognisko', 'Płonie ognisko', _ognisko),
+  song('o!_morze', 'Morze', _morze),
+  song('o!_gory', 'Góry', _gory),
+]);
+
 void main(){
 
   late SimilarSongProvider prov;
 
   setUp((){
-    prov = SimilarSongProvider.withIndex(SongIndex<SongRaw>([
-      song('o!_ognisko', 'Płonie ognisko', _ognisko),
-      song('o!_morze', 'Morze', _morze),
-      song('o!_gory', 'Góry', _gory),
-    ]));
+    // Zmiany składu warsztatu idą po turze do pamięci — tu do mapy.
+    ShaPref.setCustomMethodsWithMap({});
+    prov = SimilarSongProvider.withIndex(_app());
   });
+
+  /// Provider porównujący z warsztatem złożonym z [songs].
+  SimilarSongProvider withWorkspace(List<SongRaw> songs) =>
+      SimilarSongProvider.withIndex(_app(), workspace: AllSongsProvider(songs));
 
   group('matchesFor:', (){
 
@@ -37,7 +46,7 @@ void main(){
       SongRaw edited = song('o!_probe', 'Morze', _ognisko);
       SongRaw inWorkspace = song('o!_ognisko_kopia', 'Ognisko (kopia)', _ognisko);
 
-      List<SongMatch<SongRaw>> got = prov.matchesFor(edited, workspace: [edited, inWorkspace]);
+      List<SongMatch<SongRaw>> got = withWorkspace([edited, inWorkspace]).matchesFor(edited);
 
       // Tekst rozstrzyga, tytuł tylko opisuje: „Ognisko” z apki i jego kopia
       // z warsztatu mają ten sam tekst, więc wyprzedzają „Morze”, które ma
@@ -49,7 +58,7 @@ void main(){
 
     test('sama siebie w warsztacie nie jest trafieniem', (){
       SongRaw edited = song('o!_nowa', 'Nowa piosenka', 'Tekst bez żadnego wspólnego słowa');
-      expect(prov.matchesFor(edited, workspace: [edited]), isEmpty);
+      expect(withWorkspace([edited]).matchesFor(edited), isEmpty);
     });
 
     test('pierwowzór poprawki idzie osobno, nie na listę', (){
@@ -70,7 +79,7 @@ void main(){
       SongRaw correction = song('o!_lokalna_v2', 'Lokalna v2', _morze)
         ..piosenkomatData = const PiosenkomatData(kind: SubmissionKind.correction, correctionTarget: 'o!_lokalna');
 
-      OriginalMatch? original = prov.originalMatchOf(correction, workspace: [orig, correction]);
+      OriginalMatch? original = withWorkspace([orig, correction]).originalMatchOf(correction);
       expect(original?.match.song, same(orig));
       expect(original?.match.source, MatchSource.workspace);
     });
@@ -112,36 +121,70 @@ void main(){
       expect(prov.matchesFor(edited).map((m) => m.song.id), ['o!_gory']);
     });
 
-    test('zmiana treści w warsztacie unieważnia wynik — po zgłoszeniu', (){
+    test('edycja piosenki w warsztacie unieważnia wynik', (){
       SongRaw edited = song('o!_probe', 'Nic z apki', 'zupełnie własny tekst bez wspólnych słów');
       SongRaw other = song('o!_inna', 'Inna', 'tekst innej piosenki, też własny');
-      expect(prov.matchesFor(edited, workspace: [edited, other]), isEmpty);
+      AllSongsProvider workspace = AllSongsProvider([edited, other]);
+      SimilarSongProvider prov = SimilarSongProvider.withIndex(_app(), workspace: workspace);
+      expect(prov.matchesFor(edited), isEmpty);
 
-      // Zmiana w locie nie rusza listy, więc provider sam jej nie zobaczy —
-      // ma się zgłosić ten, kto edytuje. W apce robi to CurrentItemProvider
-      // (spięcie w `main.dart`), tu robimy to wprost.
       other.title = 'Nic z apki';
-      prov.workspaceChanged();
+      workspace.edited(other);
 
-      expect(prov.matchesFor(edited, workspace: [edited, other]).single.source, MatchSource.workspace);
+      expect(prov.matchesFor(edited).single.source, MatchSource.workspace);
     });
 
-    test('zmiana składu warsztatu unieważnia wynik bez zgłaszania', (){
+    test('dołożenie piosenki do warsztatu unieważnia wynik', (){
+      SongRaw edited = song('o!_probe', 'Nic z apki', 'zupełnie własny tekst bez wspólnych słów');
+      AllSongsProvider workspace = AllSongsProvider([edited]);
+      SimilarSongProvider prov = SimilarSongProvider.withIndex(_app(), workspace: workspace);
+      expect(prov.matchesFor(edited), isEmpty);
+
+      workspace.addOff(song('o!_inna', 'Nic z apki', 'tekst innej piosenki, też własny'));
+
+      expect(prov.matchesFor(edited).single.source, MatchSource.workspace);
+    });
+
+    test('zdjęcie piosenki z warsztatu unieważnia wynik', (){
       SongRaw edited = song('o!_probe', 'Nic z apki', 'zupełnie własny tekst bez wspólnych słów');
       SongRaw other = song('o!_inna', 'Nic z apki', 'tekst innej piosenki, też własny');
-      expect(prov.matchesFor(edited, workspace: [edited]), isEmpty);
+      AllSongsProvider workspace = AllSongsProvider([edited, other]);
+      SimilarSongProvider prov = SimilarSongProvider.withIndex(_app(), workspace: workspace);
+      expect(prov.matchesFor(edited), hasLength(1));
 
-      // Kto leży w warsztacie, widać po samej liście — tego zgłaszać nie trzeba.
-      expect(prov.matchesFor(edited, workspace: [edited, other]).single.source, MatchSource.workspace);
+      workspace.remove(other);
+
+      expect(prov.matchesFor(edited), isEmpty);
     });
 
-    test('podmiana piosenki na inną pod tym samym numerem też unieważnia', (){
-      SongRaw edited = song('o!_probe', 'Nic z apki', 'zupełnie własny tekst bez wspólnych słów');
-      SongRaw stara = song('o!_inna', 'Inna', 'tekst innej piosenki, też własny');
-      SongRaw nowa = song('o!_inna', 'Nic z apki', 'tekst innej piosenki, też własny');
-      expect(prov.matchesFor(edited, workspace: [edited, stara]), isEmpty);
+    test('po edycji jednej piosenki odciski pozostałych nie liczą się od nowa', (){
+      // Po tym poznajemy przyrostowość: indeks po zmianie trzyma te same
+      // obiekty odcisków dla piosenek, których nikt nie ruszał.
+      SongRaw a = song('o!_a', 'A', 'pierwszy własny tekst');
+      SongRaw b = song('o!_b', 'B', 'drugi własny tekst');
+      AllSongsProvider workspace = AllSongsProvider([a, b]);
+      SimilarSongProvider prov = SimilarSongProvider.withIndex(_app(), workspace: workspace);
 
-      expect(prov.matchesFor(edited, workspace: [edited, nowa]).single.source, MatchSource.workspace);
+      prov.matchesFor(a);
+      SongProfile before = prov.workspaceProfileOf(b);
+
+      a.title = 'A zmienione';
+      workspace.edited(a);
+      prov.matchesFor(a);
+
+      expect(prov.workspaceProfileOf(b), same(before));
+      expect(prov.workspaceProfileOf(a).title, 'A zmienione');
+    });
+
+    test('zmiana w warsztacie daje znać słuchającym providera podobieństw', (){
+      AllSongsProvider workspace = AllSongsProvider([]);
+      SimilarSongProvider prov = SimilarSongProvider.withIndex(_app(), workspace: workspace);
+      int notified = 0;
+      prov.addListener(() => notified++);
+
+      workspace.addOff(song('o!_a', 'A', 'tekst'));
+
+      expect(notified, 1);
     });
 
   });

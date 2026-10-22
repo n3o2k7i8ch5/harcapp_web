@@ -15,10 +15,10 @@ import 'package:flutter_material_design_icons/flutter_material_design_icons.dart
 import 'package:provider/provider.dart';
 
 /// Czy nad edytorem jest belka — do wyliczenia miejsca na nią.
-bool similarSongBannerVisible(SimilarSongProvider sim, AllSongsProvider all, CurrentItemProvider curr){
+bool similarSongBannerVisible(SimilarSongProvider sim, CurrentItemProvider curr){
   if(!sim.loaded) return false;
-  return sim.originalMatchOf(curr.song, workspace: all.songs) != null
-      || sim.matchesFor(curr.song, workspace: all.songs).isNotEmpty;
+  return sim.originalMatchOf(curr.song) != null
+      || sim.matchesFor(curr.song).isNotEmpty;
 }
 
 /// Belka nad edytorem: co jest podobne do edytowanej piosenki — w apce
@@ -31,14 +31,13 @@ class SimilarSongBanner extends StatelessWidget{
   const SimilarSongBanner({super.key});
 
   @override
-  Widget build(BuildContext context) => Consumer3<SimilarSongProvider, AllSongsProvider, CurrentItemProvider>(
-      builder: (context, simProv, allSongsProv, currItemProv, child){
+  Widget build(BuildContext context) => Consumer2<SimilarSongProvider, CurrentItemProvider>(
+      builder: (context, simProv, currItemProv, child){
         if(!simProv.loaded) return const SizedBox.shrink();
 
         final SongRaw song = currItemProv.song;
-        final List<SongRaw> workspace = allSongsProv.songs;
-        final OriginalMatch? original = simProv.originalMatchOf(song, workspace: workspace);
-        final List<SongMatch<SongRaw>> matches = simProv.matchesFor(song, workspace: workspace);
+        final OriginalMatch? original = simProv.originalMatchOf(song);
+        final List<SongMatch<SongRaw>> matches = simProv.matchesFor(song);
 
         if(original == null && matches.isEmpty) return const SizedBox.shrink();
 

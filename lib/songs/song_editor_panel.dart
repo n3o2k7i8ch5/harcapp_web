@@ -115,9 +115,9 @@ class SongEditorPanelState extends State<SongEditorPanel>{
 
       return Stack(
         children: [
-          Consumer3<SimilarSongProvider, AllSongsProvider, CurrentItemProvider>(
-            builder: (context, simProv, allSongsProv, currProv, _){
-              bool bannerVisible = similarSongBannerVisible(simProv, allSongsProv, currProv);
+          Consumer2<SimilarSongProvider, CurrentItemProvider>(
+            builder: (context, simProv, currProv, _){
+              bool bannerVisible = similarSongBannerVisible(simProv, currProv);
               return AnimatedPadding(
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeOut,
@@ -241,9 +241,9 @@ class SongEditorPanelState extends State<SongEditorPanel>{
 
             SongTagsWidget(
               linear: false,
-              onChanged: (List<String> tags){
-                currItemProv.setTags(tags, notify: false);
-              },
+              // Z powiadomieniem: przez [CurrentItemProvider] warsztat
+              // dowiaduje się o każdej zmianie w edytorze, tagów też.
+              onChanged: (List<String> tags) => currItemProv.setTags(tags),
             ),
 
             SizedBox(height: SEPARATOR_HEIGHT),

@@ -62,9 +62,9 @@ class SongTileState extends State<SongTile>{
             // Ten sam wynik, co belka nad edytorem: najsilniejsze trafienie
             // z apki i z warsztatu, kolor po poziomie. Wynik jest cache'owany
             // w providerze, więc lista nie liczy niczego dwa razy.
-            Consumer2<SimilarSongProvider, AllSongsProvider>(
-              builder: (context, simProv, allSongsProv, child){
-                MatchLevel? level = simProv.strongestLevelFor(song, workspace: allSongsProv.songs);
+            Consumer<SimilarSongProvider>(
+              builder: (context, simProv, child){
+                MatchLevel? level = simProv.strongestLevelFor(song);
                 if(level == null) return const SizedBox.shrink();
 
                 return Padding(

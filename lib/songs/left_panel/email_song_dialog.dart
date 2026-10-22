@@ -873,13 +873,13 @@ class _AlreadyExistsBanner extends StatelessWidget {
   const _AlreadyExistsBanner({required this.song});
 
   @override
-  Widget build(BuildContext context) => Consumer2<SimilarSongProvider, AllSongsProvider>(
-    builder: (context, simProv, allSongsProv, _){
+  Widget build(BuildContext context) => Consumer<SimilarSongProvider>(
+    builder: (context, simProv, _){
       if(!simProv.loaded) return const SizedBox.shrink();
 
       // Piosenka z mejla jeszcze nie jest w warsztacie, ale porównujemy ją
       // i z apką, i z warsztatem — do niego zaraz trafi.
-      List<SongMatch<SongRaw>> matches = simProv.matchesFor(song, workspace: allSongsProv.songs);
+      List<SongMatch<SongRaw>> matches = simProv.matchesFor(song);
       if(matches.isEmpty) return const SizedBox.shrink();
 
       SongMatch<SongRaw> best = matches.first;

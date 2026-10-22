@@ -65,6 +65,7 @@ class SongIdEditorDialogState extends State<SongIdEditorDialog>{
                               onAnyChanged: (texts){
 
                                 song.id = (isConfid?'oc!_':'o!_') + texts[0];
+                                AllSongsProvider.of(context).edited(song);
 
                                 prov.checkAllDups(context);
                               }

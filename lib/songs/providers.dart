@@ -5,6 +5,7 @@ import 'package:harcapp_core/comm_classes/sha_pref.dart';
 import 'package:harcapp_core/comm_classes/text_utils.dart';
 import 'package:harcapp_core/song_book/import_hrcpsng.dart';
 import 'package:harcapp_core/song_book/similarity/similarity.dart';
+import 'package:harcapp_core/song_book/song_editor/providers.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_web/common/sha_pref.dart';
 import 'package:harcapp_web/songs/utils/song_loader.dart';
@@ -47,6 +48,26 @@ class BindTitleFileNameProvider extends ChangeNotifier{
 
 }
 
+/// Wszystko, co czyta `SongProfile` — po tym poznajemy, że piosenka
+/// zmieniła się naprawdę, a nie tylko ktoś coś powiadomił.
+String songContentSignature(SongRaw s) => [
+  s.id, s.title, s.hidTitles.join('\x00'), s.authors.join('\x00'),
+  s.composers.join('\x00'), s.performers.join('\x00'),
+  s.releaseDate?.toIso8601String() ?? '', s.youtubeVideoId ?? '',
+  s.tags.join('\x00'), s.chords, s.text,
+].join('\x01');
+
+/// Warsztat — i **jedyne źródło wiadomości o tym, że coś się w nim
+/// zmieniło**. Każda zmiana składu i każda zmiana treści piosenki podbija
+/// [revision]; zmiana treści dodatkowo [revisionOf] tej jednej piosenki.
+/// Kto liczy coś z warsztatu (indeks podobnych), porównuje numery zamiast
+/// czytać teksty — i przelicza tylko piosenki, które się zmieniły.
+///
+/// Zmiany treści przychodzą dwiema drogami:
+/// * z edytora — [followEditor] patrzy na [CurrentItemProvider], przez który
+///   idzie każda edycja w edytorze;
+/// * spoza edytora (id, kod piosenki, oficjalna/niejawna) — przez [set]
+///   albo [edited].
 class AllSongsProvider extends ChangeNotifier{
 
   static AllSongsProvider of(BuildContext context) => Provider.of<AllSongsProvider>(context, listen: false);
@@ -54,31 +75,53 @@ class AllSongsProvider extends ChangeNotifier{
   List<SongRaw> _songs;
   Map<SongRaw, bool> _confMap = {};
 
+  int _revision = 0;
+  final Expando<int> _songRevisions = Expando();
+
+  /// Rośnie przy każdej zmianie warsztatu: składu albo treści którejś piosenki.
+  int get revision => _revision;
+
+  /// Rośnie przy każdej zmianie treści tej jednej piosenki.
+  int revisionOf(SongRaw song) => _songRevisions[song] ?? 0;
+
   int get length => _songs.length;
 
   List<SongRaw> get songs => _songs;
 
   AllSongsProvider(List<SongRaw> songs): _songs = songs, _confMap = {for (SongRaw song in songs) song: song.isConfid};
 
+  /// Skład się zmienił. Zapis do pamięci po turze ([_cacheSongs]).
+  void _changed(){
+    _revision++;
+    _cacheSongs();
+    notifyListeners();
+  }
+
+  /// Treść [song] zmieniła się w miejscu. Bez zapisu do pamięci — tak jak
+  /// dotąd przy pisaniu w edytorze: przy każdym znaku to byłby cały śpiewnik.
+  void edited(SongRaw song){
+    _songRevisions[song] = revisionOf(song) + 1;
+    _editorSeen[song] = songContentSignature(song);
+    _revision++;
+    notifyListeners();
+  }
+
   void clear(){
     _songs.clear();
     _confMap.clear();
-    _cacheSongs();
-    notifyListeners();
+    _changed();
   }
 
   void addOff(SongRaw song){
     _songs.add(song);
     _confMap[song] = false;
-    _cacheSongs();
-    notifyListeners();
+    _changed();
   }
 
   void addConf(SongRaw song){
     _songs.add(song);
     _confMap[song] = true;
-    _cacheSongs();
-    notifyListeners();
+    _changed();
   }
 
   void remove(SongRaw? song){
@@ -87,8 +130,7 @@ class AllSongsProvider extends ChangeNotifier{
     // zostałaby na liście (z fałszywym alarmem o powtórzonej nazwie).
     _songs.removeWhere((s) => identical(s, song));
     _confMap.remove(song);
-    _cacheSongs();
-    notifyListeners();
+    _changed();
   }
 
   void removeAll(List<SongRaw> songs){
@@ -96,15 +138,13 @@ class AllSongsProvider extends ChangeNotifier{
       _songs.removeWhere((s) => identical(s, song));
       _confMap.remove(song);
     }
-    _cacheSongs();
-    notifyListeners();
+    _changed();
   }
 
   void addAll(List<SongRaw> songs, Map<SongRaw, bool> confMap){
     _songs.addAll(songs);
     _confMap.addAll(confMap);
-    _cacheSongs();
-    notifyListeners();
+    _changed();
   }
 
   /// Ile piosenek faktycznie wchodzi do śpiewnika. Przy przeglądzie
@@ -115,10 +155,40 @@ class AllSongsProvider extends ChangeNotifier{
 
   bool? isConf(SongRaw song) => _confMap[song];
 
+  /// [song] zmieniła się w miejscu (kod piosenki, przełącznik oficjalna/
+  /// niejawna) i należy do [isConf]. Z zapisem do pamięci — to pojedyncza,
+  /// zamknięta czynność, a nie pisanie.
   void set(SongRaw song, bool isConf){
     _confMap[song] = isConf;
-    _cacheSongs();
-    notifyListeners();
+    _songRevisions[song] = revisionOf(song) + 1;
+    _editorSeen[song] = songContentSignature(song);
+    _changed();
+  }
+
+  CurrentItemProvider? _editor;
+
+  /// Ostatnio widziana treść piosenki w edytorze — po niej odróżniamy
+  /// edycję od samego powiadomienia (przełączenie piosenki, odświeżenie
+  /// widoku), które niczego nie zmienia.
+  final Expando<String> _editorSeen = Expando();
+
+  /// Edytor zmienia piosenkę w miejscu i daje znać tylko przez
+  /// [CurrentItemProvider]. Tu tłumaczymy to na [edited] — wyłącznie wtedy,
+  /// gdy treść naprawdę się zmieniła. Przełączenie na inną piosenkę to nie
+  /// edycja i niczego nie unieważnia.
+  void followEditor(CurrentItemProvider editor){
+    _editor?.removeListener(_onEditorChanged);
+    _editor = editor;
+    _editorSeen[editor.song] = songContentSignature(editor.song);
+    editor.addListener(_onEditorChanged);
+  }
+
+  void _onEditorChanged(){
+    SongRaw song = _editor!.song;
+    String signature = songContentSignature(song);
+    String? seen = _editorSeen[song];
+    _editorSeen[song] = signature;
+    if(seen != null && seen != signature) edited(song);
   }
 
   Timer? _cacheTimer;
@@ -144,6 +214,7 @@ class AllSongsProvider extends ChangeNotifier{
   @override
   void dispose(){
     _cacheTimer?.cancel();
+    _editor?.removeListener(_onEditorChanged);
     super.dispose();
   }
 
@@ -339,29 +410,46 @@ class SimilarSongProvider extends ChangeNotifier{
 
   SongIndex<SongRaw>? _app;
 
+  /// Warsztat, z którym porównujemy. O jego zmianach mówi nam on sam
+  /// ([AllSongsProvider.revision]) — nie czytamy jego tekstów, żeby je wykryć.
+  final AllSongsProvider workspace;
+
   /// Ile ciszy po ostatniej zmianie, zanim policzymy od nowa.
   final Duration settle;
 
-  SimilarSongProvider({this.settle = const Duration(milliseconds: 300)});
+  /// Zmiana warsztatu to możliwa zmiana wyników — dajemy znać dalej, więc
+  /// słuchającym wystarcza ten provider, bez osobnego słuchania warsztatu.
+  SimilarSongProvider({required this.workspace, this.settle = const Duration(milliseconds: 300)}){
+    workspace.addListener(notifyListeners);
+  }
 
   /// Do testów: gotowy indeks zamiast ładowania z assetów; domyślnie bez
   /// czekania na ciszę, żeby każda zmiana od razu dawała nowy wynik.
   @visibleForTesting
-  SimilarSongProvider.withIndex(SongIndex<SongRaw> app, {this.settle = Duration.zero}): _app = app;
+  SimilarSongProvider.withIndex(SongIndex<SongRaw> app, {AllSongsProvider? workspace, this.settle = Duration.zero}):
+        _app = app,
+        workspace = workspace ?? AllSongsProvider([]){
+    this.workspace.addListener(notifyListeners);
+  }
 
   /// Czy śpiewnik apki już jest. Przed tym nic nie porównujemy — lepiej
   /// przez chwilę nie ostrzegać, niż ostrzegać „nic nie znaleziono”.
   bool get loaded => _app != null;
 
-  SongIndex<SongRaw>? _workspace;
-  String? _workspaceSig;
+  SongIndex<SongRaw>? _workspaceIndex;
+  int? _workspaceIndexRevision;
+
+  /// Odciski piosenek z warsztatu, każdy z numerem wersji piosenki, z której
+  /// powstał. To one są prawie całym kosztem indeksu — trzymamy je między
+  /// odbudowami, więc po zmianie jednej piosenki liczy się jeden odcisk.
+  final Expando<(int, SongProfile)> _profiles = Expando();
 
   /// Po tożsamości piosenki; `Expando`, żeby usunięte z warsztatu nie
   /// wisiały w pamięci.
   final Expando<_SimilarCache> _cache = Expando();
   final Expando<_AppPart> _appCache = Expando();
 
-  /// Ostatnio widziany stan piosenki (jej sygnatura + sygnatura warsztatu)
+  /// Ostatnio widziany stan piosenki (jej sygnatura + wersja warsztatu)
   /// — po nim poznajemy, że właśnie coś się zmieniło.
   final Expando<String> _seen = Expando();
   Timer? _settleTimer;
@@ -386,6 +474,7 @@ class SimilarSongProvider extends ChangeNotifier{
   @override
   void dispose(){
     _settleTimer?.cancel();
+    workspace.removeListener(notifyListeners);
     super.dispose();
   }
 
@@ -407,44 +496,35 @@ class SimilarSongProvider extends ChangeNotifier{
   /// Piosenka z apki po `lclId` (także bez członu `@wykonawca`).
   SongRaw? byId(String id) => _app?.byId(id);
 
-  /// Wszystko, co [SongProfile] czyta — zmiana czegokolwiek z tego
-  /// unieważnia cache. Tekst i chwyty w całości: to one decydują.
-  static String _signature(SongRaw s) => [
-    s.id, s.title, s.hidTitles.join('\x00'), s.authors.join('\x00'),
-    s.composers.join('\x00'), s.performers.join('\x00'),
-    s.releaseDate?.toIso8601String() ?? '', s.youtubeVideoId ?? '',
-    s.tags.join('\x00'), s.chords, s.text,
-  ].join('\x01');
-
-  /// Ile razy treść którejś piosenki w warsztacie się zmieniła. Osobno od
-  /// składu warsztatu, bo zmiana w locie nie rusza listy.
-  int _editEpoch = 0;
-
-  /// Treść piosenki w warsztacie się zmieniła — wyniki policzone wcześniej
-  /// są nieaktualne.
+  /// Indeks warsztatu w jego obecnej wersji. Odbudowa tylko po zmianie
+  /// [AllSongsProvider.revision], a i wtedy liczą się odciski wyłącznie
+  /// tych piosenek, które się zmieniły — reszta przychodzi z [_profiles].
   ///
-  /// Edycje **zgłaszają się same**; provider ich nie wyszukuje. Kiedyś
-  /// wyszukiwał: sygnatura warsztatu sklejała tytuły, teksty i chwyty
-  /// wszystkich piosenek, a liczył ją każdy kafelek listy z osobna — przy
-  /// 600 piosenkach 197 ms na klatkę, i to zarówno przy imporcie, jak i przy
-  /// zwykłym przewijaniu. Zgłaszać ma się [CurrentItemProvider] (jedyne
-  /// miejsce, w którym piosenka zmienia się w locie) — spięte w `main.dart`.
-  void workspaceChanged() => _editEpoch++;
-
-  /// Stan warsztatu w jednym napisie: **które** piosenki w nim leżą i w jakiej
-  /// kolejności (po tożsamości obiektów — dołożenie, usunięcie i podmiana to
-  /// widzą), plus licznik zgłoszonych zmian w treści. Same teksty zostają
-  /// nietknięte, więc koszt to kilkaset operacji na liczbach zamiast megabajta
-  /// sklejanych napisów.
-  static String _workspaceVersion(List<SongRaw> songs, int editEpoch) =>
-      '${songs.length}\x02${Object.hashAll(songs.map(identityHashCode))}\x02$editEpoch';
-
-  SongIndex<SongRaw> _workspaceIndex(List<SongRaw> songs, String sig){
-    if(_workspace == null || sig != _workspaceSig){
-      _workspace = SongIndex(songs);
-      _workspaceSig = sig;
+  /// Na kopii listy: warsztat zmienia swoją w miejscu, a numery w indeksie
+  /// muszą wskazywać te piosenki, z których indeks powstał.
+  SongIndex<SongRaw> _currentWorkspaceIndex(){
+    if(_workspaceIndex == null || _workspaceIndexRevision != workspace.revision){
+      _workspaceIndex = SongIndex(List.of(workspace.songs), profileOf: _profileOf);
+      _workspaceIndexRevision = workspace.revision;
     }
-    return _workspace!;
+    return _workspaceIndex!;
+  }
+
+  /// Odcisk [song] w indeksie warsztatu w jego obecnej wersji.
+  @visibleForTesting
+  SongProfile workspaceProfileOf(SongRaw song){
+    SongIndex<SongRaw> index = _currentWorkspaceIndex();
+    return index.profiles[index.songs.indexWhere((s) => identical(s, song))];
+  }
+
+  SongProfile _profileOf(SongRaw song){
+    int revision = workspace.revisionOf(song);
+    if(_profiles[song] case (final cachedRevision, final profile) when cachedRevision == revision)
+      return profile;
+
+    SongProfile profile = SongProfile(song);
+    _profiles[song] = (revision, profile);
+    return profile;
   }
 
   /// Wszystko, co zależy tylko od [song] i śpiewnika apki: odcisk, pierwowzór
@@ -475,33 +555,32 @@ class SimilarSongProvider extends ChangeNotifier{
 
   /// Pierwowzór poprawki jako trafienie z dowodami, albo `null`, gdy [song]
   /// niczego nie poprawia albo pierwowzoru nie ma ani w apce, ani w warsztacie.
-  OriginalMatch? originalMatchOf(SongRaw song, {List<SongRaw> workspace = const []}) =>
-      _compute(song, workspace).original;
+  OriginalMatch? originalMatchOf(SongRaw song) => _compute(song).original;
 
   /// Wszystkie podobne piosenki z apki i z warsztatu, od najsilniejszej.
   /// Bez samej [song] i bez jej pierwowzoru — ten idzie osobno,
   /// przez [originalMatchOf].
-  List<SongMatch<SongRaw>> matchesFor(SongRaw song, {List<SongRaw> workspace = const []}) =>
-      _compute(song, workspace).matches;
+  List<SongMatch<SongRaw>> matchesFor(SongRaw song) => _compute(song).matches;
 
   /// Najsilniejsze trafienie — do ikonki na liście i koloru belki.
-  MatchLevel? strongestLevelFor(SongRaw song, {List<SongRaw> workspace = const []}) =>
-      matchesFor(song, workspace: workspace).firstOrNull?.level;
+  MatchLevel? strongestLevelFor(SongRaw song) => matchesFor(song).firstOrNull?.level;
 
-  _SimilarCache _compute(SongRaw song, List<SongRaw> workspaceSongs){
+  _SimilarCache _compute(SongRaw song){
     SongIndex<SongRaw>? app = _app;
     if(app == null) return const _SimilarCache.empty();
 
-    String workspaceSig = _workspaceVersion(workspaceSongs, _editEpoch);
-    String sig = _signature(song);
+    // Sygnatura tylko pytanej piosenki — ona bywa spoza warsztatu (piosenka
+    // z maila), więc jej wersji warsztat nie zna. Jedna piosenka to tanio.
+    int workspaceRevision = workspace.revision;
+    String sig = songContentSignature(song);
     _SimilarCache? cached = _cache[song];
-    if(cached != null && cached.signature == sig && cached.workspaceSignature == workspaceSig)
+    if(cached != null && cached.signature == sig && cached.workspaceRevision == workspaceRevision)
       return cached;
     // Właśnie piszesz: poprzedni wynik, przeliczenie po chwili ciszy.
-    if(cached != null && _stillChanging(song, '$sig\x03$workspaceSig'))
+    if(cached != null && _stillChanging(song, '$sig\x03$workspaceRevision'))
       return cached;
 
-    SongIndex<SongRaw> workspace = _workspaceIndex(workspaceSongs, workspaceSig);
+    SongIndex<SongRaw> workspaceIndex = _currentWorkspaceIndex();
 
     _AppPart appPart = _appPartOf(song, sig, app);
     SongProfile profile = appPart.profile;
@@ -510,7 +589,7 @@ class SimilarSongProvider extends ChangeNotifier{
     // potem w warsztacie (po „zachowaj obie” oryginał leży obok poprawki).
     OriginalMatch? originalMatch = appPart.original;
     if(originalMatch == null)
-      if(correctionTargetLookupOf(song, workspace) case final found?)
+      if(correctionTargetLookupOf(song, workspaceIndex) case final found?)
         originalMatch = OriginalMatch(
           SongMatch(
             song: found.song,
@@ -524,10 +603,10 @@ class SimilarSongProvider extends ChangeNotifier{
     bool skip(SongRaw s) => identical(s, song) || identical(s, original);
     List<SongMatch<SongRaw>> matches = [
       ...appPart.matches,
-      ...workspace.matches(profile, source: MatchSource.workspace, exclude: skip),
+      ...workspaceIndex.matches(profile, source: MatchSource.workspace, exclude: skip),
     ]..sort(compareSongMatches);
 
-    _SimilarCache result = _SimilarCache(sig, _workspaceSig, originalMatch, matches);
+    _SimilarCache result = _SimilarCache(sig, workspaceRevision, originalMatch, matches);
     _cache[song] = result;
     return result;
   }
@@ -562,11 +641,11 @@ class _AppPart{
 class _SimilarCache{
 
   final String? signature;
-  final String? workspaceSignature;
+  final int? workspaceRevision;
   final OriginalMatch? original;
   final List<SongMatch<SongRaw>> matches;
 
-  const _SimilarCache(this.signature, this.workspaceSignature, this.original, this.matches);
+  const _SimilarCache(this.signature, this.workspaceRevision, this.original, this.matches);
   const _SimilarCache.empty(): this(null, null, null, const []);
 
 }

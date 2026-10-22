@@ -99,7 +99,8 @@ class MyAppState extends State<MyApp>{
                     providers: [
 
                       ChangeNotifierProvider(create: (context){
-                        allSongsProv = AllSongsProvider(MyApp.lastLoadedSongs);
+                        allSongsProv = AllSongsProvider(MyApp.lastLoadedSongs)
+                          ..followEditor(CurrentItemProvider.of(context));
                         return allSongsProv;
                       }),
 
@@ -107,18 +108,11 @@ class MyAppState extends State<MyApp>{
                           allSongsProv.songs
                       )),
 
-                      // Przez [CurrentItemProvider] idzie każda zmiana treści
-                      // piosenki w edytorze - i tylko tamtędy. Stąd to spięcie:
-                      // [SimilarSongProvider] nie musi zmian wyszukiwać,
-                      // dostaje o nich znać.
-                      ChangeNotifierProxyProvider<CurrentItemProvider, SimilarSongProvider>(
-                        create: (context){
-                          SimilarSongProvider prov = SimilarSongProvider();
-                          prov.init();
-                          return prov;
-                        },
-                        update: (context, currItemProv, prov) => prov!..workspaceChanged(),
-                      ),
+                      ChangeNotifierProvider(create: (context){
+                        SimilarSongProvider prov = SimilarSongProvider(workspace: AllSongsProvider.of(context));
+                        prov.init();
+                        return prov;
+                      }),
 
                       ChangeNotifierProvider(create: (context){
                         bindTitleFileNameProv = BindTitleFileNameProvider();

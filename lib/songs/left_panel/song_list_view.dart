@@ -266,19 +266,14 @@ Future<void> importSongsFromFiles(BuildContext context, List<Uint8List> filesByt
   List<SongRaw> parsedSongs = [];
   Map<SongRaw, bool> confMap = {};
 
-  // Rozbiór jednego pliku to jeden `jsonDecode` - nie da się go pokroić,
-  // więc pasek leci bez końca, a kroimy po plikach.
   await runWithProgress(
       context,
-      text: 'Wczytywanie pliku...',
-      work: (progress) async {
-        if(filesBytes.length > 1) progress.step('Wczytywanie plików...', total: filesBytes.length);
-
+      text: filesBytes.length == 1? 'Wczytywanie pliku...': 'Wczytywanie plików...',
+      work: (){
         for(Uint8List bytes in filesBytes){
           var (List<SongRaw> songs, Map<SongRaw, bool> map) = parseSongsFromBytes(context, bytes);
           parsedSongs.addAll(songs);
           confMap.addAll(map);
-          await progress.advance();
         }
       }
   );
@@ -300,17 +295,10 @@ Future<void> importSongsFromFiles(BuildContext context, List<Uint8List> filesByt
 
 /// Wpuszcza wybrane piosenki do warsztatu, a o każdą, która zastaje w nim
 /// piosenkę o tym samym id, najpierw pyta: zastąpić, pominąć czy zostawić obie.
-Future<void> handleSelectedSongsImport(BuildContext context, List<SongRaw> songs, Map<SongRaw, bool> confMap) async {
+void handleSelectedSongsImport(BuildContext context, List<SongRaw> songs, Map<SongRaw, bool> confMap){
 
-  List<SongRaw> workspace = AllSongsProvider.of(context).songs;
-
-  List<ImportConflict> conflicts = await runWithProgress(
-      context,
-      text: 'Przegląd warsztatu...',
-      work: (progress) => findImportConflicts(songs, workspace, progress: progress)
-  );
-
-  if(!context.mounted) return;
+  List<ImportConflict> conflicts =
+      findImportConflicts(songs, AllSongsProvider.of(context).songs);
 
   if(conflicts.isEmpty){
     addImportedSongs(context, songs, confMap);
@@ -409,10 +397,7 @@ Future<void> addImportedSongs(
       text: songs.length == 1?
       'Importowanie piosenki...':
       'Importowanie ${songs.length} piosenek...',
-      work: (progress) async {
-
-        // Same listy i mapy - to jest szybkie. Obie zmiany idą pod rząd, więc
-        // lista przebuduje się raz, a cache zapisze się raz (po turze).
+      work: (){
         if(replaced.isNotEmpty) allSongsProv.removeAll(replaced);
         allSongsProv.addAll(songs, confMap);
 
@@ -425,8 +410,6 @@ Future<void> addImportedSongs(
 
         // Zapis warsztatu (przy 600 piosenkach ~1,3 MB) jeszcze pod oknem —
         // inaczej zaciąłby się dopiero po jego zamknięciu.
-        progress.step('Zapisywanie warsztatu...');
-        await progress.settle();
         allSongsProv.writeCacheNow();
       }
   );
@@ -468,7 +451,7 @@ Future<void> undoSongImport(BuildContext context, List<SongRaw> songs, [Map<Song
   await runWithProgress(
       context,
       text: 'Cofanie importu...',
-      work: (progress) async {
+      work: (){
         allSongsProv.removeAll(songs);
         if(replaced.isNotEmpty) allSongsProv.addAll(replaced.keys.toList(), replaced);
 
@@ -485,8 +468,6 @@ Future<void> undoSongImport(BuildContext context, List<SongRaw> songs, [Map<Song
         SongFileNameDupErrProvider.of(context).checkAllDups(context);
         SongEditorPanelProvider.of(context).notify();
 
-        progress.step('Zapisywanie warsztatu...');
-        await progress.settle();
         allSongsProv.writeCacheNow();
       }
   );
