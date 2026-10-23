@@ -138,7 +138,7 @@ void main(){
     await tester.pumpAndSettle();
     tester.takeException();
 
-    expect(find.text('w apce · poprawiana piosenka (zgadnięta, inny wykonawca)'), findsOneWidget);
+    expect(find.text('w apce · poprawiana piosenka (zgadnięta)'), findsOneWidget);
   });
 
 }

@@ -1,11 +1,14 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:harcapp_core/comm_classes/sha_pref.dart';
+import 'package:harcapp_core/song_book/import_hrcpsng.dart';
 import 'package:harcapp_core/song_book/piosenkomat/piosenkomat_data.dart';
 import 'package:harcapp_core/song_book/similarity/similarity.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/song_book/song_element.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/similar_song_viewer.dart';
+import 'package:harcapp_web/songs/utils/song_loader.dart';
 
 const _ognisko = 'Płonie ognisko i szumią knieje\nDrużynowy jest wśród nas\nOpowiada starodawne dzieje\nBohaterski wskrzesza czas';
 const _morze = 'Zupełnie inny tekst o morzu\nŻagle na wietrze i sól na wargach\nDaleko od lasu i od ogniska';
@@ -236,6 +239,30 @@ void main(){
       expect(similarSongsSummary([got.last]),
           '„Morze” w apce: ten sam tytuł, inna treść');
     });
+
+  });
+
+  group('cały śpiewnik apki:', (){
+
+    // To, co widać po zaimportowaniu `all_songs` do warsztatu: śpiewnik apki
+    // z tego samego loadera, co na stronie, a każda piosenka na liście ma
+    // na czerwono „ta sama piosenka, bez różnic” — w apce, nie w warsztacie.
+    test('zaimportowany do warsztatu: każda piosenka jest już w apce, bez różnic', () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      SongIndex<SongRaw> app = await loadAppSongIndex();
+      final (official, conf) = importHrcpsng(await rootBundle.loadString(appSongsAsset));
+      List<SongRaw> imported = [...official, ...conf];
+      SimilarSongProvider all = SimilarSongProvider.withIndex(app, workspace: AllSongsProvider(imported));
+
+      expect(app.length, imported.length);
+      List<String> notInApp = [
+        for(SongRaw song in imported)
+          if(all.matchesFor(song).firstOrNull case final best
+              when best?.source != MatchSource.app || best?.song.id != song.id || best?.level != MatchLevel.identical)
+            '${song.id}: ${best?.detail}',
+      ];
+      expect(notInApp, isEmpty);
+    }, timeout: const Timeout(Duration(minutes: 2)));
 
   });
 

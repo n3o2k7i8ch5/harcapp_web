@@ -613,8 +613,8 @@ class SimilarSongProvider extends ChangeNotifier{
 
 }
 
-/// Pierwowzór poprawki. [guessed]: id pasuje dopiero bez członu
-/// `@wykonawca` — ta sama piosenka po zmianie wykonawcy, ale to domysł.
+/// Pierwowzór poprawki. [guessed]: to domysł — piosenkomat sam zgadł, którą
+/// piosenkę autor poprawiał, albo id pasuje dopiero bez członu `@wykonawca`.
 class OriginalMatch{
 
   final SongMatch<SongRaw> match;
@@ -622,8 +622,9 @@ class OriginalMatch{
 
   const OriginalMatch(this.match, {required this.guessed});
 
-  /// Dopisek do podpisu, gdy [guessed].
-  static const String guessedText = 'zgadnięta, inny wykonawca';
+  /// Dopisek do podpisu, gdy [guessed]. Bez powodu — bywają dwa, a „inny
+  /// wykonawca” przy celu zgadniętym przez piosenkomat kłamał.
+  static const String guessedText = 'zgadnięta';
 
 }
 
