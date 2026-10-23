@@ -5,6 +5,11 @@ publish_to: none
 environment:
   sdk: ^3.8.1
 
+dependency_overrides:
+  # Jak w głównym pubspec.yaml: rss_dart (przez harcapp_core) deklaruje
+  # xml ^6.5.0, ale działa z xml 7, którego wymaga pdf >=3.13 (printing >=5.15).
+  xml: ^7.0.1
+
 dependencies:
   # Use the local checkout so this matches the main app (which also depends on
   # the local harcapp_core). The published git ref is pre icon-migration and
