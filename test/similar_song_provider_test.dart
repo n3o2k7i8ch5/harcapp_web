@@ -6,6 +6,7 @@ import 'package:harcapp_core/song_book/piosenkomat/piosenkomat_data.dart';
 import 'package:harcapp_core/song_book/similarity/similarity.dart';
 import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 import 'package:harcapp_core/song_book/song_element.dart';
+import 'package:harcapp_core/song_book/song_origin.dart';
 import 'package:harcapp_web/songs/providers.dart';
 import 'package:harcapp_web/songs/similar_song_viewer.dart';
 import 'package:harcapp_web/songs/utils/song_loader.dart';
@@ -122,6 +123,15 @@ void main(){
 
       edited.title = 'Góry';
       expect(prov.matchesFor(edited).map((m) => m.song.id), ['o!_gory']);
+    });
+
+    test('zmiana samego pochodzenia unieważnia wynik', (){
+      SongRaw edited = song('o!_morze_kopia', 'Morze', _morze);
+      expect(prov.matchesFor(edited).first.level, MatchLevel.identical);
+
+      edited.origins = const [SongOrigin(SongOriginType.film, 'Szczęki')];
+      expect(prov.matchesFor(edited).first.level, MatchLevel.sameSong,
+          reason: 'inne pochodzenie to już różnica w opisie');
     });
 
     test('edycja piosenki w warsztacie unieważnia wynik', (){

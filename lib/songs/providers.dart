@@ -51,8 +51,8 @@ class BindTitleFileNameProvider extends ChangeNotifier{
 /// Wszystko, co czyta `SongProfile` — po tym poznajemy, że piosenka
 /// zmieniła się naprawdę, a nie tylko ktoś coś powiadomił.
 String songContentSignature(SongRaw s) => [
-  s.id, s.title, s.hidTitles.join('\x00'), s.authors.join('\x00'),
-  s.composers.join('\x00'), s.performers.join('\x00'),
+  s.id, s.title, s.hidTitles.join('\x00'), s.origins.map((o) => o.text).join('\x00'),
+  s.authors.join('\x00'), s.composers.join('\x00'), s.performers.join('\x00'),
   s.releaseDate?.toIso8601String() ?? '', s.youtubeVideoId ?? '',
   s.tags.join('\x00'), s.chords, s.text,
 ].join('\x01');

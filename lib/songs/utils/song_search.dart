@@ -6,11 +6,13 @@ import 'package:harcapp_core/song_book/song_editor/song_raw.dart';
 /// "Szukaj" znaczyło wszędzie to samo.
 ///
 /// `searchableString` zbija ogonki i spacje, więc "zolw" znajdzie "Żółw".
+/// Pochodzenie też — "Kraina lodu" znajdzie "Mam tę moc".
 bool songMatchesPhrase(SongRaw song, String phrase, {bool withId = true}){
   String simplifiedPhrase = searchableString(phrase);
   if(simplifiedPhrase.isEmpty) return true;
 
   if(searchableString(song.title).contains(simplifiedPhrase)) return true;
+  if(song.origins.any((origin) => searchableString(origin.value).contains(simplifiedPhrase))) return true;
   if(withId && searchableString(song.id).contains(simplifiedPhrase)) return true;
 
   return false;

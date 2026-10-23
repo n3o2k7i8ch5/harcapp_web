@@ -11,6 +11,7 @@ import 'package:harcapp_core/song_book/song_editor/widgets/add_buttons_widget.da
 import 'package:harcapp_core/song_book/song_editor/widgets/basic_data_widget.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/refren_template.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/scroll_to_bottom.dart';
+import 'package:harcapp_core/song_book/song_editor/widgets/song_origins_widget.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/song_parts_list_widget.dart';
 import 'package:harcapp_core/song_book/song_editor/widgets/tags_widget.dart';
 import 'package:harcapp_web/songs/providers.dart';
@@ -231,6 +232,12 @@ class SongEditorPanelState extends State<SongEditorPanel>{
                 _updateBindingIfNeeded(context);
               },
               onChangedYT: (String? text) => currItemProv.notify(),
+            ),
+
+            const SizedBox(height: Dimen.defMarg),
+
+            SongOriginsWidget(
+              onChanged: (_) => currItemProv.notify(),
             ),
 
             const SizedBox(height: Dimen.defMarg),
