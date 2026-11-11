@@ -8,6 +8,7 @@ import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/common/responsive_breakpoints.dart';
 import 'package:harcapp_web/router.dart';
+import 'package:harcapp_web/song_book/_main.dart';
 import 'package:harcapp_web/theme_mode_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
@@ -92,6 +93,13 @@ class TopNavigationBarState extends State<TopNavigationBar>{
         title: 'Warsztat\npiosenki',
         contextInfo: 'Twórz i dodawaj piosenki do HarcAppki!',
         path: pathSong,
+      ),
+      _NavItemData(
+        icon: MdiIcons.bookMusic,
+        title: 'Śpiewnik',
+        contextInfo: 'Piosenki z HarcAppki, ze zmianą tonacji!',
+        path: pathSongBook,
+        isSelected: (uri) => uri.startsWith(pathSongBook),
       ),
       _NavItemData(
         icon: MdiIcons.textBoxMultiple,
@@ -381,13 +389,19 @@ class MainBottomNavBar extends StatelessWidget {
                   color: selected ? iconEnab_(context) : hintEnab_(context),
                 ),
                 SizedBox(height: 4),
-                Text(
-                  label,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyle(
-                    fontSize: Dimen.textSizeSmall,
-                    color: selected ? iconEnab_(context) : hintEnab_(context),
-                    fontWeight: selected ? weightBold : weightHalfBold,
+                // Jedna linia: na wąskim ekranie etykieta się zmniejsza,
+                // zamiast łamać w pół słowa.
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    style: AppTextStyle(
+                      fontSize: Dimen.textSizeSmall,
+                      color: selected ? iconEnab_(context) : hintEnab_(context),
+                      fontWeight: selected ? weightBold : weightHalfBold,
+                    ),
                   ),
                 ),
               ],
@@ -404,6 +418,7 @@ class MainBottomNavBar extends StatelessWidget {
         child: Row(
           children: [
             buildItem(MdiIcons.music, 'Piosenki', pathSong),
+            buildItem(MdiIcons.bookMusic, 'Śpiewnik', pathSongBook, isSelected: (uri) => uri.startsWith(pathSongBook)),
             buildItem(MdiIcons.textBoxMultiple, 'Artykuły', pathArticles),
             buildItem(MdiIcons.notebook, 'Konspekty', pathKonspektyHarcerskie, isSelected: (uri) => uri.startsWith('/konspekty')),
             buildItem(MdiIcons.school, 'Poradniki', pathPoradnik),

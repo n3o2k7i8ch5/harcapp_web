@@ -20,6 +20,7 @@ import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan.dart';
 import 'package:harcapp_core/harcthought/apel_ewan/apel_ewan_persistent_folder.dart';
 import 'package:harcapp_web/rozwazania_ewangeliczne/_main.dart';
 import 'package:harcapp_web/rozwazania_ewangeliczne/apel_ewan_viewer_page.dart';
+import 'package:harcapp_web/song_book/_main.dart';
 import 'package:harcapp_web/songs/_main.dart';
 import 'package:harcapp_web/songs/song_contribution_rules_page.dart';
 import 'package:harcapp_web/sprawnosci_page/_main.dart';
@@ -486,6 +487,20 @@ GoRouter router = GoRouter(
             GoRoute(
                 path: pathSong,
                 pageBuilder: (context, state) => NoTransitionPage(child: SongsPage())
+            ),
+            GoRoute(
+                path: pathSongBook,
+                pageBuilder: (context, state) => const NoTransitionPage(
+                  key: ValueKey('song_book'),
+                  child: SongBookPage(),
+                )
+            ),
+            GoRoute(
+                path: pathSongBookItem,
+                pageBuilder: (context, state) => NoTransitionPage(
+                  key: const ValueKey('song_book'),
+                  child: SongBookPage(songSlug: state.pathParameters['song']),
+                )
             ),
             GoRoute(
                 path: pathSongContributionRules,
