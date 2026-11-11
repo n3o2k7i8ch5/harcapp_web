@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:harcapp_core/values/dimen.dart';
 
 /// Layout constants for the app.
@@ -19,11 +20,13 @@ class AppLayout {
   static const double pageMarginNarrow = Dimen.sideMarg;
 }
 
-/// The page margin for a page [width] wide: wide on wide screens, narrower
-/// once side panels collapse, never none — the same rule on every page.
-double pageMargin(double width) => width > AppLayout.collapseWidth
-    ? AppLayout.pageMarginWide
-    : AppLayout.pageMarginNarrow;
+/// The page margin — between a page's content and the screen's edges: wide on
+/// wide screens, narrower once side panels collapse, never none. Every page
+/// takes its outer margin from here; spacing inside a page is its own.
+double pageMargin(BuildContext context) =>
+    MediaQuery.sizeOf(context).width > AppLayout.collapseWidth
+        ? AppLayout.pageMarginWide
+        : AppLayout.pageMarginNarrow;
 
 // Legacy top-level constants for backward compatibility
 const double defPageWidth = AppLayout.defPageWidth;

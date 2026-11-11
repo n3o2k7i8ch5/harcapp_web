@@ -252,12 +252,12 @@ class _ApelEwanGridState extends State<_ApelEwanGrid> {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: defPageWidth),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Dimen.sideMarg),
+          padding: EdgeInsets.symmetric(horizontal: pageMargin(context)),
           child: Column(
           children: [
 
             Padding(
-              padding: const EdgeInsets.only(top: _ApelEwanGrid.spacing),
+              padding: EdgeInsets.only(top: pageMargin(context)),
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final collapsed = constraints.maxWidth < 500;
@@ -313,9 +313,9 @@ class _ApelEwanGridState extends State<_ApelEwanGrid> {
                   Positioned.fill(
                     top: _ApelEwanGrid.spacing + Dimen.iconFootprint / 2,
                     child: GridView.builder(
-                      padding: const EdgeInsets.only(
+                      padding: EdgeInsets.only(
                         top: _ApelEwanGrid.spacing + Dimen.iconFootprint / 2,
-                        bottom: _ApelEwanGrid.spacing,
+                        bottom: pageMargin(context),
                       ),
                       physics: const BouncingScrollPhysics(),
                       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(

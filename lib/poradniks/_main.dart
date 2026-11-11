@@ -87,7 +87,7 @@ class PoradniksPageState extends State<PoradniksPage>{
       builder: (BuildContext context, BoxConstraints constraints){
 
         const double thumbWidth = 100*3;
-        final double pad = pageMargin(constraints.maxWidth);
+        final double pad = pageMargin(context);
 
         // Width of the covers' grid, so the search field lines up with it.
         final double available = (constraints.maxWidth - 2*pad).clamp(thumbWidth, defPageWidth);

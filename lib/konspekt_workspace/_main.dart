@@ -330,8 +330,8 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                                         SliverPadding(
                                           padding: EdgeInsets.only(
                                             top: Dimen.sideMarg,
-                                            left: Dimen.sideMarg,
-                                            right: Dimen.sideMarg,
+                                            left: pageMargin(context),
+                                            right: pageMargin(context),
                                           ),
                                           sliver: SliverList(
                                             delegate: SliverChildListDelegate([
@@ -456,7 +456,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
 
                                         // Kontynuacja listy z paddingiem
                                         SliverPadding(
-                                          padding: EdgeInsets.all(Dimen.sideMarg),
+                                          padding: EdgeInsets.fromLTRB(pageMargin(context), Dimen.sideMarg, pageMargin(context), pageMargin(context)),
                                           sliver: SliverList(
                                             delegate: SliverChildListDelegate([
 
@@ -625,6 +625,7 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                                       child: Padding(
                                         padding: EdgeInsets.symmetric(
                                           vertical: Dimen.sideMarg,
+                                          horizontal: pageMargin(context),
                                         ),
                                         child: _TopActions(
                                           konspektData: konspektData,

@@ -237,7 +237,7 @@ class _ApelEwanViewerPageState extends State<ApelEwanViewerPage>
                 final apel = apels[index];
                 return SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.all(Dimen.sideMarg),
+                  padding: EdgeInsets.all(pageMargin(context)),
                   child: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: defPageWidth),

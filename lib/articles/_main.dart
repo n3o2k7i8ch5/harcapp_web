@@ -325,7 +325,7 @@ class BaseState<T> extends State<BaseGrid<T>> {
     builder: (BuildContext context, BoxConstraints constraints) {
       groupItems(constraints.maxWidth);
       return ListView.builder(
-        padding: EdgeInsets.all(sideMarg),
+        padding: EdgeInsets.all(pageMargin(context)),
         itemCount: groupedItems.length,
         itemBuilder: (context, groupIndex) {
 

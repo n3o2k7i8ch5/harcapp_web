@@ -17,8 +17,6 @@ import 'package:flutter_material_design_icons/flutter_material_design_icons.dart
 
 class PoradnikPage extends StatelessWidget {
 
-  static double _margin(BuildContext context) =>
-      pageMargin(MediaQuery.sizeOf(context).width);
 
   final Poradnik poradnik;
 
@@ -53,7 +51,7 @@ class PoradnikPage extends StatelessWidget {
 
         SingleChildScrollView(
           physics: BouncingScrollPhysics(),
-          padding: EdgeInsets.all(_margin(context)),
+          padding: EdgeInsets.all(pageMargin(context)),
           child: Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: defPageWidth),
@@ -75,7 +73,7 @@ class PoradnikPage extends StatelessWidget {
                     ),
                   ),
 
-                  SizedBox(height: _margin(context)),
+                  SizedBox(height: pageMargin(context)),
 
                   Center(
                     child: Column(
@@ -98,7 +96,7 @@ class PoradnikPage extends StatelessWidget {
                     ),
                   ),
 
-                  SizedBox(height: _margin(context)),
+                  SizedBox(height: pageMargin(context)),
 
                   Text(
                     poradnik.description,

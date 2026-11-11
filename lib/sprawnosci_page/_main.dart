@@ -252,7 +252,7 @@ class _SprawnosciPageState extends State<SprawnosciPage> {
 
                   return LayoutBuilder(
                     builder: (context, constraints) {
-                      final double margin = pageMargin(constraints.maxWidth);
+                      final double margin = pageMargin(context);
                       return Align(
                         alignment: Alignment.topCenter,
                         child: Container(
@@ -272,8 +272,8 @@ class _SprawnosciPageState extends State<SprawnosciPage> {
                                 ListView.separated(
                                   padding: EdgeInsets.only(
                                     top: margin + Dimen.iconFootprint + margin,
-                                    left: Dimen.sideMarg,
-                                    right: Dimen.sideMarg,
+                                    left: margin,
+                                    right: margin,
                                   ),
                                   itemCount: groups.length,
                                   separatorBuilder: (context, index) => const SizedBox(height: Dimen.sideMarg),
@@ -312,8 +312,8 @@ class _SprawnosciPageState extends State<SprawnosciPage> {
                               // Each book has its own search.
                               Positioned(
                                 top: margin,
-                                left: Dimen.sideMarg,
-                                right: Dimen.sideMarg,
+                                left: margin,
+                                right: margin,
                                 child: SearchField(
                                   key: ValueKey(book.slug),
                                   controller: search,

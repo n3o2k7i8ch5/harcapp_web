@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:harcapp_web/consts.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/song_book/song_contribution_widget.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
@@ -15,7 +16,7 @@ class SongContributionRulesPage extends StatelessWidget {
           constraints: BoxConstraints(
             maxWidth: 900,
           ),
-          child: SongContributionWidget()
+          child: SongContributionWidget(padding: EdgeInsets.all(pageMargin(context)))
       ),
     ),
   );

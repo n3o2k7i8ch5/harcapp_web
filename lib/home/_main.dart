@@ -23,7 +23,7 @@ class HomePage extends StatelessWidget{
     body: ListView(
       children: [
 
-        SizedBox(height: Dimen.sideMarg),
+        SizedBox(height: pageMargin(context)),
 
         SizedBox(
           height: 500,
@@ -33,7 +33,7 @@ class HomePage extends StatelessWidget{
             physics: BouncingScrollPhysics(),
             child: Row(
               children: [
-                SizedBox(width: Dimen.sideMarg),
+                SizedBox(width: pageMargin(context)),
                 ScreenshotWidget('kuchnia_harcerska'),
                 SizedBox(width: Dimen.sideMarg),
                 ScreenshotWidget('las'),
@@ -49,7 +49,7 @@ class HomePage extends StatelessWidget{
                 ScreenshotWidget('symbolika'),
                 SizedBox(width: Dimen.sideMarg),
                 ScreenshotWidget('tajniki_harcow'),
-                SizedBox(width: Dimen.sideMarg),
+                SizedBox(width: pageMargin(context)),
               ],
             ),
           ),
@@ -62,7 +62,7 @@ class HomePage extends StatelessWidget{
           child: Container(
             constraints: BoxConstraints(maxWidth: defPageWidth),
             child: Padding(
-              padding: const EdgeInsets.all(Dimen.sideMarg),
+              padding: EdgeInsets.all(pageMargin(context)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [

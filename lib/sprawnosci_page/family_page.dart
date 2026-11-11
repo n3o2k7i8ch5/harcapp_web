@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:harcapp_web/consts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
@@ -62,11 +63,11 @@ class _SprawnosciFamilyPageState extends State<SprawnosciFamilyPage> {
                 final items = family.itemsByLevel;
 
                 return SingleChildScrollView(
+                  padding: EdgeInsets.all(pageMargin(context)),
                   child: SelectionArea(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: Dimen.sideMarg),
 
                         AppButton(
                           icon: Icon(MdiIcons.arrowLeft),
@@ -74,9 +75,7 @@ class _SprawnosciFamilyPageState extends State<SprawnosciFamilyPage> {
                         ),
                         const SizedBox(height: Dimen.sideMarg),
 
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: Dimen.sideMarg),
-                          child: Column(
+                        Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
 
@@ -151,8 +150,6 @@ class _SprawnosciFamilyPageState extends State<SprawnosciFamilyPage> {
 
                             ],
                           ),
-                        )
-
 
                       ],
                     ),

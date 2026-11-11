@@ -88,8 +88,8 @@ class _HarcFormyPageState extends State<HarcFormyPage> {
                     if (workspaceAlwaysVisible)
                       Padding(
                         padding: EdgeInsets.only(
-                          top: pageMargin(constraints.maxWidth),
-                          left: pageMargin(constraints.maxWidth),
+                          top: pageMargin(context),
+                          left: pageMargin(context),
                         ),
                         child: SizedBox(
                           width: drawerWidth,

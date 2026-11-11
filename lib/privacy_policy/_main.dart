@@ -21,7 +21,7 @@ class PrivacyPolicyPage extends StatelessWidget{
       child: Container(
         constraints: BoxConstraints(maxWidth: defPageWidth),
         child: Padding(
-          padding: const EdgeInsets.all(Dimen.sideMarg),
+          padding: EdgeInsets.all(pageMargin(context)),
           child: ListView(
             clipBehavior: Clip.none,
             physics: BouncingScrollPhysics(),

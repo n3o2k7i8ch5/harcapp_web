@@ -101,7 +101,7 @@ class SongsPageState extends State<SongsPage>{
       builder: (BuildContext context, BoxConstraints constraints){
 
         bool drawerAlwaysVisible = constraints.maxWidth>collapseWidth;
-        final double margin = pageMargin(constraints.maxWidth);
+        final double margin = pageMargin(context);
 
         return BaseScaffold(
           scaffoldKey: scaffoldKey,
