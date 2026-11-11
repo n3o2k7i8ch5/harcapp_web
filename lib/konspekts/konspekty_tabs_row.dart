@@ -1,81 +1,124 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
-import 'package:harcapp_core/comm_widgets/app_card.dart';
+import 'package:harcapp_core/comm_widgets/tab_bar.dart';
+import 'package:harcapp_core/folder/folder_tab.dart';
+import 'package:harcapp_core/folder/folder_tab_indicator.dart';
+import 'package:harcapp_core/harcthought/harc_forms/data.dart';
+import 'package:harcapp_core/harcthought/harcapp_links.dart';
+import 'package:harcapp_core/harcthought/konspekts/data/harcerskie/all.dart';
+import 'package:harcapp_core/harcthought/konspekts/data/ksztalcenie/all.dart';
+import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
 import 'package:harcapp_core/values/dimen.dart';
+import 'package:harcapp_web/common/page_width_bar.dart';
 import 'package:harcapp_web/router.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
+/// Tabs of the konspekty section (forms, both konspekt categories, the
+/// editor) — the same folder tabs as in the other sections (rozważania,
+/// artykuły). Each tab is its own route.
 class KonspektyTabsRow extends StatelessWidget {
   const KonspektyTabsRow({super.key});
 
-  static const double tabRadius = AppCard.bigRadius;
+  static final List<_KonspektyTab> _tabs = [
+    _KonspektyTab(
+      'Formy',
+      'Liczba form: ${allForms.length}',
+      MdiIcons.creation,
+      [pathKonspektyFormy, HarcappLinks.formaListTemplateShort],
+    ),
+    _KonspektyTab(
+      'Dla harcerzy',
+      'Liczba konspektów: ${allHarcerskieKonspekts.length}',
+      MdiIcons.tent,
+      [
+        pathKonspektyHarcerskie,
+        HarcappLinks.konspektCategoryListPath(KonspektCategory.harcerskie, short: true),
+      ],
+    ),
+    _KonspektyTab(
+      'Kształceniowe',
+      'Liczba konspektów: ${allKsztalcenieKonspekts.length}',
+      MdiIcons.schoolOutline,
+      [
+        pathKonspektyKsztalcenie,
+        HarcappLinks.konspektCategoryListPath(KonspektCategory.ksztalcenie, short: true),
+      ],
+    ),
+    _KonspektyTab(
+      'Edytor konspektu',
+      'Napisz własny konspekt',
+      MdiIcons.fileDocumentEditOutline,
+      [pathWarsztatKonspektow],
+    ),
+  ];
+
+  // Konspekty harcerskie, where /konspekty itself leads.
+  static const int _defaultIndex = 1;
+
+  static int _indexOf(String path) {
+    for (int i = 0; i < _tabs.length; i++) {
+      if (_tabs[i].matches(path)) return i;
+    }
+    return _defaultIndex;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final String uri = GoRouterState.of(context).uri.toString();
+    final int index = _indexOf(GoRouterState.of(context).uri.path);
+    final Color barColor = cardEnab_(context);
+    final Color labelColor = textEnab_(context);
 
-    Widget buildTab(String text, String path, IconData icon) {
-      final bool selected = uri.startsWith(path);
-
-      return GestureDetector(
-        onTap: () {
-          if (!selected) context.go(path);
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            color: selected ? background_(context) : backgroundIcon_(context),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(tabRadius),
-              topRight: Radius.circular(tabRadius),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(height: 8, color: barColor),
+        PageWidthBar(
+          backgroundColor: barColor,
+          child: DefaultTabController(
+            key: ValueKey(index),
+            length: _tabs.length,
+            initialIndex: index,
+            child: TabBarX(
+              isScrollable: true,
+              indicator: FolderTabIndicator(color: background_(context)),
+              indicatorSize: TabBarIndicatorSize.tab,
+              splashBorderRadius: FolderTabIndicator.defBorderRadius,
+              overlayColor:
+                  WidgetStateProperty.all(labelColor.withValues(alpha: 0.08)),
+              labelColor: labelColor,
+              unselectedLabelColor: labelColor,
+              onTap: (i) {
+                if (i != index) context.go(_tabs[i].paths.first);
+              },
+              tabs: [
+                for (final tab in _tabs)
+                  FolderTwoLineTab(
+                    leading: Icon(tab.icon, size: Dimen.iconSize, color: iconEnab_(context)),
+                    text: tab.text,
+                    subText: tab.subText,
+                  ),
+              ],
             ),
           ),
-          padding: EdgeInsets.symmetric(
-            vertical: Dimen.iconMarg,
-            horizontal: 1.5 * Dimen.sideMarg,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: Dimen.iconSize,
-                color: selected ? iconEnab_(context) : hintEnab_(context),
-              ),
-              SizedBox(width: Dimen.iconMarg),
-              Text(
-                text,
-                textAlign: TextAlign.center,
-                style: AppTextStyle(
-                  color: selected ? iconEnab_(context) : hintEnab_(context),
-                  fontWeight: selected ? weightBold : weightHalfBold,
-                ),
-              ),
-            ],
-          ),
         ),
-      );
-    }
-
-    return SingleChildScrollView(
-      key: PageStorageKey<String>('konspekty_tabs_scroll'),
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          SizedBox(width: Dimen.sideMarg),
-          buildTab('Formy', pathKonspektyFormy, MdiIcons.creation),
-          SizedBox(width: 1),
-          buildTab('Dla harcerzy', pathKonspektyHarcerskie, MdiIcons.tent),
-          SizedBox(width: 1),
-          buildTab('Kształceniowe', pathKonspektyKsztalcenie, MdiIcons.schoolOutline),
-          SizedBox(width: 1),
-          buildTab('Edytor konspektu', pathWarsztatKonspektow, MdiIcons.fileDocumentEditOutline),
-          SizedBox(width: Dimen.sideMarg),
-        ],
-      ),
+      ],
     );
   }
+}
+
+class _KonspektyTab {
+  final String text;
+  final String subText;
+  final IconData icon;
+
+  /// The tab's route first, then other paths under which it is selected
+  /// (short forms of the links).
+  final List<String> paths;
+
+  const _KonspektyTab(this.text, this.subText, this.icon, this.paths);
+
+  bool matches(String path) => paths.any((p) =>
+      path == p || path.startsWith('$p/'));
 }

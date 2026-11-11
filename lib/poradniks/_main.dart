@@ -3,7 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_classes/common.dart';
+import 'package:harcapp_core/comm_classes/text_utils.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
+import 'package:harcapp_core/comm_widgets/search_field.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_core/harcthought/poradnik/poradnik.dart';
@@ -40,6 +42,15 @@ class PoradniksPageState extends State<PoradniksPage>{
   late GlobalKey<ScaffoldState> scaffoldKey;
   late ScrollController scrollController;
   late ValueNotifier<double> notifier;
+  late List<Poradnik> filtered;
+
+  void onSearchChanged(String text) {
+    final query = searchableString(text);
+    setState(() => filtered = query.isEmpty
+        ? allPoradniks
+        : allPoradniks.where((p) => [p.title, p.description, p.coverTitle]
+            .any((t) => t != null && searchableString(t).contains(query))).toList());
+  }
 
   void selectPoradnik(Poradnik poradnik) => context.push(itemPathTemplate.replaceAll(":name", poradnik.name));
 
@@ -59,6 +70,7 @@ class PoradniksPageState extends State<PoradniksPage>{
     notifier = ValueNotifier(0);
 
     scrollController.addListener(() => notifier.value = scrollController.offset);
+    filtered = allPoradniks;
 
     post(tryOpenDrawerIfCollapsed);
 
@@ -76,9 +88,17 @@ class PoradniksPageState extends State<PoradniksPage>{
   Widget build(BuildContext context) => LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints){
 
-        List<PoradnikThumbnailWidget> poradnikWidgets = allPoradniks.map((poradnik) => PoradnikThumbnailWidget(
+        const double thumbWidth = 100*3;
+        const double pad = PoradniksPage.defPaddingVal;
+
+        // Width of the covers' grid, so the search field lines up with it.
+        final double available = (constraints.maxWidth - 2*pad).clamp(thumbWidth, defPageWidth);
+        final int columns = ((available + pad)/(thumbWidth + pad)).floor().clamp(1, 100);
+        final double gridWidth = columns*thumbWidth + (columns - 1)*pad;
+
+        List<PoradnikThumbnailWidget> poradnikWidgets = filtered.map((poradnik) => PoradnikThumbnailWidget(
           poradnik,
-          width: 100*3,
+          width: thumbWidth,
           height: 141*3,
           elevation: AppCard.bigElevation,
           onTap: () => selectPoradnik(poradnik),
@@ -87,26 +107,54 @@ class PoradniksPageState extends State<PoradniksPage>{
         return BaseScaffold(
           scaffoldKey: scaffoldKey,
           backgroundColor: background_(context),
-          body: Row(
+          body: Stack(
             children: [
 
-              Expanded(
+              Positioned.fill(
                 child: SingleChildScrollView(
                   physics: BouncingScrollPhysics(),
-                  padding: EdgeInsets.all(PoradniksPage.defPaddingVal),
+                  padding: EdgeInsets.only(
+                    left: pad,
+                    right: pad,
+                    bottom: pad,
+                    top: pad + SearchField.height + pad,
+                  ),
                   child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: defPageWidth),
-                      child: Wrap(
-                        spacing: PoradniksPage.defPaddingVal,
-                        runSpacing: PoradniksPage.defPaddingVal,
-                        alignment: WrapAlignment.start,
-                        children: poradnikWidgets,
-                      ),
+                    child: SizedBox(
+                      width: gridWidth,
+                      child: filtered.isEmpty
+                          ? Text(
+                              'Brak poradników pasujących do wyszukiwania',
+                              textAlign: TextAlign.center,
+                              style: AppTextStyle(color: hintEnab_(context)),
+                            )
+                          : Wrap(
+                              spacing: pad,
+                              runSpacing: pad,
+                              alignment: WrapAlignment.start,
+                              children: poradnikWidgets,
+                            ),
                     ),
                   ),
-                )
-              )
+                ),
+              ),
+
+              Positioned(
+                top: pad,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: SizedBox(
+                    width: gridWidth,
+                    child: SearchField(
+                      hint: 'Szukaj',
+                      margin: EdgeInsets.zero,
+                      onChanged: onSearchChanged,
+                      onTextCleared: () => onSearchChanged(''),
+                    ),
+                  ),
+                ),
+              ),
 
             ],
           ),

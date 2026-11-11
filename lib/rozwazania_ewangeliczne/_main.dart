@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/app_mdi_icons.dart';
-import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
 import 'package:harcapp_core/comm_classes/common.dart';
 import 'package:harcapp_core/comm_classes/text_utils.dart';
@@ -109,7 +108,6 @@ class _RozwazaniaEwangelicznePageState extends State<RozwazaniaEwangelicznePage>
                     colorsKey: folder.colorsKey,
                     folderName: folder.name,
                     countText: 'Liczba rozważań: ${folder.apelEwans.length}',
-                    countTextStyle: const AppTextStyle(fontWeight: weightNormal),
                   ),
               ],
             ),
