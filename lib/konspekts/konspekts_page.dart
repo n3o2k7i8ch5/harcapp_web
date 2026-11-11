@@ -24,8 +24,6 @@ import '../common/download_file.dart';
 
 class KonspektsPage extends StatefulWidget {
 
-  static const double defPaddingVal = 32.0;
-
   final String itemPathTemplate;
   final List<Konspekt> allKonspekts;
   final Konspekt? selectedKonspekt;
@@ -41,7 +39,7 @@ class KonspektsPage extends StatefulWidget {
 
 class _KonspektsPageState extends State<KonspektsPage> {
 
-  static const double collapseWidth = 920;
+  static const double collapseWidth = AppLayout.collapseWidth;
 
   String get itemPathTemplate => widget.itemPathTemplate;
   List<Konspekt> get allKonspekts => widget.allKonspekts;
@@ -142,9 +140,9 @@ class _KonspektsPageState extends State<KonspektsPage> {
 
                           if (workspaceAlwaysVisible)
                             Padding(
-                              padding: const EdgeInsets.only(
-                                top: KonspektsPage.defPaddingVal,
-                                left: KonspektsPage.defPaddingVal,
+                              padding: EdgeInsets.only(
+                                top: pageMargin(constraints.maxWidth),
+                                left: pageMargin(constraints.maxWidth),
                               ),
                               child: SizedBox(
                                 width: drawerWidth,
@@ -239,7 +237,7 @@ class _KonspektLeadingWidget extends StatelessWidget {
       final double sidePadding = narrow ? 0 : BaseKonspektWidget.horizontalPadding;
 
       return Padding(
-        padding: EdgeInsets.only(top: narrow ? 0 : KonspektsPage.defPaddingVal),
+        padding: EdgeInsets.only(top: narrow ? 0 : pageMargin(MediaQuery.sizeOf(context).width)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -282,7 +280,7 @@ class _KonspektLeadingWidget extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: KonspektsPage.defPaddingVal),
+            SizedBox(height: pageMargin(MediaQuery.sizeOf(context).width)),
 
             Padding(
               padding: EdgeInsets.symmetric(horizontal: BaseKonspektWidget.horizontalPadding),

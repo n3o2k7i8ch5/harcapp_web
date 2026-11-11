@@ -8,8 +8,18 @@ import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
+import 'package:harcapp_web/common/page_loading_widget.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:harcapp_core/comm_widgets/tab_bar.dart';
+import 'package:harcapp_core/folder/folder_tab.dart';
+import 'package:harcapp_core/folder/folder_tab_indicator.dart';
+import 'package:harcapp_web/common/page_width_bar.dart';
+import 'package:sprawnosci_data/sprawnosci_assets.dart' show SprawBookSlug;
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
+import 'package:harcapp_core/comm_classes/text_utils.dart';
+import 'package:harcapp_core/comm_widgets/search_field.dart';
+import 'package:harcapp_web/consts.dart';
 import 'repository.dart';
 
 
@@ -20,6 +30,20 @@ class _FamilyRef {
 }
 
 class _FamilyCard extends StatelessWidget {
+
+  /// Narrowest a card gets before the grid drops a column.
+  static const double minWidth = 300;
+  static const int maxColumns = 3;
+
+  /// The same in any number of columns — as tall as in three columns on a
+  /// full-width page, so a single column doesn't stretch cards into empty space.
+  static const double height = 290;
+
+  /// How many cards fit side by side in [width]: up to [maxColumns], down to
+  /// one on narrow windows.
+  static int columnsFor(double width) =>
+      ((width + Dimen.sideMarg)/(minWidth + Dimen.sideMarg)).floor().clamp(1, maxColumns);
+
   final _FamilyRef ref;
   final String bookSlug;
 
@@ -107,78 +131,82 @@ class SprawnosciPage extends StatefulWidget {
 class _SprawnosciPageState extends State<SprawnosciPage> {
   final SprawnosciRepositoryNew _repo = SprawnosciRepositoryNew();
   late String _selectedBook;
-  Future<SprawBook>? _future;
-  String _search = '';
-  Future<SprawBook>? _bookCFuture;
-  Future<SprawBook>? _bookDFuture;
-  
+  // A search per book, kept while switching between them.
+  final Map<String, TextEditingController> _searches = {};
+
+  TextEditingController _searchFor(String bookSlug) =>
+      _searches.putIfAbsent(bookSlug, () => TextEditingController());
+
+  /// By the family's name, tags and its badges' names.
+  static bool _matches(SprawFamily f, String query) =>
+      query.isEmpty ||
+      [f.name, ...f.tags, for (final it in f.items) it.name]
+          .any((t) => searchableString(t).contains(query));
+
+  @override
+  void dispose() {
+    for (final c in _searches.values) c.dispose();
+    super.dispose();
+  }
+  // All books at once, so the page shows complete — names, tabs and badges —
+  // and switching books needs no more loading.
+  late final Future<List<SprawBook>> _booksFuture;
+
   @override
   void initState() {
     super.initState();
     _selectedBook = widget.initialBookSlug ?? SprawnosciBooks.defaultBookSlug;
-    _future = _repo.loadBook(_selectedBook);
-    // Preload book names for sidebar options
-    _bookCFuture = _repo.loadBook(SprawnosciBooks.bookCHarcC);
-    _bookDFuture = _repo.loadBook(SprawnosciBooks.bookCHarcD);
+    _booksFuture = _repo.loadWebBooks();
   }
 
-  Widget _buildBookOption(String bookId, String title) => SizedBox(
-    width: double.infinity,
-    child: Material(
-      color: _selectedBook == bookId ? Colors.blue.withValues(alpha: 0.1) : Colors.transparent,
-      borderRadius: BorderRadius.circular(8),
-      child: InkWell(
-        onTap: () {
-          setState(() {
-            _selectedBook = bookId;
-          });
-          _future = _repo.loadBook(_selectedBook);
-        },
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
-          child: Text(
-            title,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: _selectedBook == bookId ? FontWeight.bold : FontWeight.normal,
-              color: _selectedBook == bookId ? Colors.blue : Colors.grey[800],
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
-
-  Widget _buildSidebar() {
-    return Container(
-      width: 320,
-      color: background_(context),
-      padding: const EdgeInsets.all(Dimen.sideMarg),
-      child: Padding(
-        padding: EdgeInsets.only(top: Dimen.sideMarg),
-        child: _buildBookSelector(),
-      )
-    );
+  @override
+  void didUpdateWidget(SprawnosciPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialBookSlug != oldWidget.initialBookSlug)
+      _selectedBook = widget.initialBookSlug ?? SprawnosciBooks.defaultBookSlug;
   }
-  
-  Widget _buildBookSelector() {
+
+  /// The book tabs — the same folder tabs as in the other sections.
+  Widget _buildBookTabs(List<SprawBook> books, int index) {
+    final Color barColor = cardEnab_(context);
+    final Color labelColor = textEnab_(context);
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        FutureBuilder<SprawBook>(
-          future: _bookCFuture,
-          builder: (context, snap) => _buildBookOption(
-            SprawnosciBooks.bookCHarcC,
-            snap.data?.name ?? SprawnosciBooks.bookCHarcC,
-          ),
-        ),
-        const SizedBox(height: 8),
-        FutureBuilder<SprawBook>(
-          future: _bookDFuture,
-          builder: (context, snap) => _buildBookOption(
-            SprawnosciBooks.bookCHarcD,
-            snap.data?.name ?? SprawnosciBooks.bookCHarcD,
+        Container(height: 8, color: barColor),
+        PageWidthBar(
+          backgroundColor: barColor,
+          child: DefaultTabController(
+            key: ValueKey(index),
+            length: books.length,
+            initialIndex: index,
+            child: TabBarX(
+              isScrollable: true,
+              indicator: FolderTabIndicator(color: background_(context)),
+              indicatorSize: TabBarIndicatorSize.tab,
+              splashBorderRadius: FolderTabIndicator.defBorderRadius,
+              overlayColor:
+                  WidgetStateProperty.all(labelColor.withValues(alpha: 0.08)),
+              labelColor: labelColor,
+              unselectedLabelColor: labelColor,
+              onTap: (i) {
+                if (i != index)
+                  context.go(HarcappLinks.sprawnosciBookPath(books[i].slug));
+              },
+              tabs: [
+                for (final book in books)
+                  FolderTwoLineTab(
+                    leading: Icon(
+                      SprawBookSlug.fromName(book.slug)?.icon ?? MdiIcons.trophyOutline,
+                      size: Dimen.iconSize,
+                      color: iconEnab_(context),
+                    ),
+                    text: book.name,
+                    subText: 'Liczba sprawności: ${book.groups.expand((g) => g.families).expand((f) => f.items).length}',
+                  ),
+              ],
+            ),
           ),
         ),
       ],
@@ -188,137 +216,126 @@ class _SprawnosciPageState extends State<SprawnosciPage> {
   @override
   Widget build(BuildContext context) => BaseScaffold(
       backgroundColor: background_(context),
-      body: Row(
+      body: FutureBuilder<List<SprawBook>>(
+        future: _booksFuture,
+        initialData: _repo.loadedWebBooks,
+        builder: (context, snap) {
+          if (snap.hasError)
+            return Center(child: SelectableText('Błąd: ${snap.error}'));
+
+          if (!snap.hasData)
+            return const PageLoadingWidget('Wczytywanie sprawności…');
+
+          final books = snap.data!;
+          int index = books.indexWhere((b) => b.slug == _selectedBook);
+          if (index < 0) index = 0;
+          final book = books[index];
+
+          return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildSidebar(),
+            _buildBookTabs(books, index),
             Expanded(
-              child: FutureBuilder<SprawBook>(
-                future: _future,
-                builder: (context, snap) {
-                  if (snap.connectionState != ConnectionState.done)
-                    return const Center(child: CircularProgressIndicator());
+              child: Builder(
+                builder: (context) {
 
-                  if (snap.hasError)
-                    return Center(child: SelectableText('Błąd: ${snap.error}'));
+                  final TextEditingController search = _searchFor(book.slug);
+                  final String query = searchableString(search.text);
+                  final groups = [
+                    for (final group in book.groups)
+                      (group, [
+                        for (final f in group.families)
+                          if (_matches(f, query))
+                            _FamilyRef(groupSlug: group.slug, family: f)
+                      ]),
+                  ].where((g) => g.$2.isNotEmpty).toList();
 
-                  final book = snap.data!;
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      final double margin = pageMargin(constraints.maxWidth);
+                      return Align(
+                        alignment: Alignment.topCenter,
+                        child: Container(
+                          constraints: const BoxConstraints(maxWidth: 1200),
+                          child: Stack(
+                            children: [
 
-                  return Align(
-                    alignment: Alignment.topCenter,
-                    child: Container(
-                      constraints: const BoxConstraints(maxWidth: 1200),
-                      child: ListView.separated(
-                        padding: const EdgeInsets.only(
-                          top: Dimen.sideMarg, // topGap + searchHeight + Dimen.sideMarg, // leave space for search and a small gap
-                          left: Dimen.sideMarg,
-                          right: Dimen.sideMarg,
-                        ),
-                        itemCount: book.groups.length + 1,
-                        separatorBuilder: (context, index) => index == 0 ? Container(): const SizedBox(height: Dimen.sideMarg),
-                        itemBuilder: (context, index) {
-                          if (index == 0) {
-                            // Header with centered book name
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4*Dimen.sideMarg),
-                              child: Center(
-                                child: SelectableText(
-                                  book.name,
-                                  textAlign: TextAlign.center,
-                                  style: AppTextStyle(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.w700,
-                                    color: hintEnab_(context),
+                              if (groups.isEmpty)
+                                Center(
+                                  child: Text(
+                                    'Brak sprawności pasujących do wyszukiwania',
+                                    textAlign: TextAlign.center,
+                                    style: AppTextStyle(color: hintEnab_(context)),
                                   ),
+                                )
+                              else
+                                ListView.separated(
+                                  padding: EdgeInsets.only(
+                                    top: margin + Dimen.iconFootprint + margin,
+                                    left: Dimen.sideMarg,
+                                    right: Dimen.sideMarg,
+                                  ),
+                                  itemCount: groups.length,
+                                  separatorBuilder: (context, index) => const SizedBox(height: Dimen.sideMarg),
+                                  itemBuilder: (context, index) {
+                                    final (group, fams) = groups[index];
+                                    return Padding(
+                                      padding: const EdgeInsets.only(bottom: Dimen.sideMarg),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const SizedBox(height: 4),
+                                          TitleShortcutRowWidget(title: group.name, textAlign: TextAlign.left),
+                                          LayoutBuilder(
+                                            builder: (context, constraints) => GridView.builder(
+                                                shrinkWrap: true,
+                                                physics: const NeverScrollableScrollPhysics(),
+                                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                                  crossAxisCount: _FamilyCard.columnsFor(constraints.maxWidth),
+                                                  crossAxisSpacing: Dimen.sideMarg,
+                                                  mainAxisSpacing: Dimen.sideMarg,
+                                                  mainAxisExtent: _FamilyCard.height,
+                                                ),
+                                                itemCount: fams.length,
+                                                itemBuilder: (context, i) => _FamilyCard(
+                                                  ref: fams[i],
+                                                  bookSlug: book.slug,
+                                                )
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+
+                              // Each book has its own search.
+                              Positioned(
+                                top: margin,
+                                left: Dimen.sideMarg,
+                                right: Dimen.sideMarg,
+                                child: SearchField(
+                                  key: ValueKey(book.slug),
+                                  controller: search,
+                                  hint: 'Szukaj',
+                                  margin: EdgeInsets.zero,
+                                  onChanged: (_) => setState(() {}),
+                                  onTextCleared: () => setState(() {}),
                                 ),
                               ),
-                            );
-                          }
-                          final group = book.groups[index - 1];
-                          // Apply search filter per group
-                          final List<_FamilyRef> famsInGroup = [
-                            for (final f in group.families)
-                              _FamilyRef(groupSlug: group.slug, family: f)
-                          ];
-                          final List<_FamilyRef> famsFiltered = _search.trim().isEmpty
-                              ? famsInGroup
-                              : famsInGroup.where((ref) {
-                            final f = ref.family;
-                            final phrase = _search.trim().toLowerCase();
-                            final inName = f.name.toLowerCase().contains(phrase);
-                            final inTags = f.tags.any((t) => t.toLowerCase().contains(phrase.replaceAll('#', '')));
-                            return inName || inTags;
-                          }).toList();
 
-                          if (famsFiltered.isEmpty) return const SizedBox.shrink();
-
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: Dimen.sideMarg),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 4),
-                                TitleShortcutRowWidget(title: group.name, textAlign: TextAlign.left),
-                                GridView.builder(
-                                    shrinkWrap: true,
-                                    physics: const NeverScrollableScrollPhysics(),
-                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      crossAxisSpacing: Dimen.sideMarg,
-                                      mainAxisSpacing: Dimen.sideMarg,
-                                      childAspectRatio: 1.2,
-                                    ),
-                                    itemCount: famsFiltered.length,
-                                    itemBuilder: (context, i) => _FamilyCard(
-                                      ref: famsFiltered[i],
-                                      bookSlug: _selectedBook,
-                                    )
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   );
-
-                  // Fixed search bar at the top with a gap
-                  // Positioned(
-                  //   top: topGap,
-                  //   left: searchHorizontalPadding,
-                  //   right: searchHorizontalPadding,
-                  //   child: Material(
-                  //     elevation: AppCard.bigElevation,
-                  //     borderRadius: BorderRadius.circular(AppCard.bigRadius - 4),
-                  //     color: cardEnab_(context),
-                  //     child: SizedBox(
-                  //       height: searchHeight,
-                  //       child: Row(
-                  //         children: [
-                  //           Padding(
-                  //             padding: const EdgeInsets.symmetric(horizontal: Dimen.sideMarg),
-                  //             child: Icon(MdiIcons.magnify, color: hintEnab_(context)),
-                  //           ),
-                  //           Expanded(
-                  //             child: TextField(
-                  //               style: AppTextStyle(color: iconEnab_(context)),
-                  //               decoration: InputDecoration(
-                  //                 hintText: 'Szukaj sprawności',
-                  //                 hintStyle: AppTextStyle(color: textDisab_(context)),
-                  //                 border: InputBorder.none,
-                  //               ),
-                  //               onChanged: (v) => setState(() => _search = v),
-                  //             ),
-                  //           ),
-                  //           const SizedBox(width: Dimen.sideMarg),
-                  //         ],
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
                 },
               ),
             ),
           ]
+          );
+        },
       )
   );
 }

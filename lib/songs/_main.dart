@@ -27,7 +27,7 @@ class SongsPage extends StatefulWidget{
 
 class SongsPageState extends State<SongsPage>{
 
-  static const double collapseWidth = 920;
+  static const double collapseWidth = AppLayout.collapseWidth;
 
   bool get openDrawerIfCollapsed => widget.openDrawerIfCollapsed;
 
@@ -101,6 +101,7 @@ class SongsPageState extends State<SongsPage>{
       builder: (BuildContext context, BoxConstraints constraints){
 
         bool drawerAlwaysVisible = constraints.maxWidth>collapseWidth;
+        final double margin = pageMargin(constraints.maxWidth);
 
         return BaseScaffold(
           scaffoldKey: scaffoldKey,
@@ -109,9 +110,12 @@ class SongsPageState extends State<SongsPage>{
           null:
           Drawer(
             backgroundColor: background_(context),
-            child: LeftPanel(
-              onItemTap: (index) => Navigator.pop(context),
-              withBackButton: true,
+            child: Padding(
+              padding: EdgeInsets.only(left: margin, right: margin, bottom: margin),
+              child: LeftPanel(
+                onItemTap: (index) => Navigator.pop(context),
+                withBackButton: true,
+              ),
             ),
             width: drawerWidth,
           ),
@@ -123,7 +127,7 @@ class SongsPageState extends State<SongsPage>{
                   SizedBox(
                       width: drawerWidth,
                       child: Padding(
-                        padding: EdgeInsets.only(left: 32, right: 32, bottom: 32),
+                        padding: EdgeInsets.only(left: margin, right: margin, bottom: margin),
                         child: LeftPanel(),
                       )
                   ),
@@ -131,8 +135,8 @@ class SongsPageState extends State<SongsPage>{
                 Expanded(
                     child: Padding(
                         padding: drawerAlwaysVisible?
-                        EdgeInsets.only(right: 32, bottom: 32):
-                        EdgeInsets.zero,
+                        EdgeInsets.only(right: margin, bottom: margin):
+                        EdgeInsets.only(left: margin, right: margin, bottom: margin),
 
                         child: SongEditorPanel(workspaceAlwaysVisible: drawerAlwaysVisible)
                     )
@@ -142,7 +146,7 @@ class SongsPageState extends State<SongsPage>{
                   SizedBox(
                     width: songPreviewWidth,
                     child: Padding(
-                        padding: EdgeInsets.only(bottom: 32, right: 32),
+                        padding: EdgeInsets.only(bottom: margin, right: margin),
                         child:
                         SongPreviewWidget()
                     ),

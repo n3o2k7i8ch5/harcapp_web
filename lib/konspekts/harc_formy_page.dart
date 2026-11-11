@@ -15,7 +15,6 @@ import 'package:harcapp_web/consts.dart';
 import 'package:harcapp_web/konspekts/konspekty_tabs_row.dart';
 import 'package:harcapp_web/konspekts/table_of_content_formy_widget.dart';
 
-const double _defPaddingVal = 32.0;
 
 class HarcFormyPage extends StatefulWidget {
 
@@ -27,7 +26,7 @@ class HarcFormyPage extends StatefulWidget {
 }
 
 class _HarcFormyPageState extends State<HarcFormyPage> {
-  static const double collapseWidth = 920;
+  static const double collapseWidth = AppLayout.collapseWidth;
 
   HarcForm? selectedForm;
   late GlobalKey<ScaffoldState> scaffoldKey;
@@ -88,9 +87,9 @@ class _HarcFormyPageState extends State<HarcFormyPage> {
                   children: [
                     if (workspaceAlwaysVisible)
                       Padding(
-                        padding: const EdgeInsets.only(
-                          top: _defPaddingVal,
-                          left: _defPaddingVal,
+                        padding: EdgeInsets.only(
+                          top: pageMargin(constraints.maxWidth),
+                          left: pageMargin(constraints.maxWidth),
                         ),
                         child: SizedBox(
                           width: drawerWidth,

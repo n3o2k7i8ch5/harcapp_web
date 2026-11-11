@@ -16,8 +16,6 @@ import 'package:flutter_material_design_icons/flutter_material_design_icons.dart
 
 class PoradniksPage extends StatefulWidget{
 
-  static const double defPaddingVal = 32.0;
-
   final String itemPathTemplate;
   final List<Poradnik> allPoradniks;
   final Widget Function(bool isDrawer, Poradnik? selectedPoradnik) tableOfContentBuilder;
@@ -32,7 +30,7 @@ class PoradniksPage extends StatefulWidget{
 
 class PoradniksPageState extends State<PoradniksPage>{
 
-  static const double collapseWidth = 920;
+  static const double collapseWidth = AppLayout.collapseWidth;
 
   String get itemPathTemplate => widget.itemPathTemplate;
   List<Poradnik> get allPoradniks => widget.allPoradniks;
@@ -89,7 +87,7 @@ class PoradniksPageState extends State<PoradniksPage>{
       builder: (BuildContext context, BoxConstraints constraints){
 
         const double thumbWidth = 100*3;
-        const double pad = PoradniksPage.defPaddingVal;
+        final double pad = pageMargin(constraints.maxWidth);
 
         // Width of the covers' grid, so the search field lines up with it.
         final double available = (constraints.maxWidth - 2*pad).clamp(thumbWidth, defPageWidth);
@@ -117,7 +115,7 @@ class PoradniksPageState extends State<PoradniksPage>{
                     left: pad,
                     right: pad,
                     bottom: pad,
-                    top: pad + SearchField.height + pad,
+                    top: pad + Dimen.iconFootprint + pad,
                   ),
                   child: Center(
                     child: SizedBox(

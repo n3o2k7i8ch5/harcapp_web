@@ -6,6 +6,7 @@ import 'package:harcapp_core/harcthought/harcapp_links.dart';
 import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
+import 'package:harcapp_web/common/page_loading_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
@@ -48,7 +49,7 @@ class _SprawnosciFamilyPageState extends State<SprawnosciFamilyPage> {
               future: _future,
               builder: (context, snap) {
                 if (snap.connectionState != ConnectionState.done)
-                  return const Center(child: CircularProgressIndicator());
+                  return const PageLoadingWidget('Wczytywanie sprawności…');
 
                 if (snap.hasError)
                   return Center(child: SelectableText('Błąd: ${snap.error}'));

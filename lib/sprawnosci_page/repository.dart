@@ -36,9 +36,33 @@ Future<Set<String>> _loadAssetManifest() async {
   }
 }
 
+/// Each book is read once per session and kept: the list, its book tabs and
+/// the family pages share one read.
 class SprawnosciRepositoryNew {
-  Future<SprawBook> loadBook(String bookSlug) async {
-    final assets = await _loadAssetManifest();
-    return SprawAssets(assets, rootBundle.loadString).loadBook(bookSlug);
-  }
+  static Future<Set<String>>? _assets;
+  static final Map<String, Future<SprawBook>> _books = {};
+  static final Map<String, SprawBook> _loaded = {};
+
+  /// The web's books if all are already read — to show them without a
+  /// loading frame when coming back to the page.
+  List<SprawBook>? get loadedWebBooks =>
+      sprawWebBookSlugs.every(_loaded.containsKey)
+          ? [for (final slug in sprawWebBookSlugs) _loaded[slug]!]
+          : null;
+
+  Future<SprawBook> loadBook(String bookSlug) =>
+      _books.putIfAbsent(bookSlug, () async {
+        try {
+          final assets = await (_assets ??= _loadAssetManifest());
+          return _loaded[bookSlug] =
+              await SprawAssets(assets, rootBundle.loadString).loadBook(bookSlug);
+        } catch (_) {
+          _books.remove(bookSlug); // Retry on the next visit.
+          rethrow;
+        }
+      });
+
+  /// All the books the web shows, in their order.
+  Future<List<SprawBook>> loadWebBooks() =>
+      Future.wait(sprawWebBookSlugs.map(loadBook));
 }
