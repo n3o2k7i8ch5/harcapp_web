@@ -1,11 +1,11 @@
 {
-    "name": "harcapp_web",
-    "short_name": "harcapp_web",
+    "name": "HarcApp",
+    "short_name": "HarcApp",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "HarcApp – aplikacja dla harcerzy: śpiewnik, sprawności, konspekty zajęć, poradnik i artykuły. Dodawaj i edytuj piosenki w śpiewniku HarcApp.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
