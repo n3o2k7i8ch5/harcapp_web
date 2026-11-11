@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/harcthought/harcapp_links.dart';
 import 'package:harcapp_core/comm_widgets/app_card.dart';
 import 'package:harcapp_core/comm_widgets/simple_button.dart';
 import 'package:harcapp_core/comm_widgets/title_show_row_widget.dart';
@@ -33,7 +34,7 @@ class _FamilyCard extends StatelessWidget {
     return SimpleButton(
       radius: AppCard.bigRadius,
       color: cardEnab_(context),
-      onTap: () => context.go('/sprawnosci/$bookSlug/${ref.groupSlug}/${f.slug}'),
+      onTap: () => context.go(HarcappLinks.sprawnosciFamilyPath(bookSlug, ref.groupSlug, f.slug)),
       child: Padding(
         padding: const EdgeInsets.all(Dimen.sideMarg),
         child: Column(

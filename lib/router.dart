@@ -41,7 +41,7 @@ String pathKonspekty = HarcappLinks.konspektRootListTemplate;
 String pathKonspektyShort = HarcappLinks.konspektRootListTemplateShort;
 String pathKonspektyFormy = HarcappLinks.formaListTemplate;
 String pathKonspektyFormyShort = HarcappLinks.formaListTemplateShort;
-String pathWarsztatKonspektow = '/konspekty/warsztat';
+String pathWarsztatKonspektow = HarcappLinks.konspektWorkspaceTemplate;
 String pathKonspektyHarcerskie = HarcappLinks.konspektCategoryListPath(KonspektCategory.harcerskie);
 String pathKonspektyHarcerskieShort = HarcappLinks.konspektCategoryListPath(KonspektCategory.harcerskie, short: true);
 String pathKonspektyHarcerskieItem = HarcappLinks.konspektCategoryItemPath(KonspektCategory.harcerskie);
@@ -64,18 +64,17 @@ String pathArticlesSource = HarcappLinks.articleSourceListTemplate;
 String pathArticlesSourceShort = HarcappLinks.articleSourceListTemplateShort;
 String pathArticlesSourceItem = HarcappLinks.articleItemTemplate;
 String pathArticlesSourceItemShort = HarcappLinks.articleItemTemplateShort;
-String pathSong = '/song';
-String pathSongContributionRules = '/song_contribution_rules';
-String pathPrivacyPolicy = '/privacy_policy';
+String pathSong = HarcappLinks.songContributionTemplate;
+String pathSongContributionRules = HarcappLinks.songContributionRulesTemplate;
+String pathPrivacyPolicy = HarcappLinks.privacyPolicyTemplate;
 String pathRozwazaniaEwangeliczne = HarcappLinks.apelEwanFolderListTemplate;
 String pathRozwazaniaEwangeliczneShort = HarcappLinks.apelEwanFolderListTemplateShort;
 String pathRozwazaniaEwangelicznegoFolder = HarcappLinks.apelEwanFolderTemplate;
 String pathRozwazaniaEwangelicznegoFolderShort = HarcappLinks.apelEwanFolderTemplateShort;
 String pathRozwazaniaEwangelicznegoApel = HarcappLinks.apelEwanItemTemplate;
 String pathRozwazaniaEwangelicznegoApelShort = HarcappLinks.apelEwanItemTemplateShort;
-String pathSprawnosci = '/sprawnosci';
-String pathSprawnosciBook = '/sprawnosci/:bookId';
-String pathSprawnosciBookFamily = '/sprawnosci/:bookId/:familyId';
+String pathSprawnosci = HarcappLinks.sprawnosciListTemplate;
+String pathSprawnosciBook = HarcappLinks.sprawnosciBookTemplate;
  String pathDownload = '/download';
 
 // Removed pathSprawnosciFamily
@@ -552,7 +551,7 @@ GoRouter router = GoRouter(
               ),
               routes: [
                 GoRoute(
-                  path: ':group/:family',
+                  path: HarcappLinks.sprawnosciFamilySubTemplate,
                   pageBuilder: (context, state) {
                     return NoTransitionPage(
                       child: SprawnosciFamilyPage(

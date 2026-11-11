@@ -151,6 +151,9 @@ void _writeArticlePage(
     pageTitle: a.title,
     pageDescription: description,
     coverUrl: coverUrl,
+    // Only title and author here, the text lives on the source's site — such
+    // thin pages are for link previews, not for search results.
+    inSitemap: false,
   );
   // Both long and short paths so legacy and new links both work.
   writePage(buildDir, 'articles/${a.sourceName}/${a.localId}', html);

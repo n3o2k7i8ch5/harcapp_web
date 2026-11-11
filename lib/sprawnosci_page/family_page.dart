@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
 import 'package:harcapp_core/comm_classes/color_pack.dart';
+import 'package:harcapp_core/harcthought/harcapp_links.dart';
 import 'package:harcapp_core/comm_widgets/app_button.dart';
 import 'package:harcapp_core/values/dimen.dart';
 import 'package:harcapp_web/common/base_scaffold.dart';
@@ -57,12 +58,7 @@ class _SprawnosciFamilyPageState extends State<SprawnosciFamilyPage> {
                 g.slug == widget.groupSlug);
                 final family = group.families.firstWhere((f) =>
                 f.slug == widget.familySlug);
-                final items = [...family.items]
-                  ..sort((a, b) {
-                    final byLevel = a.level.compareTo(b.level);
-                    if (byLevel != 0) return byLevel;
-                    return a.name.compareTo(b.name);
-                  });
+                final items = family.itemsByLevel;
 
                 return SingleChildScrollView(
                   child: SelectionArea(
@@ -73,7 +69,7 @@ class _SprawnosciFamilyPageState extends State<SprawnosciFamilyPage> {
 
                         AppButton(
                           icon: Icon(MdiIcons.arrowLeft),
-                          onTap: () => context.go('/sprawnosci/${widget.bookSlug}'),
+                          onTap: () => context.go(HarcappLinks.sprawnosciBookPath(widget.bookSlug)),
                         ),
                         const SizedBox(height: Dimen.sideMarg),
 

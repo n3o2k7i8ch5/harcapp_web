@@ -35,6 +35,18 @@
   <title>HarcApp</title>
   <link rel="manifest" href="manifest.json">
 
+  <!-- SEO: #seo-content holds the page's text as plain HTML for search engines
+       (Flutter draws everything itself, so crawlers would otherwise see no text).
+       The share_pages generator (tool/share_pages) fills it per page at deploy.
+       Visually hidden, like screen-reader-only text: users see the Flutter app. -->
+  <style>
+    #seo-content, #seo-nav {
+      position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+      overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%);
+      white-space: nowrap; border: 0;
+    }
+  </style>
+
   <!-- WebLLM: in-browser LLM inference engine (WebGPU). Used for the on-device
        content checks (language / narration). Loaded as an ES module from a CDN;
        module scripts are deferred, so we expose a readiness promise that Dart
@@ -49,6 +61,30 @@
   </script>
 </head>
 <body>
+  <!-- seo-content:start -->
+  <div id="seo-content">
+    <h1>HarcApp</h1>
+    <p>HarcApp – aplikacja dla harcerzy: śpiewnik, sprawności, konspekty zajęć, poradnik i artykuły. Dodawaj i edytuj piosenki w śpiewniku HarcApp.</p>
+  </div>
+  <!-- seo-content:end -->
+  <nav id="seo-nav" aria-label="HarcApp">
+    <!-- Kept outside seo-content so every page links to the main sections. -->
+    <a href="/sprawnosci">Sprawności</a>
+    <a href="/konspekty/harcerskie">Konspekty harcerskie</a>
+    <a href="/konspekty/ksztalcenie">Konspekty kształceniowe</a>
+    <a href="/poradnik">Poradnik</a>
+    <a href="/articles">Artykuły</a>
+    <a href="/song">Śpiewnik – dodaj piosenkę</a>
+  </nav>
+  <script>
+    // Once Flutter draws, its own semantics take over for screen readers.
+    window.addEventListener('flutter-first-frame', function () {
+      ['seo-content', 'seo-nav'].forEach(function (id) {
+        var e = document.getElementById(id);
+        if (e) e.setAttribute('aria-hidden', 'true');
+      });
+    });
+  </script>
   <!-- This script installs service_worker.js to provide PWA functionality to
        application. For more information, see:
        https://developers.google.com/web/fundamentals/primers/service-workers -->

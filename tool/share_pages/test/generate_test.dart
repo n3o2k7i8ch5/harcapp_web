@@ -1,7 +1,11 @@
 // Generates per-slug static index.html files under build/web so that crawlers
 // (Facebook/Messenger, Slack, Discord, Twitter, LinkedIn, Telegram) get proper
 // og:image / og:title / og:description for each article, konspekt and poradnik
-// instead of the generic site-level fallback.
+// instead of the generic site-level fallback. Pages also carry their text
+// (#seo-content in web/index.html) for search engines, and build/web/sitemap.xml
+// lists them all (no hand-kept sitemap). Paths come from HarcappLinks, which
+// the app's router uses too. Runs at every deploy (firebase.json predeploy), from the same
+// data the app shows, so it never needs updating by hand.
 //
 // Self-contained sub-project — does not import from the main app's lib/.
 // Network I/O goes through curl (Process.run) because Cloudflare blocks Dart's
@@ -20,13 +24,16 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:harcapp_core/harcthought/harcapp_links.dart';
 import 'package:harcapp_core/harcthought/konspekts/initialize.dart';
 import 'package:share_pages/sources/articles.dart';
 import 'package:share_pages/sources/konspekty.dart';
 import 'package:share_pages/sources/poradniki.dart';
+import 'package:share_pages/sources/sections.dart';
+import 'package:share_pages/sources/sprawnosci.dart';
 import 'package:share_pages/template.dart';
 
-const String _baseUrl = 'https://harcapp.web.app';
+const String _baseUrl = HarcappLinks.baseUrl;
 const String _fallbackArticleCoverUrl = '$_baseUrl/icons/icon-512.png';
 
 // Paths are relative to the repo root (../../ from this sub-project).
@@ -50,12 +57,16 @@ void main() {
     final template = ShareTemplate.load(_templatePath);
     await initKonspekts();
 
-    final konspektCount = generateKonspektPages(
-      baseUrl: _baseUrl, buildDir: _buildDir, template: template,
-    );
-    final poradnikCount = generatePoradnikPages(
-      baseUrl: _baseUrl, buildDir: _buildDir, template: template,
-    );
+    // The home page is web/index.html itself.
+    template.sitemapUrls.add('$_baseUrl/');
+    final sectionCount =
+        generateSectionPages(buildDir: _buildDir, template: template);
+    final konspektCount =
+        generateKonspektPages(buildDir: _buildDir, template: template);
+    final poradnikCount =
+        generatePoradnikPages(buildDir: _buildDir, template: template);
+    final sprawnosciCount =
+        await generateSprawnosciPages(buildDir: _buildDir, template: template);
     final articleCount = await generateArticlePages(
       baseUrl: _baseUrl,
       buildDir: _buildDir,
@@ -64,9 +75,15 @@ void main() {
       cachePath: _articleCachePath,
     );
 
-    stdout.writeln('Generated $konspektCount konspekt pages, '
+    final sitemapCount =
+        writeSitemap(_buildDir, template.sitemapUrls);
+
+    stdout.writeln('Generated $sectionCount section pages, '
+        '$konspektCount konspekt pages, '
         '$poradnikCount poradnik pages, '
-        '$articleCount article pages.');
+        '$sprawnosciCount sprawności pages, '
+        '$articleCount article pages; '
+        'sitemap: $sitemapCount URLs.');
 
     expect(konspektCount + poradnikCount + articleCount, greaterThan(0),
         reason: 'No share pages generated — check cover paths and network.');
