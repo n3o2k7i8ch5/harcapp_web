@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:harcapp_web/konspekt_workspace/models/konspekt_author_data.dart';
 import 'package:harcapp_web/konspekt_workspace/models/platform_file_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -70,7 +72,7 @@ KonspektData _buildBaseKonspekt({
     metos: Meto.values.isNotEmpty ? [Meto.values.first] : [],
     coverAuthorController: TextEditingController(text: 'Autor'),
     coverImageBytes: Uint8List.fromList([1, 2, 3, 4]),
-    author: null,
+    authorsData: [],
     customDuration: const Duration(minutes: 30),
     aimControllers: [
       TextEditingController(text: 'Cel główny'),
@@ -253,13 +255,12 @@ void _expectKonspektDataEqual(KonspektData restored, KonspektData original, {Str
   expect(restored.descriptionController.text, original.descriptionController.text, reason: reason);
   expect(restored.howToFail, original.howToFail, reason: reason);
   
-  // Author
-  if (original.author == null) {
-    expect(restored.author, isNull, reason: reason);
-  } else {
-    expect(restored.author, isNotNull, reason: reason);
-    expect(restored.author!.toApiJsonMap(), original.author!.toApiJsonMap(), reason: reason);
-  }
+  // Authors
+  expect(
+    restored.authors.map((a) => a.toJsonMap()).toList(),
+    original.authors.map((a) => a.toJsonMap()).toList(),
+    reason: reason,
+  );
   
   // Steps
   expect(restored.stepsData.length, original.stepsData.length, reason: reason);
@@ -423,8 +424,7 @@ void main() {
           : Meto.values.toList(),
       coverAuthorController: TextEditingController(text: 'phm. Jan Harcerz'),
       coverImageBytes: Uint8List.fromList(List<int>.generate(16, (i) => i)),
-      // author może być null – unikamy zależności od konkretnego API konstruktora Person.
-      author: author,
+      authorsData: [KonspektAuthorData.from(author)],
       customDuration: const Duration(minutes: 90),
       aimControllers: [
         TextEditingController(text: 'Rozwijanie współpracy w grupie'),
@@ -456,8 +456,8 @@ void main() {
     expect(restored.type, original.type);
     expect(restored.metos, original.metos);
     expect(restored.coverAuthorController.text, original.coverAuthorController.text);
-    expect(restored.author, isNotNull);
-    expect(restored.author!.toApiJsonMap(), original.author!.toApiJsonMap());
+    expect(restored.authors.length, 1);
+    expect(restored.authors.single.ref.toApiJsonMap(), author.toApiJsonMap());
     expect(restored.coverImageBytes, original.coverImageBytes);
     expect(restored.customDuration, original.customDuration);
     expect(restored.aims, original.aims);
@@ -691,7 +691,7 @@ void main() {
     final KonspektData original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
     
     // Set author with all possible fields
-    original.author = ContributorRef(
+    original.authorsData.add(KonspektAuthorData.from(ContributorRef(
       person: Person(
         name: 'pwd. Anna Kowalska',
         rankHarc: RankHarc.zhpWywiadowca,
@@ -701,51 +701,81 @@ void main() {
         comment: 'Specjalizacja: gry terenowe',
       ),
       emailRef: 'anna.kowalska@example.com',
-    );
+    )));
 
     final KonspektData restored = _roundtrip(original);
+    final ContributorRef? author = restored.authors.singleOrNull?.ref;
 
-    expect(restored.author, isNotNull);
-    expect(restored.author!.person, isNotNull);
-    expect(restored.author!.person!.name, 'pwd. Anna Kowalska');
-    expect(restored.author!.person!.rankHarc, RankHarc.zhpWywiadowca);
-    expect(restored.author!.person!.rankInstr, RankInstr.pwd);
-    expect(restored.author!.person!.druzyna, '123 WDH "Leśne Tropiciele"');
-    expect(restored.author!.person!.srodowisko?.custom, 'Hufiec Warszawa-Śródmieście');
-    expect(restored.author!.person!.org, Org.zhp);
-    expect(restored.author!.person!.comment, 'Specjalizacja: gry terenowe');
-    expect(restored.author!.emailRef, 'anna.kowalska@example.com');
+    expect(author, isNotNull);
+    expect(author!.person, isNotNull);
+    expect(author.person!.name, 'pwd. Anna Kowalska');
+    expect(author.person!.rankHarc, RankHarc.zhpWywiadowca);
+    expect(author.person!.rankInstr, RankInstr.pwd);
+    expect(author.person!.druzyna, '123 WDH "Leśne Tropiciele"');
+    expect(author.person!.srodowisko?.custom, 'Hufiec Warszawa-Śródmieście');
+    expect(author.person!.org, Org.zhp);
+    expect(author.person!.comment, 'Specjalizacja: gry terenowe');
+    expect(author.emailRef, 'anna.kowalska@example.com');
   });
 
   test('KonspektData author field roundtrip with minimal Person', () {
     final KonspektData original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
     
     // Set author with only required name field
-    original.author = const ContributorRef(person: Person(name: 'Jan Nowak'));
+    original.authorsData.add(KonspektAuthorData.from(const ContributorRef(person: Person(name: 'Jan Nowak'))));
 
     final KonspektData restored = _roundtrip(original);
+    final ContributorRef? author = restored.authors.singleOrNull?.ref;
 
-    expect(restored.author, isNotNull);
-    expect(restored.author!.person, isNotNull);
-    expect(restored.author!.person!.name, 'Jan Nowak');
-    expect(restored.author!.person!.rankHarc, isNull);
-    expect(restored.author!.person!.rankInstr, isNull);
-    expect(restored.author!.person!.druzyna, isNull);
-    expect(restored.author!.person!.srodowisko, isNull);
-    expect(restored.author!.person!.org, isNull);
-    expect(restored.author!.person!.comment, isNull);
-    expect(restored.author!.emailRef, isNull);
+    expect(author, isNotNull);
+    expect(author!.person, isNotNull);
+    expect(author.person!.name, 'Jan Nowak');
+    expect(author.person!.rankHarc, isNull);
+    expect(author.person!.rankInstr, isNull);
+    expect(author.person!.druzyna, isNull);
+    expect(author.person!.srodowisko, isNull);
+    expect(author.person!.org, isNull);
+    expect(author.person!.comment, isNull);
+    expect(author.emailRef, isNull);
   });
 
-  test('KonspektData author field roundtrip with null author', () {
+  test('KonspektData authors roundtrip with no authors', () {
     final KonspektData original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
-    
-    // Explicitly set author to null
-    original.author = null;
-    
+
     final KonspektData restored = _roundtrip(original);
-    
-    expect(restored.author, isNull);
+
+    expect(restored.authors, isEmpty);
+  });
+
+  test('KonspektData authors roundtrip keeps order and notes', () {
+    final KonspektData original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+    original.authorsData.addAll([
+      KonspektAuthorData.from(const ContributorRef(person: Person(name: 'Jan Nowak'))),
+      KonspektAuthorData(
+        ref: const ContributorRef(person: Person(name: 'Anna Kowalska')),
+        noteController: TextEditingController(text: '  konsultacja merytoryczna  '),
+      ),
+    ]);
+
+    final KonspektData restored = _roundtrip(original);
+
+    expect(restored.authors.map((a) => a.ref.person?.name), ['Jan Nowak', 'Anna Kowalska']);
+    expect(restored.authors.map((a) => a.note), [null, 'konsultacja merytoryczna']);
+  });
+
+  test('Konspekt.fromJsonMap reads legacy single `author` field', () {
+    final KonspektData original = _buildBaseKonspekt(spheres: _buildSphereVariants()['no_spheres']!);
+    // Przez JSON, jak przy odczycie pliku .hrcpknspkt.
+    final Map legacy = original.toJsonMap()
+      ..remove('authors')
+      ..['author'] = const ContributorRef(person: Person(name: 'Jan Nowak')).toApiJsonMap();
+    final Map json = jsonDecode(jsonEncode(legacy)) as Map;
+
+    final Konspekt konspekt = Konspekt.fromJsonMap(json);
+
+    expect(konspekt.authors.length, 1);
+    expect(konspekt.authors.single.ref.person?.name, 'Jan Nowak');
+    expect(konspekt.authors.single.note, isNull);
   });
 
   test('KonspektData category field roundtrip', () {

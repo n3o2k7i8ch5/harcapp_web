@@ -4,7 +4,7 @@ import 'package:harcapp_core/comm_classes/meto.dart';
 import 'package:harcapp_core/comm_classes/text_utils.dart';
 import 'package:harcapp_core/harcthought/konspekts/hrcpknspkt_data.dart';
 import 'package:harcapp_core/harcthought/konspekts/konspekt.dart';
-import 'package:harcapp_core/values/people/contributor_ref.dart';
+import 'package:harcapp_web/konspekt_workspace/models/konspekt_author_data.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_step_data.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_material_data.dart';
 
@@ -46,7 +46,7 @@ class KonspektData extends BaseKonspekt {
   final List<Meto> metos;
   final TextEditingController coverAuthorController;
   Uint8List? coverImageBytes;
-  ContributorRef? author;
+  final List<KonspektAuthorData> authorsData;
   Duration? customDuration;
   final List<TextEditingController> aimControllers;
   final List<KonspektAttachmentData> attachments;
@@ -64,6 +64,7 @@ class KonspektData extends BaseKonspekt {
   String get title => titleController.text;
   List<String> get additionalSearchPhrases => additionalSearchPhraseControllers.map((e) => e.text).toList();
   String get coverAuthor => coverAuthorController.text;
+  List<KonspektAuthor> get authors => authorsData.where((a) => a.ref.isNotEmpty).map((a) => a.toKonspektAuthor()).toList();
   List<String> get aims => aimControllers.map((e) => e.text).toList();
   String get summary => summaryController.text;
   String get intro => introController.text;
@@ -81,7 +82,7 @@ class KonspektData extends BaseKonspekt {
     required this.metos,
     required this.coverAuthorController,
     required this.coverImageBytes,
-    required this.author,
+    required this.authorsData,
     required this.customDuration,
     required this.aimControllers,
     required this.materials,
@@ -102,7 +103,7 @@ class KonspektData extends BaseKonspekt {
     metos: [],
     coverAuthorController: TextEditingController(),
     coverImageBytes: null,
-    author: null,
+    authorsData: [],
     customDuration: null,
     aimControllers: [],
     materials: [],
@@ -162,7 +163,7 @@ class KonspektData extends BaseKonspekt {
       metos: k.metos,
       coverAuthorController: TextEditingController(text: k.coverAuthor),
       coverImageBytes: data.coverImage,
-      author: k.author,
+      authorsData: k.authors.map((a) => KonspektAuthorData.fromKonspektAuthor(a)).toList(),
       customDuration: k.customDuration,
       aimControllers: k.aims
           .map((aim) => TextEditingController(text: aim)).toList(),

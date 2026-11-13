@@ -8,7 +8,6 @@ import 'package:web/web.dart' as web;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:harcapp_core/comm_widgets/blur.dart';
-import 'package:harcapp_core/comm_widgets/contributor_ref_field.dart';
 import 'package:harcapp_core/comm_widgets/empty_message_widget.dart';
 import 'package:harcapp_web/idb.dart';
 import 'package:harcapp_core/comm_classes/app_text_style.dart';
@@ -35,6 +34,7 @@ import 'package:harcapp_web/konspekt_workspace/providers.dart';
 import 'package:harcapp_web/konspekts/konspekty_tabs_row.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_data.dart';
 import 'package:harcapp_web/konspekt_workspace/models/konspekt_material_data.dart';
+import 'package:harcapp_web/konspekt_workspace/widgets/authors_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/materials_widget.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/select_time_button.dart';
 import 'package:harcapp_web/konspekt_workspace/widgets/spheres_widget.dart';
@@ -366,23 +366,14 @@ class KonspektWorkspacePageState extends State<KonspektWorkspacePage>{
                                               const SizedBox(height: Dimen.defMarg),
 
                                               TitleShortcutRowWidget(
-                                                title: 'Autor konspektu',
+                                                title: 'Autorzy konspektu',
                                                 textAlign: TextAlign.left,
                                               ),
 
-                                              ContributorRefField(
-                                                identity: konspektData.author,
-                                                emptyLabel: 'Dodaj autora konspektu',
-                                                dialogTitle: 'Autor konspektu',
-                                                onChanged: (author){
-                                                  if(author == null || author.isEmpty)
-                                                    setState(() => konspektData.author = null);
-                                                  else
-                                                    _setStateAndSave(() => konspektData.author = author);
-
-                                                  _markUnsaved();
-
-                                                },
+                                              AuthorsWidget(
+                                                authors: konspektData.authorsData,
+                                                onChanged: () => _setStateAndSave((){}),
+                                                onNoteChanged: _markUnsaved,
                                               ),
 
                                               const SizedBox(height: Dimen.sideMarg),
